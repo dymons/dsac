@@ -20,4 +20,5 @@ before_script:
 
 script:
   - cmake .. && cmake --build .
-  - cd algorithms_test/ && ./algorithm_sort_unit_tests
+  - cd algorithms_test/
+  - ./algorithm_sort_unit_tests
