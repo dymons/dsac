@@ -1,20 +1,36 @@
 #include "algorithms/AlgorithmsSort.hpp"
 
+#include <iostream>
+#include <random>
 #include <vector>
 
 #include <gtest/gtest.h>
 
 class AlgorithmsSortTests : public ::testing::Test { };
 
-TEST_F(AlgorithmsSortTests, insertion_sort)
+TEST_F(AlgorithmsSortTests, insertion_sort_full)
 {
-  std::vector<int> example_vec { };
+  // Full reverse sequence
+  std::vector<int> full_reverse_sequence { };
 
-  for(int i = 1000; i > 0; --i) {
-    example_vec.push_back(i);
+  for(int i = 10000; i > 0; --i) {
+    full_reverse_sequence.push_back(i);
   }
 
-  algorithms::insertion_sort(example_vec.begin(), example_vec.end());
+  algorithms::insertion_sort(full_reverse_sequence.begin(), full_reverse_sequence.end());
+  EXPECT_TRUE(std::is_sorted(full_reverse_sequence.begin(), full_reverse_sequence.end()));
+}
 
-  EXPECT_TRUE(std::is_sorted(example_vec.begin(), example_vec.end()));
+TEST_F(AlgorithmsSortTests, insertion_sort_mt19937)
+{
+  // From: https://en.cppreference.com/w/cpp/numeric/random/uniform_int_distribution
+  std::vector<int> mt19937_reverse_sequence { };
+  std::random_device rd;
+  std::mt19937 generator(rd());
+  std::uniform_int_distribution<> distribution(0, 9999);
+  std::generate_n(std::inserter(mt19937_reverse_sequence, mt19937_reverse_sequence.end()), 10000, [&](){return distribution(generator);});
+
+  algorithms::insertion_sort(mt19937_reverse_sequence.begin(), mt19937_reverse_sequence.end());
+
+  EXPECT_TRUE(std::is_sorted(mt19937_reverse_sequence.begin(), mt19937_reverse_sequence.end()));
 }
