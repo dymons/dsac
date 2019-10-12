@@ -3,6 +3,7 @@
 #ifndef ALGORITHMS_ALGORITHMS_SORT_HPP_
 #define ALGORITHMS_ALGORITHMS_SORT_HPP_
 
+#include <iostream>
 #include <iterator>
 #include <algorithm>
 
