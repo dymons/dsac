@@ -3,7 +3,7 @@
 #ifndef ALGORITHMS_ALGORITHMS_SORT_HPP_
 #define ALGORITHMS_ALGORITHMS_SORT_HPP_
 
-#include <iostream>
+#include <utility>
 #include <iterator>
 #include <algorithm>
 
@@ -14,6 +14,15 @@ namespace algorithms {
       // From: https://en.cppreference.com/w/cpp/algorithm/rotate
       for(Iterator itr = t_begin; itr != t_end; ++itr) {
         std::rotate(std::upper_bound(t_begin, itr, *itr), itr, std::next(itr));
+      }
+    }
+
+  template<class Iterator>
+    void selection_sort(Iterator t_begin, Iterator t_end)
+    {
+      for(Iterator itr = t_begin; itr != t_end; ++itr) {
+        auto min = std::min_element(itr, t_end);
+        std::swap(*itr, *min);
       }
     }
 } // namespace algorithms
