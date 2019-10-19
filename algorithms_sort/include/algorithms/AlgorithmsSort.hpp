@@ -35,25 +35,20 @@ namespace algorithms {
         }
       }
 
-      auto merge = [&](Iterator first, Iterator middle, Iterator finish) {
+      auto merge = [](Iterator first, Iterator middle, Iterator finish) {
         const Container left {first, middle}, right {middle, finish};
 
-        std::size_t i {0}, j {0};
+        auto left_it = left.begin(), right_it = right.begin();
+
         for(Iterator itr = first; itr != finish; ++itr) {
-          if(j >= right.size()) {
-            *itr = left[i++];
-            continue;
-          }
-
-          if(i >= left.size()) {
-            *itr = right[j++];
-            continue;
-          }
-
-          if(left[i] <= right[j]) {
-            *itr = left[i++];
+          if(left_it == left.end()) {
+            *itr = *right_it++;
+          } else if(right_it == right.end()) {
+            *itr = *left_it++;
+          } else if(*left_it <= *right_it) {
+            *itr = *left_it++;
           } else {
-            *itr = right[j++];
+            *itr = *right_it++;
           }
         }
       };
