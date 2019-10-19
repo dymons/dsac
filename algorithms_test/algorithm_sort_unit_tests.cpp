@@ -71,6 +71,6 @@ TEST_F(AlgorithmsSortTests, merge_sort_full)
     full_reverse_sequence.push_back(i);
   }
 
-  algorithms::merge_sort(full_reverse_sequence.begin(), full_reverse_sequence.end(), full_reverse_sequence);
+  algorithms::merge_sort(full_reverse_sequence.begin(), full_reverse_sequence.end());
   EXPECT_TRUE(std::is_sorted(full_reverse_sequence.begin(), full_reverse_sequence.end()));
 }
