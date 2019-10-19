@@ -61,3 +61,16 @@ TEST_F(AlgorithmsSortTests, selection_sort_full)
   algorithms::selection_sort(full_reverse_sequence.begin(), full_reverse_sequence.end());
   EXPECT_TRUE(std::is_sorted(full_reverse_sequence.begin(), full_reverse_sequence.end()));
 }
+
+TEST_F(AlgorithmsSortTests, merge_sort_full)
+{
+  std::vector<int> full_reverse_sequence { };
+
+  // instance
+  for(int i = 10000; i > 0; --i) {
+    full_reverse_sequence.push_back(i);
+  }
+
+  algorithms::merge_sort(full_reverse_sequence.begin(), full_reverse_sequence.end(), full_reverse_sequence);
+  EXPECT_TRUE(std::is_sorted(full_reverse_sequence.begin(), full_reverse_sequence.end()));
+}
