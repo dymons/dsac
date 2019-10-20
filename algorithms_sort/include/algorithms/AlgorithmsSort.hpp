@@ -35,31 +35,10 @@ namespace algorithms {
         return;
       }
 
-      // Combining two sorted sequences
-      auto merge = [](Iterator begin, Iterator middle, Iterator end) {
-        // Supposed, subarrays are sorted
-        const std::deque<std::remove_reference_t<decltype(*begin)>> left {begin, middle}, right {middle, end};
-
-        auto left_it = left.begin(), right_it = right.begin();
-
-        // Merge two subarrays into one sorted
-        for(Iterator itr = begin; itr != end; ++itr) {
-          if(left_it == left.end()) {
-            *itr = *right_it++;
-          } else if(right_it == right.end()) {
-            *itr = *left_it++;
-          } else if(*left_it <= *right_it) {
-            *itr = *left_it++;
-          } else {
-            *itr = *right_it++;
-          }
-        }
-      };
-
       Iterator middle = t_begin + static_cast<std::size_t>((std::distance(t_begin, t_end) / 2));
       merge_sort(t_begin, middle);
       merge_sort(middle, t_end);
-      merge(t_begin, middle, t_end);
+      std::merge(t_begin, middle, middle, t_end, t_begin);
     }
 } // namespace algorithms
 #endif // ALGORITHMS_ALGORITHMS_SORT_HPP_
