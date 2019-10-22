@@ -126,3 +126,16 @@ TEST_F(AlgorithmsSortTests, merge_sort_backward)
   EXPECT_TRUE(!std::is_sorted(mt19937_sequence.begin(), mt19937_sequence.end()));
   EXPECT_TRUE(std::is_sorted(mt19937_sequence.rbegin(), mt19937_sequence.rend()));
 }
+
+TEST_F(AlgorithmsSortTests, bubble_sort_full)
+{
+  std::vector<int> full_reverse_sequence { };
+
+  // instance
+  for(int i = 10000; i > 0; --i) {
+    full_reverse_sequence.push_back(i);
+  }
+
+  algorithms::bubble_sort(full_reverse_sequence.begin(), full_reverse_sequence.end());
+  EXPECT_TRUE(std::is_sorted(full_reverse_sequence.begin(), full_reverse_sequence.end()));
+}

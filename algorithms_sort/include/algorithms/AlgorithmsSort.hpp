@@ -40,5 +40,17 @@ namespace algorithms {
       merge_sort(middle, t_end);
       std::merge(t_begin, middle, middle, t_end, t_begin);
     }
+
+  template<class Iterator>
+    void bubble_sort(Iterator t_begin, Iterator t_end)
+    {
+      for(Iterator itr = t_begin; itr != t_end; ++itr) {
+        for(Iterator it = t_begin; it != (t_end - std::distance(t_begin, itr)); ++it) {
+          if(*it > *std::next(it)) {
+            std::swap(*it, *std::next(it));
+          }
+        }
+      }
+    }
 } // namespace algorithms
 #endif // ALGORITHMS_ALGORITHMS_SORT_HPP_
