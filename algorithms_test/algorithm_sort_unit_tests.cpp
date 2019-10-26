@@ -134,3 +134,11 @@ TEST_F(AlgorithmsSortTests, bubble_sort_full)
   algorithms::bubble_sort(full_reverse_sequence.begin(), full_reverse_sequence.end());
   EXPECT_TRUE(std::is_sorted(full_reverse_sequence.begin(), full_reverse_sequence.end()));
 }
+
+TEST_F(AlgorithmsSortTests, quick_sort_full)
+{
+  std::vector<int> full_reverse_sequence { utility::generator<std::vector<int>>(10000, 0) };
+
+  algorithms::quick_sort(full_reverse_sequence.begin(), full_reverse_sequence.end());
+  EXPECT_TRUE(std::is_sorted(full_reverse_sequence.begin(), full_reverse_sequence.end()));
+}
