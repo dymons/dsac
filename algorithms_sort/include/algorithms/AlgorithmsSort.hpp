@@ -20,24 +20,26 @@ namespace utility {
 
       if constexpr (std::is_floating_point_v<Type>) {
         if((t_to - t_from) < 0) {
-          Type i = t_from;
-
-          for(; i > t_to; i -= t_step) {
-            sequence_of_numbers.push_back(static_cast<typename Container::value_type>(i));
-          }
-
-          if(std::fabs(i - t_to) < std::numeric_limits<Type>::epsilon()) {
-            sequence_of_numbers.push_back(i);
+          for(Type i = t_from; ; i -= t_step) {
+            if(i > t_to) {
+              sequence_of_numbers.push_back(static_cast<typename Container::value_type>(i));
+            } else {
+              if(std::fabs(i - t_to) < std::numeric_limits<Type>::epsilon()) {
+                sequence_of_numbers.push_back(i);
+              }
+              break;
+            }
           }
         } else {
-          Type i = t_from;
-
-          for(; i < t_to; i += t_step) {
-            sequence_of_numbers.push_back(static_cast<typename Container::value_type>(i));
-          }
-
-          if(std::fabs(i - t_to) < std::numeric_limits<Type>::epsilon()) {
-            sequence_of_numbers.push_back(i);
+          for(Type i = t_from; ; i += t_step) {
+            if(i < t_to) {
+              sequence_of_numbers.push_back(static_cast<typename Container::value_type>(i));
+            } else {
+              if(std::fabs(i - t_to) < std::numeric_limits<Type>::epsilon()) {
+                sequence_of_numbers.push_back(i);
+              }
+              break;
+            }
           }
         }
       } else {
@@ -51,6 +53,8 @@ namespace utility {
           }
         }
       }
+
+      sequence_of_numbers.shrink_to_fit();
 
       return sequence_of_numbers;
     }

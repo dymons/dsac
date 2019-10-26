@@ -129,12 +129,7 @@ TEST_F(AlgorithmsSortTests, merge_sort_backward)
 
 TEST_F(AlgorithmsSortTests, bubble_sort_full)
 {
-  std::vector<int> full_reverse_sequence { };
-
-  // instance
-  for(int i = 10000; i > 0; --i) {
-    full_reverse_sequence.push_back(i);
-  }
+  std::vector<int> full_reverse_sequence { utility::generator<std::vector<int>>(10000, 0) };
 
   algorithms::bubble_sort(full_reverse_sequence.begin(), full_reverse_sequence.end());
   EXPECT_TRUE(std::is_sorted(full_reverse_sequence.begin(), full_reverse_sequence.end()));
