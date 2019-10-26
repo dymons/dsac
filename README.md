@@ -9,7 +9,7 @@ mkdir build && cd build
 cmake .. && cmake --build .
 ```
 
-##TODO Algorithms sort  
+## TODO Algorithms sort  
 Cocktail Shaker Sort  
 Gnome Sort  
 Optimized Gnome Sort  
