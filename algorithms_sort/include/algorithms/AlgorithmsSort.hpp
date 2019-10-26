@@ -16,9 +16,11 @@ namespace utility {
     {
       // Sequence storage container
       Container sequence_of_numbers { };
-      sequence_of_numbers.reserve(static_cast<std::size_t>(std::abs(t_to - t_from + 1)));
+      sequence_of_numbers.reserve(static_cast<std::size_t>(std::abs(t_to - t_from + 1)) / t_step);
 
+      // For floating point data
       if constexpr (std::is_floating_point_v<Type>) {
+        // The reverse sequence
         if((t_to - t_from) < 0) {
           for(Type i = t_from; ; i -= t_step) {
             if(i > t_to) {
@@ -30,6 +32,7 @@ namespace utility {
               break;
             }
           }
+        // The direct sequence
         } else {
           for(Type i = t_from; ; i += t_step) {
             if(i < t_to) {
@@ -42,6 +45,7 @@ namespace utility {
             }
           }
         }
+      // Integer data type
       } else {
         if((t_to - t_from) < 0) {
           for(Type i = t_from; i >= t_to; i -= t_step) {
