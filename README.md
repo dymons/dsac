@@ -24,7 +24,6 @@ TimSort
 Merge Sort In-Place  
 WikiSort (Block Merge Sort)  
 GrailSort (Block Merge Sort)  
-Quick Sort  
 Stable Quick Sort  
 Dual Pivot Quick Sort  
 Max Heap Sort  
