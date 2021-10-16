@@ -1,62 +1,35 @@
-# algorithms [![Build Status](https://travis-ci.org/dymons/algorithms.svg?branch=master)](https://travis-ci.org/dymons/algorithms)
-## Overview
-Learning Algorithms by Example С++17
+# Собеседования
 
-## Building
-```
-git clone https://github.com/dymons/algorithms
-mkdir build && cd build
-cmake .. && cmake --build .
-```
+## Введение
+Репозиторий содержит перечень рекомендация для прохождения собеседований в IT компании, такие как: Yandex, Amazon, Kaspersky, Mail.ru,
+Avito, Parallels, VK, Sber.
 
-## TODO Algorithms sort  
-Cocktail Shaker Sort  
-Gnome Sort  
-Optimized Gnome Sort  
-Odd-Even Sort  
-Double Selection Sort  
-Binary Insertion Sort  
-Comb Sort  
-Shell Sort  
-Binary Merge Sort  
-Weave Merge Sort  
-TimSort  
-Merge Sort In-Place  
-WikiSort (Block Merge Sort)  
-GrailSort (Block Merge Sort)  
-Stable Quick Sort  
-Dual Pivot Quick Sort  
-Max Heap Sort  
-Min Heap Sort  
-Weak Heap Sort
-Ternary Heap Sort  
-Smooth Sort  
-Tournament Sort  
-Cycle Sort  
-std::sort (Introsort)  
-Quick Shell Sort (Introsort with Shellsort)  
-std::stable_sort (Insert/Bottom-up Merge)  
-Batcher's Odd-Even Mergesort  
-Batcher's Bitonic Sort  
-Pancake Sort  
-Patience Sort  
-Gravity Sort  
-Counting Sort  
-Pigeonhole Sort  
-Radix LSD Sort (Base 4)  
-American Flag Sort (128 Buckets)  
-Radix LSD In-Place Sort (Base 10)  
-Radix LSD In-Place Sort (Base 2)  
-Radix MSD Sort (Base 4)  
-Radix MSD Sort (Base 2)  
-Shatter Sort  
-Simple Shatter Sort  
-Flash Sort  
-Time Sort (Mul 4) + Insertion Sort  
-Stooge Sort  
-Bad Sort  
-Silly Sort  
-Slow Sort  
-Less Bogo Sort  
-Cocktail Bogo Sort  
-Bogo Sort  
+## Обзор тем для подготовки к собеседованию
+1. Знание реализации и нотации Big O алгоритмов сортировки
+   - Сортировка пузырьком (Bubble sort)
+   - Сортировка перемешиванием (Cocktail sort)
+   - Сортировка вставкой (Insertion sort)
+   - Быстрая сортировка (Quick sort)
+   - Сортировка слиянием (Merge sort)
+   - Сортировка с помощью двоичного дерева (Binary-tree sort)
+   - Сортировка Шелла (Shell sort)
+   - Пирамидальная сортировка (Heapsort)
+2. Алгоритмы для работы с графами
+   - Поиск в ширину
+   - Поиск в грубину
+   - Алгоритм Дейкстры
+   - Алгоритм A*
+3. Структуры данных
+   - Динамический массив (Dynamic Array)
+   - Статический массив (Static Array)
+   - Двусвязный список (Linked List)
+   - Односвязный список (Forward Linked List)
+   - Графы (Graphs)
+   - Бинарное дерево поиска (Binary Search Three)
+   - Красно-черное дерево (Red-black tree)
+   - АВЛ-дерево (AVL-Tree)
+   - Стеки (Stack)
+   - Очереди (Queue)
+   - Двусторонняя очередь (Deque)
+   - Куча (Heap)
+   - Хэш таблица (Hash Tables)
