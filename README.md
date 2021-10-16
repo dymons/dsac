@@ -8,7 +8,7 @@ Avito, Parallels, VK, Sber. Список тем был сформирован д
 1. Знание реализации и нотации Big O алгоритмов сортировки
    - Сортировка пузырьком (Bubble sort)
    - Сортировка перемешиванием (Cocktail sort)
-   - Сортировка вставкой (Insertion sort)
+   - Сортировка вставкой ([Insertion sort](https://github.com/dymons/interviews/blob/5650dc34828211d727dba45e15561ab4757da48d/algorithms/sorts/insertion_sort.hpp#L7))
    - Быстрая сортировка (Quick sort)
    - Сортировка слиянием (Merge sort)
    - Сортировка с помощью двоичного дерева (Binary-tree sort)
