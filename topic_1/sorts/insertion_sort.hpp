@@ -7,10 +7,28 @@
 #include <algorithm>
 
 namespace inter::sort {
-template <class Iterator>
-void InsertionSort(Iterator t_begin, Iterator t_end) {
-  for (Iterator itr = t_begin; itr != t_end; ++itr) {
-    std::rotate(std::upper_bound(t_begin, itr, *itr), itr, std::next(itr));
+/*
+   Псевдокод алгоритма:
+   for j = 1 to arr.length do
+   key = arr[j]
+   i = j-1
+   while (int i > 0 and arr[i] > key) do
+       arr[i + 1] = arr[i]
+       i = i - 1
+   end while
+   arr[i+1] = key
+   end
+*/
+template <typename T>
+void InsertionSort(std::vector<T>& arr) {
+  for (int j = 1; j < arr.size(); ++j) {
+    int key = arr[j];
+    int i = j - 1;
+    while ((i >= 0) && (arr[i] > key)) {
+      arr[i + 1] = arr[i];
+      i = i - 1;
+    }
+    arr[i + 1] = key;
   }
 }
 
