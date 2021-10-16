@@ -4,4 +4,4 @@ project(interviews VERSION 1.0 LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 20)
 
 add_subdirectory(third_party)
-add_subdirectory(topic_1)
+add_subdirectory(algorithms)
