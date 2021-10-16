@@ -7,7 +7,7 @@ Avito, Parallels, VK, Sber. Список тем был сформирован д
 ## Обзор тем для подготовки к собеседованию
 1. Знание реализации и нотации Big O алгоритмов сортировки
    - Сортировка пузырьком ([Bubble sort](https://github.com/dymons/interviews/blob/b65184de5b2082855138d489233a00de66238292/algorithms/sorts/bubble_sort.hpp#L7))
-   - Сортировка перемешиванием ([Shaker sort](https://github.com/dymons/interviews/blob/c5284bfe8a209d038446b53df38690d28427bba3/algorithms/sorts/shaker_sort.hpp#L8))
+   - Сортировка перемешиванием ([Shaker sort](https://github.com/dymons/interviews/blob/c5284bfe8a209d038446b53df38690d28427bba3/algorithms/sorts/shaker_sort.hpp#L7))
    - Сортировка вставкой ([Insertion sort](https://github.com/dymons/interviews/blob/5650dc34828211d727dba45e15561ab4757da48d/algorithms/sorts/insertion_sort.hpp#L7))
    - Быстрая сортировка (Quick sort)
    - Сортировка слиянием (Merge sort)
