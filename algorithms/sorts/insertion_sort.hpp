@@ -15,4 +15,4 @@ void InsertionSort(std::vector<T>& arr) {
     arr[i + 1] = key;
   }
 }
-}  // namespace inter::sort
+}  // namespace algo::sort

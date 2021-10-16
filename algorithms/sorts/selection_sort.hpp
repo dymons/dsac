@@ -60,4 +60,4 @@ void quick_sort(Iterator t_begin, Iterator t_end) {
     quick_sort(right_middle_it, t_end);
   }
 }
-}  // namespace inter::sort
+}  // namespace algo::sort
