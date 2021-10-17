@@ -15,7 +15,7 @@ TEST_CASE("Сортировка c использованием алгоритм�
       {},
       {1},
       {2,1},
-      {3,2,1},
+      {3,1,2},
       {1, 2, 3, 4, 5},
       {10, 9, 8, 7, 6},
       {-5, 10, -3, 2, -8, 15, 4, 0, 0, -5, 4},
@@ -23,8 +23,16 @@ TEST_CASE("Сортировка c использованием алгоритм�
   };
   // clang-format on
 
-  for (Testcase& testcase : testcases) {
-    algo::sort::QuickSort(testcase);
-    REQUIRE(std::is_sorted(testcase.begin(), testcase.end()));
+  SECTION("Quick Sort, в качестве pivot выбираем значение по середине") {
+    for (Testcase& testcase : testcases) {
+      algo::sort::v1::QuickSort(testcase);
+      REQUIRE(std::is_sorted(testcase.begin(), testcase.end()));
+    }
+  }
+  SECTION("Quick Sort, в качестве pivot выбираем крайнее правое значение") {
+    for (Testcase& testcase : testcases) {
+      algo::sort::v2::QuickSort(testcase);
+      REQUIRE(std::is_sorted(testcase.begin(), testcase.end()));
+    }
   }
 }
