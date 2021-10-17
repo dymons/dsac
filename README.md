@@ -9,7 +9,7 @@ Avito, Parallels, VK, Sber. Список тем был сформирован д
    - Сортировка пузырьком ([Bubble sort](https://github.com/dymons/interviews/blob/b65184de5b2082855138d489233a00de66238292/algorithms/sorts/bubble_sort.hpp#L7))
    - Сортировка перемешиванием ([Shaker sort](https://github.com/dymons/interviews/blob/c5284bfe8a209d038446b53df38690d28427bba3/algorithms/sorts/shaker_sort.hpp#L7))
    - Сортировка вставкой ([Insertion sort](https://github.com/dymons/interviews/blob/5650dc34828211d727dba45e15561ab4757da48d/algorithms/sorts/insertion_sort.hpp#L7))
-   - Быстрая сортировка (Quick sort)
+   - Быстрая сортировка ([Quick sort](https://github.com/dymons/interviews/blob/50f16c82803594bfd032559bb567901bdbb938ae/algorithms/sorts/quick_sort.hpp#L8))
    - Сортировка слиянием (Merge sort)
    - Сортировка с помощью двоичного дерева (Binary-tree sort)
    - Сортировка Шелла (Shell sort)

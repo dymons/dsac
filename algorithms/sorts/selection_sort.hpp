@@ -28,36 +28,4 @@ void merge_sort(Iterator t_begin, Iterator t_end) {
   merge_sort(middle, t_end);
   std::merge(t_begin, middle, middle, t_end, t_begin);
 }
-
-template <class Iterator>
-void bubble_sort(Iterator t_begin, Iterator t_end) {
-  for (Iterator itr = t_begin; itr != t_end; ++itr) {
-    for (Iterator it = t_begin; it != (t_end - std::distance(t_begin, itr));
-         ++it) {
-      if (*it > *std::next(it)) {
-        std::swap(*it, *std::next(it));
-      }
-    }
-  }
-}
-
-template <class Iterator>
-void quick_sort(Iterator t_begin, Iterator t_end) {
-  // From: https://ru.cppreference.com/w/cpp/algorithm/partition
-  if (std::distance(t_begin, t_end) > 1) {
-    Iterator middle =
-        t_begin + static_cast<std::size_t>((std::distance(t_begin, t_end) / 2));
-    Iterator left_middle_it =
-        std::partition(t_begin, t_end, [reference_value = *middle](auto& e) {
-          return e < reference_value;
-        });
-    Iterator right_middle_it = std::partition(
-        left_middle_it, t_end, [reference_value = *middle](auto& e) {
-          return !(reference_value < e);
-        });
-
-    quick_sort(t_begin, left_middle_it);
-    quick_sort(right_middle_it, t_end);
-  }
-}
 }  // namespace algo::sort
