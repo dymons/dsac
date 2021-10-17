@@ -13,7 +13,7 @@ Avito, Parallels, VK, Sber. Список тем был сформирован д
    - Быстрая сортировка ([Quick sort](https://github.com/dymons/interviews/blob/50f16c82803594bfd032559bb567901bdbb938ae/algorithms/sorts/quick_sort.hpp#L8))
    - Сортировка слиянием ([Merge sort](https://github.com/dymons/interviews/blob/8f592001f91f4e89c0c967e921606d7a878574f8/algorithms/sorts/merge_sort.hpp#L54))
    - Сортировка с помощью двоичного дерева ([Binary-tree sort](https://github.com/dymons/interviews/blob/446275d51ae6b7b5c4aa4c48ed987afbf2437f97/algorithms/sorts/binary_tree_sort.hpp#L83))
-   - Сортировка Шелла (Shell sort)
+   - Сортировка Шелла ([Shell sort](https://github.com/dymons/interviews/blob/8cbece01c3b94fbcc5a6fe7693027553948ab102/algorithms/sorts/shell_sort.hpp#L7))
    - Пирамидальная сортировка (Heapsort)
 2. Алгоритмы для работы с графами
    - Поиск в ширину
