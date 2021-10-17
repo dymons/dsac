@@ -15,21 +15,19 @@ class BreadthFirstSearch {
 
     std::unordered_set<Node> visited;
     while (!processing.empty()) {
-      const Node current = processing.front();
-      processing.pop();
-
-      if (visited.contains(current)) {
-        continue;
-      } else {
-        visited.emplace(current);
-      }
-
-      if (current == to) {
+      if (const Node considered = processing.front(); considered == to) {
         return true;
-      }
+      } else {
+        processing.pop();
+        if (visited.contains(considered)) {
+          continue;
+        } else {
+          visited.emplace(considered);
+        }
 
-      for (const Node successor : graph.GetSuccessors(current)) {
-        processing.push(successor);
+        for (const Node successor : graph.GetSuccessors(considered)) {
+          processing.push(successor);
+        }
       }
     }
 
