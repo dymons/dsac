@@ -2,7 +2,7 @@
 
 #include <vector>
 #include <functional>
-#include <iostream>
+
 namespace algo::sort {
 namespace detail {
 template <typename T>
