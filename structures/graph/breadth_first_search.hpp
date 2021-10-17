@@ -2,6 +2,7 @@
 
 #include <graph.hpp>
 #include <queue>
+#include <unordered_set>
 
 namespace algo::graph {
 class BreadthFirstSearch {
@@ -9,13 +10,20 @@ class BreadthFirstSearch {
   using Graph = OrientedGraph;
   using Node = typename Graph::Node;
   static bool PathExist(Graph& graph, Node from, Node to) {
-    std::queue<Node> visited;
-    visited.push(from);
+    std::queue<Node> processing;
+    processing.push(from);
 
+    std::unordered_set<Node> visited;
     bool found = false;
-    while (!visited.empty()) {
-      const Node current = visited.front();
-      visited.pop();
+    while (!processing.empty()) {
+      const Node current = processing.front();
+      processing.pop();
+
+      if (visited.contains(current)) {
+        continue;
+      } else {
+        visited.emplace(current);
+      }
 
       if (current == to) {
         found = true;
@@ -23,7 +31,7 @@ class BreadthFirstSearch {
       }
 
       for (Node successor : graph.GetSuccessors(current)) {
-        visited.push(successor);
+        processing.push(successor);
       }
     }
 

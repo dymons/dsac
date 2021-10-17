@@ -32,3 +32,13 @@ class OrientedGraph final {
   AdjacencyList nodes_;
 };
 }  // namespace algo::graph
+
+namespace std {
+template <>
+struct hash<algo::graph::OrientedGraph::Node> {
+  [[gnu::always_inline]] std::size_t operator()(
+      algo::graph::OrientedGraph::Node node) const noexcept {
+    return node.id;
+  }
+};
+}  // namespace std
