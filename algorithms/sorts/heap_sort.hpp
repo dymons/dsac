@@ -9,7 +9,7 @@ class SortingTree {
   template <typename T>
   static void Heapify(std::vector<T>& arr) {
     for (int i = arr.size() / 2 - 1; i >= 0; i--) {
-      Heapify(arr, arr.size(), i);
+      SortingTree::Heapify(arr, arr.size(), i);
     }
   }
 
@@ -29,7 +29,7 @@ class SortingTree {
 
     if (largest != root) {
       std::swap(arr[root], arr[largest]);
-      Heapify(arr, size, largest);
+      SortingTree::Heapify(arr, size, largest);
     }
   }
 
