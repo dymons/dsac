@@ -32,9 +32,7 @@ class BinaryTree final {
   }
 
   void Visit(Visitor visitor) {
-    if (root_ != nullptr) {
-      VisitImpl(root_, visitor);
-    }
+    VisitImpl(root_, visitor);
   }
 
  private:
@@ -64,13 +62,11 @@ class BinaryTree final {
   }
 
   void VisitImpl(Node* root, Visitor visitor) {
-    if (root == nullptr) {
-      return;
+    if (root != nullptr) {
+      VisitImpl(root->left, visitor);
+      visitor(root->data);
+      VisitImpl(root->right, visitor);
     }
-
-    VisitImpl(root->left, visitor);
-    visitor(root->data);
-    VisitImpl(root->right, visitor);
   }
 
   void Clear(Node* root) {
@@ -91,7 +87,7 @@ void BinaryTreeSort(std::vector<T>& arr) {
   }
 
   int i = 0;
-  tree.Visit([&i, &arr](T data) mutable {
+  tree.Visit([&i, &arr](T data) {
     arr[i] = data;
     i = i + 1;
   });
