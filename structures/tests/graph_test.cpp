@@ -16,7 +16,7 @@ TEST_CASE("Проверка корректности работы неориен
   };
   // clang-format on
 
-  algo::graph::UndirectedGraph<int> graph(edges.size());
+  algo::graph::OrientedGraph graph(edges.size());
   for (const Edge& edge : edges) {
     graph.Add({edge.first}, {edge.second});
   }

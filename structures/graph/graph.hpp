@@ -1,29 +1,31 @@
 #pragma once
 
 #include <vector>
+#include <unordered_map>
 
 namespace algo::graph {
-template <typename T>
-class UndirectedGraph final {
+class OrientedGraph final {
  public:
-  struct GraphNode;
-  using Successors = std::vector<GraphNode>;
+  struct Node;
+  using Successors = std::vector<Node>;
   using AdjacencyList = std::vector<Successors>;
 
-  explicit UndirectedGraph(int size_graph) : nodes_(size_graph) {
+  explicit OrientedGraph(int size_graph) : nodes_(size_graph) {
   }
 
-  void Add(GraphNode from, GraphNode to) {
+  void Add(Node from, Node to) {
     nodes_[from.id].push_back(to);
   }
 
-  const Successors& GetSuccessors(GraphNode node) const {
+  const Successors& GetSuccessors(const Node node) {
     return nodes_[node.id];
   }
 
-  struct GraphNode final {
+  struct Node final {
     int id{};
-    T data{};
+    bool operator==(const Node other) const {
+      return id == other.id;
+    }
   };
 
  private:
