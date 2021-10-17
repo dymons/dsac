@@ -9,12 +9,11 @@ class BreadthFirstSearch {
  public:
   using Graph = OrientedGraph;
   using Node = typename Graph::Node;
-  static bool PathExist(Graph& graph, Node from, Node to) {
+  static bool PathExist(Graph& graph, const Node from, const Node to) {
     std::queue<Node> processing;
     processing.push(from);
 
     std::unordered_set<Node> visited;
-    bool found = false;
     while (!processing.empty()) {
       const Node current = processing.front();
       processing.pop();
@@ -26,16 +25,15 @@ class BreadthFirstSearch {
       }
 
       if (current == to) {
-        found = true;
-        break;
+        return true;
       }
 
-      for (Node successor : graph.GetSuccessors(current)) {
+      for (const Node successor : graph.GetSuccessors(current)) {
         processing.push(successor);
       }
     }
 
-    return found;
+    return false;
   }
 };
 
