@@ -25,4 +25,7 @@ TEST_CASE("Поиск в ширину на графе", "[breadth_first_search]"
   REQUIRE(BreadthFirstSearch::PathExist(graph, {2}, {2}));
   REQUIRE_FALSE(BreadthFirstSearch::PathExist(graph, {2}, {0}));
   REQUIRE_FALSE(BreadthFirstSearch::PathExist(graph, {2}, {3}));
+
+  const BreadthFirstSearch::Path expected{{1}, {3}, {2}};
+  REQUIRE(BreadthFirstSearch::Search(graph, {1}, {2}) == expected);
 }
