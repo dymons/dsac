@@ -16,7 +16,7 @@ Avito, Parallels, VK, Sber. Список тем был сформирован д
    - Сортировка Шелла ([Shell sort](https://github.com/dymons/interviews/blob/8cbece01c3b94fbcc5a6fe7693027553948ab102/algorithms/sorts/shell_sort.hpp#L7))
    - Пирамидальная сортировка ([Heapsort](https://github.com/dymons/interviews/blob/a60a02d40e73f958cfd93af2f85590e821531b38/algorithms/sorts/heap_sort.hpp#L48))
 2. Алгоритмы для работы с графами
-   - Поиск в ширину ([Breadth-first search](https://github.com/dymons/interviews/blob/5d629c95820a780c2ebebd41f8e8476c7e02a8f6/structures/graph/breadth_first_search.hpp#L40))
+   - Поиск в ширину ([Breadth-first search](https://github.com/dymons/interviews/blob/844a6666e7585e43aecaf765e43ad192a45f4eb2/structures/graph/breadth_first_search.hpp#L38))
    - Поиск в грубину
    - Алгоритм Дейкстры
    - Алгоритм A*
