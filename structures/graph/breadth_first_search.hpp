@@ -4,7 +4,7 @@
 #include <queue>
 #include <unordered_set>
 #include <unordered_map>
-#include <vector>
+#include <deque>
 
 namespace algo::graph {
 class BreadthFirstSearch {
@@ -12,6 +12,7 @@ class BreadthFirstSearch {
   using Graph = OrientedGraph;
   using Node = typename Graph::Node;
   using Path = std::deque<Node>;
+
   static bool PathExist(Graph& graph, const Node from, const Node to) {
     std::queue<Node> processing;
     processing.push(from);
@@ -22,14 +23,11 @@ class BreadthFirstSearch {
         return true;
       } else {
         processing.pop();
-        if (visited.contains(considered)) {
-          continue;
-        } else {
-          visited.emplace(considered);
-        }
-
+        visited.emplace(considered);
         for (const Node successor : graph.GetSuccessors(considered)) {
-          processing.push(successor);
+          if (!visited.contains(successor)) {
+            processing.push(successor);
+          }
         }
       }
     }
