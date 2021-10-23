@@ -28,6 +28,7 @@ static auto InitPriorityQueue() {
     }
   };
 
+  // TODO Использовать Binary Heap Priority Queue для избежания работы с дубликатами
   return std::priority_queue<ComparedNode>{};
 }
 }  // namespace detail
