@@ -2,25 +2,24 @@
 
 #include <directed_graph.hpp>
 
-#include <queue>
-#include <deque>
+#include <stack>
 #include <unordered_set>
 #include <unordered_map>
 
 namespace algo::graph {
-class BreadthFirstSearch {
+class DepthFirstSearch {
  public:
   using Graph = Digraph;
   using Node = typename Graph::Node;
   using Path = std::deque<Node>;
 
   static bool PathExist(Graph& graph, const Node from, const Node to) {
-    std::queue<Node> processing;
+    std::stack<Node> processing;
     processing.push(from);
 
     std::unordered_set<Node> visited;
     while (!processing.empty()) {
-      if (const Node considered = processing.front(); considered == to) {
+      if (const Node considered = processing.top(); considered == to) {
         return true;
       } else {
         processing.pop();
@@ -37,14 +36,14 @@ class BreadthFirstSearch {
   }
 
   static Path Search(Graph& graph, const Node from, const Node to) {
-    std::queue<Node> processing;
+    std::stack<Node> processing;
     processing.push(from);
 
     std::unordered_map<Node, Node> possible_actions;
     possible_actions[from] = from;
 
     while (!processing.empty()) {
-      if (const Node considered = processing.front(); considered == to) {
+      if (const Node considered = processing.top(); considered == to) {
         break;
       } else {
         processing.pop();
