@@ -28,10 +28,9 @@ Avito, Parallels, VK, Sber. Список тем был сформирован д
       сортировка ([Heapsort](https://github.com/dymons/interviews/blob/a60a02d40e73f958cfd93af2f85590e821531b38/algorithms/sorts/heap_sort.hpp#L48))
 2. Алгоритмы для работы с графами
     - Поиск в
-      ширину ([Breadth-first search](https://github.com/dymons/interviews/blob/844a6666e7585e43aecaf765e43ad192a45f4eb2/structures/graph/breadth_first_search.hpp#L38))
-    - Поиск в грубину
-    - Алгоритм Дейкстры
-    - Алгоритм A*
+      ширину ([Breadth-first search](https://github.com/dymons/interviews/blob/429dc9f6877afe57da3f70dc26ec0b24ae8b88f4/structures/graph/breadth_first_search.cpp#L31))
+    - Поиск в грубину ([Depth-first search](https://github.com/dymons/interviews/blob/429dc9f6877afe57da3f70dc26ec0b24ae8b88f4/structures/graph/depth_first_search.cpp#L31))
+    - Алгоритм Дейкстры ([Dijkstra’s algorithm](https://github.com/dymons/interviews/blob/429dc9f6877afe57da3f70dc26ec0b24ae8b88f4/structures/graph/dijkstra_search.cpp#L68))
     - Задача коммивояжёра
 3. Структуры данных и их алгоритмическая сложность
     - Динамический массив (Dynamic Array)
