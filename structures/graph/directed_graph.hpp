@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <unordered_map>
+#include <functional>
 
 namespace algo::graph {
 class Digraph final {
@@ -9,6 +10,7 @@ class Digraph final {
   struct Node;
   using Successors = std::vector<Node>;
   using AdjacencyList = std::vector<Successors>;
+  using Visitor = std::function<void(Node)>;
 
   explicit Digraph(int size_graph) : nodes_(size_graph) {
   }
@@ -19,6 +21,16 @@ class Digraph final {
 
   const Successors& GetSuccessors(const Node node) {
     return nodes_[node.id];
+  }
+
+  [[nodiscard]] std::size_t GetNumNodes() const noexcept {
+    return nodes_.size();
+  }
+
+  void ForEach(Visitor visitor) {
+    for (int i = 0; i < nodes_.size(); ++i) {
+      visitor({i});
+    }
   }
 
   struct Node final {
