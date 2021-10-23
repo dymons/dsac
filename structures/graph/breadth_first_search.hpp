@@ -1,6 +1,6 @@
 #pragma once
 
-#include <graph.hpp>
+#include <directed_graph.hpp>
 #include <queue>
 #include <unordered_set>
 #include <unordered_map>
@@ -9,7 +9,7 @@
 namespace algo::graph {
 class BreadthFirstSearch {
  public:
-  using Graph = OrientedGraph;
+  using Graph = Digraph;
   using Node = typename Graph::Node;
   using Path = std::deque<Node>;
 

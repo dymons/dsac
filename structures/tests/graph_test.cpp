@@ -1,7 +1,7 @@
 #include <catch2/catch.hpp>
 #include <utility>
 
-#include <graph.hpp>
+#include <directed_graph.hpp>
 
 TEST_CASE("Проверка корректности работы неориентированного графа",
           "[undirected_graph]") {
@@ -16,9 +16,9 @@ TEST_CASE("Проверка корректности работы неориен
   };
   // clang-format on
 
-  algo::graph::OrientedGraph graph(edges.size());
+  algo::graph::Digraph graph(edges.size());
   for (const Edge& edge : edges) {
-    graph.Add({edge.first}, {edge.second});
+    graph.AddEdge({edge.first}, {edge.second});
   }
 
   REQUIRE(graph.GetSuccessors({0}).size() == 2);

@@ -20,7 +20,7 @@ class BinaryTree final {
   }
 
   void Insert(T data) {
-    Node* new_node = new Node{};
+    Node* new_node = new Node{data};
     new_node->data = data;
 
     if (root_ == nullptr) {
@@ -37,8 +37,10 @@ class BinaryTree final {
 
  private:
   struct Node {
-    Node* left = nullptr;
-    Node* right = nullptr;
+    Node(T data) : data(data), left(nullptr), right(nullptr) {
+    }
+    Node* left;
+    Node* right;
     T data;
   };
 

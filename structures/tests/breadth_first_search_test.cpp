@@ -15,9 +15,9 @@ TEST_CASE("Поиск в ширину на графе", "[breadth_first_search]"
   };
   // clang-format on
 
-  OrientedGraph graph(edges.size());
+  Digraph graph(edges.size());
   for (const Edge& edge : edges) {
-    graph.Add({edge.first}, {edge.second});
+    graph.AddEdge({edge.first}, {edge.second});
   }
 
   REQUIRE(BreadthFirstSearch::PathExist(graph, {0}, {2}));

@@ -4,16 +4,16 @@
 #include <unordered_map>
 
 namespace algo::graph {
-class OrientedGraph final {
+class Digraph final {
  public:
   struct Node;
   using Successors = std::vector<Node>;
   using AdjacencyList = std::vector<Successors>;
 
-  explicit OrientedGraph(int size_graph) : nodes_(size_graph) {
+  explicit Digraph(int size_graph) : nodes_(size_graph) {
   }
 
-  void Add(Node from, Node to) {
+  void AddEdge(Node from, Node to) {
     nodes_[from.id].push_back(to);
   }
 
@@ -23,7 +23,7 @@ class OrientedGraph final {
 
   struct Node final {
     int id{};
-    bool operator==(const Node other) const {
+    bool operator==(const Node other) const noexcept {
       return id == other.id;
     }
   };
@@ -35,9 +35,9 @@ class OrientedGraph final {
 
 namespace std {
 template <>
-struct hash<algo::graph::OrientedGraph::Node> {
+struct hash<algo::graph::Digraph::Node> {
   [[gnu::always_inline]] std::size_t operator()(
-      algo::graph::OrientedGraph::Node node) const noexcept {
+      algo::graph::Digraph::Node node) const noexcept {
     return node.id;
   }
 };
