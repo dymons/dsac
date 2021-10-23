@@ -1,6 +1,6 @@
 #pragma once
 
-#include <directed_graph.hpp>
+#include <structures/graph/directed_graph.hpp>
 
 #include <queue>
 #include <deque>

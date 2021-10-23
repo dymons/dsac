@@ -39,7 +39,7 @@ Avito, Parallels, VK, Sber. Список тем был сформирован д
     - Двусвязный список (Linked List)
     - Односвязный список (Forward Linked List)
     - Графы (Graphs)
-    - Бинарное дерево поиска (Binary Search Three)
+    - Бинарное дерево поиска (Binary ShortestPath Three)
     - Красно-черное дерево (Red-black tree)
     - АВЛ-дерево (AVL-Tree)
     - Стеки (Stack)

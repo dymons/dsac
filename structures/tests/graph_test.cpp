@@ -1,7 +1,7 @@
 #include <catch2/catch.hpp>
 #include <utility>
 
-#include <directed_graph.hpp>
+#include <structures/graph/directed_graph.hpp>
 
 TEST_CASE("Проверка корректности работы неориентированного графа",
           "[undirected_graph]") {

@@ -1,8 +1,12 @@
-project(structures VERSION 1.0 LANGUAGES CXX)
+get_filename_component(PACKAGE_INCLUDE_PATH ".." ABSOLUTE)
+get_filename_component(PACKAGE_PATH "." ABSOLUTE)
 
-file(GLOB LIB_HEADERS ${PROJECT_SOURCE_DIR}/graph)
-include_directories(${LIB_HEADERS})
+file(GLOB_RECURSE PACKAGE_CXX_SOURCES ${PACKAGE_PATH}/graph/*.cpp)
+file(GLOB_RECURSE PACKAGE_HEADERS ${PACKAGE_PATH}/graph/*.hpp)
 
-file(GLOB STRUCTURES_TEST_SRC ${PROJECT_SOURCE_DIR}/tests/*.cpp)
+add_library(structures STATIC ${PACKAGE_CXX_SOURCES} ${PACKAGE_HEADERS})
+target_include_directories(structures PUBLIC ${PACKAGE_INCLUDE_PATH})
+
+file(GLOB STRUCTURES_TEST_SRC ${PACKAGE_PATH}/tests/*.cpp)
 add_executable(structures_tests ${STRUCTURES_TEST_SRC})
-target_link_libraries(structures_tests PUBLIC Catch2::Catch2)
+target_link_libraries(structures_tests PUBLIC Catch2::Catch2 structures)
