@@ -9,4 +9,5 @@ target_include_directories(structures PUBLIC ${PACKAGE_INCLUDE_PATH})
 
 file(GLOB STRUCTURES_TEST_SRC ${PACKAGE_PATH}/tests/*.cpp)
 add_executable(structures_tests ${STRUCTURES_TEST_SRC})
-target_link_libraries(structures_tests PUBLIC Catch2::Catch2 structures)
+target_link_libraries(structures_tests PUBLIC Catch2::Catch2)
+target_link_libraries(structures_tests PUBLIC structures)

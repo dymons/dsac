@@ -30,17 +30,17 @@ TEST_CASE("Поиск в ширину на графе", "[breadth_first_search]"
   }
 
   SECTION("Проверка существования маршрута в графе между узлами") {
-    REQUIRE(BreadthFirstSearch::PathExist(graph, {0}, {8}));
-    REQUIRE(BreadthFirstSearch::PathExist(graph, {3}, {6}));
-    REQUIRE(BreadthFirstSearch::PathExist(graph, {7}, {8}));
-    REQUIRE(BreadthFirstSearch::PathExist(graph, {8}, {7}));
-    REQUIRE_FALSE(BreadthFirstSearch::PathExist(graph, {10}, {1}));
-    REQUIRE_FALSE(BreadthFirstSearch::PathExist(graph, {8}, {3}));
+    REQUIRE(bfs::IsPathExist(graph, {0}, {8}));
+    REQUIRE(bfs::IsPathExist(graph, {3}, {6}));
+    REQUIRE(bfs::IsPathExist(graph, {7}, {8}));
+    REQUIRE(bfs::IsPathExist(graph, {8}, {7}));
+    REQUIRE_FALSE(bfs::IsPathExist(graph, {10}, {1}));
+    REQUIRE_FALSE(bfs::IsPathExist(graph, {8}, {3}));
   }
   SECTION("Поиск маршрута между двумя узлами в графе") {
-    const BreadthFirstSearch::Path expected{{3}, {4}, {9}, {8}, {7}};
-    REQUIRE(BreadthFirstSearch::Search(graph, {3}, {7}) == expected);
-    REQUIRE(BreadthFirstSearch::Search(graph, {7}, {1}).empty());
-    REQUIRE(BreadthFirstSearch::Search(graph, {4}, {0}).empty());
+    const bfs::Path expected{{3}, {4}, {9}, {8}, {7}};
+    REQUIRE(bfs::ShortestPath(graph, {3}, {7}) == expected);
+    REQUIRE(bfs::ShortestPath(graph, {7}, {1}).empty());
+    REQUIRE(bfs::ShortestPath(graph, {4}, {0}).empty());
   }
 }

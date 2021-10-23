@@ -1,19 +1,19 @@
-#include <structures/graph/depth_first_search.hpp>
+#include <structures/graph/breadth_first_search.hpp>
 
-#include <stack>
+#include <queue>
 #include <unordered_set>
 #include <unordered_map>
 
-namespace algo::graph::dfs {
+namespace algo::graph::bfs {
 bool IsPathExist(Graph& graph, const Node from, const Node to) {
-  std::stack<Node> processing;
+  std::queue<Node> processing;
   processing.push(from);
 
   std::unordered_set<Node> visited;
   visited.emplace(from);
 
   while (!processing.empty()) {
-    if (const Node considered = processing.top(); considered == to) [[unlikely]] {
+    if (const Node considered = processing.front(); considered == to) [[unlikely]] {
       return true;
     } else {
       processing.pop();
@@ -29,7 +29,7 @@ bool IsPathExist(Graph& graph, const Node from, const Node to) {
 }
 
 Path ShortestPath(Graph& graph, const Node from, const Node to) {
-  std::stack<Node> processing;
+  std::queue<Node> processing;
   processing.push(from);
 
   std::unordered_map<Node, Node> possible_actions;
@@ -39,7 +39,7 @@ Path ShortestPath(Graph& graph, const Node from, const Node to) {
   visited.emplace(from);
 
   while (!processing.empty()) {
-    if (const Node considered = processing.top(); considered == to) [[unlikely]] {
+    if (const Node considered = processing.front(); considered == to) [[unlikely]] {
       break;
     } else {
       processing.pop();
@@ -54,7 +54,7 @@ Path ShortestPath(Graph& graph, const Node from, const Node to) {
 
   Path path{to};
   for (Node latest = path.front(); latest != from; latest = path.front()) {
-    if (!possible_actions.contains(latest)) [[unlikely]] {
+    if (!possible_actions.contains(latest)) {
       break;
     }
     path.push_front(possible_actions[latest]);
@@ -62,4 +62,4 @@ Path ShortestPath(Graph& graph, const Node from, const Node to) {
 
   return path.front() == from ? path : (path.clear(), path);
 }
-}  // namespace algo::graph::dfs
+}  // namespace algo::graph::bfs

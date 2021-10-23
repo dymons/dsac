@@ -3,8 +3,7 @@
 
 #include <structures/graph/directed_graph.hpp>
 
-TEST_CASE("Проверка корректности работы неориентированного графа",
-          "[undirected_graph]") {
+TEST_CASE("Проверка корректности работы неориентированного графа", "[undirected_graph]") {
   using Edge = std::pair<int, int>;
   using Edges = std::vector<Edge>;
   // clang-format off
