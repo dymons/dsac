@@ -1,6 +1,6 @@
 #include <catch2/catch.hpp>
 
-#include <dijkstra.hpp>
+#include <dijkstra_search.hpp>
 
 TEST_CASE("Алгоритм поиска Дейкстры", "[dijkstra]") {
   using namespace algo::graph;
@@ -30,17 +30,17 @@ TEST_CASE("Алгоритм поиска Дейкстры", "[dijkstra]") {
   }
 
   SECTION("Проверка существования маршрута в графе между узлами") {
-    REQUIRE(Dijkstra::PathExist(graph, {0}, {8}));
-    REQUIRE(Dijkstra::PathExist(graph, {3}, {6}));
-    REQUIRE(Dijkstra::PathExist(graph, {7}, {8}));
-    REQUIRE(Dijkstra::PathExist(graph, {8}, {7}));
-    REQUIRE_FALSE(Dijkstra::PathExist(graph, {10}, {1}));
-    REQUIRE_FALSE(Dijkstra::PathExist(graph, {8}, {3}));
+    REQUIRE(dijkstra::PathExist(graph, {0}, {8}));
+    REQUIRE(dijkstra::PathExist(graph, {3}, {6}));
+    REQUIRE(dijkstra::PathExist(graph, {7}, {8}));
+    REQUIRE(dijkstra::PathExist(graph, {8}, {7}));
+    REQUIRE_FALSE(dijkstra::PathExist(graph, {10}, {1}));
+    REQUIRE_FALSE(dijkstra::PathExist(graph, {8}, {3}));
   }
   SECTION("Поиск маршрута между двумя узлами в графе") {
-    const Dijkstra::Path expected{{3}, {4}, {9}, {8}, {7}};
-    REQUIRE(Dijkstra::Search(graph, {3}, {7}) == expected);
-    REQUIRE(Dijkstra::Search(graph, {7}, {1}).empty());
-    REQUIRE(Dijkstra::Search(graph, {4}, {0}).empty());
+    const dijkstra::Path expected{{3}, {4}, {9}, {8}, {7}};
+    REQUIRE(dijkstra::Search(graph, {3}, {7}) == expected);
+    REQUIRE(dijkstra::Search(graph, {7}, {1}).empty());
+    REQUIRE(dijkstra::Search(graph, {4}, {0}).empty());
   }
 }
