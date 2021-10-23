@@ -30,21 +30,20 @@ class Digraph final {
   using Visitor = std::function<void(Node)>;
 
   void AddEdge(Node from, Node to) {
-    nodes_[from].push_back(to);
+    graph_[from].push_back(to);
   }
 
   Successors const& GetSuccessors(const Node node) {
-    return nodes_[node];
+    return graph_[node];
   }
 
   void Visit(Visitor visitor) const {
-    for (const auto& [node, successors] : nodes_) {
+    for (const auto& [node, successors] : graph_) {
       visitor(node);
     }
   }
 
  private:
-  AdjacencyList nodes_;
+  AdjacencyList graph_;
 };
-
 }  // namespace algo::graph
