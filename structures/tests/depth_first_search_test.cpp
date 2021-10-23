@@ -29,13 +29,18 @@ TEST_CASE("Поиск в глубину на графе", "[depth_first_search]"
     graph.AddEdge({edge.first}, {edge.second});
   }
 
-  REQUIRE(DepthFirstSearch::PathExist(graph, {0}, {8}));
-  REQUIRE(DepthFirstSearch::PathExist(graph, {3}, {6}));
-  REQUIRE(DepthFirstSearch::PathExist(graph, {7}, {8}));
-  REQUIRE(DepthFirstSearch::PathExist(graph, {8}, {7}));
-  REQUIRE_FALSE(DepthFirstSearch::PathExist(graph, {10}, {1}));
-  REQUIRE_FALSE(DepthFirstSearch::PathExist(graph, {8}, {3}));
-
-  const DepthFirstSearch::Path expected{{3}, {4}, {9}, {8}, {7}};
-  REQUIRE(DepthFirstSearch::Search(graph, {3}, {7}) == expected);
+  SECTION("Проверка существования маршрута в графе между узлами") {
+    REQUIRE(DepthFirstSearch::PathExist(graph, {0}, {8}));
+    REQUIRE(DepthFirstSearch::PathExist(graph, {3}, {6}));
+    REQUIRE(DepthFirstSearch::PathExist(graph, {7}, {8}));
+    REQUIRE(DepthFirstSearch::PathExist(graph, {8}, {7}));
+    REQUIRE_FALSE(DepthFirstSearch::PathExist(graph, {10}, {1}));
+    REQUIRE_FALSE(DepthFirstSearch::PathExist(graph, {8}, {3}));
+  }
+  SECTION("Поиск маршрута между двумя узлами в графе") {
+    const DepthFirstSearch::Path expected{{3}, {4}, {9}, {8}, {7}};
+    REQUIRE(DepthFirstSearch::Search(graph, {3}, {7}) == expected);
+    REQUIRE(DepthFirstSearch::Search(graph, {7}, {1}).empty());
+    REQUIRE(DepthFirstSearch::Search(graph, {4}, {0}).empty());
+  }
 }
