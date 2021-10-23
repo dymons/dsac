@@ -7,7 +7,6 @@ namespace algo::graph::bfs {
 /// \brief      Алгоритм поиска реализован для ориентированного-невзвешенного
 ///             графа
 using Graph = Digraph;
-using Node = typename Graph::Node;
 using Path = std::deque<Node>;
 
 /// \brief      Проверка существования маршрута в графе

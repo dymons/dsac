@@ -9,7 +9,7 @@ using Distance = int;
 
 static auto InitDistances(Graph& graph) {
   std::unordered_map<Node, Distance> distances;
-  graph.ForEach([&](Node node) {
+  graph.Visit([&](Node node) {
     distances.emplace(node, std::numeric_limits<Distance>::max());
   });
   return distances;

@@ -24,7 +24,7 @@ TEST_CASE("Поиск в ширину на графе", "[breadth_first_search]"
   };
   // clang-format on
 
-  Digraph graph(edges.size());
+  Digraph graph;
   for (const Edge& edge : edges) {
     graph.AddEdge({edge.first}, {edge.second});
   }

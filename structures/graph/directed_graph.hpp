@@ -5,48 +5,46 @@
 #include <functional>
 
 namespace algo::graph {
-class Digraph final {
- public:
-  struct Node;
-  using Successors = std::vector<Node>;
-  using AdjacencyList = std::vector<Successors>;
-  using Visitor = std::function<void(Node)>;
-
-  explicit Digraph(int size_graph) : nodes_(size_graph) {
+struct Node final {
+  int id{};
+  [[gnu::always_inline]] bool operator==(const Node other) const noexcept {
+    return id == other.id;
   }
-
-  void AddEdge(Node from, Node to) {
-    nodes_[from.id].push_back(to);
-  }
-
-  const Successors& GetSuccessors(const Node node) {
-    return nodes_[node.id];
-  }
-
-  void ForEach(Visitor visitor) {
-    for (int i = 0; i < nodes_.size(); ++i) {
-      visitor({i});
-    }
-  }
-
-  struct Node final {
-    int id{};
-    bool operator==(const Node other) const noexcept {
-      return id == other.id;
-    }
-  };
-
- private:
-  AdjacencyList nodes_;
 };
 }  // namespace algo::graph
 
 namespace std {
 template <>
-struct hash<algo::graph::Digraph::Node> {
-  [[gnu::always_inline]] std::size_t operator()(
-      algo::graph::Digraph::Node node) const noexcept {
+struct hash<algo::graph::Node> {
+  [[gnu::always_inline]] std::size_t operator()(algo::graph::Node node) const noexcept {
     return node.id;
   }
 };
 }  // namespace std
+
+namespace algo::graph {
+class Digraph final {
+ public:
+  using Successors = std::vector<Node>;
+  using AdjacencyList = std::unordered_map<Node, Successors>;
+  using Visitor = std::function<void(Node)>;
+
+  void AddEdge(Node from, Node to) {
+    nodes_[from].push_back(to);
+  }
+
+  Successors const& GetSuccessors(const Node node) {
+    return nodes_[node];
+  }
+
+  void Visit(Visitor visitor) const {
+    for (const auto& [node, successors] : nodes_) {
+      visitor(node);
+    }
+  }
+
+ private:
+  AdjacencyList nodes_;
+};
+
+}  // namespace algo::graph

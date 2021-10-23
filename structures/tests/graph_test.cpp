@@ -15,7 +15,7 @@ TEST_CASE("Проверка корректности работы неориен
   };
   // clang-format on
 
-  algo::graph::Digraph graph(edges.size());
+  algo::graph::Digraph graph;
   for (const Edge& edge : edges) {
     graph.AddEdge({edge.first}, {edge.second});
   }

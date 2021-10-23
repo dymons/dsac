@@ -24,7 +24,7 @@ TEST_CASE("Алгоритм поиска Дейкстры", "[dijkstra]") {
   };
   // clang-format on
 
-  Digraph graph(edges.size());
+  Digraph graph;
   for (const Edge& edge : edges) {
     graph.AddEdge({edge.first}, {edge.second});
   }
