@@ -18,14 +18,15 @@ class DepthFirstSearch {
     processing.push(from);
 
     std::unordered_set<Node> visited;
+    visited.emplace(from);
+
     while (!processing.empty()) {
       if (const Node considered = processing.top(); considered == to) {
         return true;
       } else {
         processing.pop();
-        visited.emplace(considered);
         for (const Node successor : graph.GetSuccessors(considered)) {
-          if (!visited.contains(successor)) {
+          if (auto [it, not_exist] = visited.emplace(successor); not_exist) {
             processing.push(successor);
           }
         }
