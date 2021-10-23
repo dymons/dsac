@@ -23,7 +23,7 @@ void Merge(std::vector<T>& arr, const int low, const int mid, const int high) {
   int i = 0;
   int j = 0;
   int k = low;
-  for (;k <= high; ++k) {
+  for (; k <= high; ++k) {
     if ((i == L.size()) || (j == R.size())) {
       break;
     }

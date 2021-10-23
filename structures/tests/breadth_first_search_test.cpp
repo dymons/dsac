@@ -11,7 +11,16 @@ TEST_CASE("Поиск в ширину на графе", "[breadth_first_search]"
     {0, 1},
     {0, 2},
     {1, 3},
-    {3, 2},
+    {2, 3},
+    {3, 4},
+    {4, 5},
+    {5, 6},
+    {6, 4},
+    {4, 9},
+    {9, 8},
+    {8, 7},
+    {7, 4},
+    {9, 10},
   };
   // clang-format on
 
@@ -20,12 +29,18 @@ TEST_CASE("Поиск в ширину на графе", "[breadth_first_search]"
     graph.AddEdge({edge.first}, {edge.second});
   }
 
-  REQUIRE(BreadthFirstSearch::PathExist(graph, {0}, {2}));
-  REQUIRE(BreadthFirstSearch::PathExist(graph, {1}, {2}));
-  REQUIRE(BreadthFirstSearch::PathExist(graph, {2}, {2}));
-  REQUIRE_FALSE(BreadthFirstSearch::PathExist(graph, {2}, {0}));
-  REQUIRE_FALSE(BreadthFirstSearch::PathExist(graph, {2}, {3}));
-
-  const BreadthFirstSearch::Path expected{{1}, {3}, {2}};
-  REQUIRE(BreadthFirstSearch::Search(graph, {1}, {2}) == expected);
+  SECTION("Проверка существования маршрута в графе между узлами") {
+    REQUIRE(BreadthFirstSearch::PathExist(graph, {0}, {8}));
+    REQUIRE(BreadthFirstSearch::PathExist(graph, {3}, {6}));
+    REQUIRE(BreadthFirstSearch::PathExist(graph, {7}, {8}));
+    REQUIRE(BreadthFirstSearch::PathExist(graph, {8}, {7}));
+    REQUIRE_FALSE(BreadthFirstSearch::PathExist(graph, {10}, {1}));
+    REQUIRE_FALSE(BreadthFirstSearch::PathExist(graph, {8}, {3}));
+  }
+  SECTION("Поиск маршрута между двумя узлами в графе") {
+    const BreadthFirstSearch::Path expected{{3}, {4}, {9}, {8}, {7}};
+    REQUIRE(BreadthFirstSearch::Search(graph, {3}, {7}) == expected);
+    REQUIRE(BreadthFirstSearch::Search(graph, {7}, {1}).empty());
+    REQUIRE(BreadthFirstSearch::Search(graph, {4}, {0}).empty());
+  }
 }

@@ -10,8 +10,7 @@ TEST_CASE("Сортировка c использованием алгоритм�
   using Testcases = std::vector<Testcase>;
 
   Testcases testcases{{1, 2, 3, 4, 5}, {}, {10, 9, 8, 7, 6}};
-  for (Testcase& testcase : testcases)
-  {
+  for (Testcase& testcase : testcases) {
     algo::sort::InsertionSort(testcase);
     REQUIRE(std::is_sorted(testcase.begin(), testcase.end()));
   }

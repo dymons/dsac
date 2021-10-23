@@ -44,13 +44,16 @@ class BreadthFirstSearch {
     std::unordered_map<Node, Node> possible_actions;
     possible_actions[from] = from;
 
+    std::unordered_set<Node> visited;
+    visited.emplace(from);
+
     while (!processing.empty()) {
       if (const Node considered = processing.front(); considered == to) {
         break;
       } else {
         processing.pop();
         for (const Node successor : graph.GetSuccessors(considered)) {
-          if (!possible_actions.contains(successor)) {
+          if (auto [it, not_exist] = visited.emplace(successor); not_exist) {
             possible_actions[successor] = considered;
             processing.push(successor);
           }
@@ -60,10 +63,13 @@ class BreadthFirstSearch {
 
     Path path{to};
     for (Node latest = path.front(); latest != from; latest = path.front()) {
+      if (!possible_actions.contains(latest)) {
+        break;
+      }
       path.push_front(possible_actions[latest]);
     }
 
-    return path;
+    return path.front() == from ? path : (path.clear(), path);
   }
 };
 }  // namespace algo::graph
