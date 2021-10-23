@@ -23,10 +23,6 @@ class Digraph final {
     return nodes_[node.id];
   }
 
-  [[nodiscard]] std::size_t GetNumNodes() const noexcept {
-    return nodes_.size();
-  }
-
   void ForEach(Visitor visitor) {
     for (int i = 0; i < nodes_.size(); ++i) {
       visitor({i});

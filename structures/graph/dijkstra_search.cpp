@@ -4,23 +4,25 @@
 
 namespace algo::graph::dijkstra {
 namespace detail {
+using Distance = int;
+
 static auto InitDistances(Graph& graph) {
-  std::unordered_map<Node, int> distances;
+  std::unordered_map<Node, Distance> distances;
   graph.ForEach([&](Node node) {
-    distances.emplace(node, std::numeric_limits<int>::max());
+    distances.emplace(node, std::numeric_limits<Distance>::max());
   });
   return distances;
 }
 
 static auto InitPriorityQueue() {
   struct ComparedNode {
-    ComparedNode(Node node, int distance) : node(node), distance(distance) {
+    ComparedNode(Node node, Distance distance) : node(node), distance(distance) {
     }
 
     Node node;
-    int distance;
+    Distance distance;
 
-    [[nodiscard]] bool operator<(const ComparedNode& other) const noexcept {
+    [[gnu::always_inline]] bool operator<(const ComparedNode& other) const noexcept {
       return distance < other.distance;
     }
   };
@@ -40,14 +42,14 @@ bool IsPathExist(Graph& graph, const Node from, const Node to) {
   visited.emplace(from);
 
   while (!processing.empty()) {
-    if (auto [considered, min_dist] = processing.top(); considered == to) {
+    if (auto [considered, min_dist] = processing.top(); considered == to) [[unlikely]] {
       return true;
     } else {
       processing.pop();
-      if (distances[considered] >= min_dist) {
+      if (distances[considered] >= min_dist) [[likely]] {
         for (const Node successor : graph.GetSuccessors(considered)) {
           if (auto [it, not_exist] = visited.emplace(successor); not_exist) {
-            const int new_dist = distances[considered] + 1;
+            const detail::Distance new_dist = distances[considered] + 1;
             if (new_dist < distances[successor]) {
               distances[successor] = new_dist;
               processing.emplace(successor, new_dist);
@@ -75,14 +77,14 @@ Path ShortestPath(Graph& graph, const Node from, const Node to) {
   visited.emplace(from);
 
   while (!processing.empty()) {
-    if (auto [considered, min_dist] = processing.top(); considered == to) {
+    if (auto [considered, min_dist] = processing.top(); considered == to) [[unlikely]] {
       break;
     } else {
       processing.pop();
-      if (distances[considered] >= min_dist) {
+      if (distances[considered] >= min_dist) [[likely]] {
         for (const Node successor : graph.GetSuccessors(considered)) {
           if (auto [it, not_exist] = visited.emplace(successor); not_exist) {
-            const int new_dist = distances[considered] + 1;
+            const detail::Distance new_dist = distances[considered] + 1;
             if (new_dist < distances[successor]) {
               distances[successor] = new_dist;
               processing.emplace(successor, new_dist);
@@ -96,7 +98,7 @@ Path ShortestPath(Graph& graph, const Node from, const Node to) {
 
   Path path{to};
   for (Node latest = path.front(); latest != from; latest = path.front()) {
-    if (!possible_actions.contains(latest)) {
+    if (!possible_actions.contains(latest)) [[unlikely]] {
       break;
     }
     path.push_front(possible_actions[latest]);
@@ -104,5 +106,4 @@ Path ShortestPath(Graph& graph, const Node from, const Node to) {
 
   return path.front() == from ? path : (path.clear(), path);
 }
-
 }  // namespace algo::graph::dijkstra
