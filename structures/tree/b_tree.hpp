@@ -41,7 +41,6 @@ class BTree final {
 
     void AddNodeByIndex(std::size_t index, Node* node) {
       nodes_.insert(std::next(nodes_.begin(), index), node);
-//      nodes_[index] = node;
     }
 
     [[nodiscard]] Node* GetNode(std::size_t index) const {
@@ -66,19 +65,16 @@ class BTree final {
       if (IsLeaf()) {
         AddKey(key);
       } else {
-        int i = keys_.size() - 1;
-        while (i >= 0 && keys_[i] > key) {
-          i--;
-        }
-
-        if (nodes_[i + 1]->IsKeysFull()) {
-          SplitChild(i + 1, nodes_[i + 1]);
-
-          if (keys_[i + 1] < key) {
-            i++;
+        const auto upper = std::upper_bound(keys_.begin(), keys_.end(), key);
+        int index = std::distance(keys_.begin(), upper);
+        if (Node* const consider_node = GetNode(index); consider_node->IsKeysFull()) {
+          SplitChild(index, consider_node);
+          if (GetKey(index) < key) {
+            index++;
           }
         }
-        nodes_[i + 1]->InsertNonFull(key);
+
+        GetNode(index)->InsertNonFull(key);
       }
     }
 
