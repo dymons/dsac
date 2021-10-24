@@ -1,24 +1,23 @@
 #pragma once
 
-#define STRUCTURES_B_TREE_H_
-
 #include <vector>
-#include <cassert>
 
 namespace algo::tree {
 template <typename T>
 class BTree final {
   class Node final {
-    int t_;
+    const int t_;
     std::vector<T> keys_;
     std::vector<Node*> children_;
+
+    void AddKeyImpl(T key);
 
    public:
     explicit Node(int t);
 
     void AddKey(T key);
     void AddKeyByIndex(std::size_t index, T key);
-    void RemoveKey(const T& key);
+    void RemoveKey(T key);
     void AddChild(Node* node);
     void AddChildByIndex(std::size_t index, Node* node);
     void SplitChild(std::size_t index, Node* root);
@@ -31,7 +30,7 @@ class BTree final {
     [[nodiscard]] bool Contains(T key) const;
   };
 
-  int t;
+  const int t_;
   Node* root_;
 
  public:
@@ -44,4 +43,5 @@ class BTree final {
 };
 }  // namespace algo::tree
 
+#define STRUCTURES_B_TREE_H_
 #include <structures/tree/b_tree-inl.hpp>

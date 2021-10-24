@@ -2,6 +2,8 @@
 #error This file may only be included from b_tree.hpp
 #endif
 
+#include <cassert>
+
 namespace algo::tree {
 template <typename T>
 BTree<T>::Node::Node(int t) : t_(t) {
@@ -21,7 +23,7 @@ T const& BTree<T>::Node::GetKey(std::size_t index) const {
 }
 
 template <typename T>
-void BTree<T>::Node::RemoveKey(const T& key) {
+void BTree<T>::Node::RemoveKey(T key) {
   keys_.erase(std::find(keys_.begin(), keys_.end(), key));
 }
 
@@ -54,10 +56,7 @@ bool BTree<T>::Node::IsKeysFull() const noexcept {
 template <typename T>
 void BTree<T>::Node::AddKey(T key) {
   if (IsLeaf()) {
-    keys_.insert(std::upper_bound(keys_.begin(), keys_.end(), key), key);
-    // Ключи хранятся в отсортированном виде, проверяем инвариант
-    // состояния узла на выполнение данного условия.
-    assert(std::is_sorted(keys_.begin(), keys_.end()));
+    AddKeyImpl(key);
   } else {
     const auto upper = std::upper_bound(keys_.begin(), keys_.end(), key);
     int index = std::distance(keys_.begin(), upper);
@@ -70,6 +69,14 @@ void BTree<T>::Node::AddKey(T key) {
 
     GetChild(index)->AddKey(key);
   }
+}
+
+template <typename T>
+void BTree<T>::Node::AddKeyImpl(T key) {
+  keys_.insert(std::upper_bound(keys_.begin(), keys_.end(), key), key);
+  // Ключи хранятся в отсортированном виде, проверяем инвариант
+  // состояния узла на выполнение данного условия.
+  assert(std::is_sorted(keys_.begin(), keys_.end()));
 }
 
 template <typename T>
@@ -117,7 +124,7 @@ void BTree<T>::Node::Destroy() {
 }
 
 template <typename T>
-BTree<T>::BTree(int t) : t(t), root_(nullptr) {
+BTree<T>::BTree(int t) : t_(t), root_(nullptr) {
 }
 
 template <typename T>
@@ -132,10 +139,10 @@ BTree<T>::~BTree() {
 template <typename T>
 void BTree<T>::Insert(T key) {
   if (root_ == nullptr) {
-    root_ = new Node{.t = t};
+    root_ = new Node{.t = t_};
     root_->AddKey(key);
   } else if (root_->IsKeysFull()) {
-    Node* const new_node = new Node{.t = t};
+    Node* const new_node = new Node{.t = t_};
     new_node->AddChild(root_);
     new_node->SplitChild(0, root_);
 
