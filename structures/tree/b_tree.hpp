@@ -7,54 +7,62 @@ namespace algo::tree {
 template <typename T>
 class BTree final {
   class Node final {
-    /// Минимальная степень
-    int t_ = 0;
+    /// Минимальная степень B-дерева
+    int t_;
+
+    /// Ключи узла
     std::vector<T> keys_;
-    std::vector<Node*> nodes_;
+
+    /// Потомки узла
+    std::vector<Node*> children_;
 
    public:
     explicit Node(int t) : t_(t) {
     }
 
     void AddKey(T key) {
-      const auto upper = std::upper_bound(keys_.begin(), keys_.end(), key);
-      keys_.insert(upper, key);
+      keys_.insert(std::upper_bound(keys_.begin(), keys_.end(), key), key);
+      // Ключи хранятся в отсортированном виде, проверяем инвариант
+      // состояния узла на выполнение данного условия.
+      assert(std::is_sorted(keys_.begin(), keys_.end()));
     }
 
     void AddKeyByIndex(std::size_t index, T key) {
       keys_.insert(std::next(keys_.begin(), index), key);
+      // Ключи хранятся в отсортированном виде, проверяем инвариант
+      // состояния узла на выполнение данного условия.
+      assert(std::is_sorted(keys_.begin(), keys_.end()));
     }
 
-    [[nodiscard]] T GetKey(std::size_t index) const {
+    [[nodiscard]] T const& GetKey(std::size_t index) const {
       assert(index < keys_.size());
       return keys_[index];
     }
 
-    void RemoveKey(T key) {
-      auto it = std::find(keys_.begin(), keys_.end(), key);
-      keys_.erase(it);
+    void RemoveKey(const T& key) {
+      keys_.erase(std::find(keys_.begin(), keys_.end(), key));
     }
 
-    void AddNode(Node* node) {
-      nodes_.push_back(node);
+    void AddChild(Node* node) {
+      children_.push_back(node);
     }
 
-    void AddNodeByIndex(std::size_t index, Node* node) {
-      nodes_.insert(std::next(nodes_.begin(), index), node);
+    void AddChildByIndex(std::size_t index, Node* node) {
+      children_.insert(std::next(children_.begin(), index), node);
     }
 
-    [[nodiscard]] Node* GetNode(std::size_t index) const {
-      assert(index < nodes_.size());
-      return nodes_[index];
+    [[nodiscard]] Node* GetChild(std::size_t index) const {
+      assert(index < children_.size());
+      return children_[index];
     }
 
     void RemoveNode(Node* node) {
-      auto it = std::find(nodes_.begin(), nodes_.end(), node);
-      nodes_.erase(it);
+      auto it = std::find(children_.begin(), children_.end(), node);
+      children_.erase(it);
     }
 
     [[nodiscard]] bool IsLeaf() const noexcept {
-      return nodes_.empty();
+      return children_.empty();
     }
 
     [[nodiscard]] bool IsKeysFull() const noexcept {
@@ -67,14 +75,14 @@ class BTree final {
       } else {
         const auto upper = std::upper_bound(keys_.begin(), keys_.end(), key);
         int index = std::distance(keys_.begin(), upper);
-        if (Node* const consider_node = GetNode(index); consider_node->IsKeysFull()) {
+        if (Node* const consider_node = GetChild(index); consider_node->IsKeysFull()) {
           SplitChild(index, consider_node);
           if (GetKey(index) < key) {
             index++;
           }
         }
 
-        GetNode(index)->InsertNonFull(key);
+        GetChild(index)->InsertNonFull(key);
       }
     }
 
@@ -86,11 +94,11 @@ class BTree final {
 
       if (!root->IsLeaf()) {
         for (int j = 0; j < t_ - 1; j++) {
-          new_node->AddNode(root->GetNode(j + t_));
+          new_node->AddChild(root->GetChild(j + t_));
         }
       }
 
-      AddNodeByIndex(index + 1, new_node);
+      AddChildByIndex(index + 1, new_node);
       AddKeyByIndex(index, root->GetKey(t_ - 1));
 
       for (int j = (2 * t_ - 2); j >= (t_ - 1); --j) {
@@ -113,11 +121,11 @@ class BTree final {
     } else {
       if (root_->IsKeysFull()) {
         Node* const new_node = new Node{.t = t};
-        new_node->AddNode(root_);
+        new_node->AddChild(root_);
         new_node->SplitChild(0, root_);
 
         const std::size_t index = new_node->GetKey(0) < key ? 1 : 0;
-        new_node->GetNode(index)->InsertNonFull(key);
+        new_node->GetChild(index)->InsertNonFull(key);
 
         root_ = new_node;
       } else {
