@@ -103,15 +103,8 @@ class BTree final {
     }
 
     [[nodiscard]] bool Contains(T key) const {
-      int index = 0;
-      while (true) {
-        if (index < keys_.size() && key > keys_[index]) {
-          index++;
-          continue;
-        }
-
-        break;
-      }
+      const auto lower = std::lower_bound(keys_.begin(), keys_.end(), key);
+      const std::size_t index = std::distance(keys_.begin(), lower);
 
       if ((index < keys_.size()) && GetKey(index) == key) {
         return true;
