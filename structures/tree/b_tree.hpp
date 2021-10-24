@@ -113,6 +113,14 @@ class BTree final {
 
       return GetChild(index)->Contains(key);
     }
+
+    void Destroy() {
+      for (Node*& child : children_) {
+        child->Destroy();
+        delete child;
+        child = nullptr;
+      }
+    }
   };
 
   int t;
@@ -120,6 +128,14 @@ class BTree final {
 
  public:
   explicit BTree(int t) : t(t), root_(nullptr) {
+  }
+
+  ~BTree() {
+    if (root_ != nullptr) {
+      root_->Destroy();
+      delete root_;
+      root_ = nullptr;
+    }
   }
 
   void Insert(T key) {
