@@ -101,6 +101,26 @@ class BTree final {
         root->RemoveKey(root->GetKey(j));
       }
     }
+
+    [[nodiscard]] bool Contains(T key) const {
+      int index = 0;
+      while (true) {
+        if (index < keys_.size() && key > keys_[index]) {
+          index++;
+          continue;
+        }
+
+        break;
+      }
+
+      if ((index < keys_.size()) && GetKey(index) == key) {
+        return true;
+      } else if (IsLeaf()) {
+        return false;
+      }
+
+      return GetChild(index)->Contains(key);
+    }
   };
 
   int t;
@@ -128,6 +148,10 @@ class BTree final {
         root_->AddKey(key);
       }
     }
+  }
+
+  [[nodiscard]] bool Contains(T key) const {
+    return root_ != nullptr && root_->Contains(key);
   }
 };
 }  // namespace algo::tree
