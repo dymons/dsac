@@ -50,8 +50,7 @@ class BTree final {
     }
 
     void RemoveNode(Node* node) {
-      auto it = std::find(children_.begin(), children_.end(), node);
-      children_.erase(it);
+      children_.erase(std::find(children_.begin(), children_.end(), node));
     }
 
     [[nodiscard]] bool IsLeaf() const noexcept {
@@ -106,7 +105,7 @@ class BTree final {
       const auto lower = std::lower_bound(keys_.begin(), keys_.end(), key);
       const std::size_t index = std::distance(keys_.begin(), lower);
 
-      if ((index < keys_.size()) && GetKey(index) == key) {
+      if ((index < keys_.size()) && (GetKey(index) == key)) {
         return true;
       } else if (IsLeaf()) {
         return false;
@@ -123,23 +122,21 @@ class BTree final {
   explicit BTree(int t) : t(t), root_(nullptr) {
   }
 
-  void Add(T key) {
+  void Insert(T key) {
     if (root_ == nullptr) {
       root_ = new Node{.t = t};
       root_->AddKey(key);
+    } else if (root_->IsKeysFull()) {
+      Node* const new_node = new Node{.t = t};
+      new_node->AddChild(root_);
+      new_node->SplitChild(0, root_);
+
+      const std::size_t index = new_node->GetKey(0) < key ? 1 : 0;
+      new_node->GetChild(index)->AddKey(key);
+
+      root_ = new_node;
     } else {
-      if (root_->IsKeysFull()) {
-        Node* const new_node = new Node{.t = t};
-        new_node->AddChild(root_);
-        new_node->SplitChild(0, root_);
-
-        const std::size_t index = new_node->GetKey(0) < key ? 1 : 0;
-        new_node->GetChild(index)->AddKey(key);
-
-        root_ = new_node;
-      } else {
-        root_->AddKey(key);
-      }
+      root_->AddKey(key);
     }
   }
 
