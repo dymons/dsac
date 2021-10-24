@@ -20,13 +20,6 @@ class BTree final {
     explicit Node(int t) : t_(t) {
     }
 
-    void AddKey(T key) {
-      keys_.insert(std::upper_bound(keys_.begin(), keys_.end(), key), key);
-      // Ключи хранятся в отсортированном виде, проверяем инвариант
-      // состояния узла на выполнение данного условия.
-      assert(std::is_sorted(keys_.begin(), keys_.end()));
-    }
-
     void AddKeyByIndex(std::size_t index, T key) {
       keys_.insert(std::next(keys_.begin(), index), key);
       // Ключи хранятся в отсортированном виде, проверяем инвариант
@@ -69,9 +62,12 @@ class BTree final {
       return keys_.size() == (2 * t_ - 1);
     }
 
-    void InsertNonFull(T key) {
+    void AddKey(T key) {
       if (IsLeaf()) {
-        AddKey(key);
+        keys_.insert(std::upper_bound(keys_.begin(), keys_.end(), key), key);
+        // Ключи хранятся в отсортированном виде, проверяем инвариант
+        // состояния узла на выполнение данного условия.
+        assert(std::is_sorted(keys_.begin(), keys_.end()));
       } else {
         const auto upper = std::upper_bound(keys_.begin(), keys_.end(), key);
         int index = std::distance(keys_.begin(), upper);
@@ -82,7 +78,7 @@ class BTree final {
           }
         }
 
-        GetChild(index)->InsertNonFull(key);
+        GetChild(index)->AddKey(key);
       }
     }
 
@@ -125,11 +121,11 @@ class BTree final {
         new_node->SplitChild(0, root_);
 
         const std::size_t index = new_node->GetKey(0) < key ? 1 : 0;
-        new_node->GetChild(index)->InsertNonFull(key);
+        new_node->GetChild(index)->AddKey(key);
 
         root_ = new_node;
       } else {
-        root_->InsertNonFull(key);
+        root_->AddKey(key);
       }
     }
   }
