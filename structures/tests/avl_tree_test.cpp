@@ -67,15 +67,69 @@ TEST_CASE("Проверка выполнения корректности пов
 TEST_CASE("Корректность построения AVL дерева", "[avl_tree_build]") {
   using namespace algo::tree;
 
-  AVLTree<int> tree;
-  for (const int i : {1, 2, 3, 4, 5, 6, 7, 8, 9, 10}) {
-    tree.Insert(i);
+  SECTION("Построение AVL дерева на отсортированном массиве") {
+    AVLTree<int> tree;
+    for (const int i : {1, 2, 3, 4, 5, 6, 7, 8, 9, 10}) {
+      tree.Insert(i);
+    }
+
+    int index = 0;
+    const std::vector<int> expected{1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+    tree.Visit([&index, &expected](int data) {
+      REQUIRE(index < expected.size());
+      REQUIRE(data == expected[index++]);
+    });
   }
 
-  int index = 0;
-  const std::vector<int> expected{1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
-  tree.Visit([&index, &expected](int data) {
-    REQUIRE(index < expected.size());
-    REQUIRE(data == expected[index++]);
-  });
+  SECTION("Построение AVL дерева на обратно отсортированном массиве") {
+    AVLTree<int> tree;
+    for (const int i : {10, 9, 8, 7, 6, 5, 4, 3, 2, 1}) {
+      tree.Insert(i);
+    }
+
+    int index = 0;
+    const std::vector<int> expected{1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+    tree.Visit([&index, &expected](int data) {
+      REQUIRE(index < expected.size());
+      REQUIRE(data == expected[index++]);
+    });
+  }
+
+  SECTION("Построение AVL дерева с отрицательными значениями") {
+    AVLTree<int> tree;
+    for (const int i : {-5, -4, -3, -2, -1, 1, 2, 3, 4, 5}) {
+      tree.Insert(i);
+    }
+
+    int index = 0;
+    const std::vector<int> expected{-5, -4, -3, -2, -1, 1, 2, 3, 4, 5};
+    tree.Visit([&index, &expected](int data) {
+      REQUIRE(index < expected.size());
+      REQUIRE(data == expected[index++]);
+    });
+  }
+
+  SECTION("Построение AVL дерева с дубликатами") {
+    AVLTree<int> tree;
+    for (const int i : {1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9, 10, 10}) {
+      tree.Insert(i);
+    }
+
+    int index = 0;
+    const std::vector<int> expected{1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+    tree.Visit([&index, &expected](int data) {
+      REQUIRE(index < expected.size());
+      REQUIRE(data == expected[index++]);
+    });
+  }
+
+  SECTION("Построение пустого AVL дерева") {
+    AVLTree<int> tree;
+
+    int index = 0;
+    tree.Visit([&index](int data) {
+      index++;
+    });
+    REQUIRE(index == 0);
+  }
 }
