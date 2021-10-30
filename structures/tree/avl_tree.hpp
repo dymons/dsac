@@ -1,10 +1,15 @@
 #pragma once
 
+#include <functional>
 #include <cassert>
 
 namespace algo::tree {
 template <typename T>
 class AVLTree final {
+ public:
+  using Visitor = std::function<void(T)>;
+
+ private:
   static constexpr char LeftHeavy = -1;
   static constexpr char Balanced = 0;
   static constexpr char RightHeavy = 1;
@@ -49,7 +54,7 @@ class AVLTree final {
     }
   };
 
-  Node* root_;
+  Node* root_ { nullptr };
 
   void SmallLeftRotation(Node*& root) {
     Node* const heavy_right = root->GetRightChild();
@@ -175,15 +180,23 @@ class AVLTree final {
       return true;
     } else if (const bool is_less = added->GetKey() < root->GetKey(); is_less) {
       if (const bool is_added = InsertImpl(root->GetLeftChild(), added); is_added) {
-        return BalancingLeftSubtree(root);;
+        return BalancingLeftSubtree(root);
       }
     } else if (const bool is_more = added->GetKey() > root->GetKey(); is_more) {
       if (const bool is_added = InsertImpl(root->GetRightChild(), added); is_added) {
-        return BalancingRightSubtree(root);;
+        return BalancingRightSubtree(root);
       }
     }
 
     return false;
+  }
+
+  void VisitImpl(Node* root, Visitor visitor) {
+    if (root != nullptr) {
+      VisitImpl(root->GetLeftChild(), visitor);
+      visitor(root->GetKey());
+      VisitImpl(root->GetRightChild(), visitor);
+    }
   }
 
  public:
@@ -192,6 +205,10 @@ class AVLTree final {
     if (const bool is_added = InsertImpl(root_, new_node); !is_added) {
       delete new_node;
     }
+  }
+
+  void Visit(Visitor visitor) {
+    VisitImpl(root_, visitor);
   }
 };
 }  // namespace algo::tree
