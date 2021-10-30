@@ -67,11 +67,36 @@ TEST_CASE("Проверка выполнения корректности пов
 TEST_CASE("Корректность построения AVL дерева", "[avl_tree_build]") {
   using namespace algo::tree;
 
-  SECTION("Построение AVL дерева на отсортированном массиве") {
+  SECTION("Проверка высоты AVL дерева") {
     AVLTree<int> tree;
-    for (const int i : {1, 2, 3, 4, 5, 6, 7, 8, 9, 10}) {
+    for (const int i : {1}) {
       tree.Insert(i);
     }
+    REQUIRE(tree.Depth() == 0);
+  }
+
+  SECTION("Построение AVL дерева на отсортированном массиве") {
+    AVLTree<int> tree;
+    tree.Insert(1);
+    REQUIRE(tree.Depth() == 0);
+    tree.Insert(2);
+    REQUIRE(tree.Depth() == 1);
+    tree.Insert(3);
+    REQUIRE(tree.Depth() == 1);
+    tree.Insert(4);
+    REQUIRE(tree.Depth() == 2);
+    tree.Insert(5);
+    REQUIRE(tree.Depth() == 2);
+    tree.Insert(6);
+    REQUIRE(tree.Depth() == 2);
+    tree.Insert(7);
+    REQUIRE(tree.Depth() == 2);
+    tree.Insert(8);
+    REQUIRE(tree.Depth() == 3);
+    tree.Insert(9);
+    REQUIRE(tree.Depth() == 3);
+    tree.Insert(10);
+    REQUIRE(tree.Depth() == 3);
 
     int index = 0;
     const std::vector<int> expected{1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
@@ -86,6 +111,7 @@ TEST_CASE("Корректность построения AVL дерева", "[av
     for (const int i : {10, 9, 8, 7, 6, 5, 4, 3, 2, 1}) {
       tree.Insert(i);
     }
+    REQUIRE(tree.Depth() == 3);
 
     int index = 0;
     const std::vector<int> expected{1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
@@ -100,6 +126,7 @@ TEST_CASE("Корректность построения AVL дерева", "[av
     for (const int i : {-5, -4, -3, -2, -1, 1, 2, 3, 4, 5}) {
       tree.Insert(i);
     }
+    REQUIRE(tree.Depth() == 3);
 
     int index = 0;
     const std::vector<int> expected{-5, -4, -3, -2, -1, 1, 2, 3, 4, 5};
@@ -114,6 +141,7 @@ TEST_CASE("Корректность построения AVL дерева", "[av
     for (const int i : {1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9, 10, 10}) {
       tree.Insert(i);
     }
+    REQUIRE(tree.Depth() == 3);
 
     int index = 0;
     const std::vector<int> expected{1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
@@ -125,6 +153,7 @@ TEST_CASE("Корректность построения AVL дерева", "[av
 
   SECTION("Построение пустого AVL дерева") {
     AVLTree<int> tree;
+    REQUIRE(tree.Depth() == -1);
 
     int index = 0;
     tree.Visit([&index](int data) {

@@ -10,20 +10,13 @@ class AVLTree final {
   using Visitor = std::function<void(T)>;
 
  private:
-  enum class BalanceStatus : char { LeftHeavy, Balanced, RightHeavy };
-
   class Node final {
     const T key_;
-    BalanceStatus balance_factor_;
     Node* left_;
     Node* right_;
 
    public:
-    explicit Node(T key)
-        : key_(key),
-          balance_factor_(BalanceStatus::Balanced),
-          left_(nullptr),
-          right_(nullptr) {
+    explicit Node(T key) : key_(key), left_(nullptr), right_(nullptr) {
     }
 
     void SetLeftChild(Node* node) noexcept {
@@ -40,14 +33,6 @@ class AVLTree final {
 
     [[nodiscard]] Node*& GetRightChild() noexcept {
       return right_;
-    }
-
-    void SetBalanceFactor(BalanceStatus balance_factor) noexcept {
-      balance_factor_ = balance_factor;
-    }
-
-    [[nodiscard]] BalanceStatus GetBalanceFactor() const noexcept {
-      return balance_factor_;
     }
 
     [[nodiscard]] const T& GetKey() const noexcept {
@@ -82,8 +67,6 @@ class AVLTree final {
 
   void SmallLeftRotation(Node*& root) {
     Node* const heavy_right = root->GetRightChild();
-    root->SetBalanceFactor(BalanceStatus::Balanced);
-    heavy_right->SetBalanceFactor(BalanceStatus::Balanced);
 
     root->SetRightChild(heavy_right->GetLeftChild());
     heavy_right->SetLeftChild(root);
@@ -95,15 +78,6 @@ class AVLTree final {
     Node* const right_child = latest_root->GetRightChild();
     Node* const new_root = right_child->GetLeftChild();
 
-    if (new_root->GetBalanceFactor() == BalanceStatus::LeftHeavy) {
-      latest_root->SetBalanceFactor(BalanceStatus::Balanced);
-      right_child->SetBalanceFactor(BalanceStatus::LeftHeavy);
-    } else {
-      latest_root->SetBalanceFactor(BalanceStatus::LeftHeavy);
-      right_child->SetBalanceFactor(BalanceStatus::Balanced);
-    }
-    new_root->SetBalanceFactor(BalanceStatus::Balanced);
-
     right_child->SetLeftChild(new_root->GetRightChild());
     new_root->SetRightChild(right_child);
     latest_root->SetRightChild(new_root->GetLeftChild());
@@ -114,8 +88,6 @@ class AVLTree final {
 
   void SmallRightRotation(Node*& root) {
     Node* const heavy_left = root->GetLeftChild();
-    root->SetBalanceFactor(BalanceStatus::Balanced);
-    heavy_left->SetBalanceFactor(BalanceStatus::Balanced);
 
     root->SetLeftChild(heavy_left->GetRightChild());
     heavy_left->SetRightChild(root);
@@ -127,15 +99,6 @@ class AVLTree final {
     Node* const left_child = latest_root->GetLeftChild();
     Node* const new_root = left_child->GetRightChild();
 
-    if (new_root->GetBalanceFactor() == BalanceStatus::RightHeavy) {
-      latest_root->SetBalanceFactor(BalanceStatus::Balanced);
-      left_child->SetBalanceFactor(BalanceStatus::RightHeavy);
-    } else {
-      latest_root->SetBalanceFactor(BalanceStatus::RightHeavy);
-      left_child->SetBalanceFactor(BalanceStatus::Balanced);
-    }
-    new_root->SetBalanceFactor(BalanceStatus::Balanced);
-
     left_child->SetRightChild(new_root->GetLeftChild());
     new_root->SetLeftChild(left_child);
     latest_root->SetLeftChild(new_root->GetRightChild());
@@ -144,60 +107,40 @@ class AVLTree final {
     latest_root = new_root;
   }
 
-  void BalancingLeftSubtreeImpl(Node*& root) {
-    Node* left_child = root->GetLeftChild();
-    const BalanceStatus status = left_child->GetBalanceFactor();
-    if (status == BalanceStatus::LeftHeavy) {
-      SmallRightRotation(root);
-    } else if (status == BalanceStatus::RightHeavy) {
-      LargeRightRotation(root);
-    }
-  }
-
-  void BalancingRightSubtreeImpl(Node*& root) {
-    Node* right_child = root->GetRightChild();
-    const BalanceStatus status = right_child->GetBalanceFactor();
-    if (status == BalanceStatus::RightHeavy) {
-      SmallLeftRotation(root);
-    } else if (status == BalanceStatus::LeftHeavy) {
-      LargeLeftRotation(root);
-    }
-  }
-
-  void BalancingLeftSubtree(Node*& root) {
-    const BalanceStatus status = root->GetBalanceFactor();
-    if (status == BalanceStatus::LeftHeavy) {
-      return BalancingLeftSubtreeImpl(root);
-    } else if (status == BalanceStatus::Balanced) {
-      root->SetBalanceFactor(BalanceStatus::LeftHeavy);
-    } else {
-      root->SetBalanceFactor(BalanceStatus::Balanced);
-    }
-  }
-
-  void BalancingRightSubtree(Node*& root) {
-    const BalanceStatus status = root->GetBalanceFactor();
-    if (status == BalanceStatus::RightHeavy) {
-      return BalancingRightSubtreeImpl(root);
-    } else if (status == BalanceStatus::Balanced) {
-      root->SetBalanceFactor(BalanceStatus::RightHeavy);
-    } else {
-      root->SetBalanceFactor(BalanceStatus::Balanced);
-    }
-  }
-
   bool InsertImpl(Node*& root, Node* added) {
     if (root == nullptr) {
       root = added;
       return true;
     } else if (const bool is_less = added->GetKey() < root->GetKey(); is_less) {
       if (const bool is_added = InsertImpl(root->GetLeftChild(), added); is_added) {
-        BalancingLeftSubtree(root);
+        const int left_depth = DepthImpl(root->GetLeftChild());
+        const int right_depth = DepthImpl(root->GetRightChild());
+
+        const int balance_factor = std::abs(left_depth - right_depth);
+        if (balance_factor == 2) {
+          if (added->GetKey() < root->GetLeftChild()->GetKey()) {
+            SmallRightRotation(root);
+          } else {
+            LargeRightRotation(root);
+          }
+        }
+
         return true;
       }
     } else if (const bool is_more = added->GetKey() > root->GetKey(); is_more) {
       if (const bool is_added = InsertImpl(root->GetRightChild(), added); is_added) {
-        BalancingRightSubtree(root);
+        const int left_depth = DepthImpl(root->GetLeftChild());
+        const int right_depth = DepthImpl(root->GetRightChild());
+
+        const int balance_factor = std::abs(left_depth - right_depth);
+        if (balance_factor == 2) {
+          if (added->GetKey() > root->GetRightChild()->GetKey()) {
+            SmallLeftRotation(root);
+          } else {
+            LargeLeftRotation(root);
+          }
+        }
+
         return true;
       }
     }
@@ -211,6 +154,12 @@ class AVLTree final {
       visitor(root->GetKey());
       VisitImpl(root->GetRightChild(), visitor);
     }
+  }
+
+  [[nodiscard]] int DepthImpl(Node* root) const {
+    return root == nullptr ? 0
+                           : 1 + std::max(DepthImpl(root->GetLeftChild()),
+                                          DepthImpl(root->GetRightChild()));
   }
 
  public:
@@ -234,6 +183,10 @@ class AVLTree final {
 
   [[nodiscard]] bool Contains(T key) const {
     return root_ != nullptr && root_->Contains(key);
+  }
+
+  [[nodiscard]] int Depth() const {
+    return DepthImpl(root_) - 1;
   }
 };
 }  // namespace algo::tree
