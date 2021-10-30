@@ -31,14 +31,14 @@ Avito, Parallels, VK, Sber. Список тем был сформирован д
       ширину ([Breadth-first search](https://github.com/dymons/interviews/blob/429dc9f6877afe57da3f70dc26ec0b24ae8b88f4/structures/graph/breadth_first_search.cpp#L31))
     - Поиск в грубину ([Depth-first search](https://github.com/dymons/interviews/blob/429dc9f6877afe57da3f70dc26ec0b24ae8b88f4/structures/graph/depth_first_search.cpp#L31))
     - Алгоритм Дейкстры ([Dijkstra’s algorithm](https://github.com/dymons/interviews/blob/429dc9f6877afe57da3f70dc26ec0b24ae8b88f4/structures/graph/dijkstra_search.cpp#L68))
-    - Задача коммивояжёра
+    - Задача коммивояжёра ([Travelling salesman problem](https://github.com/dymons/interviews/blob/891d1bc3bdeaf1a3733f7b9a9f0badb1c2c12f2a/structures/graph/travelling_salesman_problem.cpp#L136))
 3. Структуры данных и их алгоритмическая сложность
     - Динамический массив (Dynamic Array)
     - Статический массив (Static Array)
     - Двусвязный список (Linked List)
     - Односвязный список (Forward Linked List)
     - Графы (Graphs)
-    - Бинарное дерево поиска (Binary ShortestPath Three)
+    - Бинарное дерево поиска (Binary Shortest Three)
     - Красно-черное дерево (Red-black tree)
     - АВЛ-дерево (AVL-Tree)
     - Стеки (Stack)
