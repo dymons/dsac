@@ -18,4 +18,17 @@ TEST_CASE("Сбалансированное бинарное дерево пои
       REQUIRE(data == expected[index++]);
     });
   }
+
+  SECTION("Малое левое вращение") {
+    AVLTree<int> tree;
+    for (const int i : {1, 2, 3}) {
+      tree.Insert(i);
+    }
+
+    int index = 0;
+    const std::vector<int> expected{1, 2, 3};
+    tree.Visit([&index, &expected](int data) {
+      REQUIRE(data == expected[index++]);
+    });
+  }
 }
