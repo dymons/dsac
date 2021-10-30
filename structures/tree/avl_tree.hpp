@@ -10,19 +10,20 @@ class AVLTree final {
   using Visitor = std::function<void(T)>;
 
  private:
-  static constexpr char LeftHeavy = -1;
-  static constexpr char Balanced = 0;
-  static constexpr char RightHeavy = 1;
+  enum class BalanceStatus : char { LeftHeavy, Balanced, RightHeavy };
 
   class Node final {
     const T key_;
-    char balance_factor_;
+    BalanceStatus balance_factor_;
     Node* left_;
     Node* right_;
 
    public:
     explicit Node(T key)
-        : key_(key), balance_factor_(Balanced), left_(nullptr), right_(nullptr) {
+        : key_(key),
+          balance_factor_(BalanceStatus::Balanced),
+          left_(nullptr),
+          right_(nullptr) {
     }
 
     void SetLeftChild(Node* node) {
@@ -41,11 +42,11 @@ class AVLTree final {
       return right_;
     }
 
-    void SetBalanceFactor(unsigned char balance_factor) {
+    void SetBalanceFactor(BalanceStatus balance_factor) {
       balance_factor_ = balance_factor;
     }
 
-    [[nodiscard]] unsigned char GetBalanceFactor() const noexcept {
+    [[nodiscard]] BalanceStatus GetBalanceFactor() const noexcept {
       return balance_factor_;
     }
 
@@ -54,12 +55,12 @@ class AVLTree final {
     }
   };
 
-  Node* root_ { nullptr };
+  Node* root_{nullptr};
 
   void SmallLeftRotation(Node*& root) {
     Node* const heavy_right = root->GetRightChild();
-    root->SetBalanceFactor(Balanced);
-    heavy_right->SetBalanceFactor(Balanced);
+    root->SetBalanceFactor(BalanceStatus::Balanced);
+    heavy_right->SetBalanceFactor(BalanceStatus::Balanced);
 
     root->SetRightChild(heavy_right->GetLeftChild());
     heavy_right->SetLeftChild(root);
@@ -71,14 +72,14 @@ class AVLTree final {
     Node* const heavy_right = root->GetRightChild();
     Node* const heavy_left = heavy_left->GetLeftChild();
 
-    if (heavy_left->GetBalanceFactor() == LeftHeavy) {
-      root->SetBalanceFactor(Balanced);
-      heavy_right->SetBalanceFactor(LeftHeavy);
+    if (heavy_left->GetBalanceFactor() == BalanceStatus::LeftHeavy) {
+      root->SetBalanceFactor(BalanceStatus::Balanced);
+      heavy_right->SetBalanceFactor(BalanceStatus::LeftHeavy);
     } else {
-      root->SetBalanceFactor(LeftHeavy);
-      heavy_right->SetBalanceFactor(Balanced);
+      root->SetBalanceFactor(BalanceStatus::LeftHeavy);
+      heavy_right->SetBalanceFactor(BalanceStatus::Balanced);
     }
-    heavy_left->SetBalanceFactor(Balanced);
+    heavy_left->SetBalanceFactor(BalanceStatus::Balanced);
 
     heavy_right->SetLeftChild(heavy_left->GetRightChild());
     heavy_left->SetRightChild(heavy_right);
@@ -90,8 +91,8 @@ class AVLTree final {
 
   void SmallRightRotation(Node*& root) {
     Node* const heavy_left = root->GetLeftChild();
-    root->SetBalanceFactor(Balanced);
-    heavy_left->SetBalanceFactor(Balanced);
+    root->SetBalanceFactor(BalanceStatus::Balanced);
+    heavy_left->SetBalanceFactor(BalanceStatus::Balanced);
 
     root->SetLeftChild(heavy_left->GetRightChild());
     heavy_left->SetRightChild(root);
@@ -103,14 +104,14 @@ class AVLTree final {
     Node* const heavy_left = root->GetLeftChild();
     Node* const heavy_right = heavy_left->GetRightChild();
 
-    if (heavy_right->GetBalanceFactor() == RightHeavy) {
-      root->SetBalanceFactor(Balanced);
-      heavy_left->SetBalanceFactor(RightHeavy);
+    if (heavy_right->GetBalanceFactor() == BalanceStatus::RightHeavy) {
+      root->SetBalanceFactor(BalanceStatus::Balanced);
+      heavy_left->SetBalanceFactor(BalanceStatus::RightHeavy);
     } else {
-      root->SetBalanceFactor(RightHeavy);
-      heavy_left->SetBalanceFactor(Balanced);
+      root->SetBalanceFactor(BalanceStatus::RightHeavy);
+      heavy_left->SetBalanceFactor(BalanceStatus::Balanced);
     }
-    heavy_right->SetBalanceFactor(Balanced);
+    heavy_right->SetBalanceFactor(BalanceStatus::Balanced);
 
     heavy_left->SetRightChild(heavy_right->GetLeftChild());
     heavy_right->SetLeftChild(heavy_left);
@@ -122,11 +123,11 @@ class AVLTree final {
 
   [[nodiscard]] bool BalancingLeftSubtreeImpl(Node*& root) {
     Node* left_child = root->GetLeftChild();
-    const char left_child_balance_factor = left_child->GetBalanceFactor();
-    if (left_child_balance_factor == LeftHeavy) {
+    const BalanceStatus left_child_balance_factor = left_child->GetBalanceFactor();
+    if (left_child_balance_factor == BalanceStatus::LeftHeavy) {
       SmallRightRotation(root);
       return true;
-    } else if (left_child_balance_factor == RightHeavy) {
+    } else if (left_child_balance_factor == BalanceStatus::RightHeavy) {
       LargeRightRotation(root);
       return true;
     }
@@ -136,11 +137,11 @@ class AVLTree final {
 
   [[nodiscard]] bool BalancingRightSubtreeImpl(Node*& root) {
     Node* right_child = root->GetRightChild();
-    const char right_child_balance_factor = right_child->GetBalanceFactor();
-    if (right_child_balance_factor == RightHeavy) {
+    const BalanceStatus right_child_balance_factor = right_child->GetBalanceFactor();
+    if (right_child_balance_factor == BalanceStatus::RightHeavy) {
       SmallLeftRotation(root);
       return true;
-    } else if (right_child_balance_factor == LeftHeavy) {
+    } else if (right_child_balance_factor == BalanceStatus::LeftHeavy) {
       LargeLeftRotation(root);
       return true;
     }
@@ -149,28 +150,28 @@ class AVLTree final {
   }
 
   [[nodiscard]] bool BalancingLeftSubtree(Node*& root) {
-    const char current_balance_factor = root->GetBalanceFactor();
-    if (current_balance_factor == LeftHeavy) {
+    const BalanceStatus current_balance_factor = root->GetBalanceFactor();
+    if (current_balance_factor == BalanceStatus::LeftHeavy) {
       return BalancingLeftSubtreeImpl(root);
-    } else if (current_balance_factor == Balanced) {
-      root->SetBalanceFactor(LeftHeavy);
+    } else if (current_balance_factor == BalanceStatus::Balanced) {
+      root->SetBalanceFactor(BalanceStatus::LeftHeavy);
       return true;
     }
 
-    root->SetBalanceFactor(Balanced);
+    root->SetBalanceFactor(BalanceStatus::Balanced);
     return false;
   }
 
   [[nodiscard]] bool BalancingRightSubtree(Node*& root) {
-    const char current_balance_factor = root->GetBalanceFactor();
-    if (current_balance_factor == RightHeavy) {
+    const BalanceStatus current_balance_factor = root->GetBalanceFactor();
+    if (current_balance_factor == BalanceStatus::RightHeavy) {
       return BalancingRightSubtreeImpl(root);
-    } else if (current_balance_factor == Balanced) {
-      root->SetBalanceFactor(RightHeavy);
+    } else if (current_balance_factor == BalanceStatus::Balanced) {
+      root->SetBalanceFactor(BalanceStatus::RightHeavy);
       return true;
     }
 
-    root->SetBalanceFactor(Balanced);
+    root->SetBalanceFactor(BalanceStatus::Balanced);
     return false;
   }
 
