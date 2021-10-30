@@ -165,28 +165,28 @@ class AVLTree final {
   }
 
   void BalancingLeftSubtree(Node*& root) {
-    const BalanceStatus current_balance_factor = root->GetBalanceFactor();
-    if (current_balance_factor == BalanceStatus::LeftHeavy) {
+    const BalanceStatus status = root->GetBalanceFactor();
+    if (status == BalanceStatus::LeftHeavy) {
       return BalancingLeftSubtreeImpl(root);
-    } else if (current_balance_factor == BalanceStatus::Balanced) {
+    } else if (status == BalanceStatus::Balanced) {
       root->SetBalanceFactor(BalanceStatus::LeftHeavy);
+    } else {
+      root->SetBalanceFactor(BalanceStatus::Balanced);
     }
-
-    root->SetBalanceFactor(BalanceStatus::Balanced);
   }
 
   void BalancingRightSubtree(Node*& root) {
-    const BalanceStatus current_balance_factor = root->GetBalanceFactor();
-    if (current_balance_factor == BalanceStatus::RightHeavy) {
+    const BalanceStatus status = root->GetBalanceFactor();
+    if (status == BalanceStatus::RightHeavy) {
       return BalancingRightSubtreeImpl(root);
-    } else if (current_balance_factor == BalanceStatus::Balanced) {
+    } else if (status == BalanceStatus::Balanced) {
       root->SetBalanceFactor(BalanceStatus::RightHeavy);
+    } else {
+      root->SetBalanceFactor(BalanceStatus::Balanced);
     }
-
-    root->SetBalanceFactor(BalanceStatus::Balanced);
   }
 
-  [[nodiscard]] bool InsertImpl(Node*& root, Node* added) {
+  bool InsertImpl(Node*& root, Node* added) {
     if (root == nullptr) {
       root = added;
       return true;
@@ -223,9 +223,8 @@ class AVLTree final {
   }
 
   void Insert(T added_key) {
-    Node* const new_node = new Node{added_key};
-    if (const bool is_added = InsertImpl(root_, new_node); !is_added) {
-      delete new_node;
+    if (const bool exist = Contains(added_key); !exist) {
+      InsertImpl(root_, new Node{added_key});
     }
   }
 
