@@ -31,7 +31,7 @@ class BinaryTree final {
     InsertImpl(root_, new_node);
   }
 
-  void Visit(Visitor visitor) {
+  void Visit(Visitor visitor) const {
     VisitImpl(root_, visitor);
   }
 
@@ -63,7 +63,7 @@ class BinaryTree final {
     }
   }
 
-  void VisitImpl(Node* root, Visitor visitor) {
+  void VisitImpl(Node* root, Visitor visitor) const {
     if (root != nullptr) {
       VisitImpl(root->left, visitor);
       visitor(root->data);

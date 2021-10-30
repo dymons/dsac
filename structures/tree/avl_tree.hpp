@@ -26,11 +26,11 @@ class AVLTree final {
           right_(nullptr) {
     }
 
-    void SetLeftChild(Node* node) {
+    void SetLeftChild(Node* node) noexcept {
       left_ = node;
     }
 
-    void SetRightChild(Node* node) {
+    void SetRightChild(Node* node) noexcept {
       right_ = node;
     }
 
@@ -42,7 +42,7 @@ class AVLTree final {
       return right_;
     }
 
-    void SetBalanceFactor(BalanceStatus balance_factor) {
+    void SetBalanceFactor(BalanceStatus balance_factor) noexcept {
       balance_factor_ = balance_factor;
     }
 
@@ -61,6 +61,20 @@ class AVLTree final {
 
       return (left_ != nullptr && left_->Contains(key)) ||
              (right_ != nullptr && right_->Contains(key));
+    }
+
+    void Destroy() {
+      if (left_ != nullptr) {
+        left_->Destroy();
+        delete left_;
+        left_ = nullptr;
+      }
+
+      if (right_ != nullptr) {
+        right_->Destroy();
+        delete right_;
+        right_ = nullptr;
+      }
     }
   };
 
@@ -132,20 +146,20 @@ class AVLTree final {
 
   void BalancingLeftSubtreeImpl(Node*& root) {
     Node* left_child = root->GetLeftChild();
-    const BalanceStatus left_child_balance_factor = left_child->GetBalanceFactor();
-    if (left_child_balance_factor == BalanceStatus::LeftHeavy) {
+    const BalanceStatus status = left_child->GetBalanceFactor();
+    if (status == BalanceStatus::LeftHeavy) {
       SmallRightRotation(root);
-    } else if (left_child_balance_factor == BalanceStatus::RightHeavy) {
+    } else if (status == BalanceStatus::RightHeavy) {
       LargeRightRotation(root);
     }
   }
 
   void BalancingRightSubtreeImpl(Node*& root) {
     Node* right_child = root->GetRightChild();
-    const BalanceStatus right_child_balance_factor = right_child->GetBalanceFactor();
-    if (right_child_balance_factor == BalanceStatus::RightHeavy) {
+    const BalanceStatus status = right_child->GetBalanceFactor();
+    if (status == BalanceStatus::RightHeavy) {
       SmallLeftRotation(root);
-    } else if (right_child_balance_factor == BalanceStatus::LeftHeavy) {
+    } else if (status == BalanceStatus::LeftHeavy) {
       LargeLeftRotation(root);
     }
   }
@@ -191,7 +205,7 @@ class AVLTree final {
     return false;
   }
 
-  void VisitImpl(Node* root, Visitor visitor) {
+  void VisitImpl(Node* root, Visitor visitor) const {
     if (root != nullptr) {
       VisitImpl(root->GetLeftChild(), visitor);
       visitor(root->GetKey());
@@ -200,6 +214,14 @@ class AVLTree final {
   }
 
  public:
+  ~AVLTree() {
+    if (root_ != nullptr) {
+      root_->Destroy();
+      delete root_;
+      root_ = nullptr;
+    }
+  }
+
   void Insert(T added_key) {
     Node* const new_node = new Node{added_key};
     if (const bool is_added = InsertImpl(root_, new_node); !is_added) {
@@ -207,7 +229,7 @@ class AVLTree final {
     }
   }
 
-  void Visit(Visitor visitor) {
+  void Visit(Visitor visitor) const {
     VisitImpl(root_, visitor);
   }
 
