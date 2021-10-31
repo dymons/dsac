@@ -168,8 +168,6 @@ typename AVLTree<T>::Node* AVLTree<T>::DeleteMinChild(Node* root) {
     return root->GetRightChild();
   }
 
-  // TODO delete left child
-
   root->SetLeftChild(DeleteMinChild(left_child));
   return root;
 }
@@ -185,11 +183,17 @@ typename AVLTree<T>::Node* AVLTree<T>::DeleteImpl(Node*& root, T deleted_key) {
     const int right_depth = DepthImpl(root->GetRightChild());
 
     const int balance_factor = std::abs(left_depth - right_depth);
-    if (balance_factor == 2) {
-      if (deleted_key > root->GetRightChild()->GetKey()) {
+    if (balance_factor == 2 && right_depth > left_depth) {
+      if (deleted_key > root->GetKey()) {
         LargeLeftRotation(root);
       } else {
         SmallLeftRotation(root);
+      }
+    } else if (balance_factor == 2 && left_depth > right_depth) {
+      if (deleted_key > root->GetKey()) {
+        LargeRightRotation(root);
+      } else {
+        SmallRightRotation(root);
       }
     }
 
@@ -202,11 +206,17 @@ typename AVLTree<T>::Node* AVLTree<T>::DeleteImpl(Node*& root, T deleted_key) {
     const int right_depth = DepthImpl(root->GetRightChild());
 
     const int balance_factor = std::abs(left_depth - right_depth);
-    if (balance_factor == 2) {
-      if (deleted_key < root->GetLeftChild()->GetKey()) {
+    if (balance_factor == 2 && left_depth > right_depth) {
+      if (deleted_key < root->GetKey()) {
         LargeRightRotation(root);
       } else {
         SmallRightRotation(root);
+      }
+    } else if (balance_factor == 2 && right_depth > left_depth) {
+      if (deleted_key < root->GetKey()) {
+        LargeLeftRotation(root);
+      } else {
+        SmallLeftRotation(root);
       }
     }
 

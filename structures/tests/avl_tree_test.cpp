@@ -1,5 +1,6 @@
 #include <catch2/catch.hpp>
 
+#include <random>
 #include <vector>
 #include <structures/tree/avl_tree.hpp>
 
@@ -173,16 +174,16 @@ TEST_CASE("Корректность удаления элементов из AVL
 
   SECTION("Удаление вершины дерева") {
     AVLTree<int> tree;
-    for (const int i : {1, 2, 3}) {
+    for (const int i : {1, 2, 4, 3}) {
       tree.Insert(i);
     }
-    REQUIRE(tree.Depth() == 1);
+    REQUIRE(tree.Depth() == 2);
 
     tree.Delete(2);
     REQUIRE_FALSE(tree.Contains(2));
 
     int index = 0;
-    const std::vector<int> expected{1, 3};
+    const std::vector<int> expected{1, 3, 4};
     tree.Visit([&index, &expected](int data) {
       REQUIRE(index < expected.size());
       REQUIRE(data == expected[index++]);
@@ -198,6 +199,33 @@ TEST_CASE("Корректность удаления элементов из AVL
 
     for (const int i : {1, 2, 3, 4, 5, 6, 7, 8, 9, 10}) {
       tree.Delete(i);
+    }
+    REQUIRE(tree.Depth() == -1);
+
+    int index = 0;
+    tree.Visit([&index](int data) {
+      ++index;
+    });
+    REQUIRE(index == 0);
+  }
+
+  SECTION("Добавление/Удаление случайных элементов в AVL дерева") {
+    std::random_device random_device;
+    std::mt19937 generator(random_device());
+    std::uniform_int_distribution<> distribution(-1000, 1000);
+
+    constexpr int count_samples = 2000;
+    std::vector<int> buffer;
+    buffer.reserve(count_samples);
+
+    AVLTree<int> tree;
+    for (int i = 0; i < count_samples; ++i) {
+      buffer.push_back(distribution(generator));
+      tree.Insert(buffer.back());
+    }
+
+    for (int data : buffer) {
+      tree.Delete(data);
     }
     REQUIRE(tree.Depth() == -1);
 
