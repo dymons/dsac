@@ -5,6 +5,7 @@
 namespace algo::tree {
 template <typename T>
 class AVLTree final {
+  // TODO (Dmitry Emelyanov) Реализовать методы begin()/end() для обхода дерева
  public:
   using Visitor = std::function<void(T)>;
 
@@ -37,7 +38,7 @@ class AVLTree final {
   void SmallRightRotation(Node*& subtree) const;
   void LargeRightRotation(Node*& subtree) const;
 
-  template<typename Comp>
+  template <typename Comp>
   void BalancingSubtree(Node*& subtree, T destination_key, T source_key, Comp comp) const;
 
   Node* DeleteMinChild(Node* subtree);
