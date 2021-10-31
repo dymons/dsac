@@ -162,3 +162,49 @@ TEST_CASE("Корректность построения AVL дерева", "[av
     REQUIRE(index == 0);
   }
 }
+
+TEST_CASE("Корректность удаления элементов из AVL дерева", "[avl_tree_delete]") {
+  using namespace algo::tree;
+
+  SECTION("Удаление элементов из пустого дерева") {
+    AVLTree<int> tree;
+    REQUIRE_NOTHROW(tree.Delete(1));
+  }
+
+  SECTION("Удаление вершины дерева") {
+    AVLTree<int> tree;
+    for (const int i : {1, 2, 3}) {
+      tree.Insert(i);
+    }
+    REQUIRE(tree.Depth() == 1);
+
+    tree.Delete(2);
+    REQUIRE_FALSE(tree.Contains(2));
+
+    int index = 0;
+    const std::vector<int> expected{1, 3};
+    tree.Visit([&index, &expected](int data) {
+      REQUIRE(index < expected.size());
+      REQUIRE(data == expected[index++]);
+    });
+  }
+
+  SECTION("Удаление всех элементов из AVL дерева") {
+    AVLTree<int> tree;
+    for (const int i : {1, 2, 3, 4, 5, 6, 7, 8, 9, 10}) {
+      tree.Insert(i);
+    }
+    REQUIRE(tree.Depth() == 3);
+
+    for (const int i : {1, 2, 3, 4, 5, 6, 7, 8, 9, 10}) {
+      tree.Delete(i);
+    }
+    REQUIRE(tree.Depth() == -1);
+
+    int index = 0;
+    tree.Visit([&index](int data) {
+      ++index;
+    });
+    REQUIRE(index == 0);
+  }
+}

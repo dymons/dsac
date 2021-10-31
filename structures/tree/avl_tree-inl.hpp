@@ -106,13 +106,13 @@ void AVLTree<T>::LargeRightRotation(Node*& latest_root) const {
 }
 
 template <typename T>
-void AVLTree<T>::BalancingLeftSubtree(Node*& root, Node* added) const {
+void AVLTree<T>::BalancingLeftSubtree(Node*& root, T added_key) const {
   const int left_depth = DepthImpl(root->GetLeftChild());
   const int right_depth = DepthImpl(root->GetRightChild());
 
   const int balance_factor = std::abs(left_depth - right_depth);
   if (balance_factor == 2) {
-    if (added->GetKey() < root->GetLeftChild()->GetKey()) {
+    if (added_key < root->GetLeftChild()->GetKey()) {
       SmallRightRotation(root);
     } else {
       LargeRightRotation(root);
@@ -121,13 +121,13 @@ void AVLTree<T>::BalancingLeftSubtree(Node*& root, Node* added) const {
 }
 
 template <typename T>
-void AVLTree<T>::BalancingRightSubtree(Node*& root, Node* added) const {
+void AVLTree<T>::BalancingRightSubtree(Node*& root, T added_key) const {
   const int left_depth = DepthImpl(root->GetLeftChild());
   const int right_depth = DepthImpl(root->GetRightChild());
 
   const int balance_factor = std::abs(left_depth - right_depth);
   if (balance_factor == 2) {
-    if (added->GetKey() > root->GetRightChild()->GetKey()) {
+    if (added_key > root->GetRightChild()->GetKey()) {
       SmallLeftRotation(root);
     } else {
       LargeLeftRotation(root);
@@ -142,17 +142,89 @@ bool AVLTree<T>::InsertImpl(Node*& root, Node* added) const {
     return true;
   } else if (const bool is_less = added->GetKey() < root->GetKey(); is_less) {
     if (const bool is_added = InsertImpl(root->GetLeftChild(), added); is_added) {
-      BalancingLeftSubtree(root, added);
+      BalancingLeftSubtree(root, added->GetKey());
       return true;
     }
   } else if (const bool is_more = added->GetKey() > root->GetKey(); is_more) {
     if (const bool is_added = InsertImpl(root->GetRightChild(), added); is_added) {
-      BalancingRightSubtree(root, added);
+      BalancingRightSubtree(root, added->GetKey());
       return true;
     }
   }
 
   return false;
+}
+
+template <typename T>
+typename AVLTree<T>::Node* AVLTree<T>::FindMinChild(Node* root) const {
+  Node* const child = root->GetLeftChild();
+  return child != nullptr ? FindMinChild(child) : root;
+}
+
+template <typename T>
+typename AVLTree<T>::Node* AVLTree<T>::DeleteMinChild(Node* root) {
+  Node* left_child = root->GetLeftChild();
+  if (left_child == nullptr) {
+    return root->GetRightChild();
+  }
+
+  // TODO delete left child
+
+  root->SetLeftChild(DeleteMinChild(left_child));
+  return root;
+}
+
+template <typename T>
+typename AVLTree<T>::Node* AVLTree<T>::DeleteImpl(Node*& root, T deleted_key) {
+  if (root == nullptr) {
+    return nullptr;
+  } else if (const bool is_less = deleted_key < root->GetKey(); is_less) {
+    root->SetLeftChild(DeleteImpl(root->GetLeftChild(), deleted_key));
+
+    const int left_depth = DepthImpl(root->GetLeftChild());
+    const int right_depth = DepthImpl(root->GetRightChild());
+
+    const int balance_factor = std::abs(left_depth - right_depth);
+    if (balance_factor == 2) {
+      if (deleted_key > root->GetRightChild()->GetKey()) {
+        LargeLeftRotation(root);
+      } else {
+        SmallLeftRotation(root);
+      }
+    }
+
+    return root;
+  } else if (const bool is_more = deleted_key > root->GetKey(); is_more) {
+    Node* node = DeleteImpl(root->GetRightChild(), deleted_key);
+    root->SetRightChild(node);
+
+    const int left_depth = DepthImpl(root->GetLeftChild());
+    const int right_depth = DepthImpl(root->GetRightChild());
+
+    const int balance_factor = std::abs(left_depth - right_depth);
+    if (balance_factor == 2) {
+      if (deleted_key < root->GetLeftChild()->GetKey()) {
+        LargeRightRotation(root);
+      } else {
+        SmallRightRotation(root);
+      }
+    }
+
+    return root;
+  }
+
+  Node* left_child = root->GetLeftChild();
+  Node* right_child = root->GetRightChild();
+  delete root;
+
+  if (right_child == nullptr) {
+    return left_child;
+  }
+
+  Node* const min_child = FindMinChild(right_child);
+  min_child->SetRightChild(DeleteMinChild(right_child));
+  min_child->SetLeftChild(left_child);
+  return min_child;
 }
 
 template <typename T>
@@ -185,6 +257,10 @@ void AVLTree<T>::Insert(T added_key) {
   if (const bool exist = Contains(added_key); !exist) {
     InsertImpl(root_, new Node{added_key});
   }
+}
+template <typename T>
+void AVLTree<T>::Delete(T deleted_key) {
+  root_ = DeleteImpl(root_, deleted_key);
 }
 
 template <typename T>

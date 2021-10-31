@@ -33,10 +33,14 @@ class AVLTree final {
   void LargeLeftRotation(Node*& latest_root) const;
   void SmallRightRotation(Node*& root) const;
   void LargeRightRotation(Node*& latest_root) const;
-  void BalancingLeftSubtree(Node*& root, Node* added) const;
-  void BalancingRightSubtree(Node*& root, Node* added) const;
 
+  void BalancingLeftSubtree(Node*& root, T added_key) const;
+  void BalancingRightSubtree(Node*& root, T added_key) const;
+
+  Node* DeleteMinChild(Node* root);
+  Node* FindMinChild(Node* root) const;
   bool InsertImpl(Node*& root, Node* added) const;
+  Node* DeleteImpl(Node*& root, T deleted_key);
   void VisitImpl(Node* root, Visitor visitor) const;
   [[nodiscard]] int DepthImpl(Node* root) const;
 
@@ -44,6 +48,7 @@ class AVLTree final {
   ~AVLTree();
 
   void Insert(T added_key);
+  void Delete(T deleted_key);
 
   [[nodiscard]] bool Contains(T key) const;
   [[nodiscard]] int Depth() const;
