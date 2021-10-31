@@ -35,9 +35,7 @@ class AVLTree final {
   void LargeRightRotation(Node*& latest_root) const;
 
   template<typename Comp>
-  void BalancingSubtree(Node*& root, T key, Comp comp) const;
-  void BalancingLeftSubtree(Node*& root, T added_key) const;
-  void BalancingRightSubtree(Node*& root, T added_key) const;
+  void BalancingSubtree(Node*& subtree, T destination_key, T source_key, Comp comp) const;
 
   Node* DeleteMinChild(Node* root);
   Node* FindMinChild(Node* root) const;

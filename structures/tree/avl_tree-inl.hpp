@@ -106,53 +106,24 @@ void AVLTree<T>::LargeRightRotation(Node*& latest_root) const {
 }
 
 template <typename T>
-void AVLTree<T>::BalancingLeftSubtree(Node*& root, T added_key) const {
-  const int left_depth = DepthImpl(root->GetLeftChild());
-  const int right_depth = DepthImpl(root->GetRightChild());
-
-  const int balance_factor = std::abs(left_depth - right_depth);
-  if (balance_factor == 2) {
-    if (added_key < root->GetLeftChild()->GetKey()) {
-      SmallRightRotation(root);
-    } else {
-      LargeRightRotation(root);
-    }
-  }
-}
-
-template <typename T>
-void AVLTree<T>::BalancingRightSubtree(Node*& root, T added_key) const {
-  const int left_depth = DepthImpl(root->GetLeftChild());
-  const int right_depth = DepthImpl(root->GetRightChild());
-
-  const int balance_factor = std::abs(left_depth - right_depth);
-  if (balance_factor == 2) {
-    if (added_key > root->GetRightChild()->GetKey()) {
-      SmallLeftRotation(root);
-    } else {
-      LargeLeftRotation(root);
-    }
-  }
-}
-
-template <typename T>
 template <typename Comp>
-void AVLTree<T>::BalancingSubtree(Node*& root, T key, Comp comp) const {
-  const int left_depth = DepthImpl(root->GetLeftChild());
-  const int right_depth = DepthImpl(root->GetRightChild());
+void AVLTree<T>::BalancingSubtree(Node*& subtree, T destination_key, T source_key,
+                                  Comp comp) const {
+  const int left_depth = DepthImpl(subtree->GetLeftChild());
+  const int right_depth = DepthImpl(subtree->GetRightChild());
 
   const int balance_factor = left_depth - right_depth;
   if (balance_factor == -2) {
-    if (comp(key, root->GetKey())) {
-      LargeLeftRotation(root);
+    if (comp(destination_key, source_key)) {
+      LargeLeftRotation(subtree);
     } else {
-      SmallLeftRotation(root);
+      SmallLeftRotation(subtree);
     }
   } else if (balance_factor == 2) {
-    if (comp(key, root->GetKey())) {
-      LargeRightRotation(root);
+    if (comp(destination_key, source_key)) {
+      LargeRightRotation(subtree);
     } else {
-      SmallRightRotation(root);
+      SmallRightRotation(subtree);
     }
   }
 }
@@ -164,12 +135,16 @@ bool AVLTree<T>::InsertImpl(Node*& root, Node* added) const {
     return true;
   } else if (const bool is_less = added->GetKey() < root->GetKey(); is_less) {
     if (const bool is_added = InsertImpl(root->GetLeftChild(), added); is_added) {
-      BalancingLeftSubtree(root, added->GetKey());
+      T const& dest_key = added->GetKey();
+      T const& source_key = root->GetLeftChild()->GetKey();
+      BalancingSubtree(root, dest_key, source_key, std::greater{});
       return true;
     }
   } else if (const bool is_more = added->GetKey() > root->GetKey(); is_more) {
     if (const bool is_added = InsertImpl(root->GetRightChild(), added); is_added) {
-      BalancingRightSubtree(root, added->GetKey());
+      T const& dest_key = added->GetKey();
+      T const& source_key = root->GetRightChild()->GetKey();
+      BalancingSubtree(root, dest_key, source_key, std::less{});
       return true;
     }
   }
@@ -200,11 +175,11 @@ typename AVLTree<T>::Node* AVLTree<T>::DeleteImpl(Node*& root, T deleted_key) {
     return nullptr;
   } else if (const bool is_less = deleted_key < root->GetKey(); is_less) {
     root->SetLeftChild(DeleteImpl(root->GetLeftChild(), deleted_key));
-    BalancingSubtree(root, deleted_key, std::greater{});
+    BalancingSubtree(root, deleted_key, root->GetKey(), std::greater{});
     return root;
   } else if (const bool is_more = deleted_key > root->GetKey(); is_more) {
     root->SetRightChild(DeleteImpl(root->GetRightChild(), deleted_key));
-    BalancingSubtree(root, deleted_key, std::less{});
+    BalancingSubtree(root, deleted_key, root->GetKey(), std::less{});
     return root;
   }
 
