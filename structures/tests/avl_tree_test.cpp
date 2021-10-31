@@ -212,9 +212,9 @@ TEST_CASE("Корректность удаления элементов из AVL
   SECTION("Добавление/Удаление случайных элементов в AVL дерева") {
     std::random_device random_device;
     std::mt19937 generator(random_device());
-    std::uniform_int_distribution<> distribution(-1000, 1000);
+    std::uniform_int_distribution<> distribution(-10000, 10000);
 
-    constexpr int count_samples = 2000;
+    constexpr int count_samples = 20000;
     std::vector<int> buffer;
     buffer.reserve(count_samples);
 

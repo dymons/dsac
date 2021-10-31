@@ -136,6 +136,28 @@ void AVLTree<T>::BalancingRightSubtree(Node*& root, T added_key) const {
 }
 
 template <typename T>
+template <typename Comp>
+void AVLTree<T>::BalancingSubtree(Node*& root, T key, Comp comp) const {
+  const int left_depth = DepthImpl(root->GetLeftChild());
+  const int right_depth = DepthImpl(root->GetRightChild());
+
+  const int balance_factor = left_depth - right_depth;
+  if (balance_factor == -2) {
+    if (comp(key, root->GetKey())) {
+      LargeLeftRotation(root);
+    } else {
+      SmallLeftRotation(root);
+    }
+  } else if (balance_factor == 2) {
+    if (comp(key, root->GetKey())) {
+      LargeRightRotation(root);
+    } else {
+      SmallRightRotation(root);
+    }
+  }
+}
+
+template <typename T>
 bool AVLTree<T>::InsertImpl(Node*& root, Node* added) const {
   if (root == nullptr) {
     root = added;
@@ -178,48 +200,11 @@ typename AVLTree<T>::Node* AVLTree<T>::DeleteImpl(Node*& root, T deleted_key) {
     return nullptr;
   } else if (const bool is_less = deleted_key < root->GetKey(); is_less) {
     root->SetLeftChild(DeleteImpl(root->GetLeftChild(), deleted_key));
-
-    const int left_depth = DepthImpl(root->GetLeftChild());
-    const int right_depth = DepthImpl(root->GetRightChild());
-
-    const int balance_factor = std::abs(left_depth - right_depth);
-    if (balance_factor == 2 && right_depth > left_depth) {
-      if (deleted_key > root->GetKey()) {
-        LargeLeftRotation(root);
-      } else {
-        SmallLeftRotation(root);
-      }
-    } else if (balance_factor == 2 && left_depth > right_depth) {
-      if (deleted_key > root->GetKey()) {
-        LargeRightRotation(root);
-      } else {
-        SmallRightRotation(root);
-      }
-    }
-
+    BalancingSubtree(root, deleted_key, std::greater{});
     return root;
   } else if (const bool is_more = deleted_key > root->GetKey(); is_more) {
-    Node* node = DeleteImpl(root->GetRightChild(), deleted_key);
-    root->SetRightChild(node);
-
-    const int left_depth = DepthImpl(root->GetLeftChild());
-    const int right_depth = DepthImpl(root->GetRightChild());
-
-    const int balance_factor = std::abs(left_depth - right_depth);
-    if (balance_factor == 2 && left_depth > right_depth) {
-      if (deleted_key < root->GetKey()) {
-        LargeRightRotation(root);
-      } else {
-        SmallRightRotation(root);
-      }
-    } else if (balance_factor == 2 && right_depth > left_depth) {
-      if (deleted_key < root->GetKey()) {
-        LargeLeftRotation(root);
-      } else {
-        SmallLeftRotation(root);
-      }
-    }
-
+    root->SetRightChild(DeleteImpl(root->GetRightChild(), deleted_key));
+    BalancingSubtree(root, deleted_key, std::less{});
     return root;
   }
 
