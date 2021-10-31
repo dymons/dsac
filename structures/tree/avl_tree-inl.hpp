@@ -6,7 +6,7 @@
 
 namespace algo::tree {
 template <typename T>
-AVLTree<T>::Node::Node(T key) : key_(key), left_(nullptr), right_(nullptr) {
+AVLTree<T>::Node::Node(T key) : key_(key), left_(nullptr), right_(nullptr), height_(0) {
 }
 
 template <typename T>
@@ -17,6 +17,11 @@ void AVLTree<T>::Node::SetLeftChild(Node* node) noexcept {
 template <typename T>
 void AVLTree<T>::Node::SetRightChild(Node* node) noexcept {
   right_ = node;
+}
+
+template <typename T>
+void AVLTree<T>::Node::SetHeight(int height) noexcept {
+  height_ = height;
 }
 
 template <typename T>
@@ -32,6 +37,11 @@ typename AVLTree<T>::Node*& AVLTree<T>::Node::GetRightChild() noexcept {
 template <typename T>
 const T& AVLTree<T>::Node::GetKey() const noexcept {
   return key_;
+}
+
+template <typename T>
+int AVLTree<T>::Node::GetHeight() noexcept {
+  return height_;
 }
 
 template <typename T>
@@ -66,20 +76,10 @@ void AVLTree<T>::SmallLeftRotation(Node*& root) const {
   root->SetRightChild(heavy_right->GetLeftChild());
   heavy_right->SetLeftChild(root);
 
+  root->SetHeight(GetMaxHeight(root->GetLeftChild(), root->GetRightChild()));
+  heavy_right->SetHeight(GetMaxHeight(root, heavy_right->GetRightChild()));
+
   root = heavy_right;
-}
-
-template <typename T>
-void AVLTree<T>::LargeLeftRotation(Node*& latest_root) const {
-  Node* const right_child = latest_root->GetRightChild();
-  Node* const new_root = right_child->GetLeftChild();
-
-  right_child->SetLeftChild(new_root->GetRightChild());
-  new_root->SetRightChild(right_child);
-  latest_root->SetRightChild(new_root->GetLeftChild());
-  new_root->SetLeftChild(latest_root);
-
-  latest_root = new_root;
 }
 
 template <typename T>
@@ -89,28 +89,30 @@ void AVLTree<T>::SmallRightRotation(Node*& root) const {
   root->SetLeftChild(heavy_left->GetRightChild());
   heavy_left->SetRightChild(root);
 
+  root->SetHeight(GetMaxHeight(root->GetLeftChild(), root->GetRightChild()));
+  heavy_left->SetHeight(GetMaxHeight(heavy_left->GetLeftChild(), root));
+
   root = heavy_left;
 }
 
 template <typename T>
+void AVLTree<T>::LargeLeftRotation(Node*& latest_root) const {
+  SmallRightRotation(latest_root->GetRightChild());
+  SmallLeftRotation(latest_root);
+}
+
+template <typename T>
 void AVLTree<T>::LargeRightRotation(Node*& latest_root) const {
-  Node* const left_child = latest_root->GetLeftChild();
-  Node* const new_root = left_child->GetRightChild();
-
-  left_child->SetRightChild(new_root->GetLeftChild());
-  new_root->SetLeftChild(left_child);
-  latest_root->SetLeftChild(new_root->GetRightChild());
-  new_root->SetRightChild(latest_root);
-
-  latest_root = new_root;
+  SmallLeftRotation(latest_root->GetLeftChild());
+  SmallRightRotation(latest_root);
 }
 
 template <typename T>
 template <typename Comp>
 void AVLTree<T>::BalancingSubtree(Node*& subtree, T destination_key, T source_key,
                                   Comp comp) const {
-  const int left_depth = DepthImpl(subtree->GetLeftChild());
-  const int right_depth = DepthImpl(subtree->GetRightChild());
+  const int left_depth = GetMaxHeight(subtree->GetLeftChild(), nullptr);
+  const int right_depth = GetMaxHeight(nullptr, subtree->GetRightChild());
 
   const int balance_factor = left_depth - right_depth;
   if (balance_factor == -2) {
@@ -126,6 +128,8 @@ void AVLTree<T>::BalancingSubtree(Node*& subtree, T destination_key, T source_ke
       SmallRightRotation(subtree);
     }
   }
+
+  subtree->SetHeight(GetMaxHeight(subtree->GetLeftChild(), subtree->GetRightChild()));
 }
 
 template <typename T>
@@ -150,6 +154,13 @@ bool AVLTree<T>::InsertImpl(Node*& root, Node* added) const {
   }
 
   return false;
+}
+
+template <typename T>
+int AVLTree<T>::GetMaxHeight(Node* left_subtree, Node* right_subtree) const {
+  const int left_height = left_subtree == nullptr ? 0 : left_subtree->GetHeight() + 1;
+  const int right_height = right_subtree == nullptr ? 0 : right_subtree->GetHeight() + 1;
+  return std::max(left_height, right_height);
 }
 
 template <typename T>
@@ -207,13 +218,6 @@ void AVLTree<T>::VisitImpl(Node* root, Visitor visitor) const {
 }
 
 template <typename T>
-int AVLTree<T>::DepthImpl(Node* root) const {
-  return root == nullptr ? 0
-                         : 1 + std::max(DepthImpl(root->GetLeftChild()),
-                                        DepthImpl(root->GetRightChild()));
-}
-
-template <typename T>
 AVLTree<T>::~AVLTree() {
   if (root_ != nullptr) {
     root_->Destroy();
@@ -223,10 +227,12 @@ AVLTree<T>::~AVLTree() {
 }
 
 template <typename T>
-void AVLTree<T>::Insert(T added_key) {
+bool AVLTree<T>::Insert(T added_key) {
   if (const bool exist = Contains(added_key); !exist) {
-    InsertImpl(root_, new Node{added_key});
+    return InsertImpl(root_, new Node{added_key});
   }
+
+  return false;
 }
 template <typename T>
 void AVLTree<T>::Delete(T deleted_key) {
@@ -245,6 +251,6 @@ bool AVLTree<T>::Contains(T key) const {
 
 template <typename T>
 int AVLTree<T>::Depth() const {
-  return DepthImpl(root_) - 1;
+  return root_ == nullptr ? -1 : root_->GetHeight();
 }
 }  // namespace algo::tree

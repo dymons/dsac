@@ -13,14 +13,17 @@ class AVLTree final {
     const T key_;
     Node* left_;
     Node* right_;
+    int height_;
 
    public:
     explicit Node(T key);
 
     void SetLeftChild(Node* node) noexcept;
     void SetRightChild(Node* node) noexcept;
+    void SetHeight(int height) noexcept;
     [[nodiscard]] Node*& GetLeftChild() noexcept;
     [[nodiscard]] Node*& GetRightChild() noexcept;
+    [[nodiscard]] int GetHeight() noexcept;
     void Destroy();
 
     [[nodiscard]] const T& GetKey() const noexcept;
@@ -39,15 +42,16 @@ class AVLTree final {
 
   Node* DeleteMinChild(Node* root);
   Node* FindMinChild(Node* root) const;
-  bool InsertImpl(Node*& root, Node* added) const;
-  Node* DeleteImpl(Node*& root, T deleted_key);
+
+  [[nodiscard]] int GetMaxHeight(Node* left_subtree, Node* right_subtree) const;
+  [[nodiscard]] bool InsertImpl(Node*& root, Node* added) const;
+  [[nodiscard]] Node* DeleteImpl(Node*& root, T deleted_key);
   void VisitImpl(Node* root, Visitor visitor) const;
-  [[nodiscard]] int DepthImpl(Node* root) const;
 
  public:
   ~AVLTree();
 
-  void Insert(T added_key);
+  bool Insert(T added_key);
   void Delete(T deleted_key);
 
   [[nodiscard]] bool Contains(T key) const;
