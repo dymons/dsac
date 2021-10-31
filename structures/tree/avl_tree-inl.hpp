@@ -10,13 +10,13 @@ AVLTree<T>::Node::Node(T key) : key_(key), left_(nullptr), right_(nullptr), heig
 }
 
 template <typename T>
-void AVLTree<T>::Node::SetLeftChild(Node* node) noexcept {
-  left_ = node;
+void AVLTree<T>::Node::SetLeftChild(Node* child) noexcept {
+  left_ = child;
 }
 
 template <typename T>
-void AVLTree<T>::Node::SetRightChild(Node* node) noexcept {
-  right_ = node;
+void AVLTree<T>::Node::SetRightChild(Node* child) noexcept {
+  right_ = child;
 }
 
 template <typename T>
@@ -70,41 +70,41 @@ void AVLTree<T>::Node::Destroy() {
 }
 
 template <typename T>
-void AVLTree<T>::SmallLeftRotation(Node*& root) const {
-  Node* const heavy_right = root->GetRightChild();
+void AVLTree<T>::SmallLeftRotation(Node*& subtree) const {
+  Node* const heavy_right = subtree->GetRightChild();
 
-  root->SetRightChild(heavy_right->GetLeftChild());
-  heavy_right->SetLeftChild(root);
+  subtree->SetRightChild(heavy_right->GetLeftChild());
+  heavy_right->SetLeftChild(subtree);
 
-  root->SetHeight(GetMaxHeight(root->GetLeftChild(), root->GetRightChild()));
-  heavy_right->SetHeight(GetMaxHeight(root, heavy_right->GetRightChild()));
+  subtree->SetHeight(GetMaxHeight(subtree->GetLeftChild(), subtree->GetRightChild()));
+  heavy_right->SetHeight(GetMaxHeight(subtree, heavy_right->GetRightChild()));
 
-  root = heavy_right;
+  subtree = heavy_right;
 }
 
 template <typename T>
-void AVLTree<T>::SmallRightRotation(Node*& root) const {
-  Node* const heavy_left = root->GetLeftChild();
+void AVLTree<T>::SmallRightRotation(Node*& subtree) const {
+  Node* const heavy_left = subtree->GetLeftChild();
 
-  root->SetLeftChild(heavy_left->GetRightChild());
-  heavy_left->SetRightChild(root);
+  subtree->SetLeftChild(heavy_left->GetRightChild());
+  heavy_left->SetRightChild(subtree);
 
-  root->SetHeight(GetMaxHeight(root->GetLeftChild(), root->GetRightChild()));
-  heavy_left->SetHeight(GetMaxHeight(heavy_left->GetLeftChild(), root));
+  subtree->SetHeight(GetMaxHeight(subtree->GetLeftChild(), subtree->GetRightChild()));
+  heavy_left->SetHeight(GetMaxHeight(heavy_left->GetLeftChild(), subtree));
 
-  root = heavy_left;
+  subtree = heavy_left;
 }
 
 template <typename T>
-void AVLTree<T>::LargeLeftRotation(Node*& latest_root) const {
-  SmallRightRotation(latest_root->GetRightChild());
-  SmallLeftRotation(latest_root);
+void AVLTree<T>::LargeLeftRotation(Node*& subtree) const {
+  SmallRightRotation(subtree->GetRightChild());
+  SmallLeftRotation(subtree);
 }
 
 template <typename T>
-void AVLTree<T>::LargeRightRotation(Node*& latest_root) const {
-  SmallLeftRotation(latest_root->GetLeftChild());
-  SmallRightRotation(latest_root);
+void AVLTree<T>::LargeRightRotation(Node*& subtree) const {
+  SmallLeftRotation(subtree->GetLeftChild());
+  SmallRightRotation(subtree);
 }
 
 template <typename T>
@@ -164,20 +164,20 @@ int AVLTree<T>::GetMaxHeight(Node* left_subtree, Node* right_subtree) const {
 }
 
 template <typename T>
-typename AVLTree<T>::Node* AVLTree<T>::FindMinChild(Node* root) const {
-  Node* const child = root->GetLeftChild();
-  return child != nullptr ? FindMinChild(child) : root;
+typename AVLTree<T>::Node* AVLTree<T>::FindMinChild(Node* subtree) const {
+  Node* const child = subtree->GetLeftChild();
+  return child != nullptr ? FindMinChild(child) : subtree;
 }
 
 template <typename T>
-typename AVLTree<T>::Node* AVLTree<T>::DeleteMinChild(Node* root) {
-  Node* left_child = root->GetLeftChild();
+typename AVLTree<T>::Node* AVLTree<T>::DeleteMinChild(Node* subtree) {
+  Node* left_child = subtree->GetLeftChild();
   if (left_child == nullptr) {
-    return root->GetRightChild();
+    return subtree->GetRightChild();
   }
 
-  root->SetLeftChild(DeleteMinChild(left_child));
-  return root;
+  subtree->SetLeftChild(DeleteMinChild(left_child));
+  return subtree;
 }
 
 template <typename T>

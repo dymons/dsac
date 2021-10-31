@@ -18,8 +18,8 @@ class AVLTree final {
    public:
     explicit Node(T key);
 
-    void SetLeftChild(Node* node) noexcept;
-    void SetRightChild(Node* node) noexcept;
+    void SetLeftChild(Node* child) noexcept;
+    void SetRightChild(Node* child) noexcept;
     void SetHeight(int height) noexcept;
     [[nodiscard]] Node*& GetLeftChild() noexcept;
     [[nodiscard]] Node*& GetRightChild() noexcept;
@@ -32,16 +32,16 @@ class AVLTree final {
 
   Node* root_{nullptr};
 
-  void SmallLeftRotation(Node*& root) const;
-  void LargeLeftRotation(Node*& latest_root) const;
-  void SmallRightRotation(Node*& root) const;
-  void LargeRightRotation(Node*& latest_root) const;
+  void SmallLeftRotation(Node*& subtree) const;
+  void LargeLeftRotation(Node*& subtree) const;
+  void SmallRightRotation(Node*& subtree) const;
+  void LargeRightRotation(Node*& subtree) const;
 
   template<typename Comp>
   void BalancingSubtree(Node*& subtree, T destination_key, T source_key, Comp comp) const;
 
-  Node* DeleteMinChild(Node* root);
-  Node* FindMinChild(Node* root) const;
+  Node* DeleteMinChild(Node* subtree);
+  Node* FindMinChild(Node* subtree) const;
 
   [[nodiscard]] int GetMaxHeight(Node* left_subtree, Node* right_subtree) const;
   [[nodiscard]] bool InsertImpl(Node*& root, Node* added) const;
