@@ -9,29 +9,28 @@ Avito, Parallels, VK, Sber. Список тем был сформирован д
 
 1. Знание реализации и нотации Big O алгоритмов сортировки
     - Сортировка
-      пузырьком ([Bubble sort](https://github.com/dymons/interviews/blob/b65184de5b2082855138d489233a00de66238292/algorithms/sorts/bubble_sort.hpp#L7))
+      пузырьком ([Bubble sort](https://github.com/dymons/interviews/blob/master/algorithms/sorts/bubble_sort.hpp))
     - Сортировка
-      перемешиванием ([Shaker sort](https://github.com/dymons/interviews/blob/c5284bfe8a209d038446b53df38690d28427bba3/algorithms/sorts/shaker_sort.hpp#L7))
+      перемешиванием ([Shaker sort](https://github.com/dymons/interviews/blob/master/algorithms/sorts/shaker_sort.hpp))
     - Сортировка
-      вставкой ([Insertion sort](https://github.com/dymons/interviews/blob/5650dc34828211d727dba45e15561ab4757da48d/algorithms/sorts/insertion_sort.hpp#L7))
+      вставкой ([Insertion sort](https://github.com/dymons/interviews/blob/master/algorithms/sorts/insertion_sort.hpp))
     - Сортировка
-      выбором ([Selection sort](https://github.com/dymons/interviews/blob/cad16b3b7b811453546b37b098a9a4c48c1a7f86/algorithms/sorts/selection_sort.hpp#L6))
+      выбором ([Selection sort](https://github.com/dymons/interviews/blob/master/algorithms/sorts/selection_sort.hpp))
     - Быстрая
-      сортировка ([Quick sort](https://github.com/dymons/interviews/blob/50f16c82803594bfd032559bb567901bdbb938ae/algorithms/sorts/quick_sort.hpp#L8))
+      сортировка ([Quick sort](https://github.com/dymons/interviews/blob/master/algorithms/sorts/quick_sort.hpp))
     - Сортировка
-      слиянием ([Merge sort](https://github.com/dymons/interviews/blob/8f592001f91f4e89c0c967e921606d7a878574f8/algorithms/sorts/merge_sort.hpp#L54))
+      слиянием ([Merge sort](https://github.com/dymons/interviews/blob/master/algorithms/sorts/merge_sort.hpp))
     - Сортировка с помощью двоичного
-      дерева ([Binary-tree sort](https://github.com/dymons/interviews/blob/446275d51ae6b7b5c4aa4c48ed987afbf2437f97/algorithms/sorts/binary_tree_sort.hpp#L83))
+      дерева ([Binary-tree sort](https://github.com/dymons/interviews/blob/master/algorithms/sorts/binary_tree_sort.hpp))
     - Сортировка
-      Шелла ([Shell sort](https://github.com/dymons/interviews/blob/8cbece01c3b94fbcc5a6fe7693027553948ab102/algorithms/sorts/shell_sort.hpp#L7))
+      Шелла ([Shell sort](https://github.com/dymons/interviews/blob/master/algorithms/sorts/shell_sort.hpp))
     - Пирамидальная
-      сортировка ([Heapsort](https://github.com/dymons/interviews/blob/a60a02d40e73f958cfd93af2f85590e821531b38/algorithms/sorts/heap_sort.hpp#L48))
+      сортировка ([Heapsort](https://github.com/dymons/interviews/blob/master/algorithms/sorts/heap_sort.hpp))
 2. Алгоритмы для работы с графами
-    - Поиск в
-      ширину ([Breadth-first search](https://github.com/dymons/interviews/blob/429dc9f6877afe57da3f70dc26ec0b24ae8b88f4/structures/graph/breadth_first_search.cpp#L31))
-    - Поиск в грубину ([Depth-first search](https://github.com/dymons/interviews/blob/429dc9f6877afe57da3f70dc26ec0b24ae8b88f4/structures/graph/depth_first_search.cpp#L31))
-    - Алгоритм Дейкстры ([Dijkstra’s algorithm](https://github.com/dymons/interviews/blob/429dc9f6877afe57da3f70dc26ec0b24ae8b88f4/structures/graph/dijkstra_search.cpp#L68))
-    - Задача коммивояжёра ([Travelling salesman problem](https://github.com/dymons/interviews/blob/891d1bc3bdeaf1a3733f7b9a9f0badb1c2c12f2a/structures/graph/travelling_salesman_problem.cpp#L136))
+    - Поиск в ширину ([Breadth-first search](https://github.com/dymons/interviews/blob/master/structures/graph/breadth_first_search.hpp))
+    - Поиск в грубину ([Depth-first search](https://github.com/dymons/interviews/blob/master/structures/graph/depth_first_search.hpp))
+    - Алгоритм Дейкстры ([Dijkstra’s algorithm](https://github.com/dymons/interviews/blob/master/structures/graph/dijkstra_search.hpp))
+    - Задача коммивояжёра ([Travelling salesman problem](https://github.com/dymons/interviews/blob/master/structures/graph/travelling_salesman_problem.hpp))
 3. Структуры данных и их алгоритмическая сложность
     - Динамический массив (Dynamic Array)
     - Статический массив (Static Array)
