@@ -40,7 +40,7 @@ Avito, Parallels, VK, Sber. Список тем был сформирован д
     - Графы (Graphs)
     - Бинарное дерево поиска (Binary Shortest Three)
     - Красно-черное дерево (Red-black tree)
-    - АВЛ-дерево (AVL-Tree)
+    - АВЛ-дерево ([AVL-Tree](https://github.com/dymons/interviews/blob/master/structures/tree/avl_tree.hpp))
     - Стеки (Stack)
     - Очереди (Queue)
     - Двусторонняя очередь (Deque)
