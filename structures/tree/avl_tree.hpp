@@ -19,6 +19,11 @@ class AVLTree final {
    public:
     explicit Node(T key);
 
+    Node(const Node&) = delete;
+    Node(Node&&) = delete;
+    Node& operator=(const Node&) = delete;
+    Node& operator=(Node&&) = delete;
+
     void SetLeftChild(Node* child) noexcept;
     void SetRightChild(Node* child) noexcept;
     void SetHeight(int height) noexcept;
@@ -50,6 +55,11 @@ class AVLTree final {
   void VisitImpl(Node* root, Visitor visitor) const;
 
  public:
+  AVLTree() = default;
+  AVLTree(const AVLTree&) = delete;
+  AVLTree(AVLTree&&) = delete;
+  AVLTree& operator=(const AVLTree&) = delete;
+  AVLTree& operator=(AVLTree&&) = delete;
   ~AVLTree();
 
   bool Insert(T added_key);
