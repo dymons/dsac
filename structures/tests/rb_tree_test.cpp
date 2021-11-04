@@ -76,4 +76,45 @@ TEST_CASE("Корректность построения красно-черно
       REQUIRE(data == expected[index++]);
     });
   }
+
+  SECTION("Построение AVL дерева на обратно отсортированном массиве") {
+    RBTree<int> tree;
+    for (const int i : {10, 9, 8, 7, 6, 5, 4, 3, 2, 1}) {
+      tree.Insert(i);
+    }
+    REQUIRE(tree.Depth() == 4);
+
+    int index = 0;
+    const std::vector<int> expected{1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+    tree.Visit([&index, &expected](int data) {
+      REQUIRE(index < expected.size());
+      REQUIRE(data == expected[index++]);
+    });
+  }
+
+  SECTION("Построение AVL дерева с отрицательными значениями") {
+    RBTree<int> tree;
+    for (const int i : {-5, -4, -3, -2, -1, 1, 2, 3, 4, 5}) {
+      tree.Insert(i);
+    }
+    REQUIRE(tree.Depth() == 4);
+
+    int index = 0;
+    const std::vector<int> expected{-5, -4, -3, -2, -1, 1, 2, 3, 4, 5};
+    tree.Visit([&index, &expected](int data) {
+      REQUIRE(index < expected.size());
+      REQUIRE(data == expected[index++]);
+    });
+  }
+
+  SECTION("Построение пустого AVL дерева") {
+    RBTree<int> tree;
+    REQUIRE(tree.Depth() == -1);
+
+    int index = 0;
+    tree.Visit([&index](int data) {
+      index++;
+    });
+    REQUIRE(index == 0);
+  }
 }
