@@ -1,6 +1,14 @@
 #include <catch2/catch.hpp>
 
+#include <random>
 #include <structures/tree/rb_tree.hpp>
+
+namespace {
+template <typename T>
+[[nodiscard]] bool IsInvariantRight(const algo::tree::RBTree<T>& tree) {
+  return tree.MaxDepth() / 2 <= tree.MinDepth();
+}
+}  // namespace
 
 TEST_CASE("Проверка выполнения корректности поворотов для красно-черное дерево",
           "[rb_tree_rotate]") {
@@ -43,31 +51,52 @@ TEST_CASE("Корректность построения красно-черно
     for (const int i : {1}) {
       tree.Insert(i);
     }
-    REQUIRE(tree.Depth() == 0);
+    REQUIRE(tree.MaxDepth() == 0);
+    REQUIRE(tree.MinDepth() == 0);
   }
 
   SECTION("Построение AVL дерева на отсортированном массиве") {
     RBTree<int> tree;
     tree.Insert(1);
-    REQUIRE(tree.Depth() == 0);
+    REQUIRE(tree.MaxDepth() == 0);
+    REQUIRE(tree.MinDepth() == 0);
+    REQUIRE(IsInvariantRight(tree));
     tree.Insert(2);
-    REQUIRE(tree.Depth() == 1);
+    REQUIRE(tree.MaxDepth() == 1);
+    REQUIRE(tree.MinDepth() == 0);
+    REQUIRE(IsInvariantRight(tree));
     tree.Insert(3);
-    REQUIRE(tree.Depth() == 1);
+    REQUIRE(tree.MaxDepth() == 1);
+    REQUIRE(tree.MinDepth() == 1);
+    REQUIRE(IsInvariantRight(tree));
     tree.Insert(4);
-    REQUIRE(tree.Depth() == 2);
+    REQUIRE(tree.MaxDepth() == 2);
+    REQUIRE(tree.MinDepth() == 1);
+    REQUIRE(IsInvariantRight(tree));
     tree.Insert(5);
-    REQUIRE(tree.Depth() == 2);
+    REQUIRE(tree.MaxDepth() == 2);
+    REQUIRE(tree.MinDepth() == 1);
+    REQUIRE(IsInvariantRight(tree));
     tree.Insert(6);
-    REQUIRE(tree.Depth() == 3);
+    REQUIRE(tree.MaxDepth() == 3);
+    REQUIRE(tree.MinDepth() == 1);
+    REQUIRE(IsInvariantRight(tree));
     tree.Insert(7);
-    REQUIRE(tree.Depth() == 3);
+    REQUIRE(tree.MaxDepth() == 3);
+    REQUIRE(tree.MinDepth() == 1);
+    REQUIRE(IsInvariantRight(tree));
     tree.Insert(8);
-    REQUIRE(tree.Depth() == 3);
+    REQUIRE(tree.MaxDepth() == 3);
+    REQUIRE(tree.MinDepth() == 2);
+    REQUIRE(IsInvariantRight(tree));
     tree.Insert(9);
-    REQUIRE(tree.Depth() == 3);
+    REQUIRE(tree.MaxDepth() == 3);
+    REQUIRE(tree.MinDepth() == 2);
+    REQUIRE(IsInvariantRight(tree));
     tree.Insert(10);
-    REQUIRE(tree.Depth() == 4);
+    REQUIRE(tree.MaxDepth() == 4);
+    REQUIRE(tree.MinDepth() == 2);
+    REQUIRE(IsInvariantRight(tree));
 
     int index = 0;
     const std::vector<int> expected{1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
@@ -82,7 +111,7 @@ TEST_CASE("Корректность построения красно-черно
     for (const int i : {10, 9, 8, 7, 6, 5, 4, 3, 2, 1}) {
       tree.Insert(i);
     }
-    REQUIRE(tree.Depth() == 4);
+    REQUIRE(tree.MaxDepth() == 4);
 
     int index = 0;
     const std::vector<int> expected{1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
@@ -97,7 +126,7 @@ TEST_CASE("Корректность построения красно-черно
     for (const int i : {-5, -4, -3, -2, -1, 1, 2, 3, 4, 5}) {
       tree.Insert(i);
     }
-    REQUIRE(tree.Depth() == 4);
+    REQUIRE(tree.MaxDepth() == 4);
 
     int index = 0;
     const std::vector<int> expected{-5, -4, -3, -2, -1, 1, 2, 3, 4, 5};
@@ -109,12 +138,25 @@ TEST_CASE("Корректность построения красно-черно
 
   SECTION("Построение пустого AVL дерева") {
     RBTree<int> tree;
-    REQUIRE(tree.Depth() == -1);
+    REQUIRE(tree.MaxDepth() == -1);
 
     int index = 0;
     tree.Visit([&index](int data) {
       index++;
     });
     REQUIRE(index == 0);
+  }
+
+  SECTION("Добавление/Удаление случайных элементов в AVL дерева") {
+    std::random_device random_device;
+    std::mt19937 generator(random_device());
+    std::uniform_int_distribution<> distribution(-10000, 10000);
+
+    constexpr int count_samples = 20000;
+    RBTree<int> tree;
+    for (int i = 0; i < count_samples; ++i) {
+      tree.Insert(distribution(generator));
+      REQUIRE(IsInvariantRight(tree));
+    }
   }
 }

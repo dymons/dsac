@@ -17,10 +17,16 @@ class RBTree final {
     Node* parent{nullptr};
     Color color{Color::Red};
 
-    [[nodiscard]] int Depth() const {
-      const int max_left = left == nullptr ? 0 : left->Depth();
-      const int max_right = right == nullptr ? 0 : right->Depth();
+    [[nodiscard]] int MaxDepth() const {
+      const int max_left = left == nullptr ? 0 : left->MaxDepth();
+      const int max_right = right == nullptr ? 0 : right->MaxDepth();
       return 1 + std::max(max_left, max_right);
+    }
+
+    [[nodiscard]] int MinDepth() const {
+      const int min_left = left == nullptr ? 0 : left->MinDepth();
+      const int min_right = right == nullptr ? 0 : right->MinDepth();
+      return 1 + std::min(min_left, min_right);
     }
 
     void Recolor() noexcept {
@@ -65,10 +71,9 @@ class RBTree final {
   }
 
   void BalancingSubtree(Node* k) {
-    Node* u;
     while (k->parent->color == Color::Red) {
       if (k->parent == k->parent->parent->right) {
-        u = k->parent->parent->left;  // uncle
+        Node* u = k->parent->parent->left;  // uncle
         if (u && u->color == Color::Red) {
           // case 3.1
           u->Recolor();
@@ -87,7 +92,7 @@ class RBTree final {
           SmallLeftRotation(k->parent->parent);
         }
       } else {
-        u = k->parent->parent->right;  // uncle
+        Node* u = k->parent->parent->right;  // uncle
 
         if (u && u->color == Color::Red) {
           // mirror case 3.1
@@ -155,8 +160,12 @@ class RBTree final {
     BalancingSubtree(new_node);
   }
 
-  [[nodiscard]] int Depth() const {
-    return root_ == nullptr ? -1 : root_->Depth() - 1;
+  [[nodiscard]] int MaxDepth() const {
+    return root_ == nullptr ? -1 : root_->MaxDepth() - 1;
+  }
+
+  [[nodiscard]] int MinDepth() const {
+    return root_ == nullptr ? -1 : root_->MinDepth() - 1;
   }
 
   void Visit(Visitor visitor) const {
