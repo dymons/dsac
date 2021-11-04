@@ -22,6 +22,10 @@ class RBTree final {
       const int max_right = right == nullptr ? 0 : right->Depth();
       return 1 + std::max(max_left, max_right);
     }
+
+    void Recolor() noexcept {
+      color = color == Color::Red ? Color::Black : Color::Red;
+    }
   };
 
   void SmallLeftRotation(Node* x) {
@@ -67,9 +71,9 @@ class RBTree final {
         u = k->parent->parent->left;  // uncle
         if (u && u->color == Color::Red) {
           // case 3.1
-          u->color = Color::Black;
-          k->parent->color = Color::Black;
-          k->parent->parent->color = Color::Red;
+          u->Recolor();
+          k->parent->Recolor();
+          k->parent->parent->Recolor();
           k = k->parent->parent;
         } else {
           if (k == k->parent->left) {
@@ -78,8 +82,8 @@ class RBTree final {
             SmallRightRotation(k);
           }
           // case 3.2.1
-          k->parent->color = Color::Black;
-          k->parent->parent->color = Color::Red;
+          k->parent->Recolor();
+          k->parent->parent->Recolor();
           SmallLeftRotation(k->parent->parent);
         }
       } else {
@@ -87,9 +91,9 @@ class RBTree final {
 
         if (u && u->color == Color::Red) {
           // mirror case 3.1
-          u->color = Color::Black;
-          k->parent->color = Color::Black;
-          k->parent->parent->color = Color::Red;
+          u->Recolor();
+          k->parent->Recolor();
+          k->parent->parent->Recolor();
           k = k->parent->parent;
         } else {
           if (k == k->parent->right) {
@@ -98,11 +102,12 @@ class RBTree final {
             SmallLeftRotation(k);
           }
           // mirror case 3.2.1
-          k->parent->color = Color::Black;
-          k->parent->parent->color = Color::Red;
+          k->parent->Recolor();
+          k->parent->parent->Recolor();
           SmallRightRotation(k->parent->parent);
         }
       }
+
       if (k == root_) {
         break;
       }
