@@ -1,6 +1,7 @@
 #include <catch2/catch.hpp>
 
 #include <random>
+#include <vector>
 #include <structures/tree/rb_tree.hpp>
 
 namespace {

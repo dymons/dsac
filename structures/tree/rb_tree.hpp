@@ -32,6 +32,26 @@ class RBTree final {
     void Recolor() noexcept {
       color = color == Color::Red ? Color::Black : Color::Red;
     }
+
+    [[nodiscard, gnu::always_inline]] inline Node* GetParent() const noexcept {
+      return parent;
+    }
+
+    [[nodiscard, gnu::always_inline]] inline Node* GetGrandparent() const noexcept {
+      return parent != nullptr ? parent->parent : nullptr;
+    }
+
+    [[nodiscard, gnu::always_inline]] inline Node* GetUncle() const noexcept {
+      Node* const grandparent = GetGrandparent();
+      return grandparent == nullptr        ? nullptr
+             : parent == grandparent->left ? grandparent->right
+                                           : grandparent->left;
+    }
+
+    [[nodiscard, gnu::always_inline]] inline bool IsColor(
+        Color other_color) const noexcept {
+      return color == other_color;
+    }
   };
 
   void SmallLeftRotation(Node* x) {
@@ -70,50 +90,47 @@ class RBTree final {
     x->parent = y;
   }
 
-  void BalancingSubtree(Node* k) {
-    while (k->parent->color == Color::Red) {
-      if (k->parent == k->parent->parent->right) {
-        Node* u = k->parent->parent->left;  // uncle
-        if (u && u->color == Color::Red) {
+  void BalancingSubtree(Node* subtree) {
+    while (subtree->GetParent()->IsColor(Color::Red)) {
+      if (subtree->GetParent() == subtree->parent->parent->right) {
+        if (Node* uncle = subtree->GetUncle(); uncle && uncle->IsColor(Color::Red)) {
           // case 3.1
-          u->Recolor();
-          k->parent->Recolor();
-          k->parent->parent->Recolor();
-          k = k->parent->parent;
+          uncle->Recolor();
+          subtree->GetParent()->Recolor();
+          subtree->GetGrandparent()->Recolor();
+          subtree = subtree->GetGrandparent();
         } else {
-          if (k == k->parent->left) {
+          if (subtree == subtree->parent->left) {
             // case 3.2.2
-            k = k->parent;
-            SmallRightRotation(k);
+            subtree = subtree->GetParent();
+            SmallRightRotation(subtree);
           }
           // case 3.2.1
-          k->parent->Recolor();
-          k->parent->parent->Recolor();
-          SmallLeftRotation(k->parent->parent);
+          subtree->GetParent()->Recolor();
+          subtree->GetGrandparent()->Recolor();
+          SmallLeftRotation(subtree->GetGrandparent());
         }
       } else {
-        Node* u = k->parent->parent->right;  // uncle
-
-        if (u && u->color == Color::Red) {
+        if (Node* uncle = subtree->GetUncle(); uncle && uncle->IsColor(Color::Red)) {
           // mirror case 3.1
-          u->Recolor();
-          k->parent->Recolor();
-          k->parent->parent->Recolor();
-          k = k->parent->parent;
+          uncle->Recolor();
+          subtree->GetParent()->Recolor();
+          subtree->GetGrandparent()->Recolor();
+          subtree = subtree->GetGrandparent();
         } else {
-          if (k == k->parent->right) {
+          if (subtree == subtree->parent->right) {
             // mirror case 3.2.2
-            k = k->parent;
-            SmallLeftRotation(k);
+            subtree = subtree->GetParent();
+            SmallLeftRotation(subtree);
           }
           // mirror case 3.2.1
-          k->parent->Recolor();
-          k->parent->parent->Recolor();
-          SmallRightRotation(k->parent->parent);
+          subtree->GetParent()->Recolor();
+          subtree->GetGrandparent()->Recolor();
+          SmallRightRotation(subtree->GetGrandparent());
         }
       }
 
-      if (k == root_) {
+      if (subtree == root_) {
         break;
       }
     }
