@@ -92,7 +92,7 @@ class RBTree final {
 
   void BalancingSubtree(Node* subtree) {
     while (subtree->GetParent()->IsColor(Color::Red)) {
-      if (subtree->GetParent() == subtree->parent->parent->right) {
+      if (subtree->GetParent() == subtree->GetGrandparent()->right) {
         if (Node* uncle = subtree->GetUncle(); uncle && uncle->IsColor(Color::Red)) {
           // case 3.1
           uncle->Recolor();
@@ -100,7 +100,7 @@ class RBTree final {
           subtree->GetGrandparent()->Recolor();
           subtree = subtree->GetGrandparent();
         } else {
-          if (subtree == subtree->parent->left) {
+          if (subtree == subtree->GetParent()->left) {
             // case 3.2.2
             subtree = subtree->GetParent();
             SmallRightRotation(subtree);
@@ -118,7 +118,7 @@ class RBTree final {
           subtree->GetGrandparent()->Recolor();
           subtree = subtree->GetGrandparent();
         } else {
-          if (subtree == subtree->parent->right) {
+          if (subtree == subtree->GetParent()->right) {
             // mirror case 3.2.2
             subtree = subtree->GetParent();
             SmallLeftRotation(subtree);
@@ -153,13 +153,13 @@ class RBTree final {
 
     Node* parent = nullptr;
     Node* child = root_;
-    while (child != nullptr) {
+    while (child != nullptr) [[likely]] {
       parent = child;
       child = new_node->key < child->key ? child->left : child->right;
     }
 
     new_node->parent = parent;
-    if (parent == nullptr) {
+    if (parent == nullptr) [[unlikely]] {
       new_node->color = Color::Black;
       root_ = new_node;
       return;
@@ -170,7 +170,7 @@ class RBTree final {
     }
 
     const bool bIsGrandparentNull = new_node->parent->parent == nullptr;
-    if (bIsGrandparentNull) {
+    if (bIsGrandparentNull) [[unlikely]] {
       return;
     }
 
