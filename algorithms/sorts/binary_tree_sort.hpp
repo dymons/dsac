@@ -20,9 +20,7 @@ class BinaryTree final {
   }
 
   void Insert(T data) {
-    Node* new_node = new Node{data};
-    new_node->data = data;
-
+    Node* const new_node = new Node{data};
     if (root_ == nullptr) {
       root_ = new_node;
       return;
