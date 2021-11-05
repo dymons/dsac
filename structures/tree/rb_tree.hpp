@@ -61,6 +61,18 @@ class RBTree final {
       return (left && left->Contains(search_key)) ||
              (right && right->Contains(search_key));
     }
+
+    void Destroy() {
+      if (left != nullptr) {
+        left->Destroy();
+        delete left;
+      }
+
+      if (right != nullptr) {
+        right->Destroy();
+        delete right;
+      }
+    }
   };
 
   void SmallLeftRotation(Node* x) {
@@ -157,6 +169,13 @@ class RBTree final {
   Node* root_{nullptr};
 
  public:
+  ~RBTree() {
+    if (root_ != nullptr) {
+      root_->Destroy();
+      delete root_;
+    }
+  }
+
   void Insert(T key) {
     Node* new_node = new Node{key};
 
