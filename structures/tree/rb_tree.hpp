@@ -11,214 +11,48 @@ class RBTree final {
  private:
   enum class Color : unsigned char { Red, Black };
   struct Node final {
-    T key;
+    T key{};
     Node* left{nullptr};
     Node* right{nullptr};
     Node* parent{nullptr};
     Color color{Color::Red};
 
-    [[nodiscard]] int MaxDepth() const {
-      const int max_left = left == nullptr ? 0 : left->MaxDepth();
-      const int max_right = right == nullptr ? 0 : right->MaxDepth();
-      return 1 + std::max(max_left, max_right);
-    }
+    [[nodiscard]] int MaxDepth() const;
+    [[nodiscard]] int MinDepth() const;
+    [[nodiscard]] bool Contains(T search_key) const;
+    [[nodiscard, gnu::always_inline]] inline Node* GetParent() const noexcept;
+    [[nodiscard, gnu::always_inline]] inline Node* GetGrandparent() const noexcept;
+    [[nodiscard, gnu::always_inline]] inline Node* GetUncle() const noexcept;
+    [[nodiscard, gnu::always_inline]] inline bool IsColor(Color color) const noexcept;
 
-    [[nodiscard]] int MinDepth() const {
-      const int min_left = left == nullptr ? 0 : left->MinDepth();
-      const int min_right = right == nullptr ? 0 : right->MinDepth();
-      return 1 + std::min(min_left, min_right);
-    }
-
-    void Recolor() noexcept {
-      color = color == Color::Red ? Color::Black : Color::Red;
-    }
-
-    [[nodiscard, gnu::always_inline]] inline Node* GetParent() const noexcept {
-      return parent;
-    }
-
-    [[nodiscard, gnu::always_inline]] inline Node* GetGrandparent() const noexcept {
-      return parent != nullptr ? parent->parent : nullptr;
-    }
-
-    [[nodiscard, gnu::always_inline]] inline Node* GetUncle() const noexcept {
-      Node* const grandparent = GetGrandparent();
-      return grandparent == nullptr        ? nullptr
-             : parent == grandparent->left ? grandparent->right
-                                           : grandparent->left;
-    }
-
-    [[nodiscard, gnu::always_inline]] inline bool IsColor(
-        Color other_color) const noexcept {
-      return color == other_color;
-    }
-
-    [[nodiscard]] bool Contains(T search_key) const {
-      if (key == search_key) {
-        return true;
-      }
-
-      return (left && left->Contains(search_key)) ||
-             (right && right->Contains(search_key));
-    }
-
-    void Destroy() {
-      if (left != nullptr) {
-        left->Destroy();
-        delete left;
-      }
-
-      if (right != nullptr) {
-        right->Destroy();
-        delete right;
-      }
-    }
+    void Recolor() noexcept;
+    void Destroy();
   };
 
-  void SmallLeftRotation(Node* x) {
-    Node* y = x->right;
-    x->right = y->left;
-    if (y->left != nullptr) {
-      y->left->parent = x;
-    }
-    y->parent = x->parent;
-    if (x->parent == nullptr) {
-      root_ = y;
-    } else if (x == x->parent->left) {
-      x->parent->left = y;
-    } else {
-      x->parent->right = y;
-    }
-    y->left = x;
-    x->parent = y;
-  }
+  void SmallLeftRotation(Node* x);
+  void SmallRightRotation(Node* x);
+  void BalancingSubtree(Node* subtree);
 
-  void SmallRightRotation(Node* x) {
-    Node* y = x->left;
-    x->left = y->right;
-    if (y->right != nullptr) {
-      y->right->parent = x;
-    }
-    y->parent = x->parent;
-    if (x->parent == nullptr) {
-      root_ = y;
-    } else if (x == x->parent->right) {
-      x->parent->right = y;
-    } else {
-      x->parent->left = y;
-    }
-    y->right = x;
-    x->parent = y;
-  }
-
-  void BalancingSubtree(Node* subtree) {
-    while (subtree->GetParent()->IsColor(Color::Red)) {
-      if (subtree->GetParent() == subtree->GetGrandparent()->right) {
-        if (Node* uncle = subtree->GetUncle(); uncle && uncle->IsColor(Color::Red)) {
-          // case 3.1
-          uncle->Recolor();
-          subtree->GetParent()->Recolor();
-          subtree->GetGrandparent()->Recolor();
-          subtree = subtree->GetGrandparent();
-        } else {
-          if (subtree == subtree->GetParent()->left) {
-            // case 3.2.2
-            subtree = subtree->GetParent();
-            SmallRightRotation(subtree);
-          }
-          // case 3.2.1
-          subtree->GetParent()->Recolor();
-          subtree->GetGrandparent()->Recolor();
-          SmallLeftRotation(subtree->GetGrandparent());
-        }
-      } else {
-        if (Node* uncle = subtree->GetUncle(); uncle && uncle->IsColor(Color::Red)) {
-          // mirror case 3.1
-          uncle->Recolor();
-          subtree->GetParent()->Recolor();
-          subtree->GetGrandparent()->Recolor();
-          subtree = subtree->GetGrandparent();
-        } else {
-          if (subtree == subtree->GetParent()->right) {
-            // mirror case 3.2.2
-            subtree = subtree->GetParent();
-            SmallLeftRotation(subtree);
-          }
-          // mirror case 3.2.1
-          subtree->GetParent()->Recolor();
-          subtree->GetGrandparent()->Recolor();
-          SmallRightRotation(subtree->GetGrandparent());
-        }
-      }
-
-      if (subtree == root_) {
-        break;
-      }
-    }
-    root_->color = Color::Black;
-  }
-
-  void VisitImpl(Node* root, Visitor visitor) const {
-    if (root != nullptr) {
-      VisitImpl(root->left, visitor);
-      visitor(root->key);
-      VisitImpl(root->right, visitor);
-    }
-  }
+  void VisitImpl(Node* root, Visitor visitor) const;
 
   Node* root_{nullptr};
 
  public:
-  ~RBTree() {
-    if (root_ != nullptr) {
-      root_->Destroy();
-      delete root_;
-    }
-  }
+  RBTree() = default;
+  RBTree(const RBTree&) = delete;
+  RBTree(RBTree&&) = delete;
+  RBTree& operator=(const RBTree&) = delete;
+  RBTree& operator=(RBTree&&) = delete;
+  ~RBTree();
 
-  void Insert(T key) {
-    Node* new_node = new Node{key};
+  void Insert(T key);
 
-    Node* parent = nullptr;
-    Node* child = root_;
-    while (child != nullptr) [[likely]] {
-        parent = child;
-        child = new_node->key < child->key ? child->left : child->right;
-      }
-
-    new_node->parent = parent;
-    if (parent == nullptr) [[unlikely]] {
-      new_node->color = Color::Black;
-      root_ = new_node;
-      return;
-    } else if (new_node->key < parent->key) {
-      parent->left = new_node;
-    } else {
-      parent->right = new_node;
-    }
-
-    const bool bIsGrandparentNull = new_node->parent->parent == nullptr;
-    if (bIsGrandparentNull) [[unlikely]] {
-      return;
-    }
-
-    BalancingSubtree(new_node);
-  }
-
-  [[nodiscard]] int MaxDepth() const {
-    return root_ == nullptr ? -1 : root_->MaxDepth() - 1;
-  }
-
-  [[nodiscard]] int MinDepth() const {
-    return root_ == nullptr ? -1 : root_->MinDepth() - 1;
-  }
-
-  void Visit(Visitor visitor) const {
-    VisitImpl(root_, visitor);
-  }
-
-  [[nodiscard]] bool Contains(T key) const {
-    return root_ && root_->Contains(key);
-  }
+  [[nodiscard]] int MaxDepth() const;
+  [[nodiscard]] int MinDepth() const;
+  [[nodiscard]] bool Contains(T key) const;
+  void Visit(Visitor visitor) const;
 };
 }  // namespace algo::tree
+
+#define STRUCTURES_RB_TREE_H_
+#include <structures/tree/rb_tree-inl.hpp>
