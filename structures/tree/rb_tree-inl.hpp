@@ -67,41 +67,45 @@ void RBTree<T>::Node::Destroy() {
 }
 
 template <typename T>
-void RBTree<T>::SmallLeftRotation(Node* x) {
-  Node* y = x->right;
-  x->right = y->left;
-  if (y->left != nullptr) {
-    y->left->parent = x;
+void RBTree<T>::SmallLeftRotation(Node* subtree) {
+  Node* right_subtree = subtree->right;
+  subtree->right = right_subtree->left;
+  if (right_subtree->left != nullptr) {
+    right_subtree->left->parent = subtree;
   }
-  y->parent = x->parent;
-  if (x->parent == nullptr) {
-    root_ = y;
-  } else if (x == x->parent->left) {
-    x->parent->left = y;
+
+  right_subtree->parent = subtree->parent;
+  if (subtree->parent == nullptr) {
+    root_ = right_subtree;
+  } else if (subtree == subtree->parent->left) {
+    subtree->parent->left = right_subtree;
   } else {
-    x->parent->right = y;
+    subtree->parent->right = right_subtree;
   }
-  y->left = x;
-  x->parent = y;
+
+  right_subtree->left = subtree;
+  subtree->parent = right_subtree;
 }
 
 template <typename T>
-void RBTree<T>::SmallRightRotation(Node* x) {
-  Node* y = x->left;
-  x->left = y->right;
-  if (y->right != nullptr) {
-    y->right->parent = x;
+void RBTree<T>::SmallRightRotation(Node* subtree) {
+  Node* left_subtree = subtree->left;
+  subtree->left = left_subtree->right;
+  if (left_subtree->right != nullptr) {
+    left_subtree->right->parent = subtree;
   }
-  y->parent = x->parent;
-  if (x->parent == nullptr) {
-    root_ = y;
-  } else if (x == x->parent->right) {
-    x->parent->right = y;
+
+  left_subtree->parent = subtree->parent;
+  if (subtree->parent == nullptr) {
+    root_ = left_subtree;
+  } else if (subtree == subtree->parent->right) {
+    subtree->parent->right = left_subtree;
   } else {
-    x->parent->left = y;
+    subtree->parent->left = left_subtree;
   }
-  y->right = x;
-  x->parent = y;
+
+  left_subtree->right = subtree;
+  subtree->parent = left_subtree;
 }
 
 template <typename T>

@@ -29,8 +29,8 @@ class RBTree final {
     void Destroy();
   };
 
-  void SmallLeftRotation(Node* x);
-  void SmallRightRotation(Node* x);
+  void SmallLeftRotation(Node* subtree);
+  void SmallRightRotation(Node* subtree);
   void BalancingSubtree(Node* subtree);
 
   void VisitImpl(Node* root, Visitor visitor) const;
