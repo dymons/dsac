@@ -56,3 +56,4 @@ class RBTree final {
 
 #define STRUCTURES_RB_TREE_H_
 #include <structures/tree/rb_tree-inl.hpp>
+#undef STRUCTURES_RB_TREE_H_

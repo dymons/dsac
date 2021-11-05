@@ -45,3 +45,4 @@ class BTree final {
 
 #define STRUCTURES_B_TREE_H_
 #include <structures/tree/b_tree-inl.hpp>
+#undef STRUCTURES_B_TREE_H_

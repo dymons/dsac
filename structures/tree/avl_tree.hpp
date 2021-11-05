@@ -74,3 +74,4 @@ class AVLTree final {
 
 #define STRUCTURES_AVL_TREE_H_
 #include <structures/tree/avl_tree-inl.hpp>
+#undef STRUCTURES_AVL_TREE_H_
