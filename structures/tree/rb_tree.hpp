@@ -52,6 +52,15 @@ class RBTree final {
         Color other_color) const noexcept {
       return color == other_color;
     }
+
+    [[nodiscard]] bool Contains(T search_key) const {
+      if (key == search_key) {
+        return true;
+      }
+
+      return (left && left->Contains(search_key)) ||
+             (right && right->Contains(search_key));
+    }
   };
 
   void SmallLeftRotation(Node* x) {
@@ -154,9 +163,9 @@ class RBTree final {
     Node* parent = nullptr;
     Node* child = root_;
     while (child != nullptr) [[likely]] {
-      parent = child;
-      child = new_node->key < child->key ? child->left : child->right;
-    }
+        parent = child;
+        child = new_node->key < child->key ? child->left : child->right;
+      }
 
     new_node->parent = parent;
     if (parent == nullptr) [[unlikely]] {
@@ -187,6 +196,10 @@ class RBTree final {
 
   void Visit(Visitor visitor) const {
     VisitImpl(root_, visitor);
+  }
+
+  [[nodiscard]] bool Contains(T key) const {
+    return root_ && root_->Contains(key);
   }
 };
 }  // namespace algo::tree
