@@ -38,7 +38,7 @@ Avito, Parallels, VK, Sber. Список тем был сформирован д
     - Односвязный список (Forward Linked List)
     - Графы (Graphs)
     - Бинарное дерево поиска (Binary Shortest Three)
-    - Красно-черное дерево (Red-black tree)
+    - Красно-черное дерево ([Red-black tree](https://github.com/dymons/interviews/blob/master/structures/tree/rb_tree.hpp))
     - АВЛ-дерево ([AVL-Tree](https://github.com/dymons/interviews/blob/master/structures/tree/avl_tree.hpp))
     - Стеки (Stack)
     - Очереди (Queue)
