@@ -7,75 +7,30 @@ class SharedPtr final {
   T* data_{nullptr};
   std::size_t* counter_{nullptr};
 
-  void Destroy() {
-    if (counter_ != nullptr) {
-      --*counter_;
-      if (*counter_ == 0) {
-        delete data_;
-        delete counter_;
-      }
-    }
-  }
+  void Destroy();
 
  public:
   SharedPtr() noexcept = default;
-  explicit SharedPtr(T* data)
-      : data_(data), counter_(data != nullptr ? new std::size_t{1u} : nullptr) {
-  }
+  explicit SharedPtr(T* data);
+  SharedPtr(const SharedPtr& other);
+  SharedPtr(SharedPtr&& other);
+  SharedPtr& operator=(const SharedPtr& other);
+  SharedPtr& operator=(SharedPtr&& other);
+  ~SharedPtr();
 
-  SharedPtr(const SharedPtr& other) : data_(other.data_), counter_(other.counter_) {
-    if (counter_ != nullptr) {
-      ++*counter_;
-    }
-  }
+  [[nodiscard]] std::size_t UseCount() const noexcept;
+  [[nodiscard]] T* GetData() const noexcept;
 
-  SharedPtr(SharedPtr&& other) : data_(other.data_), counter_(other.counter_) {
-    other.data_ = nullptr;
-    other.counter_ = nullptr;
-  }
-
-  SharedPtr& operator=(const SharedPtr& other) {
-    Destroy();
-
-    data_ = other.data_;
-    counter_ = other.counter_;
-    if (counter_ != nullptr) {
-      ++*counter_;
-    }
-
-    return *this;
-  }
-
-  SharedPtr& operator=(SharedPtr&& other) {
-    Destroy();
-
-    data_ = other.data_;
-    counter_ = other.counter_;
-
-    other.data_ = nullptr;
-    other.counter_ = nullptr;
-
-    return *this;
-  }
-
-  ~SharedPtr() {
-    Destroy();
-  }
-
-  [[nodiscard]] std::size_t UseCount() const noexcept {
-    return counter_ == nullptr ? 0u : *counter_;
-  }
-
-  [[nodiscard]] T* GetData() const noexcept {
-    return data_;
-  }
-
-  T& operator*() const {
-    return *data_;
-  }
-
-  T* operator->() const {
-    return data_;
-  }
+  T& operator*() const;
+  T* operator->() const;
 };
+
+// TODO Реализовать MakeShared(...)
+// TODO Реализовать атомарный счетчик
+// TODO Реализовать одно выделение памяти под T и counter в SharedPtr
+
 }  // namespace algo::pointers
+
+#define CPP_SHARED_PTR_H_
+#include "shared_ptr-inl.hpp"
+#undef CPP_SHARED_PTR_H_
