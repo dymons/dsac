@@ -38,6 +38,13 @@ class HashTable final {
     Node* GetBucket() const noexcept {
       return bucket_;
     }
+
+    void Destroy() {
+      if (bucket_ != nullptr) {
+        bucket_->Destroy();
+        delete bucket_;
+      }
+    }
   };
 
   [[nodiscard]] std::size_t Hashing(Key key) const {
@@ -49,6 +56,15 @@ class HashTable final {
 
  public:
   HashTable() : hashtable_(default_size_, nullptr) {
+  }
+
+  ~HashTable() {
+    for (Node*& node : hashtable_) {
+      if (node != nullptr) {
+        node->Destroy();
+        delete node;
+      }
+    }
   }
 
   void Insert(Key key, Value value) {
