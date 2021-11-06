@@ -44,7 +44,7 @@ Avito, Parallels, VK, Sber. Список тем был сформирован д
     - Очереди (Queue)
     - Двусторонняя очередь (Deque)
     - Куча ([Heap](https://github.com/dymons/interviews/blob/master/structures/heap/heap.hpp))
-    - Хэш таблица (Hash Tables)
+    - Хэш таблица ([Hash Tables](https://github.com/dymons/interviews/blob/master/structures/hashtable/hashtable.hpp))
 4. Знание умных указателей и их реализации
     - Shared pointer
     - Unique pointer
