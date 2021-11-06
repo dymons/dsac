@@ -51,15 +51,8 @@ class HashTable final {
     return Hash{}(key) % hashtable_.size();
   }
 
-  static const int default_size_ = 8;
-  std::vector<Node*> hashtable_;
-
- public:
-  HashTable() : hashtable_(default_size_, nullptr) {
-  }
-
-  ~HashTable() {
-    for (Node*& node : hashtable_) {
+  void DestroyImpl(std::vector<Node*>& hashtable) {
+    for (Node*& node : hashtable) {
       if (node != nullptr) {
         node->Destroy();
         delete node;
@@ -67,7 +60,7 @@ class HashTable final {
     }
   }
 
-  void Insert(Key key, Value value) {
+  void InsertImpl(Key key, Value value) {
     std::size_t const hash = Hashing(key);
 
     Node* parent = nullptr;
@@ -85,9 +78,51 @@ class HashTable final {
       } else {
         parent->SetBucket(child);
       }
+      ++buffer_size_;
     } else {
       child->SetValue(value);
     }
+  }
+
+  void Rehash() {
+    std::vector<Node*> latest_hashtable(hashtable_.size() * 2, nullptr);
+    std::swap(latest_hashtable, hashtable_);
+
+    for (Node* node : latest_hashtable) {
+      Node* entry = node;
+      while (entry != nullptr) {
+        InsertImpl(entry->GetKey(), entry->GetValue());
+        entry = entry->GetBucket();
+      }
+    }
+
+    DestroyImpl(latest_hashtable);
+  }
+
+  void TryRehash() {
+    double const alpha = static_cast<double>(buffer_size_) / hashtable_.size();
+    if (alpha > rehash_size_) {
+      Rehash();
+    }
+  }
+
+  constexpr static const int default_size_ = 8;
+  constexpr static const double rehash_size_ = 0.75;
+  int buffer_size_ = 0;
+
+  std::vector<Node*> hashtable_;
+
+ public:
+  HashTable() : hashtable_(default_size_, nullptr) {
+  }
+
+  ~HashTable() {
+    DestroyImpl(hashtable_);
+  }
+
+  void Insert(Key key, Value value) {
+    TryRehash();
+    InsertImpl(key, value);
   }
 
   [[nodiscard]] bool Contains(Key key) const {
@@ -135,6 +170,8 @@ class HashTable final {
       } else {
         parent->SetBucket(child->GetBucket());
       }
+
+      --buffer_size_;
       delete child;
     }
   }
