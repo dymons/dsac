@@ -46,7 +46,7 @@ Avito, Parallels, VK, Sber. Список тем был сформирован д
     - Куча ([Heap](https://github.com/dymons/interviews/blob/master/structures/heap/heap.hpp))
     - Хэш таблица ([Hash Tables](https://github.com/dymons/interviews/blob/master/structures/hashtable/hashtable.hpp))
 4. Знание умных указателей и их реализации
-    - Shared pointer
+    - Shared pointer ([Source](https://github.com/dymons/interviews/blob/master/cpp/pointers/shared_ptr.hpp))
     - Unique pointer
     - Weak pointer
     - Auto pointer
