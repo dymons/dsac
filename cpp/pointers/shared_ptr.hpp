@@ -69,5 +69,13 @@ class SharedPtr final {
   [[nodiscard]] T* GetData() const noexcept {
     return data_;
   }
+
+  T& operator*() const {
+    return *data_;
+  }
+
+  T* operator->() const {
+    return data_;
+  }
 };
 }  // namespace algo::pointers
