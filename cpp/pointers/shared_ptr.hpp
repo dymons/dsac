@@ -52,6 +52,9 @@ class SharedPtr final {
     data_ = other.data_;
     counter_ = other.counter_;
 
+    other.data_ = nullptr;
+    other.counter_ = nullptr;
+
     return *this;
   }
 
