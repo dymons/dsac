@@ -2,6 +2,8 @@
 #error This file may only be included from heap.hpp
 #endif
 
+#include <stdexcept>
+
 namespace algo::heap {
 template <typename T, template <typename> class Compare>
 int Heap<T, Compare>::GetIndexLeftChild(int index) noexcept {

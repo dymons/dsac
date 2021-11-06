@@ -1,7 +1,6 @@
 #pragma once
 
 #include <vector>
-#include <stdexcept>
 
 namespace algo::heap {
 template <typename T, template <typename> class Compare>
