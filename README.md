@@ -54,8 +54,8 @@ Avito, Parallels, VK, Sber. Список тем был сформирован д
 5. Concurrency
     - В чем отличия процесса от потока?
     - Примитивы синхронизации
-        1. Mutex (Mutual Exclusion)
-        2. Futex
+        1. Mutex ([Mutual Exclusion](https://github.com/dymons/interviews/blob/master/concurrency/syncing/mutex.hpp))
+        2. Futex ([Source](https://github.com/dymons/interviews/blob/master/concurrency/syncing/futex.hpp))
         3. Condition Variable
         4. Critical Section
         5. Barrier
