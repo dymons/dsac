@@ -32,6 +32,25 @@ void Futex::Waiting(int* address, int expected_value) const {
   }
 }
 
+bool Futex::Waiting(int* address, int expected_value,
+                    std::chrono::milliseconds timeout) const {
+  const auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(timeout);
+  const timespec waiting = {.tv_sec = 0, .tv_nsec = duration.count()};
+
+  while (true) {
+    Status const status = SysCall(address, FUTEX_WAIT, expected_value, &waiting);
+    if (status == Status::Errno) {
+      if (errno == ETIMEDOUT) {
+        return false;
+      }
+    } else if (*address == expected_value) {
+      break;
+    }
+  }
+
+  return true;
+}
+
 void Futex::WakeUp(int* address) const {
   while (true) {
     Status const status = SysCall(address, FUTEX_WAKE, 1);
