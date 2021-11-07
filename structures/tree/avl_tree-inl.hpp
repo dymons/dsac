@@ -25,12 +25,12 @@ void AVLTree<T>::Node::SetHeight(int height) noexcept {
 }
 
 template <typename T>
-typename AVLTree<T>::Node*& AVLTree<T>::Node::GetLeftChild() noexcept {
+typename AVLTree<T>::Node*& AVLTree<T>::Node::GetLeftChild() & noexcept {
   return left_;
 }
 
 template <typename T>
-typename AVLTree<T>::Node*& AVLTree<T>::Node::GetRightChild() noexcept {
+typename AVLTree<T>::Node*& AVLTree<T>::Node::GetRightChild() & noexcept {
   return right_;
 }
 

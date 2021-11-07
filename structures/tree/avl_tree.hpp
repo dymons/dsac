@@ -27,8 +27,8 @@ class AVLTree final {
     void SetLeftChild(Node* child) noexcept;
     void SetRightChild(Node* child) noexcept;
     void SetHeight(int height) noexcept;
-    [[nodiscard]] Node*& GetLeftChild() noexcept;
-    [[nodiscard]] Node*& GetRightChild() noexcept;
+    [[nodiscard]] Node*& GetLeftChild() & noexcept;
+    [[nodiscard]] Node*& GetRightChild() & noexcept;
     [[nodiscard]] int GetHeight() noexcept;
     void Destroy();
 
