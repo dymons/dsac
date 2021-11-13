@@ -7,7 +7,12 @@ namespace algo::syncing {
 class Barrier final {
   std::mutex mutex_;
   std::condition_variable cv_;
-  std::size_t size_awaited_threads_;
+
+  const std::size_t size_awaited_threads_;
+  std::size_t current_awaited_threads_;
+
+  enum class State : unsigned char { Blocking, Unblocking };
+  State state_;
 
  public:
   explicit Barrier(std::size_t size_awaited_threads);

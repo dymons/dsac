@@ -2,9 +2,8 @@
 
 #include <concurrency/syncing/critical_section.hpp>
 #include <thread>
-#include <memory>
 
-TEST_CASE("Проверка корректности выполнения CriticalSection", "[critical_section_work]") {
+TEST_CASE("Проверка корректности выполнения CriticalSection", "[critical_section]") {
   using namespace algo::syncing;
 
   SECTION("Проверка корректности изменения объекта несколькими потоками") {
