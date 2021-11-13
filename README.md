@@ -57,7 +57,7 @@ Avito, Parallels, VK, Sber. Список тем был сформирован д
         1. Mutex ([Mutual Exclusion](https://github.com/dymons/interviews/blob/master/concurrency/syncing/mutex.hpp))
         2. Futex ([Source](https://github.com/dymons/interviews/blob/master/concurrency/syncing/futex.hpp))
         3. Condition Variable
-        4. Critical Section ((Source)[https://github.com/dymons/interviews/blob/master/concurrency/syncing/critical_section.hpp])
+        4. Critical Section ([Source](https://github.com/dymons/interviews/blob/master/concurrency/syncing/critical_section.hpp))
         5. Barrier
         6. Latch
         7. Event
