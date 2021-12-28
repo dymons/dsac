@@ -78,7 +78,3 @@ Avito, Parallels, VK, Sber. Список тем был сформирован д
     - select ([Source](https://github.com/dymons/interviews/blob/master/network/server_select.cpp))
     - poll
     - epoll
-
-## Что почитать
-
-## Практика

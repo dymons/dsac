@@ -115,7 +115,7 @@ int main() {
                   << ntohs(client_socket_description.sin_port) << std::endl;
         FD_SET(new_descriptor, &active_set);
       } else {
-        Response response = receive_message(i);
+        Response const response = receive_message(i);
         if (response.status == Status::Error) {
           close(i);
           FD_CLR(i, &active_set);
