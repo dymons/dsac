@@ -61,11 +61,11 @@ Avito, Parallels, VK, Sber. Список тем был сформирован д
         5. Barrier ([Source](https://github.com/dymons/interviews/blob/master/concurrency/syncing/barrier.hpp))
         6. Latch
         7. Event
-        8. Semaphore
+        8. Semaphore ([Source](https://github.com/dymons/interviews/blob/master/concurrency/syncing/semaphore.hpp))
     - Способы межпроцессорного взаимодействия (IPC), перечислить все 12 способов.
     - Что такое deadlock? Примеры и как избежать подобных ситуаций? (Priority Mutex)
     - Какой способ распараллеливания задач лучше - по процессам или по потокам?
-    - Пул управляемых потоков (Thread pool)
+    - Пул управляемых потоков ([Thread pool](https://github.com/dymons/interviews/blob/master/concurrency/thread_pool/static_thread_pool.hpp))
     - Модель памяти С++
 6. Паттерны проектирования и идиомы
     - Концепции RAII
