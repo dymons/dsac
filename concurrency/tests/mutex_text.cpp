@@ -13,17 +13,15 @@ TEST_CASE("Проверка корректности выполнения Mutex"
     int counter = 0;
     std::thread adder([&]() {
       for (int i{}; i < 1'000'000; ++i) {
-        mutex.Lock();
+        UniqueLock guard(mutex);
         counter += 1;
-        mutex.Unlock();
       }
     });
 
     std::thread subtractor([&]() {
       for (int i{}; i < 1'000'000; ++i) {
-        mutex.Lock();
+        UniqueLock guard(mutex);
         counter -= 1;
-        mutex.Unlock();
       }
     });
 

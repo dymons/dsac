@@ -9,7 +9,7 @@
 // 2 means locked, there are waiters in lock()
 
 namespace {
-int CompareAndExchange(std::atomic_int* atom, int expected, int desired) {
+int CompareAndSet(std::atomic_int* atom, int expected, int desired) {
   int* ep = &expected;
   std::atomic_compare_exchange_strong(atom, ep, desired);
   return *ep;
@@ -22,12 +22,12 @@ long int SysCall(int* address, int futex_op, int val) noexcept {
 
 namespace algo::syncing {
 void Mutex::Lock() {
-  if (int c = CompareAndExchange(&state_, 0, 1); c != 0) {
+  if (int c = CompareAndSet(&state_, 0, 1); c != 0) {
     do {
-      if (c == 2 || CompareAndExchange(&state_, 1, 2) != 0) {
+      if (c == 2 || CompareAndSet(&state_, 1, 2) != 0) {
         SysCall((int*)&state_, FUTEX_WAIT, 2);
       }
-    } while ((c = CompareAndExchange(&state_, 0, 2)) != 0);
+    } while ((c = CompareAndSet(&state_, 0, 2)) != 0);
   }
 }
 
@@ -36,5 +36,48 @@ void Mutex::Unlock() {
     state_.store(0);
     SysCall((int*)&state_, FUTEX_WAKE, 1);
   }
+}
+
+UniqueLock::UniqueLock(Mutex& mutex) : mutex_(std::addressof(mutex)) {
+  Lock();
+}
+
+UniqueLock::UniqueLock(UniqueLock&& other) : mutex_(other.mutex_), owned_(other.owned_) {
+  other.mutex_ = nullptr;
+  other.owned_ = false;
+}
+
+UniqueLock& UniqueLock::operator=(UniqueLock&& other) {
+  if (owned_) {
+    Unlock();
+  }
+
+  UniqueLock(std::move(other)).Swap(*this);
+
+  other.mutex_ = nullptr;
+  other.owned_ = false;
+
+  return *this;
+}
+
+UniqueLock::~UniqueLock() {
+  if (owned_) {
+    Unlock();
+  }
+}
+
+void UniqueLock::Swap(UniqueLock& other) {
+  std::swap(mutex_, other.mutex_);
+  std::swap(owned_, other.owned_);
+}
+
+void UniqueLock::Lock() {
+  mutex_->Lock();
+  owned_ = true;
+}
+
+void UniqueLock::Unlock() {
+  mutex_->Unlock();
+  owned_ = false;
 }
 }  // namespace algo::syncing

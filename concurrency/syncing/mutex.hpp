@@ -10,4 +10,25 @@ class Mutex final {
   void Lock();
   void Unlock();
 };
+
+class UniqueLock final {
+ public:
+  explicit UniqueLock(Mutex& mutex);
+  ~UniqueLock();
+
+  UniqueLock(const UniqueLock&) = delete;
+  UniqueLock& operator=(const UniqueLock&) = delete;
+  UniqueLock(UniqueLock&&);
+  UniqueLock& operator=(UniqueLock&&);
+
+  void Lock();
+  void Unlock();
+
+ private:
+  void Swap(UniqueLock& other);
+
+ private:
+  Mutex* mutex_ = nullptr;
+  bool owned_ = false;
+};
 }  // namespace algo::syncing
