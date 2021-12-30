@@ -10,9 +10,9 @@ class StaticThreadPool final {
  public:
   explicit StaticThreadPool(std::size_t workers);
   StaticThreadPool(const StaticThreadPool&) = delete;
-  StaticThreadPool(StaticThreadPool&&) = default;
+  StaticThreadPool(StaticThreadPool&&) = delete;
   StaticThreadPool& operator=(const StaticThreadPool&) = delete;
-  StaticThreadPool& operator=(StaticThreadPool&&) = default;
+  StaticThreadPool& operator=(StaticThreadPool&&) = delete;
   ~StaticThreadPool() = default;
 
   void Submit(Task task);

@@ -51,6 +51,7 @@ Avito, Parallels, VK, Sber. Список тем был сформирован д
     - Weak pointer
     - Auto pointer
     - Scope pointer
+    - Intrusive pointer
 5. Concurrency
     - В чем отличия процесса от потока?
     - Примитивы синхронизации
