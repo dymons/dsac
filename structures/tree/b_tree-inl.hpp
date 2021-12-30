@@ -81,7 +81,7 @@ void BTree<T>::Node::AddKeyImpl(T key) {
 
 template <typename T>
 void BTree<T>::Node::SplitChild(std::size_t index, Node* root) {
-  Node* const new_node = new Node{.t = root->t_};
+  Node* const new_node = new Node{root->t_};
   for (int j = 0; j < t_ - 1; j++) {
     new_node->AddKey(root->GetKey(j + t_));
   }
@@ -139,10 +139,10 @@ BTree<T>::~BTree() {
 template <typename T>
 void BTree<T>::Insert(T key) {
   if (root_ == nullptr) {
-    root_ = new Node{.t = t_};
+    root_ = new Node{t_};
     root_->AddKey(key);
   } else if (root_->IsKeysFull()) {
-    Node* const new_node = new Node{.t = t_};
+    Node* const new_node = new Node{t_};
     new_node->AddChild(root_);
     new_node->SplitChild(0, root_);
 
