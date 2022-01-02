@@ -51,18 +51,20 @@ void Merge(std::vector<T>& arr, const int low, const int mid, const int high) {
 }
 
 template <typename T>
-void MergeSortImpl(std::vector<T>& arr, const int low, const int high) {
+void MergeSortTopDownImpl(std::vector<T>& arr, const int low, const int high) {
   if (low < high) {
     const int middle = (low + high) / 2;
-    MergeSortImpl(arr, low, middle);
-    MergeSortImpl(arr, middle + 1, high);
+    MergeSortTopDownImpl(arr, low, middle);
+    MergeSortTopDownImpl(arr, middle + 1, high);
     Merge(arr, low, middle, high);
   }
 }
+
+// TODO: Добавить версию сортировки Merge Sort Bottom-Up
 }  // namespace detail
 
 template <typename T>
 void MergeSort(std::vector<T>& arr) {
-  detail::MergeSortImpl(arr, 0, (int)arr.size() - 1);
+  detail::MergeSortTopDownImpl(arr, 0, static_cast<int>(arr.size()) - 1);
 }
 }  // namespace algo::sort
