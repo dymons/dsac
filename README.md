@@ -7,7 +7,12 @@ Avito, Parallels, VK, Sber. Список тем был сформирован д
 
 ## Обзор тем для подготовки к собеседованию
 
-1. Знание реализации и нотации Big O алгоритмов сортировки
+1. Анализ учетных стоимостей
+    - Примеры моделей вычисления: машина Тьюринга, RAM-машина
+    - Сложность в среднем и худшем случаях
+    - Анализ мультипликативной схемы для массива переменного размера с помощью банковского метода
+    - Анализ учетных стоимостей операций: функция потенциала, истинные и учетные стоимости
+2. Знание реализации и нотации Big O алгоритмов сортировки
     - Сортировка
       пузырьком ([Bubble sort](https://github.com/dymons/interviews/blob/master/algorithms/sorts/bubble_sort.hpp))
     - Сортировка
@@ -26,12 +31,12 @@ Avito, Parallels, VK, Sber. Список тем был сформирован д
       Шелла ([Shell sort](https://github.com/dymons/interviews/blob/master/algorithms/sorts/shell_sort.hpp))
     - Пирамидальная
       сортировка ([Heapsort](https://github.com/dymons/interviews/blob/master/algorithms/sorts/heap_sort.hpp))
-2. Алгоритмы для работы с графами
+3. Алгоритмы для работы с графами
     - Поиск в ширину ([Breadth-first search](https://github.com/dymons/interviews/blob/master/structures/graph/breadth_first_search.hpp))
     - Поиск в грубину ([Depth-first search](https://github.com/dymons/interviews/blob/master/structures/graph/depth_first_search.hpp))
     - Алгоритм Дейкстры ([Dijkstra’s algorithm](https://github.com/dymons/interviews/blob/master/structures/graph/dijkstra_search.hpp))
     - Задача коммивояжёра ([Travelling salesman problem](https://github.com/dymons/interviews/blob/master/structures/graph/travelling_salesman_problem.hpp))
-3. Структуры данных и их алгоритмическая сложность
+4. Структуры данных и их алгоритмическая сложность
     - Динамический массив (Dynamic Array)
     - Статический массив (Static Array)
     - Двусвязный список (Linked List)
@@ -45,14 +50,14 @@ Avito, Parallels, VK, Sber. Список тем был сформирован д
     - Двусторонняя очередь (Deque)
     - Куча ([Heap](https://github.com/dymons/interviews/blob/master/structures/heap/heap.hpp))
     - Хэш таблица ([Hash Tables](https://github.com/dymons/interviews/blob/master/structures/hashtable/hashtable.hpp))
-4. Знание умных указателей и их реализации
+5. Знание умных указателей и их реализации
     - Shared pointer ([Source](https://github.com/dymons/interviews/blob/master/cpp/pointers/shared_ptr.hpp))
     - Unique pointer
     - Weak pointer
     - Auto pointer
     - Scope pointer
     - Intrusive pointer
-5. Concurrency
+6. Concurrency
     - В чем отличия процесса от потока?
     - Примитивы синхронизации
         1. Mutex ([Mutual Exclusion](https://github.com/dymons/interviews/blob/master/concurrency/syncing/mutex.hpp))
@@ -68,14 +73,14 @@ Avito, Parallels, VK, Sber. Список тем был сформирован д
     - Какой способ распараллеливания задач лучше - по процессам или по потокам?
     - Пул управляемых потоков ([Thread pool](https://github.com/dymons/interviews/blob/master/concurrency/thread_pool/static_thread_pool.hpp))
     - Модель памяти С++
-6. Паттерны проектирования и идиомы
+7. Паттерны проектирования и идиомы
     - Концепции RAII
     - Концепции SOLID
     - Набор паттернов проектирования ([22 паттерна](https://refactoring.guru/ru/design-patterns/catalog))
         1. Порождающие паттерны проектирования
         2. Структурные паттерны проектирования
         3. Поведенческие паттерны проектирования
-7. Методы обработки соединений
+8. Методы обработки соединений
     - select ([Source](https://github.com/dymons/interviews/blob/master/network/server_select.cpp))
     - poll
     - epoll
