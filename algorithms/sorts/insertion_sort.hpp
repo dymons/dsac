@@ -15,4 +15,6 @@ void InsertionSort(std::vector<T>& arr) {
     arr[i + 1] = key;
   }
 }
+
+// TODO: Добавить версию сортировки Binary Insertion Sort
 }  // namespace algo::sort
