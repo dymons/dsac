@@ -65,6 +65,11 @@ void MergeSortTopDownImpl(std::vector<T>& arr, const int low, const int high) {
 
 template <typename T>
 void MergeSort(std::vector<T>& arr) {
+  // Worst Case Time Complexity [ Big-O ] : O(NlogN)
+  // Best Case Time Complexity [Big-omega]: O(NlogN)
+  // Average Time Complexity [Big-theta]  : O(NlogN)
+  // Space Complexity : O(N), но можно лучше (O(N/2)), если копировать одну половину
+  //                          массива и сохраняться отсортированные значения In Place
   detail::MergeSortTopDownImpl(arr, 0, static_cast<int>(arr.size()) - 1);
 }
 }  // namespace algo::sort
