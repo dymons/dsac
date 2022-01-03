@@ -2,20 +2,20 @@
 
 #include <random>
 #include <vector>
-#include <structures/heap/heap.hpp>
+#include <structures/heap/binary_heap.hpp>
 
 TEST_CASE("Добавление и удаление элементов в MinHeap", "[min_heap]") {
   using namespace algo::heap;
 
   SECTION("Корректность структуры MinHeap при пустых данных") {
-    MinHeap<int> heap;
+    MinBinaryHeap<int> heap;
     REQUIRE(heap.IsEmpty());
     REQUIRE_THROWS(heap.Pool());
     REQUIRE_THROWS(heap.Peek());
   }
 
   SECTION("Добавление элементов в MinHeap") {
-    MinHeap<int> heap;
+    MinBinaryHeap<int> heap;
     heap.Insert(10);
     heap.Insert(5);
     heap.Insert(2);
@@ -31,7 +31,7 @@ TEST_CASE("Добавление и удаление элементов в MinHea
     std::mt19937 generator(random_device());
     std::uniform_int_distribution<> distribution(0, 20000);
 
-    MinHeap<int> heap;
+    MinBinaryHeap<int> heap;
     constexpr int count_samples = 2000;
     std::vector<int> buffer;
     buffer.reserve(count_samples);
@@ -49,14 +49,14 @@ TEST_CASE("Добавление и удаление элементов в MaxHea
   using namespace algo::heap;
 
   SECTION("Корректность структуры MaxHeap при пустых данных") {
-    MaxHeap<int> heap;
+    MaxBinaryHeap<int> heap;
     REQUIRE(heap.IsEmpty());
     REQUIRE_THROWS(heap.Pool());
     REQUIRE_THROWS(heap.Peek());
   }
 
   SECTION("Добавление элементов в MaxHeap") {
-    MaxHeap<int> heap;
+    MaxBinaryHeap<int> heap;
     heap.Insert(10);
     REQUIRE(heap.Peek() == 10);
     heap.Insert(5);
@@ -73,7 +73,7 @@ TEST_CASE("Добавление и удаление элементов в MaxHea
     std::mt19937 generator(random_device());
     std::uniform_int_distribution<> distribution(0, 20000);
 
-    MaxHeap<int> heap;
+    MaxBinaryHeap<int> heap;
     constexpr int count_samples = 2000;
     std::vector<int> buffer;
     buffer.reserve(count_samples);

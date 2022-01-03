@@ -4,7 +4,7 @@
 
 namespace algo::heap {
 template <typename T, template <typename> class Compare>
-class Heap final {
+class BinaryHeap final {
   [[gnu::always_inline]] inline int GetIndexLeftChild(int index) noexcept;
   [[gnu::always_inline]] inline int GetIndexRightChild(int index) noexcept;
   [[gnu::always_inline]] inline int GetIndexParent(int index) noexcept;
@@ -30,12 +30,12 @@ class Heap final {
 };
 
 template <typename T>
-using MinHeap = Heap<T, std::less>;
+using MinBinaryHeap = BinaryHeap<T, std::less>;
 
 template <typename T>
-using MaxHeap = Heap<T, std::greater>;
+using MaxBinaryHeap = BinaryHeap<T, std::greater>;
 }  // namespace algo::heap
 
-#define STRUCTURES_HEAP_H_
-#include <structures/heap/heap-inl.hpp>
-#undef STRUCTURES_HEAP_H_
+#define STRUCTURES_BINARY_HEAP_H_
+#include <structures/heap/binary_heap-inl.hpp>
+#undef STRUCTURES_BINARY_HEAP_H_
