@@ -42,7 +42,8 @@ Avito, Parallels, VK, Sber. Список тем был сформирован д
     - Стеки (Stack)
     - Очереди (Queue)
     - Двусторонняя очередь (Deque)
-    - Куча ([BinaryHeap](https://github.com/dymons/interviews/blob/master/structures/heap/heap.hpp))
+    - Бинарная куча ([Binary Heap](https://github.com/dymons/interviews/blob/master/structures/heap/binary_heap.hpp))
+    - K-ary куча
     - Хэш таблица ([Hash Tables](https://github.com/dymons/interviews/blob/master/structures/hashtable/hashtable.hpp))
 6. Знание умных указателей и их реализации
     - Shared pointer ([Source](https://github.com/dymons/interviews/blob/master/cpp/pointers/shared_ptr.hpp))

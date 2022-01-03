@@ -45,11 +45,11 @@ bool IsPathExist(Graph& graph, const Node from, const Node to) {
   visited.emplace(from);
 
   while (!processing.empty()) {
-    if (auto [considered, min_dist] = processing.top(); considered == to) [[unlikely]] {
+    if (auto [considered, min_dist] = processing.top(); considered == to) {
       return true;
     } else {
       processing.pop();
-      if (distances[considered] >= min_dist) [[likely]] {
+      if (distances[considered] >= min_dist) {
         for (const Node successor : graph.GetSuccessors(considered)) {
           if (auto [it, not_exist] = visited.emplace(successor); not_exist) {
             const detail::Distance new_dist = distances[considered] + 1;
