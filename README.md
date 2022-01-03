@@ -42,8 +42,11 @@ Avito, Parallels, VK, Sber. Список тем был сформирован д
     - Стеки (Stack)
     - Очереди (Queue)
     - Двусторонняя очередь (Deque)
-    - Бинарная куча ([Binary Heap](https://github.com/dymons/interviews/blob/master/structures/heap/binary_heap.hpp))
-    - K-ary куча
+    - Binary Heap ([Binary Heap](https://github.com/dymons/interviews/blob/master/structures/heap/binary_heap.hpp))
+    - K-ary Heap
+    - Meldable Heap
+    - Binomial Heap
+    - Leftist Heap
     - Хэш таблица ([Hash Tables](https://github.com/dymons/interviews/blob/master/structures/hashtable/hashtable.hpp))
 6. Знание умных указателей и их реализации
     - Shared pointer ([Source](https://github.com/dymons/interviews/blob/master/cpp/pointers/shared_ptr.hpp))
@@ -76,7 +79,7 @@ Avito, Parallels, VK, Sber. Список тем был сформирован д
         1. Порождающие паттерны проектирования
         2. Структурные паттерны проектирования
         3. Поведенческие паттерны проектирования
-9. Методы обработки соединений
+9. Методы обработки TCP соединений
     - select ([Source](https://github.com/dymons/interviews/blob/master/network/server_select.cpp))
     - poll
     - epoll
