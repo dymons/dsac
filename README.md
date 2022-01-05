@@ -89,3 +89,5 @@ Avito, Parallels, VK, Sber. Список тем был сформирован д
 
 ## Материалы для изучения
 - Алгоритмы и структуры данных поиска. Лекции и курсы от Яндекса [Link](https://habr.com/ru/company/yandex/blog/208716/)
+- Алгоритмы и структуры данных by Павел Маврин. [YouTube](https://www.youtube.com/c/pavelmavrin/videos)
+- Теория и практика многопоточной синхронизации by Роман Липовский. [YouTube](https://www.youtube.com/playlist?list=PL4_hYwCyhAvb7P8guwSTaaUS8EcOaWjxF)
