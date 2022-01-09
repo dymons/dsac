@@ -1,7 +1,7 @@
 #pragma once
 
-#include <functional>
+#include <concurrency/utility/function2.hpp>
 
 namespace algo::concurrency {
-using Task = std::function<void()>;
+using Task = fu2::function<void()>;
 }  // namespace algo::concurrency
