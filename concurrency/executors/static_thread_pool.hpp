@@ -1,22 +1,25 @@
 #pragma once
 
-#include <concurrency/thread_pool/task.hpp>
-#include <concurrency/thread_pool/blocking_queue.hpp>
+#include <concurrency/executors/executor.hpp>
+#include <concurrency/executors/task.hpp>
+#include <concurrency/executors/blocking_queue.hpp>
 #include <vector>
 #include <thread>
 
 namespace algo::concurrency {
-class StaticThreadPool final {
+class StaticThreadPool final : public IExecutor {
  public:
+  static IExecutorPtr Make(std::size_t workers);
+
   explicit StaticThreadPool(std::size_t workers);
   StaticThreadPool(const StaticThreadPool&) = delete;
   StaticThreadPool(StaticThreadPool&&) = delete;
   StaticThreadPool& operator=(const StaticThreadPool&) = delete;
   StaticThreadPool& operator=(StaticThreadPool&&) = delete;
-  ~StaticThreadPool() = default;
+  ~StaticThreadPool() override = default;
 
-  void Submit(Task task);
-  void Join();
+  void Submit(Task task) override;
+  void Join() override;
 
  private:
   void StartWorkerThreads(std::size_t workers);

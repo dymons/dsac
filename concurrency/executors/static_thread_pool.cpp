@@ -1,4 +1,4 @@
-#include <concurrency/thread_pool/static_thread_pool.hpp>
+#include <concurrency/executors/static_thread_pool.hpp>
 
 namespace algo::concurrency {
 StaticThreadPool::StaticThreadPool(std::size_t workers) {
@@ -21,6 +21,10 @@ void StaticThreadPool::WorkerRoutine() {
       break;
     }
   }
+}
+
+IExecutorPtr StaticThreadPool::Make(std::size_t workers) {
+  return std::make_shared<StaticThreadPool>(workers);
 }
 
 void StaticThreadPool::Submit(Task task) {
