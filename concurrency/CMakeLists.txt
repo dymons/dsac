@@ -3,8 +3,19 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
 get_filename_component(PACKAGE_INCLUDE_PATH ".." ABSOLUTE)
 get_filename_component(PACKAGE_PATH "." ABSOLUTE)
 
-file(GLOB_RECURSE PACKAGE_CXX_SOURCES ${PACKAGE_PATH}/syncing/*.cpp ${PACKAGE_PATH}/executors/*.cpp)
-file(GLOB_RECURSE PACKAGE_HEADERS ${PACKAGE_PATH}/syncing/*.hpp ${PACKAGE_PATH}/executors/*.hpp)
+file(GLOB_RECURSE PACKAGE_HEADERS
+     ${PACKAGE_PATH}/executors/*.hpp
+     ${PACKAGE_PATH}/futures/*.hpp
+     ${PACKAGE_PATH}/support/*.hpp
+     ${PACKAGE_PATH}/syncing/*.hpp
+     ${PACKAGE_PATH}/utility/*.hpp)
+
+file(GLOB_RECURSE PACKAGE_CXX_SOURCES
+     ${PACKAGE_PATH}/executors/*.cpp
+     ${PACKAGE_PATH}/futures/*.cpp
+     ${PACKAGE_PATH}/support/*.cpp
+     ${PACKAGE_PATH}/syncing/*.cpp
+     ${PACKAGE_PATH}/utility/*.cpp)
 
 add_library(concurrency STATIC ${PACKAGE_CXX_SOURCES} ${PACKAGE_HEADERS})
 target_include_directories(concurrency PUBLIC ${PACKAGE_INCLUDE_PATH})
