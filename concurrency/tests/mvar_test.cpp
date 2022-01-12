@@ -32,5 +32,6 @@ TEST_CASE("Проверка корректности выполнения при
 
     REQUIRE(mvar.IsEmpty());
     REQUIRE(mvar.Take() == 10);
+    REQUIRE(mvar.IsEmpty());
   }
 }
