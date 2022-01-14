@@ -16,7 +16,7 @@ class Future : public HoldState<T> {
   using HoldState<T>::ReleaseState;
 
  public:
-  Try<T> GetResult() && {
+  Try<T> Get() && {
     return ReleaseState()->GetResult();
   }
 

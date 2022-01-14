@@ -13,8 +13,8 @@ TEST_CASE("Проверка корректности Future&Promise", "[future_a
     Promise<int> promise;
     Future<int> future = promise.MakeFuture();
 
-    promise.SetValue(10);
-    Try<int> value = std::move(future).GetResult();
+    promise.Set(10);
+    Try<int> value = std::move(future).Get();
     REQUIRE_FALSE(value.HasException());
     REQUIRE(value.HasValue());
     REQUIRE(value.Get() == 10);
@@ -28,10 +28,10 @@ TEST_CASE("Проверка корректности Future&Promise", "[future_a
 
     executor->Submit([promise = std::move(promise)]() mutable {
       std::this_thread::sleep_for(std::chrono::milliseconds(100));
-      promise.SetValue(10);
+      promise.Set(10);
     });
 
-    Try<int> value = std::move(future).GetResult();
+    Try<int> value = std::move(future).Get();
     REQUIRE_FALSE(value.HasException());
     REQUIRE(value.HasValue());
     REQUIRE(value.Get() == 10);

@@ -22,7 +22,7 @@ class Promise : public HoldState<T> {
     return Future{state_};
   }
 
-  void SetValue(T value) {
+  void Set(T value) {
     ReleaseState()->SetResult(Try<T>(std::move(value)));
   }
 
