@@ -14,12 +14,15 @@ class Promise : public HoldState<T> {
   Promise() : HoldState<T>(MakeSharedState<T>()) {
   }
 
+  Promise(Promise&& that) = default;
+  Promise& operator=(Promise&& that) = default;
+
   Future<T> MakeFuture() {
     assert(!std::exchange(future_extracted_, true));
     return Future{state_};
   }
 
-  void SetValue(T value) && {
+  void SetValue(T value) {
     ReleaseState()->SetResult(Try<T>(std::move(value)));
   }
 

@@ -27,7 +27,7 @@ IExecutorPtr StaticThreadPool::Make(std::size_t workers) {
   return std::make_shared<StaticThreadPool>(workers);
 }
 
-void StaticThreadPool::Submit(Task task) {
+void StaticThreadPool::Submit(Task&& task) {
   tasks_.Push(std::move(task));
 }
 

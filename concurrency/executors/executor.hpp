@@ -8,7 +8,7 @@ class IExecutor {
  public:
   virtual ~IExecutor() = default;
 
-  virtual void Submit(Task task) = 0;
+  virtual void Submit(Task&& task) = 0;
   virtual void Join() = 0;
 };
 

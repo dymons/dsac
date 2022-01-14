@@ -18,7 +18,7 @@ class StaticThreadPool final : public IExecutor {
   StaticThreadPool& operator=(StaticThreadPool&&) = delete;
   ~StaticThreadPool() override = default;
 
-  void Submit(Task task) override;
+  void Submit(Task&& task) override;
   void Join() override;
 
  private:
