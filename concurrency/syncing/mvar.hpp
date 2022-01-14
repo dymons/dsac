@@ -63,5 +63,50 @@ class MVar : public detail::NonCopyable, public detail::NonMovable {
   }
 };
 
-// TODO: Добавить специализацию класса MVar<void>
+template <>
+class MVar<void> : public detail::NonCopyable, public detail::NonMovable {
+  bool contains_ = false;
+
+  std::mutex mutex_;
+  std::condition_variable has_value_storage_;
+  std::condition_variable not_value_storage_;
+
+ public:
+  void Put() {
+    {
+      std::unique_lock<std::mutex> lock(mutex_);
+      not_value_storage_.wait(lock, [this] {
+        return !contains_;
+      });
+
+      contains_ = true;
+    }
+
+    has_value_storage_.notify_all();
+  }
+
+  void Take() {
+    {
+      std::unique_lock<std::mutex> lock(mutex_);
+      has_value_storage_.wait(lock, [this] {
+        return contains_;
+      });
+      contains_ = false;
+    }
+
+    not_value_storage_.notify_all();
+  }
+
+  [[nodiscard]] bool IsEmpty() {
+    std::unique_lock<std::mutex> lock(mutex_);
+    return !contains_;
+  }
+
+  void ReadOnly() {
+    std::unique_lock<std::mutex> lock(mutex_);
+    has_value_storage_.wait(lock, [this] {
+      return contains_;
+    });
+  }
+};
 }  // namespace algo::syncing

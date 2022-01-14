@@ -3,7 +3,7 @@
 #include <concurrency/futures/try.hpp>
 
 TEST_CASE("Проверка корректности примитива Try", "[try]") {
-  using namespace algo::concurrency;
+  using namespace algo::futures;
 
   SECTION("Проверка корректности хранения значений в примитиве Try") {
     Try<int> try_value{10};
@@ -13,14 +13,7 @@ TEST_CASE("Проверка корректности примитива Try", "[
   }
 
   SECTION("Проверка корректности хранения исключений в примитиве Try") {
-    std::exception_ptr exception;
-    try {
-      throw std::logic_error{""};
-    } catch (...) {
-      exception = std::current_exception();
-    }
-
-    Try<int> try_exception{std::move(exception)};
+    Try<int> try_exception{std::make_exception_ptr(std::logic_error{""})};
     REQUIRE_FALSE(try_exception.HasValue());
     REQUIRE(try_exception.HasException());
   }
