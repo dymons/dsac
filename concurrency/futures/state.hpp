@@ -104,16 +104,13 @@ inline StateRef<T> MakeSharedState() {
 //////////////////////////////////////////////////////////////////////
 
 template <typename T>
-class HoldState {
+class HoldState : public detail::NonCopyable {
  protected:
   HoldState(StateRef<T> state) : state_(std::move(state)) {
   }
 
   HoldState(HoldState&& that) = default;
   HoldState& operator=(HoldState&& that) = default;
-
-  HoldState(const HoldState& that) = delete;
-  HoldState& operator=(const HoldState& that) = delete;
 
   StateRef<T> ReleaseState() {
     CheckState();

@@ -109,7 +109,7 @@ TEST_CASE("Проверка корректности Future&Promise", "[future_a
     std::thread::id const main_thread_id = std::this_thread::get_id();
 
     Promise<int> promise;
-    /*Future<int> future = */ promise.MakeFuture()
+    /* Future<int> future = */ promise.MakeFuture()
         .Via(executor)
         .Then([main_thread_id](Try<int> result) {
           REQUIRE_FALSE(std::this_thread::get_id() == main_thread_id);
