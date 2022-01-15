@@ -2,7 +2,6 @@
 
 #include <concurrency/futures/future.hpp>
 #include <concurrency/futures/promise.hpp>
-
 #include <concurrency/executors/static_thread_pool.hpp>
 
 TEST_CASE("Проверка корректности Future&Promise", "[future_and_promise]") {
