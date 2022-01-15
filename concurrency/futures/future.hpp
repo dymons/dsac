@@ -71,7 +71,7 @@ class Future : public HoldState<T> {
     Promise<ReturnType> promise;
     Future<ReturnType> future = promise.MakeFuture();
 
-    std::move(*this).Subscribe([continuation = std::move(continuation),
+    std::move(*this).Subscribe([continuation = std::forward<F>(continuation),
                                 promise = std::move(promise)](Try<T> result) mutable {
       try {
         promise.Set(continuation(result));
