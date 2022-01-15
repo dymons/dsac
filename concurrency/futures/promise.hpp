@@ -42,6 +42,10 @@ class Promise : public HoldState<T> {
     ReleaseState()->SetResult(Try<T>(std::move(value)));
   }
 
+  void Set(std::exception_ptr&& exception) {
+    ReleaseState()->SetResult(Try<T>(std::move(exception)));
+  }
+
  private:
   void ThrowIfFulfilled() const {
     if (GetState()->HasResult()) {

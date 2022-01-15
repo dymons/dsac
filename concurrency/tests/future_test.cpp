@@ -77,4 +77,29 @@ TEST_CASE("Проверка корректности Future&Promise", "[future_a
 
     executor->Join();
   }
+  SECTION("Выполнение последовательности цепочек через функцию Then") {
+    const auto add_10 = [](Try<int> result) {
+      REQUIRE(result.HasValue());
+      return result.Get() + 10;
+    };
+
+    const auto mul_2 = [](Try<int> result) {
+      REQUIRE(result.HasValue());
+      return result.Get() * 2;
+    };
+
+    const auto sub_5 = [](Try<int> result) {
+      REQUIRE(result.HasValue());
+      return result.Get() - 5;
+    };
+
+    Promise<int> promise;
+    Future<int> future = promise.MakeFuture().Then(add_10).Then(mul_2).Then(sub_5);
+
+    promise.Set(10);
+
+    Try<int> result = std::move(future).Get();
+    REQUIRE(result.HasValue());
+    REQUIRE(result.Get() == 35);
+  }
 }

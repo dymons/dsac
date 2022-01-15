@@ -64,6 +64,25 @@ class Future : public HoldState<T> {
     return new_future;
   }
 
+  template <typename F>
+  auto Then(F&& continuation) && {
+    using ReturnType = typename std::result_of<F(const Try<T>&)>::type;
+
+    Promise<ReturnType> promise;
+    Future<ReturnType> future = promise.MakeFuture();
+
+    std::move(*this).Subscribe([continuation = std::move(continuation),
+                                promise = std::move(promise)](Try<T> result) mutable {
+      try {
+        promise.Set(continuation(result));
+      } catch (...) {
+        promise.Set(std::current_exception());
+      }
+    });
+
+    return future;
+  }
+
  private:
   void SetExecutor(concurrency::IExecutorPtr&& exec) {
     GetState()->SetExecutor(std::move(exec));
