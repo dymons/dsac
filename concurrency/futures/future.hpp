@@ -1,6 +1,7 @@
 #pragma once
 
 #include <concurrency/futures/state.hpp>
+#include <concurrency/futures/callback.hpp>
 #include <concurrency/executors/executor.hpp>
 
 namespace algo::futures {
@@ -13,6 +14,12 @@ class FutureException : public std::logic_error {
 class FutureNoExecutor : public FutureException {
  public:
   FutureNoExecutor() : FutureException("No executor provided to via") {
+  }
+};
+
+class FutureNoCallback : public FutureException {
+ public:
+  FutureNoCallback() : FutureException("No callback provided to subscribe") {
   }
 };
 
@@ -47,9 +54,23 @@ class Future : public HoldState<T> {
     return new_future;
   }
 
+  Future<T> Subscribe(Callback<T> callback) && {
+    if (callback == nullptr) {
+      throw FutureNoCallback{};
+    }
+
+    Future<T> new_future = Future<T>(ReleaseState());
+    new_future.SetCallback(std::move(callback));
+    return new_future;
+  }
+
  private:
   void SetExecutor(concurrency::IExecutorPtr&& exec) {
     GetState()->SetExecutor(std::move(exec));
+  }
+
+  void SetCallback(Callback<T>&& callback) {
+    GetState()->SetCallback(std::move(callback));
   }
 
   explicit Future(StateRef<T> state) : HoldState<T>(std::move(state)) {

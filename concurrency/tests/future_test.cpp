@@ -15,7 +15,6 @@ TEST_CASE("Проверка корректности Future&Promise", "[future_a
 
     promise.Set(10);
     Try<int> value = std::move(future).Get();
-    REQUIRE_FALSE(value.HasException());
     REQUIRE(value.HasValue());
     REQUIRE(value.Get() == 10);
   }
@@ -32,9 +31,49 @@ TEST_CASE("Проверка корректности Future&Promise", "[future_a
     });
 
     Try<int> value = std::move(future).Get();
-    REQUIRE_FALSE(value.HasException());
     REQUIRE(value.HasValue());
     REQUIRE(value.Get() == 10);
+
+    executor->Join();
+  }
+  SECTION("Подписка на результат Future и выполнение Callback в потоке Main") {
+    std::thread::id const main_thread_id = std::this_thread::get_id();
+
+    Promise<int> promise;
+    Future<int> future =
+        promise.MakeFuture().Subscribe([main_thread_id](Try<int> result) {
+          REQUIRE(std::this_thread::get_id() == main_thread_id);
+          REQUIRE(result.HasValue());
+          REQUIRE(result.Get() == 10);
+        });
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    promise.Set(10);
+
+    Try<int> result = std::move(future).Get();
+    REQUIRE(result.HasValue());
+    REQUIRE(result.Get() == 10);
+  }
+  SECTION("Подписка на результат Future и выполнение Callback в потоке Worker") {
+    constexpr std::size_t kNumberWorkers = 2U;
+    IExecutorPtr executor = StaticThreadPool::Make(kNumberWorkers);
+
+    std::thread::id const main_thread_id = std::this_thread::get_id();
+
+    Promise<int> promise;
+    Future<int> future =
+        promise.MakeFuture().Via(executor).Subscribe([main_thread_id](Try<int> result) {
+          REQUIRE_FALSE(std::this_thread::get_id() == main_thread_id);
+          REQUIRE(result.HasValue());
+          REQUIRE(result.Get() == 10);
+        });
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    promise.Set(10);
+
+    Try<int> result = std::move(future).Get();
+    REQUIRE(result.HasValue());
+    REQUIRE(result.Get() == 10);
 
     executor->Join();
   }

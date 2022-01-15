@@ -46,7 +46,7 @@ class MVar : public detail::NonCopyable, public detail::NonMovable {
     }
 
     not_value_storage_.notify_all();
-    return *result;
+    return std::move(*result);
   }
 
   [[nodiscard]] bool IsEmpty() {
