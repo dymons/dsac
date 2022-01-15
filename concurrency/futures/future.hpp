@@ -40,6 +40,12 @@ class Future : public HoldState<T> {
   using HoldState<T>::ReleaseState;
 
  public:
+  static Future<T> Fail(const char* message) {
+    auto state = MakeSharedState<T>();
+    state->SetResult(Try<T>{std::make_exception_ptr(std::logic_error{message})});
+    return Future<T>(std::move(state));
+  }
+
   Try<T> Get() && {
     return ReleaseState()->GetResult();
   }
