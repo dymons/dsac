@@ -2,11 +2,13 @@
 
 #include <concurrency/futures/try.hpp>
 #include <concurrency/syncing/mvar.hpp>
+#include <concurrency/executors/executor.hpp>
 
 namespace algo::futures {
 template <typename T>
 class SharedState {
   syncing::MVar<Try<T>> storage_;
+  concurrency::IExecutorPtr executor_;
 
  public:
   SharedState() {
@@ -23,6 +25,10 @@ class SharedState {
   Try<T> GetResult() {
     return storage_.Take();
   }
+
+  void SetExecutor(concurrency::IExecutorPtr&& exec) {
+    executor_ = std::move(exec);
+  }
 };
 
 template <typename T>
@@ -32,6 +38,8 @@ template <typename T>
 inline StateRef<T> MakeSharedState() {
   return std::make_shared<SharedState<T>>();
 }
+
+//////////////////////////////////////////////////////////////////////
 
 template <typename T>
 class HoldState {
@@ -48,6 +56,11 @@ class HoldState {
   StateRef<T> ReleaseState() {
     CheckState();
     return std::move(state_);
+  }
+
+  StateRef<T> const& GetState() const {
+    CheckState();
+    return state_;
   }
 
   bool HasState() const {

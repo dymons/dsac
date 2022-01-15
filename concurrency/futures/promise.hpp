@@ -4,9 +4,24 @@
 #include <concurrency/futures/state.hpp>
 
 namespace algo::futures {
+
+class PromiseException : public std::logic_error {
+ public:
+  using std::logic_error::logic_error;
+};
+
+class PromiseAlreadySatisfied : public PromiseException {
+ public:
+  PromiseAlreadySatisfied() : PromiseException("Promise already satisfied") {
+  }
+};
+
+//////////////////////////////////////////////////////////////////////
+
 template <typename T>
 class Promise : public HoldState<T> {
   using HoldState<T>::state_;
+  using HoldState<T>::GetState;
   using HoldState<T>::CheckState;
   using HoldState<T>::ReleaseState;
 
@@ -23,10 +38,17 @@ class Promise : public HoldState<T> {
   }
 
   void Set(T value) {
+    ThrowIfFulfilled();
     ReleaseState()->SetResult(Try<T>(std::move(value)));
   }
 
  private:
+  void ThrowIfFulfilled() const {
+    if (GetState()->HasResult()) {
+      throw PromiseAlreadySatisfied{};
+    }
+  }
+
   bool future_extracted_{false};
 };
 }  // namespace algo::futures
