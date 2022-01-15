@@ -102,4 +102,37 @@ TEST_CASE("Проверка корректности Future&Promise", "[future_a
     REQUIRE(result.HasValue());
     REQUIRE(result.Get() == 35);
   }
+  SECTION("Выполнение последовательности цепочек в потоке Worker") {
+    constexpr std::size_t kNumberWorkers = 2U;
+    IExecutorPtr executor = StaticThreadPool::Make(kNumberWorkers);
+
+    std::thread::id const main_thread_id = std::this_thread::get_id();
+
+    Promise<int> promise;
+    /*Future<int> future = */ promise.MakeFuture()
+        .Via(executor)
+        .Then([main_thread_id](Try<int> result) {
+          REQUIRE_FALSE(std::this_thread::get_id() == main_thread_id);
+          return result.Get() + 10;
+        })
+        .Then([main_thread_id](Try<int> result) {
+          REQUIRE_FALSE(std::this_thread::get_id() == main_thread_id);
+          return result.Get() * 10;
+        })
+        .Then([main_thread_id](Try<int> result) {
+          REQUIRE_FALSE(std::this_thread::get_id() == main_thread_id);
+          REQUIRE(result.HasValue());
+          REQUIRE(result.Get() == 200);
+          return 0;
+        });
+
+    executor->Submit([promise = std::move(promise), main_thread_id]() mutable {
+      REQUIRE_FALSE(std::this_thread::get_id() == main_thread_id);
+
+      std::this_thread::sleep_for(std::chrono::milliseconds(100));
+      promise.Set(10);
+    });
+
+    executor->Join();
+  }
 }
