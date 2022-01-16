@@ -12,6 +12,7 @@
     - [Метод предоплаты (метод бухгалтерского учёта)](#метод-предоплаты)
     - [Метод потенциалов: функция потенциала, истинные и учетные стоимости](#метод-потенциалов)
     - [Метод усреднения (метод группового анализа)](#метод-усреднения)
+6. [Обязательная литература к прочтению](#обязательная-литература-к-прочтению)
 
 ## Основные ресурсы: память и время
 
@@ -36,8 +37,15 @@
 >
 > [Wikipedia - Time Complexity](https://en.wikipedia.org/wiki/Time_complexity)
 
-Из данного определения важно понять следующее, что оценка **Time Complexity** выражена в количестве **элементарных операций**, которые
-необходимо выполнить на входными данными алгоритму для совершения полезной работы. Но, что понимается под термином **элементарная операция**
+> **Space Complexity** - The space complexity of an algorithm or a computer program is the amount of memory space required to solve an
+> instance of the computational problem as a function of characteristics of the input. It is the memory required by an algorithm until
+> it executes completely.
+>
+> [Wikipedia - Space Complexity](https://en.wikipedia.org/wiki/Space_complexity)
+
+Из определения к **Time Complexity** важно понять следующее, что оценка **Time Complexity** выражена в количестве **элементарных операций**,
+которые необходимо выполнить над входными данными алгоритму для совершения полезной работы. Но, что понимается под термином **элементарная
+операция**
 ?
 
 > Элементарная операция — простейшее обозначенное в машинном языке действие, совершаемое вычислительной машиной, то есть такое действие,
@@ -53,8 +61,11 @@
 - Логическое сложение
 - Логическое умножение
 
-> **Space Complexity** - The space complexity of an algorithm or a computer program is the amount of memory space required to solve an
-> instance of the computational problem as a function of characteristics of the input. It is the memory required by an algorithm until
-> it executes completely.
->
-> [Wikipedia - Space Complexity](https://en.wikipedia.org/wiki/Space_complexity)
+И теперь, когда мы определились с терминологией, нам необходимо научиться оценивать **Time Complexity** и **Space Complexity**. **Time
+Complexity** выражается через [Big O нотацию](https://ru.wikipedia.org/wiki/«O»_большое_и_«o»_малое) и об этом следующая глава.
+
+## О-символика
+
+## Обязательная литература к прочтению
+
+1. Алгоритмы: построение и анализа. (Томас Кормен). Глава 1, Глава 2, Глава 3
