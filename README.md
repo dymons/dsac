@@ -90,3 +90,6 @@ Avito, Parallels, VK, Sber. Список тем был сформирован д
 - Алгоритмы и структуры данных by Павел Маврин. [YouTube](https://www.youtube.com/c/pavelmavrin/videos)
 - Теория и практика многопоточной синхронизации by Роман Липовский. [YouTube](https://www.youtube.com/playlist?list=PL4_hYwCyhAvb7P8guwSTaaUS8EcOaWjxF)
 - Здесь представлено 145 алгоритмов. Ко всем алгоритмам даны краткие описания и программы на C++. [MAXimal](http://e-maxx.ru/algo/)
+
+## Советы
+-  [A Problem-Solving Flowchart](docs/advices/problem-solving-flowchart.md)
