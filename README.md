@@ -93,4 +93,4 @@ Avito, Parallels, VK, Sber. Список тем был сформирован д
 
 ## Советы
 - [A Problem-Solving Flowchart](docs/advices/problem-solving-flowchart.md)
-- Как выглядит процесс алгоритмических секций
+- [Как выглядит процесс алгоритмических секций](docs/advices/process-of-algorithmic-sections.md)
