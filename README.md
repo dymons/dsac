@@ -47,7 +47,7 @@ Avito, Parallels, VK, Sber. Список тем был сформирован д
     - Binomial Heap
     - Leftist Heap
     - Хэш таблица ([Hash Tables](https://github.com/dymons/interviews/blob/master/structures/hashtable/hashtable.hpp))
-    - Система непересекающихся множеств (Disjoint Set Union)
+    - Система непересекающихся множеств ([Disjoint Set Union](https://github.com/dymons/interviews/blob/master/structures/graph/disjoint_set_union.hpp))
     - Минимальные остовные деревья
 6. Bit manipulation
 7. Знание умных указателей и их реализации
