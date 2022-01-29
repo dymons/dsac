@@ -9,6 +9,10 @@ DisjointSet::DisjointSet(std::size_t size_set) : parent_vertex_(size_set) {
 }
 
 void DisjointSet::Union(std::size_t vertex1, std::size_t vertex2) {
+  if (vertex1 >= parent_vertex_.size() || vertex2 >= parent_vertex_.size()) {
+    throw DisjointSetOutOfRange{};
+  }
+
   while (!IsConnected(vertex1, vertex2)) {
     if (parent_vertex_[vertex1] >= parent_vertex_[vertex2]) {
       std::swap(vertex1, vertex2);
