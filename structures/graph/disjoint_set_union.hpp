@@ -23,8 +23,13 @@ class DisjointSet final {
  public:
   explicit DisjointSet(std::size_t size_set);
 
+  /// \brief      The Union function unions two vertices and makes their parent nodes the same
   void Union(std::size_t vertex1, std::size_t vertex2);
+
+  /// \brief      The Find function finds the parent node of a given vertex
   std::size_t Find(std::size_t vertex);
+
+  /// \brief      The IsConnected function checks that two vertices have the same parent
   bool IsConnected(std::size_t vertex1, std::size_t vertex2);
 };
 }  // namespace algo::graph
