@@ -49,14 +49,15 @@ Avito, Parallels, VK, Sber. Список тем был сформирован д
     - Хэш таблица ([Hash Tables](https://github.com/dymons/interviews/blob/master/structures/hashtable/hashtable.hpp))
     - Система непересекающихся множеств (Disjoint Set Union)
     - Минимальные остовные деревья
-6. Знание умных указателей и их реализации
+6. Bit manipulation
+7. Знание умных указателей и их реализации
     - Shared pointer ([Source](https://github.com/dymons/interviews/blob/master/cpp/pointers/shared_ptr.hpp))
     - Unique pointer
     - Weak pointer
     - Auto pointer
     - Scope pointer
     - Intrusive pointer
-7. Concurrency
+8. Concurrency
     - В чем отличия процесса от потока?
     - Примитивы синхронизации
         1. Mutex ([Mutual Exclusion](https://github.com/dymons/interviews/blob/master/concurrency/syncing/mutex.hpp))
@@ -73,17 +74,17 @@ Avito, Parallels, VK, Sber. Список тем был сформирован д
     - Пул управляемых
       потоков ([Thread pool](https://github.com/dymons/interviews/blob/master/concurrency/thread_pool/static_thread_pool.hpp))
     - Модель памяти С++
-8. Паттерны проектирования и идиомы
+9. Паттерны проектирования и идиомы
     - Концепции RAII
     - Концепции SOLID
     - Набор паттернов проектирования ([22 паттерна](https://refactoring.guru/ru/design-patterns/catalog))
         1. Порождающие паттерны проектирования
         2. Структурные паттерны проектирования
         3. Поведенческие паттерны проектирования
-9. Методы обработки TCP соединений
-    - select ([Source](https://github.com/dymons/interviews/blob/master/network/server_select.cpp))
-    - poll
-    - epoll
+10. Методы обработки TCP соединений
+     - select ([Source](https://github.com/dymons/interviews/blob/master/network/server_select.cpp))
+     - poll
+     - epoll
 
 ## Материалы для изучения
 - Алгоритмы и структуры данных поиска. Лекции и курсы от Яндекса [Link](https://habr.com/ru/company/yandex/blog/208716/)
