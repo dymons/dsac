@@ -32,23 +32,23 @@ class DisjointSet final {
   /*!
     \param vertex1 first vertex.
     \param vertex2 second vertex.
-    \sa    Time Complexity O(N), Space Complexity O(1)
+    \sa    Time Complexity O(log(N)), Space Complexity O(1)
   */
   void Union(std::size_t vertex1, std::size_t vertex2);
 
   //! The Find function finds the parent node of a given vertex.
   /*!
     \param vertex given vertex.
-    \sa    Time Complexity O(1), Space Complexity O(1)
+    \sa    Time Complexity O(log(N)), Space Complexity O(1)
   */
-  std::size_t Find(std::size_t vertex) const;
+  std::size_t Find(std::size_t vertex);
 
   //! The IsConnected function checks that two vertices have the same parent.
   /*!
     \param vertex1 first vertex.
     \param vertex2 second vertex.
-    \sa    Time Complexity O(1), Space Complexity O(1)
+    \sa    Time Complexity O(log(N)), Space Complexity O(1)
   */
-  bool IsConnected(std::size_t vertex1, std::size_t vertex2) const;
+  bool IsConnected(std::size_t vertex1, std::size_t vertex2);
 };
 }  // namespace algo::graph
