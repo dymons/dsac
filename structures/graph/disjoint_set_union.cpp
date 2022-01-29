@@ -20,7 +20,7 @@ void DisjointSet::Union(std::size_t vertex1, std::size_t vertex2) {
 
     std::size_t parent = std::exchange(parent_vertex_[vertex2], parent_vertex_[vertex1]);
     if (vertex2 == parent) {
-      return;
+      break;
     }
     vertex2 = parent;
   }
