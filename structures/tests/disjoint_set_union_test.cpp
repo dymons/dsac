@@ -17,7 +17,7 @@ TEST_CASE("Структура данных Disjoint Set Union", "[disjoint]") {
   disjoint_set.Union(5U, 6U);
   disjoint_set.Union(5U, 7U);
 
-  REQUIRE(disjoint_set.Find(0U) == disjoint_set.Find(3U));
-  REQUIRE_FALSE(disjoint_set.Find(1U) == disjoint_set.Find(5U));
-  REQUIRE_FALSE(disjoint_set.Find(7U) == disjoint_set.Find(8U));
+  REQUIRE(disjoint_set.IsConnected(0U, 3U));
+  REQUIRE_FALSE(disjoint_set.IsConnected(1U, 5U));
+  REQUIRE_FALSE(disjoint_set.IsConnected(7U, 8U));
 }

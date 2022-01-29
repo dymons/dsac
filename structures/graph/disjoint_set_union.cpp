@@ -4,43 +4,32 @@
 #include <numeric>
 
 namespace algo::graph {
-DisjointSet::DisjointSet(std::size_t size_set) : parents_(size_set) {
-  std::iota(parents_.begin(), parents_.end(), 0);
+DisjointSet::DisjointSet(std::size_t size_set) : parent_vertex_(size_set) {
+  std::iota(parent_vertex_.begin(), parent_vertex_.end(), 0);
 }
 
-void DisjointSet::Union(std::size_t x, std::size_t y) {
-  while (parents_[x] != parents_[y]) {
-    if (parents_[x] < parents_[y]) {
-      std::size_t const oldest_parent_x = std::exchange(parents_[x], parents_[y]);
-      if (x == oldest_parent_x) {
-        return;
-      }
-      x = oldest_parent_x;
-    } else {
-      std::size_t const oldest_parent_y = std::exchange(parents_[y], parents_[x]);
-      if (y == oldest_parent_y) {
-        return;
-      }
-      y = oldest_parent_y;
+void DisjointSet::Union(std::size_t vertex1, std::size_t vertex2) {
+  while (!IsConnected(vertex1, vertex2)) {
+    if (parent_vertex_[vertex1] >= parent_vertex_[vertex2]) {
+      std::swap(vertex1, vertex2);
     }
+
+    std::size_t parent = std::exchange(parent_vertex_[vertex2], parent_vertex_[vertex1]);
+    if (vertex2 == parent) {
+      return;
+    }
+    vertex2 = parent;
   }
 }
-std::size_t DisjointSet::Find(std::size_t i) {
-  std::size_t start = i;
-  std::size_t root = parents_[i];
-  while (root != i) {
-    i = root;
-    root = parents_[i];
-  }
 
-  i = start;
-  std::size_t parent = parents_[i];
-  while (parent != root) {
-    parents_[i] = root;
-    i = parent;
-    parent = parents_[i];
+std::size_t DisjointSet::Find(std::size_t const vertex) {
+  if (vertex >= parent_vertex_.size()) {
+    throw DisjointSetOutOfRange{};
   }
+  return parent_vertex_[vertex];
+}
 
-  return root;
+bool DisjointSet::IsConnected(std::size_t vertex1, std::size_t vertex2) {
+  return Find(vertex1) == Find(vertex2);
 }
 }  // namespace algo::graph
