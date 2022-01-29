@@ -41,7 +41,7 @@ class DisjointSet final {
     \param vertex given vertex.
     \sa    Time Complexity O(1), Space Complexity O(1)
   */
-  std::size_t Find(std::size_t vertex);
+  std::size_t Find(std::size_t vertex) const;
 
   //! The IsConnected function checks that two vertices have the same parent.
   /*!
@@ -49,6 +49,6 @@ class DisjointSet final {
     \param vertex2 second vertex.
     \sa    Time Complexity O(1), Space Complexity O(1)
   */
-  bool IsConnected(std::size_t vertex1, std::size_t vertex2);
+  bool IsConnected(std::size_t vertex1, std::size_t vertex2) const;
 };
 }  // namespace algo::graph

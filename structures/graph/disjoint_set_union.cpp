@@ -20,14 +20,14 @@ void DisjointSet::Union(std::size_t vertex1, std::size_t vertex2) {
   }
 }
 
-std::size_t DisjointSet::Find(std::size_t const vertex) {
+std::size_t DisjointSet::Find(std::size_t const vertex) const {
   if (vertex >= parent_vertex_.size()) {
     throw DisjointSetOutOfRange{};
   }
   return parent_vertex_[vertex];
 }
 
-bool DisjointSet::IsConnected(std::size_t vertex1, std::size_t vertex2) {
+bool DisjointSet::IsConnected(std::size_t vertex1, std::size_t vertex2) const {
   return Find(vertex1) == Find(vertex2);
 }
 }  // namespace algo::graph
