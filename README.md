@@ -74,6 +74,7 @@ Avito, Parallels, VK, Sber. Список тем был сформирован д
     - Пул управляемых
       потоков ([Thread pool](https://github.com/dymons/interviews/blob/master/concurrency/thread_pool/static_thread_pool.hpp))
     - Модель памяти С++
+    - Lock-free алгоритмы
 9. Паттерны проектирования и идиомы
     - Концепции RAII
     - Концепции SOLID
