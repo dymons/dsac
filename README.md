@@ -82,9 +82,12 @@ Avito, Parallels, VK, Sber. Список тем был сформирован д
         2. Структурные паттерны проектирования
         3. Поведенческие паттерны проектирования
 10. Методы обработки TCP соединений
-     - select ([Source](https://github.com/dymons/interviews/blob/master/network/server_select.cpp))
-     - poll
-     - epoll
+    - Использование системных вызовов Linux для обработки TCP соединений
+        1. select ([Source](https://github.com/dymons/interviews/blob/master/network/server_select.cpp))
+        2. poll
+        3. epoll
+    - Использование библиотеки Boost.Asio для обработки TCP соединений
+    - Data Plane Development Kit ([Docs](https://www.dpdk.org/))
 
 ## Материалы для изучения
 - Алгоритмы и структуры данных поиска. Лекции и курсы от Яндекса [Link](https://habr.com/ru/company/yandex/blog/208716/)
