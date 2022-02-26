@@ -94,4 +94,3 @@ Avito, Parallels, VK, Sber. Список тем был сформирован д
 
 ## Советы
 - [Как должен выглядеть процесс алгоритмической секции, с точки зрения собеседуемого](docs/advices/problem-solving-flowchart.md)
-- [Как выглядит процесс алгоритмических секций](docs/advices/process-of-algorithmic-sections.md)

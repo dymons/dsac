@@ -13,5 +13,6 @@
    а только навредит.
 
 ![](../img/img.png)
+
 Изображение было позаимствовано из
 книги [Cracking the Coding Interview: 189 Programming Questions and Solutions](https://www.amazon.com/Cracking-Coding-Interview-Programming-Questions/dp/0984782850)
