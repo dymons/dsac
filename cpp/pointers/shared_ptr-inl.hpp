@@ -15,8 +15,17 @@ void SharedPtr<T>::Destroy() {
 }
 
 template <typename T>
-SharedPtr<T>::SharedPtr(T* data)
-    : data_(data), counter_(data != nullptr ? new std::size_t{1u} : nullptr) {
+SharedPtr<T>::SharedPtr(T* data) : data_(data) {
+  if (data == nullptr) {
+    return;
+  }
+
+  try {
+    counter_ = new std::size_t{1u};
+  } catch (...) {
+    delete counter_;
+    throw;
+  }
 }
 
 template <typename T>
