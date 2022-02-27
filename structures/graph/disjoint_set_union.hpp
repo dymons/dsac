@@ -21,32 +21,32 @@ class DisjointSet final {
   std::vector<std::size_t> parent_vertex_;
 
  public:
-  //! The DisjointSet construction
+  //! Конструктор DisjointSet
   /*!
-    \param size_set The size of disjoint set.
+    \param size_set Размер системы непересекающихся множест
     \sa    Time Complexity O(N), Space Complexity O(N)
   */
   explicit DisjointSet(std::size_t size_set);
 
-  //! The Union function unions two vertices and makes their parent nodes the same.
+  //! Объединяет две вершины под общего родителя
   /*!
-    \param vertex1 first vertex.
-    \param vertex2 second vertex.
+    \param vertex1 Вершина из системы множества I
+    \param vertex2 Вершина из системы множества J
     \sa    Time Complexity O(log(N)), Space Complexity O(1)
   */
   void Union(std::size_t vertex1, std::size_t vertex2);
 
-  //! The Find function finds the parent node of a given vertex.
+  //! Поиск родительской вершины в множестве I для указанной вершины
   /*!
-    \param vertex given vertex.
+    \param vertex Вершина из системы множества I
     \sa    Time Complexity O(log(N)), Space Complexity O(1)
   */
   std::size_t Find(std::size_t vertex);
 
-  //! The IsConnected function checks that two vertices have the same parent.
+  //! Проверка, что две вершины находятся в одной системе множества
   /*!
-    \param vertex1 first vertex.
-    \param vertex2 second vertex.
+    \param vertex1 Вершина из системы множества I
+    \param vertex2 Вершина из системы множества J
     \sa    Time Complexity O(log(N)), Space Complexity O(1)
   */
   bool IsConnected(std::size_t vertex1, std::size_t vertex2);
