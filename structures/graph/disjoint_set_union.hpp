@@ -28,7 +28,7 @@ class DisjointSet final {
   */
   explicit DisjointSet(std::size_t size_set);
 
-  //! Объединяет две вершины под общего родителя
+  //! Объединение двух множеств в одно по двум вершинам
   /*!
     \param vertex1 Вершина из системы множества I
     \param vertex2 Вершина из системы множества J
