@@ -107,7 +107,7 @@ TEST_CASE("Управление ресурсами в бинарном дере�
 
     shared_tree.reset();
   }
-  SECTION("Выделение и освобождение памти для одного элемента") {
+  SECTION("Выделение и освобождение памяти для одного добавленного элемента") {
     TreePtr shared_tree(new Tree{}, [](Tree* tree) {
       if (tree) {
         tree->~Tree();
@@ -119,6 +119,26 @@ TEST_CASE("Управление ресурсами в бинарном дере�
     });
 
     shared_tree->Insert(0);
+
+    auto allocator = shared_tree->GetAllocator();
+    REQUIRE(allocator.alloc_entities != 0);
+
+    shared_tree.reset();
+  }
+  SECTION("Выделение и освобождение памяти для множества добавленных элементов") {
+    TreePtr shared_tree(new Tree{}, [](Tree* tree) {
+      if (tree) {
+        tree->~Tree();
+        auto allocator = tree->GetAllocator();
+        REQUIRE(allocator.dealloc_entities != 0);
+        REQUIRE(allocator.alloc_entities == allocator.dealloc_entities);
+        std::free(tree);
+      }
+    });
+
+    for (int i{}; i < 100; ++i) {
+      shared_tree->Insert(i);
+    }
 
     auto allocator = shared_tree->GetAllocator();
     REQUIRE(allocator.alloc_entities != 0);

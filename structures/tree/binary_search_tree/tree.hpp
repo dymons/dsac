@@ -46,10 +46,19 @@ class BinarySearchTree final {
   };
 
   ~BinarySearchTree() {
-    // TODO: Реализовать корректное освобождение выделенной памяти
-    if (header_ != nullptr) {
-      DestructorNode(header_);
+    node_pointer next_to_destroy = nullptr;
+    for (node_pointer root = GetRootNode(); root != nullptr; root = next_to_destroy) {
+      if (root->left_ == nullptr) {
+        next_to_destroy = root->right_;
+        DestroyNode(root);
+      } else {
+        next_to_destroy = root->left_;
+        root->left_ = next_to_destroy->right_;
+        next_to_destroy->right_ = root;
+      }
     }
+
+    DestroyNode(header_);
   }
 
   iterator begin() noexcept {  // NOLINT(readability-identifier-naming)
@@ -76,8 +85,8 @@ class BinarySearchTree final {
     return MakeIterator(header_);
   }
 
-  std::pair<iterator, bool> Insert(value_type&& value) {
-    return InsertUnique(std::move(value));
+  std::pair<iterator, bool> Insert(value_type const& value) {
+    return InsertUnique(value);
   }
 
   inline bool IsEmpty() const noexcept {
@@ -103,19 +112,19 @@ class BinarySearchTree final {
   }
 
   template <typename T>
-  node_pointer ConstructNode(T&& value) requires std::is_same_v<T, value_type> {
+  node_pointer ConstructNode(T value) requires std::is_same_v<T, value_type> {
     node_pointer new_node = node_traits::allocate(allocator_, 1U);
-    node_traits::construct(allocator_, new_node, std::forward<T>(value));
+    node_traits::construct(allocator_, new_node, std::move(value));
     return new_node;
   }
 
-  void DestructorNode(node_pointer node) {
+  [[gnu::always_inline]] void DestroyNode(node_pointer node) {
     node_traits::destroy(allocator_, node);
     node_traits::deallocate(allocator_, node, 1U);
   }
 
-  std::pair<iterator, bool> InsertUnique(value_type&& value) {
-    node_pointer inserted_node = ConstructNode(std::move(value));
+  std::pair<iterator, bool> InsertUnique(value_type const& value) {
+    node_pointer inserted_node = ConstructNode(value);
     node_pointer root = GetRootNode();
     if (root == nullptr) {
       header_->parent_ = inserted_node;
