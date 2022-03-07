@@ -46,8 +46,8 @@ class AllocatorWithCounters : public std::allocator<T> {
   using pointer = T*;
   using const_pointer = const pointer*;
 
-  size_type alloc_entities = 0;
-  size_type dealloc_entities = 0;
+  size_type alloc_entities = 0U;
+  size_type dealloc_entities = 0U;
 
   pointer allocate(size_type n) {  // NOLINT
     alloc_entities += n;
@@ -72,14 +72,14 @@ TEST_CASE("Управление ресурсами в бинарном дере�
     if (tree) {
       tree->~Tree();
       auto allocator = tree->GetAllocator();
-      REQUIRE(allocator.dealloc_entities == 1);
+      REQUIRE(allocator.dealloc_entities == 0);
       REQUIRE(allocator.alloc_entities == allocator.dealloc_entities);
       std::free(tree);
     }
   });
 
   auto allocator = shared_tree->GetAllocator();
-  REQUIRE(allocator.alloc_entities == 1);
+  REQUIRE(allocator.alloc_entities == 0);
 
   shared_tree.reset();
 }

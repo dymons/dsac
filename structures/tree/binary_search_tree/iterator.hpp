@@ -49,9 +49,13 @@ class BinarySearchTreeIterator final
     return node->parent_;
   }
 
-  node_pointer current_node_;
+  node_pointer current_node_ = nullptr;
 
  public:
+  static BinarySearchTreeIterator MakeInvalid() {
+    return {};
+  }
+
   const_reference operator*() const {
     return current_node_->key_;
   }
@@ -80,7 +84,7 @@ class BinarySearchTreeIterator final
     return !(lhs == rhs);
   }
 
-  BinarySearchTreeIterator() = delete;
+  BinarySearchTreeIterator() = default;
   BinarySearchTreeIterator(const BinarySearchTreeIterator&) = default;
   BinarySearchTreeIterator(BinarySearchTreeIterator&&) = default;
   BinarySearchTreeIterator& operator=(const BinarySearchTreeIterator&) = default;

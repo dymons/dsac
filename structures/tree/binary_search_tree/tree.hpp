@@ -30,50 +30,43 @@ class BinarySearchTree final {
   using node_traits = std::allocator_traits<node_allocator>;
   using node_pointer = typename node_traits::pointer;
   using const_node_pointer = typename node_traits::const_pointer;
-  using node_destructor = BinarySearchTreeNodeDestructor<node_allocator>;
-  using node_holder = std::unique_ptr<node, node_destructor>;
   // clang-format on
 
  public:
   using iterator = BinarySearchTreeIterator<node>;
   using const_iterator = BinarySearchTreeIterator<const_node>;
 
-  explicit BinarySearchTree(const Compare& comp = Compare(),
-                            const Allocator& alloc = Allocator())
-      : compare_(comp),
-        allocator_(node_allocator(alloc)),
-        size_(0),
-        root_(MakeNodeHolder(value_type{}).release()) {
-    root_->left_ = root_;
-    root_->right_ = root_;
-  };
+  explicit BinarySearchTree(Compare comp = Compare(), Allocator alloc = Allocator())
+      : compare_(std::move(comp)), allocator_(node_allocator(std::move(alloc))){};
 
   ~BinarySearchTree() {
-    node_holder nh(root_, node_destructor(allocator_));
+    if (root_ != nullptr) {
+      DestructorNode(root_);
+    }
   }
 
   iterator begin() noexcept {  // NOLINT(readability-identifier-naming)
-    return MakeIteratorBy(root_->left_);
+    return iterator::MakeInvalid();
   }
 
   const_iterator begin() const noexcept {  // NOLINT(readability-identifier-naming)
-    return MakeIteratorBy(root_->left_);
+    return const_iterator::MakeInvalid();
   }
 
   const_iterator cbegin() const noexcept {  // NOLINT(readability-identifier-naming)
-    return MakeIteratorBy(root_->left_);
+    return const_iterator::MakeInvalid();
   }
 
   iterator end() noexcept {  // NOLINT(readability-identifier-naming)
-    return MakeIteratorBy(root_);
+    return iterator::MakeInvalid();
   }
 
   const_iterator end() const noexcept {  // NOLINT(readability-identifier-naming)
-    return MakeIteratorBy(root_);
+    return const_iterator::MakeInvalid();
   }
 
   const_iterator cend() const noexcept {  // NOLINT(readability-identifier-naming)
-    return MakeIteratorBy(root_);
+    return const_iterator::MakeInvalid();
   }
 
   inline bool IsEmpty() const noexcept {
@@ -89,25 +82,31 @@ class BinarySearchTree final {
   }
 
  private:
-  const key_compare compare_;
-  node_allocator allocator_;
-  size_t size_;
-  node_pointer root_;
-
-  iterator MakeIteratorBy(node_pointer& node) noexcept {
+  [[gnu::always_inline]] iterator MakeIterator(node_pointer& node) noexcept {
     return iterator(node);
   }
 
-  const_iterator MakeIteratorBy(const node_pointer& node) const noexcept {
+  [[gnu::always_inline]] const_iterator MakeIterator(
+      node_pointer const& node) const noexcept {
     return const_iterator(node);
   }
 
   template <typename T>
-  node_holder MakeNodeHolder(T&& value) {
-    static_assert(std::is_same_v<T, typename node_allocator::value_type::value_type>, "");
-    node_holder nh(allocator_.allocate(1), node_destructor(allocator_));
-    node_traits::construct(allocator_, nh.get(), std::forward<T>(value));
-    return nh;
+  node_pointer ConstructNode(T&& value) requires std::is_same_v<T, value_type> {
+    node_pointer new_node = node_traits::allocate(allocator_, 1U);
+    node_traits::construct(allocator_, new_node, std::forward<T>(value));
+    return new_node;
   }
+
+  void DestructorNode(node_pointer node) {
+    node_traits::destroy(allocator_, node);
+    node_traits::deallocate(allocator_, node, 1U);
+  }
+
+ private:
+  const key_compare compare_;
+  node_allocator allocator_;
+  node_pointer root_ = nullptr;
+  size_t size_ = 0U;
 };
 }  // namespace algo::tree

@@ -25,28 +25,4 @@ class BinarySearchTreeNode final {
   pointer right_{nullptr};
   pointer parent_{nullptr};
 };
-
-template <typename NodeAllocator>
-class BinarySearchTreeNodeDestructor final {
- public:
-  using allocator_type = NodeAllocator;
-  using allocator_traits = std::allocator_traits<allocator_type>;
-  using value_type = typename allocator_traits::value_type;
-  using pointer = typename std::allocator_traits<allocator_type>::pointer;
-
- private:
-  std::reference_wrapper<allocator_type> node_allocator_;
-
- public:
-  explicit BinarySearchTreeNodeDestructor(allocator_type& node_allocator) noexcept
-      : node_allocator_(node_allocator) {
-  }
-
-  void operator()(pointer ref) & {
-    if (ref) {
-      allocator_traits::destroy(node_allocator_.get(), std::addressof(ref->key_));
-      allocator_traits::deallocate(node_allocator_.get(), ref, 1);
-    }
-  }
-};
 }  // namespace algo::tree
