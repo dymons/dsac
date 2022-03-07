@@ -69,6 +69,10 @@ class BinarySearchTree final {
     return const_iterator::MakeInvalid();
   }
 
+  std::pair<iterator, bool> Insert(value_type&& value) {
+    return InsertUnique(std::move(value));
+  }
+
   inline bool IsEmpty() const noexcept {
     return Size() == 0;
   }
@@ -101,6 +105,16 @@ class BinarySearchTree final {
   void DestructorNode(node_pointer node) {
     node_traits::destroy(allocator_, node);
     node_traits::deallocate(allocator_, node, 1U);
+  }
+
+  std::pair<iterator, bool> InsertUnique(value_type&& value) {
+    node_pointer new_node = ConstructNode(std::move(value));
+    if (root_ == nullptr) {
+      root_ = new_node;
+      size_++;
+      return std::make_pair(MakeIterator(root_), true);
+    }
+    return {};
   }
 
  private:

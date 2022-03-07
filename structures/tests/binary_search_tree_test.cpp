@@ -33,6 +33,17 @@ TEST_CASE("Создание итератора для бинарного дер�
   }
 }
 
+TEST_CASE("Добавление элеметнов в бинарное дерево поиска",
+          "[binary_search_tree][insert]") {
+  using namespace algo::tree;
+
+  BinarySearchTree<int> tree;
+  tree.Insert(0);
+
+  REQUIRE_FALSE(tree.IsEmpty());
+  REQUIRE(tree.Size() == 1);
+}
+
 namespace {
 template <typename T>
 class AllocatorWithCounters : public std::allocator<T> {
@@ -68,18 +79,38 @@ TEST_CASE("Управление ресурсами в бинарном дере�
   using Tree = BinarySearchTree<int, std::less<int>, AllocatorWithCounters<int>>;
   using TreePtr = std::shared_ptr<Tree>;
 
-  TreePtr shared_tree(new Tree{}, [](Tree* tree) {
-    if (tree) {
-      tree->~Tree();
-      auto allocator = tree->GetAllocator();
-      REQUIRE(allocator.dealloc_entities == 0);
-      REQUIRE(allocator.alloc_entities == allocator.dealloc_entities);
-      std::free(tree);
-    }
-  });
+  SECTION("Отсутствие выделеняи памяти при создании пустого бинарного дерева") {
+    TreePtr shared_tree(new Tree{}, [](Tree* tree) {
+      if (tree) {
+        tree->~Tree();
+        auto allocator = tree->GetAllocator();
+        REQUIRE(allocator.dealloc_entities == 0);
+        REQUIRE(allocator.alloc_entities == allocator.dealloc_entities);
+        std::free(tree);
+      }
+    });
 
-  auto allocator = shared_tree->GetAllocator();
-  REQUIRE(allocator.alloc_entities == 0);
+    auto allocator = shared_tree->GetAllocator();
+    REQUIRE(allocator.alloc_entities == 0);
 
-  shared_tree.reset();
+    shared_tree.reset();
+  }
+  SECTION("Выделение и освобождение памти для одного элемента") {
+    TreePtr shared_tree(new Tree{}, [](Tree* tree) {
+      if (tree) {
+        tree->~Tree();
+        auto allocator = tree->GetAllocator();
+        REQUIRE(allocator.dealloc_entities == 1);
+        REQUIRE(allocator.alloc_entities == allocator.dealloc_entities);
+        std::free(tree);
+      }
+    });
+
+    shared_tree->Insert(0);
+
+    auto allocator = shared_tree->GetAllocator();
+    REQUIRE(allocator.alloc_entities == 1);
+
+    shared_tree.reset();
+  }
 }
