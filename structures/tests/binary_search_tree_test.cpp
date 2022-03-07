@@ -37,11 +37,19 @@ TEST_CASE("Добавление элеметнов в бинарное дере�
           "[binary_search_tree][insert]") {
   using namespace algo::tree;
 
-  BinarySearchTree<int> tree;
-  tree.Insert(0);
-
-  REQUIRE_FALSE(tree.IsEmpty());
-  REQUIRE(tree.Size() == 1);
+  SECTION("Добавление элементов в дерево") {
+    BinarySearchTree<int> tree;
+    auto const [_, is_added] = tree.Insert(0);
+    REQUIRE(is_added);
+    REQUIRE(tree.Size() == 1);
+  }
+  SECTION("Проверка на выполнение условия о хранении уникальных элементов в дереве") {
+    BinarySearchTree<int> tree;
+    [[maybe_unused]] auto const pair = tree.Insert(0);
+    auto const [_, is_added] = tree.Insert(0);
+    REQUIRE_FALSE(is_added);
+    REQUIRE(tree.Size() == 1);
+  }
 }
 
 namespace {

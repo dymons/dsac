@@ -108,13 +108,36 @@ class BinarySearchTree final {
   }
 
   std::pair<iterator, bool> InsertUnique(value_type&& value) {
-    node_pointer new_node = ConstructNode(std::move(value));
+    node_pointer inserted_node = ConstructNode(std::move(value));
     if (root_ == nullptr) {
-      root_ = new_node;
+      root_ = inserted_node;
       size_++;
       return std::make_pair(MakeIterator(root_), true);
     }
-    return {};
+
+    node_pointer parent = root_;
+    node_pointer parent_before = root_;
+    while (parent != nullptr) {
+      parent_before = parent;
+      if (compare_(inserted_node->key_, parent->key_)) {
+        parent = parent->left_;
+      } else if (compare_(parent->key_, inserted_node->key_)) {
+        parent = parent->right_;
+      } else {
+        return std::make_pair(MakeIterator(parent), false);
+      }
+    }
+
+    if (compare_(inserted_node->key_, parent->key_)) {
+      parent->left_ = inserted_node;
+    } else {
+      parent->right_ = inserted_node;
+    }
+
+    inserted_node->parent_ = parent;
+    size_++;
+
+    return std::make_pair(MakeIterator(inserted_node), true);
   }
 
  private:
