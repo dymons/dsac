@@ -128,13 +128,13 @@ class BinarySearchTree final {
       }
     }
 
-    if (compare_(inserted_node->key_, parent->key_)) {
-      parent->left_ = inserted_node;
+    if (compare_(inserted_node->key_, parent_before->key_)) {
+      parent_before->left_ = inserted_node;
     } else {
-      parent->right_ = inserted_node;
+      parent_before->right_ = inserted_node;
     }
 
-    inserted_node->parent_ = parent;
+    inserted_node->parent_ = parent_before;
     size_++;
 
     return std::make_pair(MakeIterator(inserted_node), true);
