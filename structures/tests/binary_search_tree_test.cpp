@@ -1,6 +1,6 @@
 #include <catch2/catch.hpp>
 
-#include <structures/tree/bs_tree.hpp>
+#include <structures/tree/binary_search_tree/tree.hpp>
 
 TEST_CASE("Создание бинарного дерева поиска", "[binary_search_tree][construct]") {
   using namespace algo::tree;
