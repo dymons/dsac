@@ -9,6 +9,7 @@ class BinarySearchTreeIterator final
                     typename BinarySearchTreeNode::pointer> {
   using key_type = typename BinarySearchTreeNode::key_type;
   using node_pointer = typename BinarySearchTreeNode::pointer;
+  using const_node_pointer = typename BinarySearchTreeNode::const_pointer;
 
   template <typename, typename, typename>
   friend class BinarySearchTree;
@@ -49,7 +50,7 @@ class BinarySearchTreeIterator final
     return node->parent_;
   }
 
-  node_pointer current_node_ = nullptr;
+  const_node_pointer current_node_ = nullptr;
 
  public:
   static BinarySearchTreeIterator MakeInvalid() {
@@ -92,7 +93,7 @@ class BinarySearchTreeIterator final
   ~BinarySearchTreeIterator() = default;
 
  private:
-  explicit BinarySearchTreeIterator(const node_pointer& node) : current_node_(node) {
+  explicit BinarySearchTreeIterator(const_node_pointer node) : current_node_(node) {
   }
 };
 }  // namespace algo::tree

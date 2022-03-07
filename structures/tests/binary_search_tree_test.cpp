@@ -31,6 +31,14 @@ TEST_CASE("Создание итератора для бинарного дер�
     auto end(tree.cend());
     REQUIRE(begin == end);
   }
+  SECTION("Получение значения из итератора") {
+    BinarySearchTree<int, std::less<int>> tree;
+    tree.Insert(1);
+    auto const begin(tree.cbegin());
+    auto const end(tree.cend());
+    REQUIRE(begin != end);
+    REQUIRE(*begin == 1);
+  }
 }
 
 TEST_CASE("Добавление элеметнов в бинарное дерево поиска",
@@ -92,14 +100,10 @@ TEST_CASE("Управление ресурсами в бинарном дере�
       if (tree) {
         tree->~Tree();
         auto allocator = tree->GetAllocator();
-        REQUIRE(allocator.dealloc_entities == 0);
         REQUIRE(allocator.alloc_entities == allocator.dealloc_entities);
         std::free(tree);
       }
     });
-
-    auto allocator = shared_tree->GetAllocator();
-    REQUIRE(allocator.alloc_entities == 0);
 
     shared_tree.reset();
   }
@@ -108,7 +112,7 @@ TEST_CASE("Управление ресурсами в бинарном дере�
       if (tree) {
         tree->~Tree();
         auto allocator = tree->GetAllocator();
-        REQUIRE(allocator.dealloc_entities == 1);
+        REQUIRE(allocator.dealloc_entities != 0);
         REQUIRE(allocator.alloc_entities == allocator.dealloc_entities);
         std::free(tree);
       }
@@ -117,7 +121,7 @@ TEST_CASE("Управление ресурсами в бинарном дере�
     shared_tree->Insert(0);
 
     auto allocator = shared_tree->GetAllocator();
-    REQUIRE(allocator.alloc_entities == 1);
+    REQUIRE(allocator.alloc_entities != 0);
 
     shared_tree.reset();
   }

@@ -37,36 +37,43 @@ class BinarySearchTree final {
   using const_iterator = BinarySearchTreeIterator<const_node>;
 
   explicit BinarySearchTree(Compare comp = Compare(), Allocator alloc = Allocator())
-      : compare_(std::move(comp)), allocator_(node_allocator(std::move(alloc))){};
+      : compare_(std::move(comp)),
+        allocator_(node_allocator(std::move(alloc))),
+        size_(0),
+        header_(ConstructNode(value_type{})) {
+    header_->left_ = header_;
+    header_->right_ = header_;
+  };
 
   ~BinarySearchTree() {
-    if (root_ != nullptr) {
-      DestructorNode(root_);
+    // TODO: Реализовать корректное освобождение выделенной памяти
+    if (header_ != nullptr) {
+      DestructorNode(header_);
     }
   }
 
   iterator begin() noexcept {  // NOLINT(readability-identifier-naming)
-    return iterator::MakeInvalid();
+    return MakeIterator(GetLeftmostNode());
   }
 
   const_iterator begin() const noexcept {  // NOLINT(readability-identifier-naming)
-    return const_iterator::MakeInvalid();
+    return MakeIterator(GetLeftmostNode());
   }
 
   const_iterator cbegin() const noexcept {  // NOLINT(readability-identifier-naming)
-    return const_iterator::MakeInvalid();
+    return MakeIterator(GetLeftmostNode());
   }
 
   iterator end() noexcept {  // NOLINT(readability-identifier-naming)
-    return iterator::MakeInvalid();
+    return MakeIterator(header_);
   }
 
   const_iterator end() const noexcept {  // NOLINT(readability-identifier-naming)
-    return const_iterator::MakeInvalid();
+    return MakeIterator(header_);
   }
 
   const_iterator cend() const noexcept {  // NOLINT(readability-identifier-naming)
-    return const_iterator::MakeInvalid();
+    return MakeIterator(header_);
   }
 
   std::pair<iterator, bool> Insert(value_type&& value) {
@@ -86,12 +93,12 @@ class BinarySearchTree final {
   }
 
  private:
-  [[gnu::always_inline]] iterator MakeIterator(node_pointer& node) noexcept {
+  [[gnu::always_inline]] iterator MakeIterator(node_pointer node) noexcept {
     return iterator(node);
   }
 
   [[gnu::always_inline]] const_iterator MakeIterator(
-      node_pointer const& node) const noexcept {
+      const_node_pointer node) const noexcept {
     return const_iterator(node);
   }
 
@@ -109,14 +116,18 @@ class BinarySearchTree final {
 
   std::pair<iterator, bool> InsertUnique(value_type&& value) {
     node_pointer inserted_node = ConstructNode(std::move(value));
-    if (root_ == nullptr) {
-      root_ = inserted_node;
+    node_pointer root = GetRootNode();
+    if (root == nullptr) {
+      header_->parent_ = inserted_node;
+      header_->left_ = inserted_node;
+      header_->right_ = inserted_node;
+      inserted_node->parent_ = header_;
       size_++;
-      return std::make_pair(MakeIterator(root_), true);
+      return std::make_pair(MakeIterator(header_), true);
     }
 
-    node_pointer parent = root_;
-    node_pointer parent_before = root_;
+    node_pointer parent = root;
+    node_pointer parent_before = root;
     while (parent != nullptr) {
       parent_before = parent;
       if (compare_(inserted_node->key_, parent->key_)) {
@@ -137,13 +148,46 @@ class BinarySearchTree final {
     inserted_node->parent_ = parent_before;
     size_++;
 
+    if (compare_(inserted_node->key_, GetLeftmostNode()->key_)) {
+      header_->left_ = inserted_node;
+    }
+    if (!(compare_(inserted_node->key_, GetRightmostNode()->key_)) &&
+        !(compare_(GetRightmostNode()->key_, inserted_node->key_))) {
+      header_->right_ = inserted_node;
+      inserted_node->right_ = header_;
+    }
+
     return std::make_pair(MakeIterator(inserted_node), true);
+  }
+
+  [[gnu::always_inline]] node_pointer& GetRootNode() {
+    return header_->parent_;
+  }
+
+  [[gnu::always_inline]] const_node_pointer& GetRootNode() const {
+    return header_->parent_;
+  }
+
+  [[gnu::always_inline]] node_pointer& GetLeftmostNode() noexcept {
+    return header_->left_;
+  }
+
+  [[gnu::always_inline]] const_node_pointer GetLeftmostNode() const noexcept {
+    return header_->left_;
+  }
+
+  [[gnu::always_inline]] node_pointer& GetRightmostNode() noexcept {
+    return header_->right_;
+  }
+
+  [[gnu::always_inline]] const_node_pointer GetRightmostNode() const noexcept {
+    return header_->right_;
   }
 
  private:
   const key_compare compare_;
   node_allocator allocator_;
-  node_pointer root_ = nullptr;
-  size_t size_ = 0U;
+  node_pointer header_;
+  size_t size_;
 };
 }  // namespace algo::tree
