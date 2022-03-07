@@ -35,20 +35,17 @@ class BinarySearchTreeNodeDestructor final {
   using pointer = typename std::allocator_traits<allocator_type>::pointer;
 
  private:
-  allocator_type& node_allocator_;
+  std::reference_wrapper<allocator_type> node_allocator_;
 
  public:
-  bool value_constructed_;
   explicit BinarySearchTreeNodeDestructor(allocator_type& node_allocator) noexcept
-      : node_allocator_(node_allocator), value_constructed_(false) {
+      : node_allocator_(node_allocator) {
   }
 
-  void operator()(pointer p) noexcept {
-    if (value_constructed_) {
-      allocator_traits::destroy(node_allocator_, std::addressof(p->key_));
-    }
-    if (p) {
-      allocator_traits::deallocate(node_allocator_, p, 1);
+  void operator()(pointer ref) & {
+    if (ref) {
+      allocator_traits::destroy(node_allocator_.get(), std::addressof(ref->key_));
+      allocator_traits::deallocate(node_allocator_.get(), ref, 1);
     }
   }
 };

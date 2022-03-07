@@ -43,35 +43,37 @@ class BinarySearchTree final {
       : compare_(comp),
         allocator_(node_allocator(alloc)),
         size_(0),
-        header_(MakeNodeHolder(value_type{}).release()) {
-    header_->left_ = header_;
-    header_->right_ = header_;
+        root_(MakeNodeHolder(value_type{}).release()) {
+    root_->left_ = root_;
+    root_->right_ = root_;
   };
 
-  ~BinarySearchTree() = default;
+  ~BinarySearchTree() {
+    node_holder nh(root_, node_destructor(allocator_));
+  }
 
   iterator begin() noexcept {  // NOLINT(readability-identifier-naming)
-    return MakeIteratorBy(header_->left_);
+    return MakeIteratorBy(root_->left_);
   }
 
   const_iterator begin() const noexcept {  // NOLINT(readability-identifier-naming)
-    return MakeIteratorBy(header_->left_);
+    return MakeIteratorBy(root_->left_);
   }
 
   const_iterator cbegin() const noexcept {  // NOLINT(readability-identifier-naming)
-    return MakeIteratorBy(header_->left_);
+    return MakeIteratorBy(root_->left_);
   }
 
   iterator end() noexcept {  // NOLINT(readability-identifier-naming)
-    return MakeIteratorBy(header_);
+    return MakeIteratorBy(root_);
   }
 
   const_iterator end() const noexcept {  // NOLINT(readability-identifier-naming)
-    return MakeIteratorBy(header_);
+    return MakeIteratorBy(root_);
   }
 
   const_iterator cend() const noexcept {  // NOLINT(readability-identifier-naming)
-    return MakeIteratorBy(header_);
+    return MakeIteratorBy(root_);
   }
 
   inline bool IsEmpty() const noexcept {
@@ -82,11 +84,15 @@ class BinarySearchTree final {
     return size_;
   }
 
+  node_allocator GetAllocator() const {
+    return allocator_;
+  }
+
  private:
   const key_compare compare_;
   node_allocator allocator_;
   size_t size_;
-  node_pointer header_;
+  node_pointer root_;
 
   iterator MakeIteratorBy(node_pointer& node) noexcept {
     return iterator(node);
@@ -96,10 +102,11 @@ class BinarySearchTree final {
     return const_iterator(node);
   }
 
-  node_holder MakeNodeHolder(value_type&& value) {
+  template <typename T>
+  node_holder MakeNodeHolder(T&& value) {
+    static_assert(std::is_same_v<T, typename node_allocator::value_type::value_type>, "");
     node_holder nh(allocator_.allocate(1), node_destructor(allocator_));
-    node_traits::construct(allocator_, nh.get(), std::forward<value_type>(value));
-    nh.get_deleter().value_constructed_ = true;
+    node_traits::construct(allocator_, nh.get(), std::forward<T>(value));
     return nh;
   }
 };

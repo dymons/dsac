@@ -32,3 +32,54 @@ TEST_CASE("Создание итератора для бинарного дер�
     REQUIRE(begin == end);
   }
 }
+
+namespace {
+template <typename T>
+class AllocatorWithCounters : public std::allocator<T> {
+ public:
+  template <typename U>
+  struct rebind {
+    using other = AllocatorWithCounters<U>;
+  };
+
+  using size_type = std::size_t;
+  using pointer = T*;
+  using const_pointer = const pointer*;
+
+  size_type alloc_entities = 0;
+  size_type dealloc_entities = 0;
+
+  pointer allocate(size_type n) {  // NOLINT
+    alloc_entities += n;
+    return std::allocator<T>::allocate(n);
+  }
+
+  void deallocate(pointer p, size_type n) {  // NOLINT
+    dealloc_entities += n;
+    return std::allocator<T>::deallocate(p, n);
+  }
+};
+}  // namespace
+
+TEST_CASE("Управление ресурсами в бинарном дереве поиска",
+          "[binary_search_tree][allocator]") {
+  using namespace algo::tree;
+
+  using Tree = BinarySearchTree<int, std::less<int>, AllocatorWithCounters<int>>;
+  using TreePtr = std::shared_ptr<Tree>;
+
+  TreePtr shared_tree(new Tree{}, [](Tree* tree) {
+    if (tree) {
+      tree->~Tree();
+      auto allocator = tree->GetAllocator();
+      REQUIRE(allocator.dealloc_entities == 1);
+      REQUIRE(allocator.alloc_entities == allocator.dealloc_entities);
+      std::free(tree);
+    }
+  });
+
+  auto allocator = shared_tree->GetAllocator();
+  REQUIRE(allocator.alloc_entities == 1);
+
+  shared_tree.reset();
+}
