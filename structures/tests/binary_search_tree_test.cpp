@@ -58,6 +58,16 @@ TEST_CASE("Добавление элеметнов в бинарное дере�
     REQUIRE_FALSE(is_added);
     REQUIRE(tree.Size() == 1);
   }
+  SECTION("Проверка итерирования по дереву") {
+    BinarySearchTree<int> tree;
+    for (int i{}; i < 100; ++i) {
+      tree.Insert(i);
+    }
+    int value = 0;
+    for (auto data : tree) {
+      REQUIRE(data == value++);
+    }
+  }
 }
 
 TEST_CASE("Удаление всух элеметнов из бинарного дерева поиска",

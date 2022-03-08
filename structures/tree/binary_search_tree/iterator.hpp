@@ -20,25 +20,25 @@ class BinarySearchTreeIterator final
   using const_reference = typename BinarySearchTreeNode::const_reference;
 
  private:
-  bool IsLeftChild(node_pointer node) const noexcept {
-    return (node == static_cast<node_pointer>(node->parent_->left_));
+  bool IsLeftChild(const_node_pointer node) const noexcept {
+    return node == node->parent_->left_;
   }
 
-  node_pointer FindMinNode(node_pointer node) noexcept {
+  const_node_pointer FindMinNode(const_node_pointer node) noexcept {
     while (node != nullptr && node->left_ != nullptr) {
       node = node->left_;
     }
     return node;
   }
 
-  node_pointer FindMaxNode(node_pointer node) noexcept {
+  node_pointer FindMaxNode(const_node_pointer node) noexcept {
     while (node != nullptr && node->right_ != nullptr) {
       node = node->right_;
     }
     return node;
   }
 
-  node_pointer FindNextNode(node_pointer node) {
+  const_node_pointer FindNextNode(const_node_pointer node) {
     if (node != nullptr && node->right_ != nullptr) {
       return FindMinNode(node->right_);
     }
