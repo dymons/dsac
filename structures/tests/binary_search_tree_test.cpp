@@ -76,6 +76,28 @@ TEST_CASE("Удаление всух элеметнов из бинарного 
   REQUIRE(tree.IsEmpty());
 }
 
+TEST_CASE("Поиск элементов в бинарном дереве поиска", "[binary_search_tree][find]") {
+  using namespace algo::tree;
+
+  SECTION("Проверка добавленного элемента в дерево") {
+    BinarySearchTree<int> tree;
+    REQUIRE(tree.Find(1) == tree.cend());
+
+    tree.Insert(1);
+    REQUIRE(tree.Find(1) != tree.cend());
+  }
+
+  SECTION("Проверка множества добавленных элементов в дерево") {
+    BinarySearchTree<int> tree;
+    for (int i{}; i < 100; ++i) {
+      tree.Insert(i);
+    }
+    for (int i{}; i < 100; ++i) {
+      REQUIRE(tree.Find(i) != tree.cend());
+    }
+  }
+}
+
 namespace {
 template <typename T>
 class AllocatorWithCounters : public std::allocator<T> {

@@ -94,6 +94,10 @@ class BinarySearchTree final {
     ResetBinarySearchTreeHeader();
   }
 
+  const_iterator Find(key_type const& key) const {
+    return FindUnique(key);
+  }
+
  private:
   [[gnu::always_inline]] iterator MakeIterator(node_pointer node) noexcept {
     return iterator(node);
@@ -162,15 +166,15 @@ class BinarySearchTree final {
     return std::make_pair(MakeIterator(inserted_node), true);
   }
 
-  [[gnu::always_inline]] node_pointer& GetRootNode() {
+  [[gnu::always_inline]] node_pointer GetRootNode() {
     return header_->parent_;
   }
 
-  [[gnu::always_inline]] const_node_pointer& GetRootNode() const {
+  [[gnu::always_inline]] const_node_pointer GetRootNode() const {
     return header_->parent_;
   }
 
-  [[gnu::always_inline]] node_pointer& GetLeftmostNode() noexcept {
+  [[gnu::always_inline]] node_pointer GetLeftmostNode() noexcept {
     return header_->left_;
   }
 
@@ -178,7 +182,7 @@ class BinarySearchTree final {
     return header_->left_;
   }
 
-  [[gnu::always_inline]] node_pointer& GetRightmostNode() noexcept {
+  [[gnu::always_inline]] node_pointer GetRightmostNode() noexcept {
     return header_->right_;
   }
 
@@ -206,6 +210,22 @@ class BinarySearchTree final {
     header_->left_ = header_;
     header_->right_ = header_;
     header_->parent_ = nullptr;
+  }
+
+  const_iterator FindUnique(key_type const& key) const {
+    if (const_node_pointer root = GetRootNode(); root != nullptr) {
+      while (root != nullptr) {
+        if (compare_(key, root->key_)) {
+          root = root->left_;
+        } else if (compare_(root->key_, key)) {
+          root = root->right_;
+        } else {
+          return MakeIterator(root);
+        }
+      }
+    }
+
+    return cend();
   }
 
  private:
