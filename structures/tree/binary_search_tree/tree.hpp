@@ -41,23 +41,11 @@ class BinarySearchTree final {
         allocator_(node_allocator(std::move(alloc))),
         size_(0),
         header_(ConstructNode(value_type{})) {
-    header_->left_ = header_;
-    header_->right_ = header_;
+    ResetBinarySearchTreeHeader();
   };
 
   ~BinarySearchTree() {
-    node_pointer next_to_destroy = nullptr;
-    for (node_pointer root = GetRootNode(); root != nullptr; root = next_to_destroy) {
-      if (root->left_ == nullptr) {
-        next_to_destroy = root->right_;
-        DestroyNode(root);
-      } else {
-        next_to_destroy = root->left_;
-        root->left_ = next_to_destroy->right_;
-        next_to_destroy->right_ = root;
-      }
-    }
-
+    Clear();
     DestroyNode(header_);
   }
 
@@ -99,6 +87,11 @@ class BinarySearchTree final {
 
   node_allocator GetAllocator() const {
     return allocator_;
+  }
+
+  void Clear() {
+    DestroyBinarySearchTreeOnly();
+    ResetBinarySearchTreeHeader();
   }
 
  private:
@@ -191,6 +184,28 @@ class BinarySearchTree final {
 
   [[gnu::always_inline]] const_node_pointer GetRightmostNode() const noexcept {
     return header_->right_;
+  }
+
+  void DestroyBinarySearchTreeOnly() {
+    node_pointer next_to_destroy = nullptr;
+    for (node_pointer root = GetRootNode(); root != nullptr; root = next_to_destroy) {
+      if (root->left_ == nullptr) {
+        next_to_destroy = root->right_;
+        DestroyNode(root);
+      } else {
+        next_to_destroy = root->left_;
+        root->left_ = next_to_destroy->right_;
+        next_to_destroy->right_ = root;
+      }
+    }
+
+    size_ = 0;
+  }
+
+  void ResetBinarySearchTreeHeader() {
+    header_->left_ = header_;
+    header_->right_ = header_;
+    header_->parent_ = nullptr;
   }
 
  private:

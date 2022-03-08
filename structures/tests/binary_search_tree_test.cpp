@@ -60,6 +60,22 @@ TEST_CASE("Добавление элеметнов в бинарное дере�
   }
 }
 
+TEST_CASE("Удаление всух элеметнов из бинарного дерева поиска",
+          "[binary_search_tree][clear]") {
+  using namespace algo::tree;
+
+  BinarySearchTree<int> tree;
+  REQUIRE(tree.IsEmpty());
+
+  for (int i{}; i < 100; ++i) {
+    tree.Insert(i);
+  }
+  REQUIRE_FALSE(tree.IsEmpty());
+
+  tree.Clear();
+  REQUIRE(tree.IsEmpty());
+}
+
 namespace {
 template <typename T>
 class AllocatorWithCounters : public std::allocator<T> {
@@ -136,13 +152,36 @@ TEST_CASE("Управление ресурсами в бинарном дере�
       }
     });
 
-    for (int i{}; i < 100; ++i) {
+    constexpr int kNumOfElements = 100;
+    for (int i{}; i < kNumOfElements; ++i) {
       shared_tree->Insert(i);
     }
 
     auto allocator = shared_tree->GetAllocator();
-    REQUIRE(allocator.alloc_entities != 0);
+    REQUIRE(allocator.alloc_entities >= kNumOfElements);
 
+    shared_tree.reset();
+  }
+  SECTION("Выделение и освобождение памяти с помощью метода Clear()") {
+    TreePtr shared_tree(new Tree{}, [](Tree* tree) {
+      if (tree) {
+        tree->~Tree();
+        auto allocator = tree->GetAllocator();
+        REQUIRE(allocator.dealloc_entities != 0);
+        REQUIRE(allocator.alloc_entities == allocator.dealloc_entities);
+        std::free(tree);
+      }
+    });
+
+    constexpr int kNumOfElements = 100;
+    for (int i{}; i < kNumOfElements; ++i) {
+      shared_tree->Insert(i);
+    }
+
+    auto allocator = shared_tree->GetAllocator();
+    REQUIRE(allocator.alloc_entities >= kNumOfElements);
+
+    shared_tree->Clear();
     shared_tree.reset();
   }
 }
