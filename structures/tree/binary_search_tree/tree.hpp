@@ -98,6 +98,10 @@ class BinarySearchTree final {
     return FindUnique(key);
   }
 
+  bool Erase(key_type const& key) {
+    return EraseUnique(key);
+  }
+
  private:
   [[gnu::always_inline]] iterator MakeIterator(node_pointer node) noexcept {
     return iterator(node);
@@ -212,20 +216,84 @@ class BinarySearchTree final {
     header_->parent_ = nullptr;
   }
 
+  iterator FindUnique(key_type const& key) {
+    node_pointer root = GetRootNode();
+    while (root != nullptr) {
+      if (compare_(key, root->key_)) {
+        root = root->left_;
+      } else if (compare_(root->key_, key)) {
+        root = root->right_;
+      } else {
+        return MakeIterator(root);
+      }
+    }
+
+    return end();
+  }
+
   const_iterator FindUnique(key_type const& key) const {
-    if (const_node_pointer root = GetRootNode(); root != nullptr) {
-      while (root != nullptr) {
-        if (compare_(key, root->key_)) {
-          root = root->left_;
-        } else if (compare_(root->key_, key)) {
-          root = root->right_;
-        } else {
-          return MakeIterator(root);
-        }
+    const_node_pointer root = GetRootNode();
+    while (root != nullptr) {
+      if (compare_(key, root->key_)) {
+        root = root->left_;
+      } else if (compare_(root->key_, key)) {
+        root = root->right_;
+      } else {
+        return MakeIterator(root);
       }
     }
 
     return cend();
+  }
+
+  bool EraseUnique(key_type const& key) {
+    if (iterator it = FindUnique(key); it != end()) {
+      bool const has_left_node = it.current_node_->left_ != nullptr;
+      bool const has_right_node = it.current_node_->right != nullptr;
+      if (!has_left_node && !has_right_node) {
+        if (it.current_node_ == GetRootNode()) {
+          DestroyNode(it.current_node_);
+          ResetBinarySearchTreeHeader();
+        } else {
+          if (it.current_node_->parent_->left_ == it.current_node_) {
+            it.current_node_->parent_->left_ = nullptr;
+          } else {
+            it.current_node_->parent_->right_ = nullptr;
+          }
+
+          DestroyNode(it.current_node_);
+        }
+      } else if (has_left_node && has_right_node) {
+        node_pointer current_leftmost = it.current_node_->right_;
+        while (current_leftmost->left_ != nullptr) {
+          current_leftmost = current_leftmost->left_;
+        }
+
+        // TODO: Удалить current_leftmost, значение из current_leftmost перенести в
+        // it.current_node_
+      } else {
+        node_pointer child_node =
+            has_left_node ? it.current_node_->left_ : it.current_node_->right_;
+        if (it.current_node_ != GetRootNode()) {
+          if (it.current_node_ == it.current_node_->parent_->left) {
+            it.current_node_->parent_->left = child_node;
+          } else {
+            it.current_node_->parent_->right = child_node;
+          }
+        } else {
+          header_->parent_ = child_node;
+          header_->left = child_node;
+          header_->right = child_node;
+          child_node->parent_ = header_;
+        }
+
+        DestroyNode(it.current_node_);
+      }
+
+      return true;
+    }
+
+    return false;
   }
 
  private:
