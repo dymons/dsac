@@ -21,21 +21,21 @@ TEST_CASE("Создание итератора для бинарного дер�
 
   SECTION("Проверка итераторов пустого дерева на равенство") {
     BinarySearchTree<int> tree;
-    auto begin(tree.begin());
-    auto end(tree.end());
+    auto begin(tree.Begin());
+    auto end(tree.End());
     REQUIRE(begin == end);
   }
   SECTION("Проверка константных итераторов пустого дерева на равенство") {
     BinarySearchTree<int> tree;
-    auto begin(tree.cbegin());
-    auto end(tree.cend());
+    auto begin(tree.CBegin());
+    auto end(tree.CEnd());
     REQUIRE(begin == end);
   }
   SECTION("Получение значения из итератора") {
     BinarySearchTree<int, std::less<int>> tree;
     tree.Insert(1);
-    auto begin(tree.cbegin());
-    auto end(tree.cend());
+    auto begin(tree.CBegin());
+    auto end(tree.CEnd());
     REQUIRE(begin != end);
     REQUIRE(*begin == 1);
     REQUIRE(++begin == end);
@@ -104,10 +104,10 @@ TEST_CASE("Поиск элементов в бинарном дереве пои
 
   SECTION("Проверка добавленного элемента в дерево") {
     BinarySearchTree<int> tree;
-    REQUIRE(tree.Find(1) == tree.cend());
+    REQUIRE(tree.Find(1) == tree.CEnd());
 
     tree.Insert(1);
-    REQUIRE(tree.Find(1) != tree.cend());
+    REQUIRE(tree.Find(1) != tree.CEnd());
   }
 
   SECTION("Проверка множества добавленных элементов в дерево") {
@@ -116,16 +116,16 @@ TEST_CASE("Поиск элементов в бинарном дереве пои
       tree.Insert(i);
     }
     for (int i{}; i < 100; ++i) {
-      REQUIRE(tree.Find(i) != tree.cend());
+      REQUIRE(tree.Find(i) != tree.CEnd());
     }
   }
 
   SECTION("Поиск элемента в дереве после его удаления") {
     BinarySearchTree<int> tree;
     REQUIRE(tree.Insert(1).second);
-    REQUIRE(tree.Find(1) != tree.cend());
+    REQUIRE(tree.Find(1) != tree.CEnd());
     REQUIRE(tree.Erase(1));
-    REQUIRE(tree.Find(1) == tree.cend());
+    REQUIRE(tree.Find(1) == tree.CEnd());
   }
 }
 
@@ -148,11 +148,11 @@ TEST_CASE("Удаление элементов из бинарного дере�
     REQUIRE(tree.Insert(2).second);
     REQUIRE(tree.Insert(1).second);
     REQUIRE(tree.Size() == 2);
-    REQUIRE(*tree.begin() == 1);
+    REQUIRE(*tree.Begin() == 1);
 
     REQUIRE(tree.Erase(1));
     REQUIRE(tree.Size() == 1);
-    REQUIRE(*tree.begin() == 2);
+    REQUIRE(*tree.Begin() == 2);
   }
   SECTION("Удаление самого правого элемента из дерева") {
     BinarySearchTree<int> tree;

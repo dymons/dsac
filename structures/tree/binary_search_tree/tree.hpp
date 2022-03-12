@@ -4,6 +4,7 @@
 #include <structures/tree/binary_search_tree/node.hpp>
 
 namespace algo::tree {
+
 template <typename Key, typename Compare = std::less<Key>,
           typename Allocator = std::allocator<Key>>
 class BinarySearchTree final {
@@ -46,27 +47,27 @@ class BinarySearchTree final {
     Clear();
   }
 
-  iterator begin() noexcept {  // NOLINT(readability-identifier-naming)
+  iterator Begin() noexcept {
     return MakeIterator(GetLeftmostNode());
   }
 
-  const_iterator begin() const noexcept {  // NOLINT(readability-identifier-naming)
+  const_iterator Begin() const noexcept {
     return MakeIterator(GetLeftmostNode());
   }
 
-  const_iterator cbegin() const noexcept {  // NOLINT(readability-identifier-naming)
+  const_iterator CBegin() const noexcept {
     return MakeIterator(GetLeftmostNode());
   }
 
-  iterator end() noexcept {  // NOLINT(readability-identifier-naming)
+  iterator End() noexcept {
     return iterator::MakeInvalid();
   }
 
-  const_iterator end() const noexcept {  // NOLINT(readability-identifier-naming)
+  const_iterator End() const noexcept {
     return const_iterator::MakeInvalid();
   }
 
-  const_iterator cend() const noexcept {  // NOLINT(readability-identifier-naming)
+  const_iterator CEnd() const noexcept {
     return const_iterator::MakeInvalid();
   }
 
@@ -214,7 +215,7 @@ class BinarySearchTree final {
       }
     }
 
-    return end();
+    return End();
   }
 
   const_iterator FindUnique(key_type const& key) const {
@@ -229,11 +230,11 @@ class BinarySearchTree final {
       }
     }
 
-    return cend();
+    return CEnd();
   }
 
   bool EraseUnique(key_type const& key) {
-    if (iterator it = FindUnique(key); it != end()) {
+    if (iterator it = FindUnique(key); it != End()) {
       bool const has_left_node = it.current_node_->left_ != nullptr;
       bool const has_right_node = it.current_node_->right_ != nullptr;
       if (!has_left_node && !has_right_node) {
@@ -263,7 +264,8 @@ class BinarySearchTree final {
 
         DestroyNode(current_leftmost);
       } else {
-        node_pointer child_node = has_left_node ? it.current_node_->left_ : it.current_node_->right_;
+        node_pointer child_node =
+            has_left_node ? it.current_node_->left_ : it.current_node_->right_;
         if (it.current_node_ == root_) {
           root_ = child_node;
         } else {
@@ -290,4 +292,15 @@ class BinarySearchTree final {
   node_pointer root_;
   size_t size_;
 };
+
+template <typename Key, typename Compare = std::less<Key>,
+          typename Allocator = std::allocator<Key>>
+auto begin(BinarySearchTree<Key, Compare, Allocator> const& bst) {  // NOLINT
+  return bst.Begin();
+}
+template <typename Key, typename Compare = std::less<Key>,
+          typename Allocator = std::allocator<Key>>
+auto end(BinarySearchTree<Key, Compare, Allocator> const& bst) {  // NOLINT
+  return bst.End();
+}
 }  // namespace algo::tree
