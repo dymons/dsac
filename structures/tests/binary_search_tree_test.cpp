@@ -34,10 +34,11 @@ TEST_CASE("Создание итератора для бинарного дер�
   SECTION("Получение значения из итератора") {
     BinarySearchTree<int, std::less<int>> tree;
     tree.Insert(1);
-    auto const begin(tree.cbegin());
-    auto const end(tree.cend());
+    auto begin(tree.cbegin());
+    auto end(tree.cend());
     REQUIRE(begin != end);
     REQUIRE(*begin == 1);
+    REQUIRE(++begin == end);
   }
 }
 
@@ -53,7 +54,7 @@ TEST_CASE("Добавление элеметнов в бинарное дере�
   }
   SECTION("Проверка на выполнение условия о хранении уникальных элементов в дереве") {
     BinarySearchTree<int> tree;
-    [[maybe_unused]] auto const pair = tree.Insert(0);
+    tree.Insert(0);
     auto const [_, is_added] = tree.Insert(0);
     REQUIRE_FALSE(is_added);
     REQUIRE(tree.Size() == 1);
@@ -64,6 +65,18 @@ TEST_CASE("Добавление элеметнов в бинарное дере�
       tree.Insert(i);
     }
     int value = 0;
+    for (auto data : tree) {
+      REQUIRE(data == value++);
+    }
+  }
+  SECTION("Проверка итерирования по сбалансированному дереву") {
+    BinarySearchTree<int> tree;
+
+    tree.Insert(2);
+    tree.Insert(1);
+    tree.Insert(3);
+
+    int value = 1;
     for (auto data : tree) {
       REQUIRE(data == value++);
     }
@@ -105,6 +118,75 @@ TEST_CASE("Поиск элементов в бинарном дереве пои
     for (int i{}; i < 100; ++i) {
       REQUIRE(tree.Find(i) != tree.cend());
     }
+  }
+
+  SECTION("Поиск элемента в дереве после его удаления") {
+    BinarySearchTree<int> tree;
+    REQUIRE(tree.Insert(1).second);
+    REQUIRE(tree.Find(1) != tree.cend());
+    REQUIRE(tree.Erase(1));
+    REQUIRE(tree.Find(1) == tree.cend());
+  }
+}
+
+TEST_CASE("Удаление элементов из бинарного дерева поиска",
+          "[binary_search_tree][erase]") {
+  using namespace algo::tree;
+
+  SECTION("Удаление вершины дерева без наличия левой и правой вершины") {
+    BinarySearchTree<int> tree;
+
+    REQUIRE(tree.Insert(1).second);
+    REQUIRE(tree.Size() == 1);
+
+    REQUIRE(tree.Erase(1));
+    REQUIRE(tree.Size() == 0);
+  }
+  SECTION("Удаление самого левого элемента из дерева") {
+    BinarySearchTree<int> tree;
+
+    REQUIRE(tree.Insert(2).second);
+    REQUIRE(tree.Insert(1).second);
+    REQUIRE(tree.Size() == 2);
+    REQUIRE(*tree.begin() == 1);
+
+    REQUIRE(tree.Erase(1));
+    REQUIRE(tree.Size() == 1);
+    REQUIRE(*tree.begin() == 2);
+  }
+  SECTION("Удаление самого правого элемента из дерева") {
+    BinarySearchTree<int> tree;
+
+    REQUIRE(tree.Insert(1).second);
+    REQUIRE(tree.Insert(2).second);
+    REQUIRE(tree.Size() == 2);
+
+    REQUIRE(tree.Erase(2));
+    REQUIRE(tree.Size() == 1);
+  }
+  SECTION("Удаление вершины дерева с наличием левой и правой вершины") {
+    BinarySearchTree<int> tree;
+
+    REQUIRE(tree.Insert(2).second);
+    REQUIRE(tree.Insert(1).second);
+    REQUIRE(tree.Insert(3).second);
+    REQUIRE(tree.Size() == 3);
+
+    REQUIRE(tree.Erase(2));
+    REQUIRE(tree.Size() == 2);
+  }
+  SECTION("Удаление всех элементов") {
+    BinarySearchTree<int> tree;
+
+    for (int i{}; i < 100; ++i) {
+      REQUIRE(tree.Insert(i).second);
+    }
+    REQUIRE(tree.Size() == 100);
+
+    for (int i{}; i < 100; ++i) {
+      REQUIRE(tree.Erase(i));
+    }
+    REQUIRE(tree.Size() == 0);
   }
 }
 
@@ -152,8 +234,6 @@ TEST_CASE("Управление ресурсами в бинарном дере�
         std::free(tree);
       }
     });
-
-    shared_tree.reset();
   }
   SECTION("Выделение и освобождение памяти для одного добавленного элемента") {
     TreePtr shared_tree(new Tree{}, [](Tree* tree) {
@@ -170,8 +250,6 @@ TEST_CASE("Управление ресурсами в бинарном дере�
 
     auto allocator = shared_tree->GetAllocator();
     REQUIRE(allocator.alloc_entities != 0);
-
-    shared_tree.reset();
   }
   SECTION("Выделение и освобождение памяти для множества добавленных элементов") {
     TreePtr shared_tree(new Tree{}, [](Tree* tree) {
@@ -190,9 +268,7 @@ TEST_CASE("Управление ресурсами в бинарном дере�
     }
 
     auto allocator = shared_tree->GetAllocator();
-    REQUIRE(allocator.alloc_entities >= kNumOfElements);
-
-    shared_tree.reset();
+    REQUIRE(allocator.alloc_entities == kNumOfElements);
   }
   SECTION("Выделение и освобождение памяти с помощью метода Clear()") {
     TreePtr shared_tree(new Tree{}, [](Tree* tree) {
@@ -214,6 +290,27 @@ TEST_CASE("Управление ресурсами в бинарном дере�
     REQUIRE(allocator.alloc_entities >= kNumOfElements);
 
     shared_tree->Clear();
-    shared_tree.reset();
+  }
+
+  SECTION("Выделение и освобождение памяти с помощью метода Erase()") {
+    TreePtr shared_tree(new Tree{}, [](Tree* tree) {
+      if (tree) {
+        tree->~Tree();
+        auto allocator = tree->GetAllocator();
+        REQUIRE(allocator.alloc_entities == allocator.dealloc_entities);
+        std::free(tree);
+      }
+    });
+
+    constexpr int kNumOfElements = 100;
+    for (int i{}; i < kNumOfElements; ++i) {
+      shared_tree->Insert(i);
+    }
+    REQUIRE(shared_tree->GetAllocator().alloc_entities == kNumOfElements);
+
+    for (int i{}; i < kNumOfElements; ++i) {
+      shared_tree->Erase(i);
+    }
+    REQUIRE(shared_tree->GetAllocator().dealloc_entities == kNumOfElements);
   }
 }

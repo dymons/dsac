@@ -20,37 +20,37 @@ class BinarySearchTreeIterator final
   using const_reference = typename BinarySearchTreeNode::const_reference;
 
  private:
-  bool IsLeftChild(const_node_pointer node) const noexcept {
+  bool IsLeftChild(node_pointer node) const noexcept {
     return node == node->parent_->left_;
   }
 
-  const_node_pointer FindMinNode(const_node_pointer node) noexcept {
+  node_pointer FindMinNode(node_pointer node) const noexcept {
     while (node != nullptr && node->left_ != nullptr) {
       node = node->left_;
     }
     return node;
   }
 
-  node_pointer FindMaxNode(const_node_pointer node) noexcept {
+  node_pointer FindMaxNode(node_pointer node) const noexcept {
     while (node != nullptr && node->right_ != nullptr) {
       node = node->right_;
     }
     return node;
   }
 
-  const_node_pointer FindNextNode(const_node_pointer node) {
+  node_pointer FindNextNode(node_pointer node) const {
     if (node != nullptr && node->right_ != nullptr) {
       return FindMinNode(node->right_);
     }
 
-    while (!IsLeftChild(node)) {
+    while (node->parent_ && !IsLeftChild(node)) {
       node = node->parent_;
     }
 
     return node->parent_;
   }
 
-  const_node_pointer current_node_ = nullptr;
+  node_pointer current_node_ = nullptr;
 
  public:
   static BinarySearchTreeIterator MakeInvalid() {
@@ -93,7 +93,7 @@ class BinarySearchTreeIterator final
   ~BinarySearchTreeIterator() = default;
 
  private:
-  explicit BinarySearchTreeIterator(const_node_pointer node) : current_node_(node) {
+  explicit BinarySearchTreeIterator(node_pointer node) : current_node_(node) {
   }
 };
 }  // namespace algo::tree

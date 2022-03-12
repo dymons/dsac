@@ -40,13 +40,10 @@ class BinarySearchTree final {
       : compare_(std::move(comp)),
         allocator_(node_allocator(std::move(alloc))),
         size_(0),
-        header_(ConstructNode(value_type{})) {
-    ResetBinarySearchTreeHeader();
-  };
+        root_(nullptr){};
 
   ~BinarySearchTree() {
     Clear();
-    DestroyNode(header_);
   }
 
   iterator begin() noexcept {  // NOLINT(readability-identifier-naming)
@@ -62,15 +59,15 @@ class BinarySearchTree final {
   }
 
   iterator end() noexcept {  // NOLINT(readability-identifier-naming)
-    return MakeIterator(header_);
+    return iterator::MakeInvalid();
   }
 
   const_iterator end() const noexcept {  // NOLINT(readability-identifier-naming)
-    return MakeIterator(header_);
+    return const_iterator::MakeInvalid();
   }
 
   const_iterator cend() const noexcept {  // NOLINT(readability-identifier-naming)
-    return MakeIterator(header_);
+    return const_iterator::MakeInvalid();
   }
 
   std::pair<iterator, bool> Insert(value_type const& value) {
@@ -90,8 +87,7 @@ class BinarySearchTree final {
   }
 
   void Clear() {
-    DestroyBinarySearchTreeOnly();
-    ResetBinarySearchTreeHeader();
+    DestroySubtree(root_);
   }
 
   const_iterator Find(key_type const& key) const {
@@ -109,7 +105,7 @@ class BinarySearchTree final {
 
   [[gnu::always_inline]] const_iterator MakeIterator(
       const_node_pointer node) const noexcept {
-    return const_iterator(node);
+    return const_iterator(const_cast<node_pointer>(node));
   }
 
   template <typename T>
@@ -119,25 +115,22 @@ class BinarySearchTree final {
     return new_node;
   }
 
-  [[gnu::always_inline]] void DestroyNode(node_pointer node) {
+  [[gnu::always_inline]] void DestroyNode(node_pointer& node) {
     node_traits::destroy(allocator_, node);
     node_traits::deallocate(allocator_, node, 1U);
+    node = nullptr;
   }
 
   std::pair<iterator, bool> InsertUnique(value_type const& value) {
     node_pointer inserted_node = ConstructNode(value);
-    node_pointer root = GetRootNode();
-    if (root == nullptr) {
-      header_->parent_ = inserted_node;
-      header_->left_ = inserted_node;
-      header_->right_ = inserted_node;
-      inserted_node->parent_ = header_;
+    if (root_ == nullptr) {
+      root_ = inserted_node;
       size_++;
-      return std::make_pair(MakeIterator(header_), true);
+      return std::make_pair(MakeIterator(root_), true);
     }
 
-    node_pointer parent = root;
-    node_pointer parent_before = root;
+    node_pointer parent = root_;
+    node_pointer parent_before = root_;
     while (parent != nullptr) {
       parent_before = parent;
       if (compare_(inserted_node->key_, parent->key_)) {
@@ -158,45 +151,44 @@ class BinarySearchTree final {
     inserted_node->parent_ = parent_before;
     size_++;
 
-    if (compare_(inserted_node->key_, GetLeftmostNode()->key_)) {
-      header_->left_ = inserted_node;
-    }
-    if (!(compare_(inserted_node->key_, GetRightmostNode()->key_)) &&
-        !(compare_(GetRightmostNode()->key_, inserted_node->key_))) {
-      header_->right_ = inserted_node;
-      inserted_node->right_ = header_;
-    }
-
     return std::make_pair(MakeIterator(inserted_node), true);
   }
 
-  [[gnu::always_inline]] node_pointer GetRootNode() {
-    return header_->parent_;
-  }
-
-  [[gnu::always_inline]] const_node_pointer GetRootNode() const {
-    return header_->parent_;
-  }
-
   [[gnu::always_inline]] node_pointer GetLeftmostNode() noexcept {
-    return header_->left_;
+    node_pointer leftmost = root_;
+    while (leftmost && leftmost->left_) {
+      leftmost = leftmost->left_;
+    }
+    return leftmost;
   }
 
   [[gnu::always_inline]] const_node_pointer GetLeftmostNode() const noexcept {
-    return header_->left_;
+    const_node_pointer leftmost = root_;
+    while (leftmost && leftmost->left_) {
+      leftmost = leftmost->left_;
+    }
+    return leftmost;
   }
 
   [[gnu::always_inline]] node_pointer GetRightmostNode() noexcept {
-    return header_->right_;
+    node_pointer rightmost = root_;
+    while (rightmost && rightmost->right_) {
+      rightmost = rightmost->right_;
+    }
+    return rightmost;
   }
 
   [[gnu::always_inline]] const_node_pointer GetRightmostNode() const noexcept {
-    return header_->right_;
+    const_node_pointer rightmost = root_;
+    while (rightmost && rightmost->right_) {
+      rightmost = rightmost->right_;
+    }
+    return rightmost;
   }
 
-  void DestroyBinarySearchTreeOnly() {
+  void DestroySubtree(node_pointer& root) {
     node_pointer next_to_destroy = nullptr;
-    for (node_pointer root = GetRootNode(); root != nullptr; root = next_to_destroy) {
+    for (; root != nullptr; root = next_to_destroy) {
       if (root->left_ == nullptr) {
         next_to_destroy = root->right_;
         DestroyNode(root);
@@ -210,14 +202,8 @@ class BinarySearchTree final {
     size_ = 0;
   }
 
-  void ResetBinarySearchTreeHeader() {
-    header_->left_ = header_;
-    header_->right_ = header_;
-    header_->parent_ = nullptr;
-  }
-
   iterator FindUnique(key_type const& key) {
-    node_pointer root = GetRootNode();
+    node_pointer root = root_;
     while (root != nullptr) {
       if (compare_(key, root->key_)) {
         root = root->left_;
@@ -232,7 +218,7 @@ class BinarySearchTree final {
   }
 
   const_iterator FindUnique(key_type const& key) const {
-    const_node_pointer root = GetRootNode();
+    const_node_pointer root = root_;
     while (root != nullptr) {
       if (compare_(key, root->key_)) {
         root = root->left_;
@@ -249,11 +235,10 @@ class BinarySearchTree final {
   bool EraseUnique(key_type const& key) {
     if (iterator it = FindUnique(key); it != end()) {
       bool const has_left_node = it.current_node_->left_ != nullptr;
-      bool const has_right_node = it.current_node_->right != nullptr;
+      bool const has_right_node = it.current_node_->right_ != nullptr;
       if (!has_left_node && !has_right_node) {
-        if (it.current_node_ == GetRootNode()) {
-          DestroyNode(it.current_node_);
-          ResetBinarySearchTreeHeader();
+        if (it.current_node_ == root_) {
+          DestroyNode(root_);
         } else {
           if (it.current_node_->parent_->left_ == it.current_node_) {
             it.current_node_->parent_->left_ = nullptr;
@@ -269,27 +254,30 @@ class BinarySearchTree final {
           current_leftmost = current_leftmost->left_;
         }
 
-        // TODO: Удалить current_leftmost, значение из current_leftmost перенести в
-        // it.current_node_
-      } else {
-        node_pointer child_node =
-            has_left_node ? it.current_node_->left_ : it.current_node_->right_;
-        if (it.current_node_ != GetRootNode()) {
-          if (it.current_node_ == it.current_node_->parent_->left) {
-            it.current_node_->parent_->left = child_node;
-          } else {
-            it.current_node_->parent_->right = child_node;
-          }
+        it.current_node_->key_ = std::move(current_leftmost->key_);
+        if (current_leftmost->parent_->left_ == current_leftmost) {
+          current_leftmost->parent_->left_ = current_leftmost->right_;
         } else {
-          header_->parent_ = child_node;
-          header_->left = child_node;
-          header_->right = child_node;
-          child_node->parent_ = header_;
+          current_leftmost->parent_->right_ = current_leftmost->right_;
+        }
+
+        DestroyNode(current_leftmost);
+      } else {
+        node_pointer child_node = has_left_node ? it.current_node_->left_ : it.current_node_->right_;
+        if (it.current_node_ == root_) {
+          root_ = child_node;
+        } else {
+          if (it.current_node_ == it.current_node_->parent_->left_) {
+            it.current_node_->parent_->left_ = child_node;
+          } else {
+            it.current_node_->parent_->right_ = child_node;
+          }
         }
 
         DestroyNode(it.current_node_);
       }
 
+      --size_;
       return true;
     }
 
@@ -299,7 +287,7 @@ class BinarySearchTree final {
  private:
   const key_compare compare_;
   node_allocator allocator_;
-  node_pointer header_;
+  node_pointer root_;
   size_t size_;
 };
 }  // namespace algo::tree
