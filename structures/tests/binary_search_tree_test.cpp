@@ -82,7 +82,7 @@ TEST_CASE("Добавление элеметнов в бинарное дере�
     }
   }
 
-  SECTION("Вставка rvalue значени") {
+  SECTION("Вставка rvalue значения с помощью метода Insert") {
     struct CopyObject {
       std::shared_ptr<int> counter_copy;
       CopyObject(std::shared_ptr<int> counter_copy)
@@ -105,7 +105,35 @@ TEST_CASE("Добавление элеметнов в бинарное дере�
 
     auto counter(std::make_shared<int>());
     tree.Insert({counter});
+    REQUIRE(tree.Size() == 1);
     REQUIRE(*counter == 1);
+  }
+
+  SECTION("Вставка rvalue значения с помощью метода Empalce") {
+    struct CopyObject {
+      std::shared_ptr<int> counter_copy;
+      CopyObject(std::shared_ptr<int> counter_copy)
+          : counter_copy(std::move(counter_copy)) {
+      }
+      CopyObject(CopyObject const& other) : counter_copy(other.counter_copy) {
+        ++(*counter_copy);
+      }
+      CopyObject& operator=(CopyObject const& other) {
+        counter_copy = other.counter_copy;
+        ++(*counter_copy);
+        return *this;
+      }
+      bool operator<(CopyObject const&) const noexcept {
+        return true;
+      }
+    };
+
+    BinarySearchTree<CopyObject, std::less<CopyObject>> tree;
+
+    auto counter(std::make_shared<int>());
+    tree.Emplace(counter);
+    REQUIRE(tree.Size() == 1);
+    REQUIRE(*counter == 0);
   }
 }
 

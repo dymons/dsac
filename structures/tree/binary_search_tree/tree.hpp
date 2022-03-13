@@ -79,6 +79,11 @@ class BinarySearchTree final {
     return InsertUnique(value);
   }
 
+  template <typename... Args>
+  std::pair<iterator, bool> Emplace(Args... args) {
+    return EmplaceUnique(std::forward<Args>(args)...);
+  }
+
   inline bool IsEmpty() const noexcept {
     return Size() == 0;
   }
@@ -133,6 +138,11 @@ class BinarySearchTree final {
 
   std::pair<iterator, bool> InsertUnique(value_type&& value) {
     return InsertUniqueNode(ConstructNode(std::move(value)));
+  }
+
+  template <typename... Args>
+  std::pair<iterator, bool> EmplaceUnique(Args... args) {
+    return InsertUniqueNode(ConstructNode(std::forward<Args>(args)...));
   }
 
   std::pair<iterator, bool> InsertUnique(value_type const& value) {
