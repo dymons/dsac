@@ -48,15 +48,15 @@ class BinarySearchTree final {
   }
 
   iterator Begin() noexcept {
-    return MakeIterator(GetLeftmostNode());
+    return MakeIterator(GetLeftmostNode(root_));
   }
 
   const_iterator Begin() const noexcept {
-    return MakeIterator(GetLeftmostNode());
+    return MakeIterator(GetLeftmostNode(root_));
   }
 
   const_iterator CBegin() const noexcept {
-    return MakeIterator(GetLeftmostNode());
+    return MakeIterator(GetLeftmostNode(root_));
   }
 
   iterator End() noexcept {
@@ -155,36 +155,19 @@ class BinarySearchTree final {
     return std::make_pair(MakeIterator(inserted_node), true);
   }
 
-  [[gnu::always_inline]] node_pointer GetLeftmostNode() noexcept {
-    node_pointer leftmost = root_;
+  [[gnu::always_inline]] node_pointer GetLeftmostNode(node_pointer leftmost) noexcept {
     while (leftmost && leftmost->left_) {
       leftmost = leftmost->left_;
     }
     return leftmost;
   }
 
-  [[gnu::always_inline]] const_node_pointer GetLeftmostNode() const noexcept {
-    const_node_pointer leftmost = root_;
+  [[gnu::always_inline]] const_node_pointer GetLeftmostNode(
+      const_node_pointer leftmost) const noexcept {
     while (leftmost && leftmost->left_) {
       leftmost = leftmost->left_;
     }
     return leftmost;
-  }
-
-  [[gnu::always_inline]] node_pointer GetRightmostNode() noexcept {
-    node_pointer rightmost = root_;
-    while (rightmost && rightmost->right_) {
-      rightmost = rightmost->right_;
-    }
-    return rightmost;
-  }
-
-  [[gnu::always_inline]] const_node_pointer GetRightmostNode() const noexcept {
-    const_node_pointer rightmost = root_;
-    while (rightmost && rightmost->right_) {
-      rightmost = rightmost->right_;
-    }
-    return rightmost;
   }
 
   void DestroySubtree(node_pointer& root) {
@@ -250,10 +233,7 @@ class BinarySearchTree final {
           DestroyNode(it.current_node_);
         }
       } else if (has_left_node && has_right_node) {
-        node_pointer current_leftmost = it.current_node_->right_;
-        while (current_leftmost->left_ != nullptr) {
-          current_leftmost = current_leftmost->left_;
-        }
+        node_pointer current_leftmost = GetLeftmostNode(it.current_node_->right_);
 
         it.current_node_->key_ = std::move(current_leftmost->key_);
         if (current_leftmost->parent_->left_ == current_leftmost) {
