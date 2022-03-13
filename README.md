@@ -30,7 +30,7 @@ Avito, Parallels, VK, Sber. Список тем был сформирован д
     - Двусвязный список (Linked List)
     - Односвязный список (Forward Linked List)
     - Графы (Graphs)
-    - Бинарное дерево поиска ([Binary Shortest Three](https://github.com/dymons/cpp-prepare/blob/master/structures/tree/binary_search_tree/tree.hpp))
+    - Бинарное дерево поиска ([Binary Search Tree](https://github.com/dymons/cpp-prepare/blob/master/structures/tree/binary_search_tree/tree.hpp))
     - Красно-черное дерево ([Red-black tree](https://github.com/dymons/interviews/blob/master/structures/tree/rb_tree.hpp))
     - АВЛ-дерево ([AVL-Tree](https://github.com/dymons/interviews/blob/master/structures/tree/avl_tree.hpp))
     - Декартовы деревья / Treap / Дуча / Дерамида (Cartesian Tree)
