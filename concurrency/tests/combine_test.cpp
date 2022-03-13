@@ -38,7 +38,7 @@ TEST_CASE("Проверка корректности комбинатора на
     Future<int> future = FirstOf(std::move(futures));
     Try<int> result = std::move(future).Get();
     REQUIRE(result.HasValue());
-    REQUIRE(result.Get() == 2);
+    REQUIRE(result.ValueOrThrow() == 2);
 
     executor->Join();
   }
@@ -63,7 +63,7 @@ TEST_CASE("Проверка корректности комбинатора на
     Try<std::vector<Try<std::size_t>>> result = std::move(future).Get();
     REQUIRE(result.HasValue());
 
-    std::vector<Try<std::size_t>> sequence = result.Get();
+    std::vector<Try<std::size_t>> sequence = result.ValueOrThrow();
     REQUIRE(sequence.size() == kQuorum);
 
     std::vector<Try<std::size_t>> expected(kQuorum, Try<std::size_t>(0U));

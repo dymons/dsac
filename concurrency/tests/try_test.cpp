@@ -9,7 +9,7 @@ TEST_CASE("Проверка корректности примитива Try", "[
     Try<int> try_value{10};
     REQUIRE(try_value.HasValue());
     REQUIRE_FALSE(try_value.HasException());
-    REQUIRE(try_value.Get() == 10);
+    REQUIRE(try_value.ValueOrThrow() == 10);
   }
 
   SECTION("Проверка корректности хранения исключений в примитиве Try") {

@@ -15,7 +15,7 @@ TEST_CASE("Проверка корректности Future&Promise", "[future_a
     promise.Set(10);
     Try<int> value = std::move(future).Get();
     REQUIRE(value.HasValue());
-    REQUIRE(value.Get() == 10);
+    REQUIRE(value.ValueOrThrow() == 10);
   }
   SECTION("Выполнение Future&Promise в разных потоках исполнения") {
     constexpr std::size_t kNumberWorkers = 2U;
@@ -31,7 +31,7 @@ TEST_CASE("Проверка корректности Future&Promise", "[future_a
 
     Try<int> value = std::move(future).Get();
     REQUIRE(value.HasValue());
-    REQUIRE(value.Get() == 10);
+    REQUIRE(value.ValueOrThrow() == 10);
 
     executor->Join();
   }
@@ -43,7 +43,7 @@ TEST_CASE("Проверка корректности Future&Promise", "[future_a
         promise.MakeFuture().Subscribe([main_thread_id](Try<int> result) {
           REQUIRE(std::this_thread::get_id() == main_thread_id);
           REQUIRE(result.HasValue());
-          REQUIRE(result.Get() == 10);
+          REQUIRE(result.ValueOrThrow() == 10);
         });
 
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
@@ -51,7 +51,7 @@ TEST_CASE("Проверка корректности Future&Promise", "[future_a
 
     Try<int> result = std::move(future).Get();
     REQUIRE(result.HasValue());
-    REQUIRE(result.Get() == 10);
+    REQUIRE(result.ValueOrThrow() == 10);
   }
   SECTION("Подписка на результат Future и выполнение Callback в потоке Worker") {
     constexpr std::size_t kNumberWorkers = 2U;
@@ -64,7 +64,7 @@ TEST_CASE("Проверка корректности Future&Promise", "[future_a
         promise.MakeFuture().Via(executor).Subscribe([main_thread_id](Try<int> result) {
           REQUIRE_FALSE(std::this_thread::get_id() == main_thread_id);
           REQUIRE(result.HasValue());
-          REQUIRE(result.Get() == 10);
+          REQUIRE(result.ValueOrThrow() == 10);
         });
 
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
@@ -72,24 +72,24 @@ TEST_CASE("Проверка корректности Future&Promise", "[future_a
 
     Try<int> result = std::move(future).Get();
     REQUIRE(result.HasValue());
-    REQUIRE(result.Get() == 10);
+    REQUIRE(result.ValueOrThrow() == 10);
 
     executor->Join();
   }
   SECTION("Выполнение последовательности цепочек через функцию Then") {
     const auto add_10 = [](Try<int> result) {
       REQUIRE(result.HasValue());
-      return result.Get() + 10;
+      return result.ValueOrThrow() + 10;
     };
 
     const auto mul_2 = [](Try<int> result) {
       REQUIRE(result.HasValue());
-      return result.Get() * 2;
+      return result.ValueOrThrow() * 2;
     };
 
     const auto sub_5 = [](Try<int> result) {
       REQUIRE(result.HasValue());
-      return result.Get() - 5;
+      return result.ValueOrThrow() - 5;
     };
 
     Promise<int> promise;
@@ -99,7 +99,7 @@ TEST_CASE("Проверка корректности Future&Promise", "[future_a
 
     Try<int> result = std::move(future).Get();
     REQUIRE(result.HasValue());
-    REQUIRE(result.Get() == 35);
+    REQUIRE(result.ValueOrThrow() == 35);
   }
   SECTION("Выполнение последовательности цепочек в потоке Worker") {
     constexpr std::size_t kNumberWorkers = 2U;
@@ -112,16 +112,16 @@ TEST_CASE("Проверка корректности Future&Promise", "[future_a
         .Via(executor)
         .Then([main_thread_id](Try<int> result) {
           REQUIRE_FALSE(std::this_thread::get_id() == main_thread_id);
-          return result.Get() + 10;
+          return result.ValueOrThrow() + 10;
         })
         .Then([main_thread_id](Try<int> result) {
           REQUIRE_FALSE(std::this_thread::get_id() == main_thread_id);
-          return result.Get() * 10;
+          return result.ValueOrThrow() * 10;
         })
         .Then([main_thread_id](Try<int> result) {
           REQUIRE_FALSE(std::this_thread::get_id() == main_thread_id);
           REQUIRE(result.HasValue());
-          REQUIRE(result.Get() == 200);
+          REQUIRE(result.ValueOrThrow() == 200);
           return 0;
         });
 

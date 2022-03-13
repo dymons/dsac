@@ -15,7 +15,7 @@ class Try {
   explicit Try(std::exception_ptr&& exception) : store_(std::move(exception)) {
   }
 
-  const T& Get() const {
+  const T& ValueOrThrow() const {
     if (HasException()) {
       std::rethrow_exception(std::get<std::exception_ptr>(store_));
     }
@@ -34,6 +34,6 @@ class Try {
 
 template <typename T>
 bool operator==(const Try<T>& p, const Try<T>& b) {
-  return (p.HasValue() && b.HasValue()) && (p.Get() == b.Get());
+  return (p.HasValue() && b.HasValue()) && (p.ValueOrThrow() == b.ValueOrThrow());
 }
 }  // namespace algo::futures
