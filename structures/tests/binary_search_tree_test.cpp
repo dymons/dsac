@@ -69,7 +69,7 @@ TEST_CASE("Добавление элеметнов в бинарное дере�
       REQUIRE(data == value++);
     }
   }
-  SECTION("Проверка итерирования по сбалансированному дереву") {
+  SECTION("Проверка итерирования с помощью range-based for") {
     BinarySearchTree<int> tree;
 
     tree.Insert(2);
@@ -80,6 +80,32 @@ TEST_CASE("Добавление элеметнов в бинарное дере�
     for (auto data : tree) {
       REQUIRE(data == value++);
     }
+  }
+
+  SECTION("Вставка rvalue значени") {
+    struct CopyObject {
+      std::shared_ptr<int> counter_copy;
+      CopyObject(std::shared_ptr<int> counter_copy)
+          : counter_copy(std::move(counter_copy)) {
+      }
+      CopyObject(CopyObject const& other) : counter_copy(other.counter_copy) {
+        ++(*counter_copy);
+      }
+      CopyObject& operator=(CopyObject const& other) {
+        counter_copy = other.counter_copy;
+        ++(*counter_copy);
+        return *this;
+      }
+      bool operator<(CopyObject const&) const noexcept {
+        return true;
+      }
+    };
+
+    BinarySearchTree<CopyObject, std::less<CopyObject>> tree;
+
+    auto counter(std::make_shared<int>());
+    tree.Insert({counter});
+    REQUIRE(*counter == 1);
   }
 }
 

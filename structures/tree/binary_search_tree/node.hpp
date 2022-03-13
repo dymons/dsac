@@ -15,9 +15,10 @@ class BinarySearchTreeNode final {
     using const_pointer = typename std::pointer_traits<VoidPointer>::template rebind<const BinarySearchTreeNode>;
   // clang-format on
 
-  explicit BinarySearchTreeNode(key_type&& key, pointer left = nullptr,
-                                pointer right = nullptr, pointer parent = nullptr)
-      : key_(std::forward<Key>(key)), left_(left), right_(right), parent_(parent) {
+  template <typename T>
+  explicit BinarySearchTreeNode(T&& key, pointer left = nullptr, pointer right = nullptr,
+                                pointer parent = nullptr)
+      : key_(std::forward<T>(key)), left_(left), right_(right), parent_(parent) {
   }
 
   key_type key_;

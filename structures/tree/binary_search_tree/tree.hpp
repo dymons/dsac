@@ -71,6 +71,10 @@ class BinarySearchTree final {
     return const_iterator::MakeInvalid();
   }
 
+  std::pair<iterator, bool> Insert(value_type&& value) {
+    return InsertUnique(std::move(value));
+  }
+
   std::pair<iterator, bool> Insert(value_type const& value) {
     return InsertUnique(value);
   }
@@ -109,11 +113,11 @@ class BinarySearchTree final {
     return const_iterator(const_cast<node_pointer>(node));
   }
 
-  template <typename T>
-  node_pointer ConstructNode(T value) requires std::is_same_v<T, value_type> {
+  template <typename... Args>
+  node_pointer ConstructNode(Args&&... args) {
     node_pointer new_node = node_traits::allocate(allocator_, 1U);
     try {
-      node_traits::construct(allocator_, new_node, std::move(value));
+      node_traits::construct(allocator_, new_node, std::forward<Args>(args)...);
     } catch (...) {
       node_traits::deallocate(allocator_, new_node, 1U);
       throw;
@@ -127,8 +131,15 @@ class BinarySearchTree final {
     node = nullptr;
   }
 
+  std::pair<iterator, bool> InsertUnique(value_type&& value) {
+    return InsertUniqueNode(ConstructNode(std::move(value)));
+  }
+
   std::pair<iterator, bool> InsertUnique(value_type const& value) {
-    node_pointer inserted_node = ConstructNode(value);
+    return InsertUniqueNode(ConstructNode(value));
+  }
+
+  std::pair<iterator, bool> InsertUniqueNode(node_pointer inserted_node) {
     if (root_ == nullptr) {
       root_ = inserted_node;
       size_++;
