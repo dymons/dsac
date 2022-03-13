@@ -112,7 +112,12 @@ class BinarySearchTree final {
   template <typename T>
   node_pointer ConstructNode(T value) requires std::is_same_v<T, value_type> {
     node_pointer new_node = node_traits::allocate(allocator_, 1U);
-    node_traits::construct(allocator_, new_node, std::move(value));
+    try {
+      node_traits::construct(allocator_, new_node, std::move(value));
+    } catch (...) {
+      node_traits::deallocate(allocator_, new_node, 1U);
+      throw;
+    }
     return new_node;
   }
 
