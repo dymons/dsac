@@ -30,7 +30,7 @@ Avito, Parallels, VK, Sber. Список тем был сформирован д
     - Двусвязный список (Linked List)
     - Односвязный список (Forward Linked List)
     - Графы (Graphs)
-    - Бинарное дерево поиска (Binary Shortest Three)
+    - Бинарное дерево поиска ([Binary Shortest Three](https://github.com/dymons/cpp-prepare/blob/master/structures/tree/binary_search_tree/tree.hpp))
     - Красно-черное дерево ([Red-black tree](https://github.com/dymons/interviews/blob/master/structures/tree/rb_tree.hpp))
     - АВЛ-дерево ([AVL-Tree](https://github.com/dymons/interviews/blob/master/structures/tree/avl_tree.hpp))
     - Декартовы деревья / Treap / Дуча / Дерамида (Cartesian Tree)
@@ -82,7 +82,7 @@ Avito, Parallels, VK, Sber. Список тем был сформирован д
         3. Поведенческие паттерны проектирования
 10. Методы обработки TCP соединений
     - Использование системных вызовов Linux для обработки TCP соединений
-        1. select ([Source](https://github.com/dymons/interviews/blob/master/network/server_select.cpp))
+        1. select ([Source](https://github.com/dymons/cpp-prepare/blob/master/network/linux/server_select.cpp))
         2. poll
         3. epoll
     - Использование библиотеки Boost.Asio для обработки TCP соединений
