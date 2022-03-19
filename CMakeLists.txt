@@ -12,3 +12,5 @@ project(${PACKAGE_NAME} CXX C ASM)
 
 include(cmake/CheckCompiler.cmake)
 include(cmake/CompileOptions.cmake)
+
+add_subdirectory(dsac)
