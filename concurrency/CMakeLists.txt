@@ -8,14 +8,18 @@ file(GLOB_RECURSE PACKAGE_HEADERS
      ${PACKAGE_PATH}/futures/*.hpp
      ${PACKAGE_PATH}/support/*.hpp
      ${PACKAGE_PATH}/syncing/*.hpp
-     ${PACKAGE_PATH}/utility/*.hpp)
+     ${PACKAGE_PATH}/utility/*.hpp
+     ${PACKAGE_PATH}/coroutines/*.hpp
+     ${PACKAGE_PATH}/coroutines/futures/*.hpp)
 
 file(GLOB_RECURSE PACKAGE_CXX_SOURCES
      ${PACKAGE_PATH}/executors/*.cpp
      ${PACKAGE_PATH}/futures/*.cpp
      ${PACKAGE_PATH}/support/*.cpp
      ${PACKAGE_PATH}/syncing/*.cpp
-     ${PACKAGE_PATH}/utility/*.cpp)
+     ${PACKAGE_PATH}/utility/*.cpp
+     ${PACKAGE_PATH}/coroutines/*.cpp
+     ${PACKAGE_PATH}/coroutines/futures/*.cpp)
 
 add_library(concurrency STATIC ${PACKAGE_CXX_SOURCES} ${PACKAGE_HEADERS})
 target_include_directories(concurrency PUBLIC ${PACKAGE_INCLUDE_PATH})
