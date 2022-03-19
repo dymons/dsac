@@ -2,7 +2,7 @@
 
 #include <concurrency/futures/future.hpp>
 #include <concurrency/futures/promise.hpp>
-#include <concurrency/futures/combine/first_of.hpp>
+#include <concurrency/futures/async_via.hpp>
 #include <concurrency/executors/static_thread_pool.hpp>
 
 #include <optional>
@@ -10,21 +10,6 @@
 
 using namespace algo::futures;
 using namespace algo::concurrency;
-
-template <typename F>
-auto AsyncVia(IExecutorPtr executor, F routine) {
-  using ReturnType = typename std::result_of<F()>::type;
-
-  Promise<ReturnType> promise;
-  Future<ReturnType> future = promise.MakeFuture().Via(executor);
-  executor->Submit([promise = std::move(promise), routine]() mutable {
-    promise.Set(routine());
-  });
-
-  return future;
-}
-
-//////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename T>
 struct CoroutinePromise {
