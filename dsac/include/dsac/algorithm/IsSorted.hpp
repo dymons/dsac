@@ -21,21 +21,7 @@ namespace dsac {
  * \ingroup DsacAlgorithms
  */
 template <typename ForwardIterator, typename BinaryPredicate>
-bool is_sorted(ForwardIterator begin, ForwardIterator end, BinaryPredicate predicate)
-{
-  if (begin == end) {
-    return true;
-  }
-
-  ForwardIterator next = begin;
-  for (++next; next != end; begin = next, (void)++next) {
-    if (predicate(*next, *begin)) {
-      return false;
-    }
-  }
-
-  return true;
-}
+bool is_sorted(ForwardIterator begin, ForwardIterator end, BinaryPredicate predicate);
 
 /**
  * \brief   Check whether adjacent elements in the range satisfy the condition \c predicate.
@@ -51,11 +37,7 @@ bool is_sorted(ForwardIterator begin, ForwardIterator end, BinaryPredicate predi
  * \ingroup DsacAlgorithms
  */
 template <typename ForwardIterator>
-[[gnu::always_inline]] inline bool is_sorted(ForwardIterator begin, ForwardIterator end)
-{
-  using value_type = typename dsac::iterator_traits<ForwardIterator>::value_type;
-  return ::dsac::is_sorted(begin, end, dsac::less<value_type>{});
-}
+[[gnu::always_inline]] inline bool is_sorted(ForwardIterator begin, ForwardIterator end);
 
 /**
  * \brief   Check whether adjacent elements in the range satisfy the condition \c predicate.
@@ -71,10 +53,7 @@ template <typename ForwardIterator>
  * \ingroup DsacAlgorithms
  */
 template <typename Range, typename BinaryPredicate>
-[[gnu::always_inline]] inline bool is_sorted(Range const& range, BinaryPredicate predicate)
-{
-  return ::dsac::is_sorted(dsac::begin(range), dsac::end(range), predicate);
-}
+[[gnu::always_inline]] inline bool is_sorted(Range const& range, BinaryPredicate predicate);
 
 /**
  * \brief   Check whether adjacent elements in the range satisfy the condition \c predicate.
@@ -89,11 +68,10 @@ template <typename Range, typename BinaryPredicate>
  * \ingroup DsacAlgorithms
  */
 template <typename Range>
-[[gnu::always_inline]] inline bool is_sorted(Range const& range)
-{
-  using iterator_type = typename dsac::container_traits<Range>::iterator_type;
-  using value_type    = typename dsac::iterator_traits<iterator_type>::value_type;
-  return ::dsac::is_sorted(dsac::begin(range), dsac::end(range), dsac::less<value_type>{});
-}
+[[gnu::always_inline]] inline bool is_sorted(Range const& range);
 
 }  // namespace dsac
+
+#define ALGORITHM_IS_SORTED_HPP_
+#include <dsac/algorithm/internal/IsSorted-inl.hpp>
+#undef ALGORITHM_IS_SORTED_HPP_
