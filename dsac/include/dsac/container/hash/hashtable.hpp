@@ -3,7 +3,7 @@
 #include "../../../../../../../../../../usr/include/c++/11/vector"
 #include "../../../../../../../../../../usr/include/c++/11/stdexcept"
 
-namespace algo::hashtable {
+namespace dsac::hashtable {
 template <typename Key, typename Value, typename Hash = std::hash<Key>>
 class HashTable final {
   class Node final {
@@ -176,4 +176,4 @@ class HashTable final {
     }
   }
 };
-}  // namespace algo::hash
+}  // namespace dsac::hash

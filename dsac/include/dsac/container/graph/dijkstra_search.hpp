@@ -3,7 +3,7 @@
 #include "directed_graph.hpp"
 #include <queue>
 
-namespace algo::graph::dijkstra {
+namespace dsac::graph::dijkstra {
 /// \brief      Алгоритм поиска реализован для ориентированного-невзвешенного
 ///             графа
 using Graph = Digraph;
@@ -14,4 +14,4 @@ using Path = std::deque<Node>;
 
 /// \brief      Поиск короткого маршрута движения
 [[nodiscard]] Path ShortestPath(Graph& graph, const Node from, const Node to);
-}  // namespace algo::graph::dijkstra
+}  // namespace dsac::graph::dijkstra

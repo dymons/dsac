@@ -2,7 +2,7 @@
 
 #include <vector>
 
-namespace algo::sort {
+namespace dsac::sort {
 template <typename T>
 void ShellSort(std::vector<T>& arr) {
   for (int d = arr.size() / 2; d > 0; d /= 2) {
@@ -15,4 +15,4 @@ void ShellSort(std::vector<T>& arr) {
     }
   }
 }
-}  // namespace algo::sort
+}  // namespace dsac::sort

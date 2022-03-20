@@ -1,10 +1,10 @@
-#include "../../../include/dsa/container/graph/depth_first_search.hpp"
+#include <dsac/container/graph/depth_first_search.hpp>
 
 #include <stack>
 #include <unordered_set>
 #include <unordered_map>
 
-namespace algo::graph::dfs {
+namespace dsac::graph::dfs {
 bool IsPathExist(Graph& graph, const Node from, const Node to) {
   std::stack<Node> processing;
   processing.push(from);
@@ -62,4 +62,4 @@ Path ShortestPath(Graph& graph, const Node from, const Node to) {
 
   return path.front() == from ? path : (path.clear(), path);
 }
-}  // namespace algo::graph::dfs
+}  // namespace dsac::graph::dfs

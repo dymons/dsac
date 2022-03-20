@@ -10,7 +10,7 @@
 // TODO: Не эффективная реализация SharedState, посмотреть и изучить реализацию из
 //       библиотеки folly, основанную на использовании FSM
 
-namespace algo::futures {
+namespace dsac::futures {
 template <typename T>
 class SharedState {
   template <typename U>
@@ -133,4 +133,4 @@ class HoldState : public detail::NonCopyable {
  protected:
   StateRef<T> state_;
 };
-}  // namespace algo::futures
+}  // namespace dsac::futures

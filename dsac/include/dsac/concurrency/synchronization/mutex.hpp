@@ -2,7 +2,7 @@
 
 #include <atomic>
 
-namespace algo::syncing {
+namespace dsac::syncing {
 class Mutex final {
   std::atomic_int state_ = 0;
 
@@ -31,4 +31,4 @@ class UniqueLock final {
   Mutex* mutex_ = nullptr;
   bool owned_ = false;
 };
-}  // namespace algo::synchronization
+}  // namespace dsac::synchronization

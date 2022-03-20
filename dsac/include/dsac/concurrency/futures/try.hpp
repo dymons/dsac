@@ -3,7 +3,7 @@
 #include <variant>
 #include <exception>
 
-namespace algo::futures {
+namespace dsac::futures {
 template <typename T>
 class Try {
   std::variant<T, std::exception_ptr> store_;
@@ -36,4 +36,4 @@ template <typename T>
 bool operator==(const Try<T>& p, const Try<T>& b) {
   return (p.HasValue() && b.HasValue()) && (p.ValueOrThrow() == b.ValueOrThrow());
 }
-}  // namespace algo::futures
+}  // namespace dsac::futures

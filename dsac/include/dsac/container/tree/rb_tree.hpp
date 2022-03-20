@@ -2,7 +2,7 @@
 
 #include "../../../../../../../../../../usr/include/c++/11/functional"
 
-namespace algo::tree {
+namespace dsac::tree {
 template <typename T>
 class RBTree final {
  public:
@@ -52,7 +52,7 @@ class RBTree final {
   [[nodiscard]] bool Contains(T key) const;
   void Visit(Visitor visitor) const;
 };
-}  // namespace algo::tree
+}  // namespace dsac::tree
 
 #define STRUCTURES_RB_TREE_H_
 #include "rb_tree-inl.hpp"

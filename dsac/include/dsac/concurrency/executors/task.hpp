@@ -1,7 +1,7 @@
 #pragma once
 
-#include <concurrency/utility/function2.hpp>
+#include <dsac/util/function2.hpp>
 
-namespace algo::concurrency {
+namespace dsac::concurrency {
 using Task = fu2::unique_function<void()>;
-}  // namespace algo::concurrency
+}  // namespace dsac::concurrency

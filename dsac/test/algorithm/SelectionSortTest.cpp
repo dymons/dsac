@@ -2,7 +2,7 @@
 #include <vector>
 #include <algorithm>
 
-#include "../../include/dsa/concurrency/algorithm/selection_sort.hpp"
+#include <dsac/algorithm/SelectionSort.hpp>
 
 TEST_CASE("Сортировка c использованием алгоритма сортировки выбором",
           "[selection_sort]") {
@@ -20,7 +20,7 @@ TEST_CASE("Сортировка c использованием алгоритм�
   // clang-format on
 
   for (Testcase& testcase : testcases) {
-    algo::sort::SelectionSort(testcase);
+    dsac::sort::SelectionSort(testcase);
     REQUIRE(std::is_sorted(testcase.begin(), testcase.end()));
   }
 }

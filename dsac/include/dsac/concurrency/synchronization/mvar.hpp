@@ -1,13 +1,13 @@
 #pragma once
 
-#include <concurrency/support/noncopyable.hpp>
-#include <concurrency/support/nonmovable.hpp>
+#include <dsac/util/noncopyable.hpp>
+#include <dsac/util/nonmovable.hpp>
 
 #include <optional>
 #include <mutex>
 #include <condition_variable>
 
-namespace algo::syncing {
+namespace dsac::syncing {
 template <typename T>
 class MVar : public detail::NonCopyable, public detail::NonMovable {
   std::optional<T> storage_;
@@ -109,4 +109,4 @@ class MVar<void> : public detail::NonCopyable, public detail::NonMovable {
     });
   }
 };
-}  // namespace algo::synchronization
+}  // namespace dsac::synchronization

@@ -3,7 +3,7 @@
 #include <concurrency/futures/future.hpp>
 #include <concurrency/futures/state.hpp>
 
-namespace algo::futures {
+namespace dsac::futures {
 
 class PromiseException : public std::logic_error {
  public:
@@ -60,4 +60,4 @@ class Promise : public HoldState<T> {
 
   bool future_extracted_{false};
 };
-}  // namespace algo::futures
+}  // namespace dsac::futures

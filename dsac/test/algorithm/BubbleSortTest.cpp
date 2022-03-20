@@ -2,12 +2,10 @@
 #include <vector>
 #include <algorithm>
 
-#include "../../include/dsa/concurrency/algorithm/binary_tree_sort.hpp"
+#include <dsac/algorithm/BubbleSort.hpp>
 
-TEST_CASE(
-    "Сортировка c использованием алгоритма сортировки с помощью двоичного "
-    "дерева",
-    "[binary_tree_sort]") {
+TEST_CASE("Сортировка c использованием алгоритма сортировки пузырьком",
+          "[bubble_sort]") {
   using Testcase = std::vector<int>;
   using Testcases = std::vector<Testcase>;
 
@@ -22,7 +20,7 @@ TEST_CASE(
   // clang-format on
 
   for (Testcase& testcase : testcases) {
-    algo::sort::BinaryTreeSort(testcase);
+    dsac::sort::BubbleSort(testcase);
     REQUIRE(std::is_sorted(testcase.begin(), testcase.end()));
   }
 }

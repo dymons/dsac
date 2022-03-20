@@ -1,7 +1,7 @@
 #pragma once
 
 #include <vector>
-namespace algo::sort {
+namespace dsac::sort {
 template <typename T>
 void SelectionSort(std::vector<T>& arr) {
   for (int i = 0; i < arr.size(); ++i) {
@@ -14,4 +14,4 @@ void SelectionSort(std::vector<T>& arr) {
     std::swap(arr[i], arr[min]);
   }
 }
-}  // namespace algo::sort
+}  // namespace dsac::sort

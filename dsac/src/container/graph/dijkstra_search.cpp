@@ -1,10 +1,10 @@
-#include "../../../include/dsa/container/graph/dijkstra_search.hpp"
+#include <dsac/container/graph/dijkstra_search.hpp>
 
 #include <unordered_set>
 #include <unordered_map>
 #include <limits>
 
-namespace algo::graph::dijkstra {
+namespace dsac::graph::dijkstra {
 namespace detail {
 using Distance = int;
 
@@ -109,4 +109,4 @@ Path ShortestPath(Graph& graph, const Node from, const Node to) {
 
   return path.front() == from ? path : (path.clear(), path);
 }
-}  // namespace algo::graph::dijkstra
+}  // namespace dsac::graph::dijkstra

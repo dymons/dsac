@@ -4,7 +4,7 @@
 #include <mutex>
 #include <condition_variable>
 
-namespace algo::syncing {
+namespace dsac::syncing {
 class Semaphore final {
  public:
   explicit Semaphore(std::size_t);
@@ -17,4 +17,4 @@ class Semaphore final {
   std::mutex mutex_;
   std::condition_variable not_zero_;
 };
-}  // namespace algo::synchronization
+}  // namespace dsac::synchronization

@@ -2,7 +2,7 @@
 
 #include "../../../../../../../../../../usr/include/c++/11/vector"
 
-namespace algo::tree {
+namespace dsac::tree {
 template <typename T>
 class BTree final {
   class Node final {
@@ -41,7 +41,7 @@ class BTree final {
 
   [[nodiscard]] bool Contains(T key) const;
 };
-}  // namespace algo::tree
+}  // namespace dsac::tree
 
 #define STRUCTURES_B_TREE_H_
 #include "b_tree-inl.hpp"

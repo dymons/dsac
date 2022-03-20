@@ -3,7 +3,7 @@
 #include <chrono>
 
 // see: https://eli.thegreenplace.net/2018/basics-of-futexes/
-namespace algo::syncing {
+namespace dsac::syncing {
 class Futex final {
  public:
   void Waiting(int* address, int expected_value) const;
@@ -13,4 +13,4 @@ class Futex final {
   // EAGAIN вместо ETIMEDOUT
   bool Waiting(int* address, int expected_value, std::chrono::milliseconds timeout) const;
 };
-}  // namespace algo::synchronization
+}  // namespace dsac::synchronization

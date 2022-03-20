@@ -2,7 +2,7 @@
 #error This file may only be included from shared_ptr.hpp
 #endif
 
-namespace algo::pointers {
+namespace dsac::pointers {
 template <typename T>
 void SharedPtr<T>::Destroy() {
   if (counter_ != nullptr) {
@@ -93,4 +93,4 @@ template <typename T>
 T* SharedPtr<T>::operator->() const {
   return data_;
 }
-}  // namespace algo::pointers
+}  // namespace dsac::pointers

@@ -3,7 +3,7 @@
 #include "iterator.hpp"
 #include "node.hpp"
 
-namespace algo::tree {
+namespace dsac::tree {
 
 template <typename BinarySearchTreeNode>
 class BinarySearchTreeIterator final
@@ -427,4 +427,4 @@ template <typename Key, typename Compare = std::less<Key>,
 auto end(BinarySearchTree<Key, Compare, Allocator> const& bst) {  // NOLINT
   return bst.End();
 }
-}  // namespace algo::tree
+}  // namespace dsac::tree

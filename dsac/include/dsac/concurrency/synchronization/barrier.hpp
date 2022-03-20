@@ -2,7 +2,7 @@
 
 #include <memory>
 
-namespace algo::syncing {
+namespace dsac::syncing {
 class Barrier final {
  public:
   explicit Barrier(std::size_t size_awaited_threads);
@@ -17,4 +17,4 @@ class Barrier final {
   class Pimpl;
   std::shared_ptr<Pimpl> pimpl_;
 };
-}  // namespace algo::synchronization
+}  // namespace dsac::synchronization

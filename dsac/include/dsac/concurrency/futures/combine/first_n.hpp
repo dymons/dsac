@@ -6,7 +6,7 @@
 #include <atomic>
 #include <optional>
 
-namespace algo::futures {
+namespace dsac::futures {
 template <typename T>
 auto FirstN(std::vector<Future<T>>&& futures, std::size_t const n) {
   using Result = std::vector<Try<T>>;
@@ -54,4 +54,4 @@ auto FirstN(std::vector<Future<T>>&& futures, std::size_t const n) {
 
   return ctx->promise.MakeFuture();
 }
-}  // namespace algo::futures
+}  // namespace dsac::futures

@@ -1,4 +1,4 @@
-#include <concurrency/syncing/futex.hpp>
+#include <dsac/concurrency/synchronization/futex.hpp>
 
 #include <errno.h>
 #include <linux/futex.h>
@@ -17,7 +17,7 @@ enum class Status : unsigned char { Ok, Errno };
 }
 }  // namespace
 
-namespace algo::syncing {
+namespace dsac::syncing {
 void Futex::Waiting(int* address, int expected_value) const {
   while (true) {
     Status const status = SysCall(address, FUTEX_WAIT, expected_value);
@@ -62,4 +62,4 @@ void Futex::WakeUp(int* address) const {
     }
   }
 }
-}  // namespace algo::synchronization
+}  // namespace dsac::synchronization

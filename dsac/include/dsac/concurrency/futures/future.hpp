@@ -4,7 +4,7 @@
 #include <concurrency/futures/callback.hpp>
 #include <concurrency/executors/executor.hpp>
 
-namespace algo::futures {
+namespace dsac::futures {
 
 class FutureException : public std::logic_error {
  public:
@@ -101,4 +101,4 @@ class Future : public HoldState<T> {
   explicit Future(StateRef<T> state) : HoldState<T>(std::move(state)) {
   }
 };
-}  // namespace algo::futures
+}  // namespace dsac::futures

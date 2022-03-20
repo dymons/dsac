@@ -2,7 +2,7 @@
 #include <vector>
 #include <algorithm>
 
-#include "../../include/dsa/concurrency/algorithm/shell_sort.hpp"
+#include <dsac/algorithm/ShellSort.hpp>
 
 TEST_CASE("Сортировка c использованием алгоритма сортировки Шелла",
           "[shell_sort]") {
@@ -24,7 +24,7 @@ TEST_CASE("Сортировка c использованием алгоритм�
   // clang-format on
 
   for (Testcase& testcase : testcases) {
-    algo::sort::ShellSort(testcase);
+    dsac::sort::ShellSort(testcase);
     REQUIRE(std::is_sorted(testcase.begin(), testcase.end()));
   }
 }

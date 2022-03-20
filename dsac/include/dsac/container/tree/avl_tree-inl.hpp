@@ -4,7 +4,7 @@
 
 #include "../../../../../../../../../../usr/include/c++/11/cassert"
 
-namespace algo::tree {
+namespace dsac::tree {
 template <typename T>
 AVLTree<T>::Node::Node(T key) : key_(key), left_(nullptr), right_(nullptr), height_(0) {
 }
@@ -252,4 +252,4 @@ template <typename T>
 int AVLTree<T>::Depth() const {
   return root_ == nullptr ? -1 : root_->GetHeight();
 }
-}  // namespace algo::tree
+}  // namespace dsac::tree

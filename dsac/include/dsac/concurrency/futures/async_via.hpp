@@ -4,7 +4,7 @@
 #include <concurrency/futures/promise.hpp>
 #include <concurrency/executors/executor.hpp>
 
-namespace algo::futures {
+namespace dsac::futures {
 template <typename F>
 auto AsyncVia(concurrency::IExecutorPtr executor, F routine) {
   using ReturnType = typename std::result_of<F()>::type;
@@ -18,4 +18,4 @@ auto AsyncVia(concurrency::IExecutorPtr executor, F routine) {
 
   return future;
 }
-}  // namespace algo::futures
+}  // namespace dsac::futures

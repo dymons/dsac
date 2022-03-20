@@ -2,7 +2,7 @@
 
 #include <vector>
 
-namespace algo::sort {
+namespace dsac::sort {
 template <typename T>
 void InsertionSort(std::vector<T>& arr) {
   for (int j = 1; j < arr.size(); ++j) {
@@ -17,4 +17,4 @@ void InsertionSort(std::vector<T>& arr) {
 }
 
 // TODO: Добавить версию сортировки Binary Insertion Sort
-}  // namespace algo::sort
+}  // namespace dsac::sort

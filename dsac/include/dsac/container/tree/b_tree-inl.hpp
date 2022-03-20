@@ -4,7 +4,7 @@
 
 #include "../../../../../../../../../../usr/include/c++/11/cassert"
 
-namespace algo::tree {
+namespace dsac::tree {
 template <typename T>
 BTree<T>::Node::Node(int t) : t_(t) {
 }
@@ -159,4 +159,4 @@ template <typename T>
 bool BTree<T>::Contains(T key) const {
   return root_ != nullptr && root_->Contains(key);
 }
-}  // namespace algo::tree
+}  // namespace dsac::tree

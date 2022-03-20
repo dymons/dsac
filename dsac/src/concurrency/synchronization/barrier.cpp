@@ -1,9 +1,9 @@
-#include <concurrency/syncing/barrier.hpp>
+#include <dsac/concurrency/synchronization/barrier.hpp>
 
 #include <mutex>
 #include <condition_variable>
 
-namespace algo::syncing {
+namespace dsac::syncing {
 class Barrier::Pimpl final {
   std::mutex mutex_;
   std::condition_variable cv_;
@@ -57,4 +57,4 @@ Barrier::Barrier(std::size_t size_awaited_threads)
 void Barrier::ArriveAndWait() {
   pimpl_->ArriveAndWait();
 }
-}  // namespace algo::synchronization
+}  // namespace dsac::syncing

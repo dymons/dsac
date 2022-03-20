@@ -1,6 +1,6 @@
-#include <concurrency/executors/static_thread_pool.hpp>
+#include <dsac/concurrency/executors/static_thread_pool.hpp>
 
-namespace algo::concurrency {
+namespace dsac::concurrency {
 StaticThreadPool::StaticThreadPool(std::size_t workers) {
   StartWorkerThreads(workers);
 }
@@ -40,4 +40,4 @@ void StaticThreadPool::Join() {
   }
   workers_.clear();
 }
-}  // namespace algo::concurrency
+}  // namespace dsac::concurrency

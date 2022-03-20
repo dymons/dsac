@@ -2,7 +2,7 @@
 
 #include <vector>
 
-namespace algo::sort::v1 {
+namespace dsac::sort::v1 {
 namespace detail {
 template <typename T>
 void QuickSortImpl(std::vector<T>& arr, const int low, const int high) {
@@ -36,9 +36,9 @@ template <typename T>
 void QuickSort(std::vector<T>& arr) {
   detail::QuickSortImpl(arr, 0, static_cast<int>(arr.size()) - 1);
 }
-}  // namespace algo::sort::v1
+}  // namespace dsac::sort::v1
 
-namespace algo::sort::v2 {
+namespace dsac::sort::v2 {
 namespace detail {
 template <typename T>
 void QuickSortImpl(std::vector<T>& arr, const int low, const int high) {
@@ -79,4 +79,4 @@ template <typename T>
 void QuickSort(std::vector<T>& arr) {
   detail::QuickSortImpl(arr, 0, static_cast<int>(arr.size()) - 1);
 }
-}  // namespace algo::sort::v2
+}  // namespace dsac::sort::v2

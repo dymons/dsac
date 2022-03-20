@@ -1,6 +1,6 @@
-#include <concurrency/syncing/semaphore.hpp>
+#include <dsac/concurrency/synchronization/semaphore.hpp>
 
-namespace algo::syncing {
+namespace dsac::syncing {
 Semaphore::Semaphore(std::size_t consumers) : tokens_(consumers) {
 }
 
@@ -16,4 +16,4 @@ void Semaphore::Release() {
   ++tokens_;
   not_zero_.notify_one();
 }
-}  // namespace algo::synchronization
+}  // namespace dsac::synchronization

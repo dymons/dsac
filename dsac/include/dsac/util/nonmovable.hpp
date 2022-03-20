@@ -1,6 +1,6 @@
 #pragma once
 
-namespace algo::detail {
+namespace dsac::detail {
 class NonMovable {
  public:
   NonMovable() = default;
@@ -9,4 +9,4 @@ class NonMovable {
   NonMovable(NonMovable&&) = delete;
   NonMovable& operator=(NonMovable&&) = delete;
 };
-}  // namespace algo::detail
+}  // namespace dsac::detail

@@ -4,25 +4,25 @@
 #include <unordered_map>
 #include <functional>
 
-namespace algo::graph {
+namespace dsac::graph {
 struct Node final {
   int id{};
   [[gnu::always_inline]] bool operator==(const Node other) const noexcept {
     return id == other.id;
   }
 };
-}  // namespace algo::graph
+}  // namespace dsac::graph
 
 namespace std {
 template <>
-struct hash<algo::graph::Node> {
-  [[gnu::always_inline]] std::size_t operator()(algo::graph::Node node) const noexcept {
+struct hash<dsac::graph::Node> {
+  [[gnu::always_inline]] std::size_t operator()(dsac::graph::Node node) const noexcept {
     return node.id;
   }
 };
 }  // namespace std
 
-namespace algo::graph {
+namespace dsac::graph {
 class Digraph final {
  public:
   using Successors = std::vector<Node>;
@@ -46,4 +46,4 @@ class Digraph final {
  private:
   AdjacencyList graph_;
 };
-}  // namespace algo::graph
+}  // namespace dsac::graph

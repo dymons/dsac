@@ -2,7 +2,7 @@
 #include <vector>
 #include <algorithm>
 
-#include "../../include/dsa/concurrency/algorithm/shaker_sort.hpp"
+#include <dsac/algorithm/ShakerSort.hpp>
 
 TEST_CASE("Сортировка c использованием алгоритма сортировки перемешиванием",
           "[shaker_sort]") {
@@ -21,14 +21,14 @@ TEST_CASE("Сортировка c использованием алгоритм�
 
   SECTION("Наивная реализация алгоритма Shaker Sort") {
     for (Testcase& testcase : testcases) {
-      algo::sort::v1::ShakerSort(testcase);
+      dsac::sort::v1::ShakerSort(testcase);
       REQUIRE(std::is_sorted(testcase.begin(), testcase.end()));
     }
   }
 
   SECTION("Оптимизированная версия алгоритма Shaker Sort") {
     for (Testcase& testcase : testcases) {
-      algo::sort::v2::ShakerSort(testcase);
+      dsac::sort::v2::ShakerSort(testcase);
       REQUIRE(std::is_sorted(testcase.begin(), testcase.end()));
     }
   }

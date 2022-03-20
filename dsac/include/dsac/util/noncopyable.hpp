@@ -1,6 +1,6 @@
 #pragma once
 
-namespace algo::detail {
+namespace dsac::detail {
 class NonCopyable {
  public:
   NonCopyable() = default;
@@ -9,4 +9,4 @@ class NonCopyable {
   NonCopyable(NonCopyable&&) = default;
   NonCopyable& operator=(NonCopyable&&) = default;
 };
-}  // namespace algo::detail
+}  // namespace dsac::detail

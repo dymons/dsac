@@ -2,7 +2,7 @@
 
 #include <vector>
 
-namespace algo::sort {
+namespace dsac::sort {
 namespace detail {
 template <typename T>
 void Merge(std::vector<T>& arr, const int low, const int mid, const int high) {
@@ -72,4 +72,4 @@ void MergeSort(std::vector<T>& arr) {
   //                          массива и сохраняться отсортированные значения In Place
   detail::MergeSortTopDownImpl(arr, 0, static_cast<int>(arr.size()) - 1);
 }
-}  // namespace algo::sort
+}  // namespace dsac::sort

@@ -2,7 +2,7 @@
 #error This file may only be included from rb_tree.hpp
 #endif
 
-namespace algo::tree {
+namespace dsac::tree {
 template <typename T>
 int RBTree<T>::Node::MaxDepth() const {
   const int max_left = left == nullptr ? 0 : left->MaxDepth();
@@ -222,4 +222,4 @@ template <typename T>
 bool RBTree<T>::Contains(T key) const {
   return root_ && root_->Contains(key);
 }
-}  // namespace algo::tree
+}  // namespace dsac::tree

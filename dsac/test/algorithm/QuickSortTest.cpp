@@ -2,7 +2,7 @@
 #include <vector>
 #include <algorithm>
 
-#include "../../include/dsa/concurrency/algorithm/quick_sort.hpp"
+#include <dsac/algorithm/QuickSort.hpp>
 
 TEST_CASE("Сортировка c использованием алгоритма быстрой сортировки",
           "[quick_sort]") {
@@ -25,13 +25,13 @@ TEST_CASE("Сортировка c использованием алгоритм�
 
   SECTION("Quick Sort, в качестве pivot выбираем значение по середине") {
     for (Testcase& testcase : testcases) {
-      algo::sort::v1::QuickSort(testcase);
+      dsac::sort::v1::QuickSort(testcase);
       REQUIRE(std::is_sorted(testcase.begin(), testcase.end()));
     }
   }
   SECTION("Quick Sort, в качестве pivot выбираем крайнее правое значение") {
     for (Testcase& testcase : testcases) {
-      algo::sort::v2::QuickSort(testcase);
+      dsac::sort::v2::QuickSort(testcase);
       REQUIRE(std::is_sorted(testcase.begin(), testcase.end()));
     }
   }

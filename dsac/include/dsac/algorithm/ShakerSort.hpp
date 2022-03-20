@@ -2,7 +2,7 @@
 
 #include <vector>
 
-namespace algo::sort::v1 {
+namespace dsac::sort::v1 {
 template <typename T>
 void ShakerSort(std::vector<T>& arr) {
   int left = 0;
@@ -23,9 +23,9 @@ void ShakerSort(std::vector<T>& arr) {
     ++left;
   } while (left < right);
 }
-}  // namespace algo::sort::v1
+}  // namespace dsac::sort::v1
 
-namespace algo::sort::v2 {
+namespace dsac::sort::v2 {
 template <typename T>
 void ShakerSort(std::vector<T>& arr) {
   int left = 0;
@@ -49,4 +49,4 @@ void ShakerSort(std::vector<T>& arr) {
     left = latest_swap;
   } while (left < right);
 }
-}  // namespace algo::sort::v2
+}  // namespace dsac::sort::v2

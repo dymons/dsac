@@ -2,7 +2,7 @@
 #include <vector>
 #include <algorithm>
 
-#include "../../include/dsa/concurrency/algorithm/insertion_sort.hpp"
+#include <dsac/algorithm/InsertionSort.hpp>
 
 TEST_CASE("Сортировка c использованием алгоритма сортировки вставкой",
           "[insertion_sort]") {
@@ -11,7 +11,7 @@ TEST_CASE("Сортировка c использованием алгоритм�
 
   Testcases testcases{{1, 2, 3, 4, 5}, {}, {10, 9, 8, 7, 6}};
   for (Testcase& testcase : testcases) {
-    algo::sort::InsertionSort(testcase);
+    dsac::sort::InsertionSort(testcase);
     REQUIRE(std::is_sorted(testcase.begin(), testcase.end()));
   }
 }

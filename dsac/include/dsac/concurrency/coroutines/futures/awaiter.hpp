@@ -6,7 +6,7 @@
 #include <optional>
 #include <coroutine>
 
-namespace algo::coroutines {
+namespace dsac::coroutines {
 template <typename T>
 class FutureAwaiter {
  public:
@@ -34,9 +34,9 @@ class FutureAwaiter {
   futures::Future<T> future_;
   std::optional<futures::Try<T>> result_;
 };
-}  // namespace algo::coroutines
+}  // namespace dsac::coroutines
 
 template <typename T>
-auto operator co_await(algo::futures::Future<T>&& future) {
-  return algo::coroutines::FutureAwaiter<T>(std::move(future));
+auto operator co_await(dsac::futures::Future<T>&& future) {
+  return dsac::coroutines::FutureAwaiter<T>(std::move(future));
 }

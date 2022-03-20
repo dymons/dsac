@@ -1,12 +1,12 @@
 #pragma once
 
-#include <concurrency/executors/executor.hpp>
-#include <concurrency/executors/task.hpp>
-#include <concurrency/executors/blocking_queue.hpp>
+#include <dsac/concurrency/executors/executor.hpp>
+#include <dsac/concurrency/executors/task.hpp>
+#include <dsac/concurrency/executors/blocking_queue.hpp>
 #include <vector>
 #include <thread>
 
-namespace algo::concurrency {
+namespace dsac::concurrency {
 class StaticThreadPool final : public IExecutor {
  public:
   static IExecutorPtr Make(std::size_t workers);
@@ -29,4 +29,4 @@ class StaticThreadPool final : public IExecutor {
   std::vector<std::thread> workers_;
   UnboundedBlockingMPMCQueue<Task> tasks_;
 };
-}  // namespace algo::concurrency
+}  // namespace dsac::concurrency

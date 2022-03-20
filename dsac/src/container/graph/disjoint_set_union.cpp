@@ -1,9 +1,9 @@
-#include "../../../include/dsa/container/graph/disjoint_set_union.hpp"
+#include <dsac/container/graph/disjoint_set_union.hpp>
 
 #include <utility>
 #include <numeric>
 
-namespace algo::graph {
+namespace dsac::graph {
 DisjointSet::DisjointSet(std::size_t size_set) : parent_vertex_(size_set) {
   std::iota(parent_vertex_.begin(), parent_vertex_.end(), 0);
 }
@@ -44,4 +44,4 @@ std::size_t DisjointSet::Find(std::size_t vertex) {
 bool DisjointSet::IsConnected(std::size_t vertex1, std::size_t vertex2) {
   return Find(vertex1) == Find(vertex2);
 }
-}  // namespace algo::graph
+}  // namespace dsac::graph

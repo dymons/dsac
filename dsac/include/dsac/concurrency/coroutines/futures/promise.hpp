@@ -5,7 +5,7 @@
 
 #include <coroutine>
 
-namespace algo::coroutines {
+namespace dsac::coroutines {
 template <typename T>
 struct CoroutinePromise {
   futures::Promise<T> promise_;
@@ -36,9 +36,9 @@ struct CoroutinePromise {
   }
 };
 
-}  // namespace algo::coroutines
+}  // namespace dsac::coroutines
 
 template <typename R, typename... Args>
-struct std::coroutine_traits<algo::futures::Future<R>, Args...> {
-  using promise_type = algo::coroutines::CoroutinePromise<R>;
+struct std::coroutine_traits<dsac::futures::Future<R>, Args...> {
+  using promise_type = dsac::coroutines::CoroutinePromise<R>;
 };

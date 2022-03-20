@@ -1,4 +1,4 @@
-#include <concurrency/syncing/mutex.hpp>
+#include <dsac/concurrency/synchronization/mutex.hpp>
 
 #include <linux/futex.h>
 #include <sys/syscall.h>
@@ -20,7 +20,7 @@ long int SysCall(int* address, int futex_op, int val) noexcept {
 }
 }  // namespace
 
-namespace algo::syncing {
+namespace dsac::syncing {
 void Mutex::Lock() {
   if (int c = CompareAndSet(&state_, 0, 1); c != 0) {
     do {
@@ -80,4 +80,4 @@ void UniqueLock::Unlock() {
   mutex_->Unlock();
   owned_ = false;
 }
-}  // namespace algo::synchronization
+}  // namespace dsac::synchronization

@@ -1,9 +1,9 @@
 #pragma once
 
-#include <concurrency/executors/task.hpp>
+#include <dsac/concurrency/executors/task.hpp>
 #include <memory>
 
-namespace algo::concurrency {
+namespace dsac::concurrency {
 class IExecutor {
  public:
   virtual ~IExecutor() = default;
@@ -13,4 +13,4 @@ class IExecutor {
 };
 
 using IExecutorPtr = std::shared_ptr<IExecutor>;
-}  // namespace algo::concurrency
+}  // namespace dsac::concurrency

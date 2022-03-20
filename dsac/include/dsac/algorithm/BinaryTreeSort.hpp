@@ -3,7 +3,7 @@
 #include <vector>
 #include <functional>
 
-namespace algo::sort {
+namespace dsac::sort {
 namespace detail {
 template <typename T>
 class BinaryTree final {
@@ -92,4 +92,4 @@ void BinaryTreeSort(std::vector<T>& arr) {
     i = i + 1;
   });
 }
-}  // namespace algo::sort
+}  // namespace dsac::sort

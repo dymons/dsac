@@ -4,7 +4,7 @@
 
 #include "../../../../../../../../../../usr/include/c++/11/stdexcept"
 
-namespace algo::heap {
+namespace dsac::heap {
 template <typename T, template <typename> class Compare>
 int BinaryHeap<T, Compare>::GetIndexLeftChild(int index) noexcept {
   return 2 * index + 1;
@@ -106,4 +106,4 @@ void BinaryHeap<T, Compare>::Insert(T key) {
   storage_.push_back(key);
   HeapifyUp();
 }
-}  // namespace algo::heap
+}  // namespace dsac::heap

@@ -2,7 +2,7 @@
 
 #include <vector>
 
-namespace algo::sort {
+namespace dsac::sort {
 namespace detail {
 class SortingTree {
  public:
@@ -48,4 +48,4 @@ template <typename T>
 void HeapSort(std::vector<T>& arr) {
   detail::SortingTree::Sort(arr);
 }
-}  // namespace algo::sort
+}  // namespace dsac::sort

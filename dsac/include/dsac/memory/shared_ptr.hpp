@@ -1,6 +1,6 @@
 #pragma once
 
-namespace algo::pointers {
+namespace dsac::pointers {
 template <typename T>
 class SharedPtr final {
  private:
@@ -29,7 +29,7 @@ class SharedPtr final {
 // TODO Реализовать атомарный счетчик
 // TODO Реализовать одно выделение памяти под T и counter в SharedPtr
 
-}  // namespace algo::pointers
+}  // namespace dsac::pointers
 
 #define CPP_SHARED_PTR_H_
 #include "shared_ptr-inl.hpp"

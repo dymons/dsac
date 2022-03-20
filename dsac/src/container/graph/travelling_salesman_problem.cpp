@@ -1,9 +1,9 @@
-#include "../../../include/dsa/container/graph/travelling_salesman_problem.hpp"
+#include <dsac/container/graph/travelling_salesman_problem.hpp>
 
 #include <cmath>
 #include <string>
 
-namespace algo::graph::tsp {
+namespace dsac::graph::tsp {
 /// Вспомогательная функция для преобразования числа из двоичной системы в десятичную
 [[nodiscard]] static int ConvertBinary(int n) {
   int factor = 1;
@@ -145,4 +145,4 @@ TravellingSalesmanResult Solve(CompleteGraph& graph, Node start) {
   result.min_cost = detail::FindMinCost(graph, memo, start, N);
   return result;
 }
-}  // namespace algo::graph::tsp
+}  // namespace dsac::graph::tsp

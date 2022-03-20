@@ -1,10 +1,10 @@
-#include "../../../include/dsa/container/graph/breadth_first_search.hpp"
+#include <dsac/container/graph/breadth_first_search.hpp>
 
 #include <queue>
 #include <unordered_set>
 #include <unordered_map>
 
-namespace algo::graph::bfs {
+namespace dsac::graph::bfs {
 bool IsPathExist(Graph& graph, const Node from, const Node to) {
   std::queue<Node> processing;
   processing.push(from);
@@ -62,4 +62,4 @@ Path ShortestPath(Graph& graph, const Node from, const Node to) {
 
   return path.front() == from ? path : (path.clear(), path);
 }
-}  // namespace algo::graph::bfs
+}  // namespace dsac::graph::bfs

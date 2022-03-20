@@ -2,7 +2,7 @@
 
 #include <vector>
 
-namespace algo::sort {
+namespace dsac::sort {
 template <typename T>
 void BubbleSort(std::vector<T>& arr) {
   for (int j = 0; j < arr.size(); ++j) {
@@ -13,4 +13,4 @@ void BubbleSort(std::vector<T>& arr) {
     }
   }
 }
-}  // namespace algo::sort
+}  // namespace dsac::sort

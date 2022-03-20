@@ -3,7 +3,7 @@
 #include <stdexcept>
 #include <vector>
 
-namespace algo::graph {
+namespace dsac::graph {
 class DisjointSetException : public std::logic_error {
  public:
   using std::logic_error::logic_error;
@@ -51,4 +51,4 @@ class DisjointSet final {
   */
   bool IsConnected(std::size_t vertex1, std::size_t vertex2);
 };
-}  // namespace algo::graph
+}  // namespace dsac::graph

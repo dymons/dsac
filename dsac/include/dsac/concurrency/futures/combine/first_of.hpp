@@ -5,7 +5,7 @@
 
 #include <atomic>
 
-namespace algo::futures {
+namespace dsac::futures {
 template <typename T>
 Future<T> FirstOf(std::vector<Future<T>>&& futures) {
   struct Context {
@@ -24,4 +24,4 @@ Future<T> FirstOf(std::vector<Future<T>>&& futures) {
 
   return ctx->promise.MakeFuture();
 }
-}  // namespace algo::futures
+}  // namespace dsac::futures

@@ -2,7 +2,7 @@
 
 #include "../../../../../../../../../../usr/include/c++/11/functional"
 
-namespace algo::tree {
+namespace dsac::tree {
 template <typename T>
 class AVLTree final {
   // TODO (Dmitry Emelyanov) Реализовать методы begin()/end() для обхода дерева
@@ -70,7 +70,7 @@ class AVLTree final {
 
   void Visit(Visitor visitor) const;
 };
-}  // namespace algo::tree
+}  // namespace dsac::tree
 
 #define STRUCTURES_AVL_TREE_H_
 #include "avl_tree-inl.hpp"

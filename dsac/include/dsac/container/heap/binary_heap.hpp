@@ -2,7 +2,7 @@
 
 #include "../../../../../../../../../../usr/include/c++/11/vector"
 
-namespace algo::heap {
+namespace dsac::heap {
 template <typename T, template <typename> class Compare>
 class BinaryHeap final {
   [[gnu::always_inline]] inline int GetIndexLeftChild(int index) noexcept;
@@ -34,7 +34,7 @@ using MinBinaryHeap = BinaryHeap<T, std::less>;
 
 template <typename T>
 using MaxBinaryHeap = BinaryHeap<T, std::greater>;
-}  // namespace algo::heap
+}  // namespace dsac::heap
 
 #define STRUCTURES_BINARY_HEAP_H_
 #include "binary_heap-inl.hpp"

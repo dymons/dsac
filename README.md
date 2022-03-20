@@ -1,4 +1,4 @@
-Dsac: Data Structures, Algorithms and Concurrency
+DSAC: Data Structures, Algorithms and Concurrency
 ===========================
 
 What is `dsac`?

@@ -1,3 +1,3 @@
-#include <concurrency/syncing/condition_variable.hpp>
+#include <dsac/concurrency/synchronization/condition_variable.hpp>
 
-namespace algo::syncing {}  // namespace algo::synchronization
+namespace dsac::syncing {}  // namespace dsac::synchronization

@@ -2,7 +2,7 @@
 #include <vector>
 #include <algorithm>
 
-#include "../../include/dsa/concurrency/algorithm/merge_sort.hpp"
+#include <dsac/algorithm/MergeSort.hpp>
 
 TEST_CASE("Сортировка c использованием алгоритма сортировки слиянием",
           "[merge_sort]") {
@@ -21,7 +21,7 @@ TEST_CASE("Сортировка c использованием алгоритм�
   // clang-format on
 
   for (Testcase& testcase : testcases) {
-    algo::sort::MergeSort(testcase);
+    dsac::sort::MergeSort(testcase);
     REQUIRE(std::is_sorted(testcase.begin(), testcase.end()));
   }
 }

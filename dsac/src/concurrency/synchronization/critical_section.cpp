@@ -1,6 +1,6 @@
-#include <concurrency/syncing/critical_section.hpp>
+#include <dsac/concurrency/synchronization/critical_section.hpp>
 
-namespace algo::syncing {
+namespace dsac::syncing {
 void CriticalSection::Lock() {
   while (locked_.exchange(true)) {
     // see: mesi protocol https://www.scss.tcd.ie/Jeremy.Jones/VivioJS/caches/MESIHelp.htm
@@ -11,4 +11,4 @@ void CriticalSection::Lock() {
 void CriticalSection::Unlock() {
   locked_.store(false);
 }
-}  // namespace algo::synchronization
+}  // namespace dsac::synchronization

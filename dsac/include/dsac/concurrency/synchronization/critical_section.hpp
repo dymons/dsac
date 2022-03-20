@@ -2,7 +2,7 @@
 
 #include <atomic>
 
-namespace algo::syncing {
+namespace dsac::syncing {
 // an implementation of test-and-set spinlock
 // see: https://en.wikipedia.org/wiki/Test-and-set
 class CriticalSection final {
@@ -12,4 +12,4 @@ class CriticalSection final {
   void Lock();
   void Unlock();
 };
-}  // namespace algo::synchronization
+}  // namespace dsac::synchronization
