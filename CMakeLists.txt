@@ -12,5 +12,8 @@ project(${PACKAGE_NAME} CXX C ASM)
 
 include(cmake/CheckCompiler.cmake)
 include(cmake/CompileOptions.cmake)
+include(cmake/FindSphinx.cmake)
+set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
 
 add_subdirectory(dsac)
+add_subdirectory(docs)

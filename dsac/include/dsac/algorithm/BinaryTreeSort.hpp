@@ -1,25 +1,27 @@
 #pragma once
 
-#include <vector>
 #include <functional>
+#include <vector>
 
-namespace dsac::sort {
+namespace dsac {
 namespace detail {
 template <typename T>
 class BinaryTree final {
- public:
+public:
   using Visitor = std::function<void(T)>;
 
-  BinaryTree() = default;
+  BinaryTree()                  = default;
   BinaryTree(const BinaryTree&) = default;
-  BinaryTree(BinaryTree&&) = default;
+  BinaryTree(BinaryTree&&)      = default;
   BinaryTree& operator=(const BinaryTree&) = default;
   BinaryTree& operator=(BinaryTree&&) = default;
-  ~BinaryTree() {
+  ~BinaryTree()
+  {
     Clear(root_);
   }
 
-  void Insert(T data) {
+  void Insert(T data)
+  {
     Node* const new_node = new Node{data};
     if (root_ == nullptr) {
       root_ = new_node;
@@ -29,39 +31,49 @@ class BinaryTree final {
     InsertImpl(root_, new_node);
   }
 
-  void Visit(Visitor visitor) const {
+  void Visit(Visitor visitor) const
+  {
     VisitImpl(root_, visitor);
   }
 
- private:
+private:
   struct Node {
-    Node(T data) : data(data), left(nullptr), right(nullptr) {
+    Node(T data)
+      : data(data)
+      , left(nullptr)
+      , right(nullptr)
+    {
     }
     Node* left;
     Node* right;
-    T data;
+    T     data;
   };
 
   Node* root_ = nullptr;
 
-  void InsertImpl(Node* root, Node* added) {
+  void InsertImpl(Node* root, Node* added)
+  {
     const bool is_added_less = added->data < root->data;
     if (is_added_less) {
       if (root->left == nullptr) {
         root->left = added;
-      } else {
+      }
+      else {
         InsertImpl(root->left, added);
       }
-    } else {
+    }
+    else {
       if (root->right == nullptr) {
         root->right = added;
-      } else {
+      }
+      else {
         InsertImpl(root->right, added);
       }
     }
   }
 
-  void VisitImpl(Node* root, Visitor visitor) const {
+  void VisitImpl(Node* root, Visitor visitor) const
+  {
     if (root != nullptr) {
       VisitImpl(root->left, visitor);
       visitor(root->data);
@@ -69,7 +81,8 @@ class BinaryTree final {
     }
   }
 
-  void Clear(Node* root) {
+  void Clear(Node* root)
+  {
     if (root != nullptr) {
       Clear(root->left);
       Clear(root->right);
@@ -80,16 +93,17 @@ class BinaryTree final {
 }  // namespace detail
 
 template <typename T>
-void BinaryTreeSort(std::vector<T>& arr) {
+void binary_tree_sort(std::vector<T>& arr)
+{
   detail::BinaryTree<T> tree;
-  for (const T& element : arr) {
+  for (T const& element : arr) {
     tree.Insert(element);
   }
 
   int i = 0;
   tree.Visit([&i, &arr](T data) {
     arr[i] = data;
-    i = i + 1;
+    i      = i + 1;
   });
 }
-}  // namespace dsac::sort
+}  // namespace dsac
