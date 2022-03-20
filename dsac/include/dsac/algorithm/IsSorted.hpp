@@ -1,7 +1,8 @@
 #pragma once
 
-#include <dsac/traits/IteratorTraits.hpp>
 #include <dsac/traits/ContainerTraits.hpp>
+#include <dsac/traits/IteratorTraits.hpp>
+#include <dsac/util/Functional.hpp>
 
 namespace dsac {
 
@@ -53,7 +54,7 @@ template <typename ForwardIterator>
 [[gnu::always_inline]] inline bool is_sorted(ForwardIterator begin, ForwardIterator end)
 {
   using value_type = typename dsac::iterator_traits<ForwardIterator>::value_type;
-  return ::dsac::is_sorted(begin, end, std::less<value_type>{});
+  return ::dsac::is_sorted(begin, end, dsac::less<value_type>{});
 }
 
 /**
@@ -72,7 +73,7 @@ template <typename ForwardIterator>
 template <typename Range, typename BinaryPredicate>
 [[gnu::always_inline]] inline bool is_sorted(Range const& range, BinaryPredicate predicate)
 {
-  return ::dsac::is_sorted(std::begin(range), std::end(range), predicate);
+  return ::dsac::is_sorted(dsac::begin(range), dsac::end(range), predicate);
 }
 
 /**
@@ -92,7 +93,7 @@ template <typename Range>
 {
   using iterator_type = typename dsac::container_traits<Range>::iterator_type;
   using value_type    = typename dsac::iterator_traits<iterator_type>::value_type;
-  return ::dsac::is_sorted(std::begin(range), std::end(range), std::less<value_type>{});
+  return ::dsac::is_sorted(dsac::begin(range), dsac::end(range), dsac::less<value_type>{});
 }
 
 }  // namespace dsac
