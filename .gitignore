@@ -109,3 +109,5 @@ fabric.properties
 .idea/codestream.xml
 
 ### CLion ###
+
+build
