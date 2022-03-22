@@ -32,14 +32,22 @@ bool is_sorted(ForwardIterator begin, ForwardIterator end)
 template <typename Range, typename BinaryPredicate>
 bool is_sorted(Range const& range, BinaryPredicate predicate)
 {
-  return ::dsac::is_sorted(dsac::begin(range), dsac::end(range), predicate);
+  using std::begin;
+  using std::end;
+  return ::dsac::is_sorted(begin(range), end(range), predicate);
 }
 
-template <typename Range>
-bool is_sorted(Range const& range)
+template <typename ForwardRange>
+bool is_sorted(ForwardRange&& range)
 {
-  using iterator_type = typename dsac::container_traits<Range>::iterator_type;
+  using std::begin;
+  using std::end;
+  using iterator_type = typename dsac::container_traits<ForwardRange>::iterator_type;
   using value_type    = typename dsac::iterator_traits<iterator_type>::value_type;
-  return ::dsac::is_sorted(dsac::begin(range), dsac::end(range), std::less<value_type>{});
+
+  return is_sorted(
+      begin(std::forward<ForwardRange>(range)),
+      end(std::forward<ForwardRange>(range)),
+      std::less<value_type>{});
 }
 }  // namespace dsac
