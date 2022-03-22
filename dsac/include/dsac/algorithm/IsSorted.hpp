@@ -84,8 +84,8 @@ template <typename Range, typename BinaryPredicate>
 
     \ingroup DsacAlgorithms
 */
-template <typename Range>
-[[gnu::always_inline]] inline bool is_sorted(Range const& range);
+template <typename ForwardRange>
+[[gnu::always_inline]] inline bool is_sorted(ForwardRange&& range);
 
 }  // namespace dsac
 
