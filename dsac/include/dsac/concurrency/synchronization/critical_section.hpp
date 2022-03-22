@@ -8,8 +8,8 @@ namespace dsac::syncing {
 class CriticalSection final {
   std::atomic<bool> locked_{false};
 
- public:
+public:
   void Lock();
   void Unlock();
 };
-}  // namespace dsac::synchronization
+}  // namespace dsac::syncing

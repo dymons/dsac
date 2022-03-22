@@ -9,19 +9,22 @@
 // 2 means locked, there are waiters in lock()
 
 namespace {
-int CompareAndSet(std::atomic_int* atom, int expected, int desired) {
+int CompareAndSet(std::atomic_int* atom, int expected, int desired)
+{
   int* ep = &expected;
   std::atomic_compare_exchange_strong(atom, ep, desired);
   return *ep;
 }
 
-long int SysCall(int* address, int futex_op, int val) noexcept {
+long int SysCall(int* address, int futex_op, int val) noexcept
+{
   return syscall(SYS_futex, address, futex_op, val, nullptr, nullptr, 0);
 }
 }  // namespace
 
 namespace dsac::syncing {
-void Mutex::Lock() {
+void Mutex::Lock()
+{
   if (int c = CompareAndSet(&state_, 0, 1); c != 0) {
     do {
       if (c == 2 || CompareAndSet(&state_, 1, 2) != 0) {
@@ -31,23 +34,30 @@ void Mutex::Lock() {
   }
 }
 
-void Mutex::Unlock() {
+void Mutex::Unlock()
+{
   if (state_.fetch_sub(1) != 1) {
     state_.store(0);
     SysCall((int*)&state_, FUTEX_WAKE, 1);
   }
 }
 
-UniqueLock::UniqueLock(Mutex& mutex) : mutex_(std::addressof(mutex)) {
+UniqueLock::UniqueLock(Mutex& mutex)
+  : mutex_(std::addressof(mutex))
+{
   Lock();
 }
 
-UniqueLock::UniqueLock(UniqueLock&& other) : mutex_(other.mutex_), owned_(other.owned_) {
+UniqueLock::UniqueLock(UniqueLock&& other)
+  : mutex_(other.mutex_)
+  , owned_(other.owned_)
+{
   other.mutex_ = nullptr;
   other.owned_ = false;
 }
 
-UniqueLock& UniqueLock::operator=(UniqueLock&& other) {
+UniqueLock& UniqueLock::operator=(UniqueLock&& other)
+{
   if (owned_) {
     Unlock();
   }
@@ -60,24 +70,28 @@ UniqueLock& UniqueLock::operator=(UniqueLock&& other) {
   return *this;
 }
 
-UniqueLock::~UniqueLock() {
+UniqueLock::~UniqueLock()
+{
   if (owned_) {
     Unlock();
   }
 }
 
-void UniqueLock::Swap(UniqueLock& other) {
+void UniqueLock::Swap(UniqueLock& other)
+{
   std::swap(mutex_, other.mutex_);
   std::swap(owned_, other.owned_);
 }
 
-void UniqueLock::Lock() {
+void UniqueLock::Lock()
+{
   mutex_->Lock();
   owned_ = true;
 }
 
-void UniqueLock::Unlock() {
+void UniqueLock::Unlock()
+{
   mutex_->Unlock();
   owned_ = false;
 }
-}  // namespace dsac::synchronization
+}  // namespace dsac::syncing

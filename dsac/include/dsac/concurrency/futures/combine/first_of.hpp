@@ -7,9 +7,10 @@
 
 namespace dsac::futures {
 template <typename T>
-Future<T> FirstOf(std::vector<Future<T>>&& futures) {
+Future<T> FirstOf(std::vector<Future<T>>&& futures)
+{
   struct Context {
-    Promise<T> promise;
+    Promise<T>       promise;
     std::atomic_bool done{false};
   };
 

@@ -9,16 +9,17 @@
 
 namespace {
 enum class Status : unsigned char { Ok, Errno };
-[[nodiscard]] Status SysCall(int* address, int futex_op, int val,
-                             const timespec* timeout = nullptr, int* addr2 = nullptr,
-                             int val3 = 0) noexcept {
+[[nodiscard]] Status SysCall(
+    int* address, int futex_op, int val, const timespec* timeout = nullptr, int* addr2 = nullptr, int val3 = 0) noexcept
+{
   long int status = syscall(SYS_futex, address, futex_op, val, timeout, addr2, val3);
   return status == -1 ? Status::Errno : Status::Ok;
 }
 }  // namespace
 
 namespace dsac::syncing {
-void Futex::Waiting(int* address, int expected_value) const {
+void Futex::Waiting(int* address, int expected_value) const
+{
   while (true) {
     Status const status = SysCall(address, FUTEX_WAIT, expected_value);
     if (status == Status::Errno) {
@@ -26,16 +27,17 @@ void Futex::Waiting(int* address, int expected_value) const {
         std::cerr << "Futex error is " << (errno) << std::endl;
         std::terminate();
       }
-    } else if (*address == expected_value) {
+    }
+    else if (*address == expected_value) {
       break;
     }
   }
 }
 
-bool Futex::Waiting(int* address, int expected_value,
-                    std::chrono::milliseconds timeout) const {
-  const auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(timeout);
-  const timespec waiting = {.tv_sec = 0, .tv_nsec = duration.count()};
+bool Futex::Waiting(int* address, int expected_value, std::chrono::milliseconds timeout) const
+{
+  const auto     duration = std::chrono::duration_cast<std::chrono::nanoseconds>(timeout);
+  const timespec waiting  = {.tv_sec = 0, .tv_nsec = duration.count()};
 
   while (true) {
     Status const status = SysCall(address, FUTEX_WAIT, expected_value, &waiting);
@@ -43,7 +45,8 @@ bool Futex::Waiting(int* address, int expected_value,
       if (errno == ETIMEDOUT) {
         return false;
       }
-    } else if (*address == expected_value) {
+    }
+    else if (*address == expected_value) {
       break;
     }
   }
@@ -51,15 +54,17 @@ bool Futex::Waiting(int* address, int expected_value,
   return true;
 }
 
-void Futex::WakeUp(int* address) const {
+void Futex::WakeUp(int* address) const
+{
   while (true) {
     Status const status = SysCall(address, FUTEX_WAKE, 1);
     if (status == Status::Errno) {
       std::cerr << "Futex error is " << (errno) << std::endl;
       std::terminate();
-    } else {
+    }
+    else {
       break;
     }
   }
 }
-}  // namespace dsac::synchronization
+}  // namespace dsac::syncing

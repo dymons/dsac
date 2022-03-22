@@ -1,7 +1,7 @@
 #pragma once
 
-#include <concurrency/utility/function2.hpp>
 #include <concurrency/futures/try.hpp>
+#include <concurrency/utility/function2.hpp>
 
 namespace dsac::futures {
 template <typename T>

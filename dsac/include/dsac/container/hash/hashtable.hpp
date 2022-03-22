@@ -1,45 +1,56 @@
 #pragma once
 
-#include "../../../../../../../../../../usr/include/c++/11/vector"
 #include "../../../../../../../../../../usr/include/c++/11/stdexcept"
+#include "../../../../../../../../../../usr/include/c++/11/vector"
 
 namespace dsac::hashtable {
 template <typename Key, typename Value, typename Hash = std::hash<Key>>
 class HashTable final {
   class Node final {
-    Key key_;
+    Key   key_;
     Value value_;
     Node* bucket_;
 
-   public:
-    explicit Node(Key key, Value value) : key_(key), value_(value), bucket_(nullptr) {
+  public:
+    explicit Node(Key key, Value value)
+      : key_(key)
+      , value_(value)
+      , bucket_(nullptr)
+    {
     }
 
-    void SetKey(Key key) {
+    void SetKey(Key key)
+    {
       key_ = key;
     }
 
-    void SetValue(Value value) {
+    void SetValue(Value value)
+    {
       value_ = value;
     }
 
-    void SetBucket(Node* bucket) {
+    void SetBucket(Node* bucket)
+    {
       bucket_ = bucket;
     }
 
-    Key GetKey() const noexcept {
+    Key GetKey() const noexcept
+    {
       return key_;
     }
 
-    Value GetValue() const noexcept {
+    Value GetValue() const noexcept
+    {
       return value_;
     }
 
-    Node* GetBucket() const noexcept {
+    Node* GetBucket() const noexcept
+    {
       return bucket_;
     }
 
-    void Destroy() {
+    void Destroy()
+    {
       if (bucket_ != nullptr) {
         bucket_->Destroy();
         delete bucket_;
@@ -47,11 +58,13 @@ class HashTable final {
     }
   };
 
-  [[nodiscard]] std::size_t Hashing(Key key) const {
+  [[nodiscard]] std::size_t Hashing(Key key) const
+  {
     return Hash{}(key) % hashtable_.size();
   }
 
-  void DestroyImpl(std::vector<Node*>& hashtable) {
+  void DestroyImpl(std::vector<Node*>& hashtable)
+  {
     for (Node*& node : hashtable) {
       if (node != nullptr) {
         node->Destroy();
@@ -60,31 +73,35 @@ class HashTable final {
     }
   }
 
-  void InsertImpl(Key key, Value value) {
+  void InsertImpl(Key key, Value value)
+  {
     std::size_t const hash = Hashing(key);
 
     Node* parent = nullptr;
-    Node* child = hashtable_[hash];
+    Node* child  = hashtable_[hash];
 
     while (child != nullptr && child->GetKey() != key) {
       parent = child;
-      child = child->GetBucket();
+      child  = child->GetBucket();
     }
 
     if (child == nullptr) {
       child = new Node{key, value};
       if (parent == nullptr) {
         hashtable_[hash] = child;
-      } else {
+      }
+      else {
         parent->SetBucket(child);
       }
       ++buffer_size_;
-    } else {
+    }
+    else {
       child->SetValue(value);
     }
   }
 
-  void Rehash() {
+  void Rehash()
+  {
     std::vector<Node*> latest_hashtable(hashtable_.size() * 2, nullptr);
     std::swap(latest_hashtable, hashtable_);
 
@@ -99,33 +116,39 @@ class HashTable final {
     DestroyImpl(latest_hashtable);
   }
 
-  void TryRehash() {
+  void TryRehash()
+  {
     double const alpha = static_cast<double>(buffer_size_) / hashtable_.size();
     if (alpha > rehash_size_) {
       Rehash();
     }
   }
 
-  constexpr static const int default_size_ = 8;
-  constexpr static const double rehash_size_ = 0.75;
-  int buffer_size_ = 0;
+  constexpr static const int    default_size_ = 8;
+  constexpr static const double rehash_size_  = 0.75;
+  int                           buffer_size_  = 0;
 
   std::vector<Node*> hashtable_;
 
- public:
-  HashTable() : hashtable_(default_size_, nullptr) {
+public:
+  HashTable()
+    : hashtable_(default_size_, nullptr)
+  {
   }
 
-  ~HashTable() {
+  ~HashTable()
+  {
     DestroyImpl(hashtable_);
   }
 
-  void Insert(Key key, Value value) {
+  void Insert(Key key, Value value)
+  {
     TryRehash();
     InsertImpl(key, value);
   }
 
-  [[nodiscard]] bool Contains(Key key) const {
+  [[nodiscard]] bool Contains(Key key) const
+  {
     std::size_t const hash = Hashing(key);
 
     Node* entry = hashtable_[hash];
@@ -139,7 +162,8 @@ class HashTable final {
     return false;
   }
 
-  [[nodiscard]] Value GetValue(Key key) const {
+  [[nodiscard]] Value GetValue(Key key) const
+  {
     std::size_t const hash = Hashing(key);
 
     Node* entry = hashtable_[hash];
@@ -153,21 +177,23 @@ class HashTable final {
     throw std::out_of_range{""};
   }
 
-  void Remove(Key key) {
+  void Remove(Key key)
+  {
     std::size_t const hash = Hashing(key);
 
     Node* parent = nullptr;
-    Node* child = hashtable_[hash];
+    Node* child  = hashtable_[hash];
 
     while (child != nullptr && child->GetKey() != key) {
       parent = child;
-      child = child->GetBucket();
+      child  = child->GetBucket();
     }
 
     if (child != nullptr) {
       if (parent == nullptr) {
         hashtable_[hash] = child->GetBucket();
-      } else {
+      }
+      else {
         parent->SetBucket(child->GetBucket());
       }
 
@@ -176,4 +202,4 @@ class HashTable final {
     }
   }
 };
-}  // namespace dsac::hash
+}  // namespace dsac::hashtable

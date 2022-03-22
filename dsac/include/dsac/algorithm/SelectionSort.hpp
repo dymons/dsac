@@ -3,7 +3,8 @@
 #include <vector>
 namespace dsac::sort {
 template <typename T>
-void SelectionSort(std::vector<T>& arr) {
+void SelectionSort(std::vector<T>& arr)
+{
   for (int i = 0; i < arr.size(); ++i) {
     int min = i;
     for (int j = i + 1; j < arr.size(); ++j) {

@@ -4,48 +4,54 @@
 
 namespace dsac::tree {
 template <typename T>
-int RBTree<T>::Node::MaxDepth() const {
-  const int max_left = left == nullptr ? 0 : left->MaxDepth();
+int RBTree<T>::Node::MaxDepth() const
+{
+  const int max_left  = left == nullptr ? 0 : left->MaxDepth();
   const int max_right = right == nullptr ? 0 : right->MaxDepth();
   return 1 + std::max(max_left, max_right);
 }
 template <typename T>
-int RBTree<T>::Node::MinDepth() const {
-  const int min_left = left == nullptr ? 0 : left->MinDepth();
+int RBTree<T>::Node::MinDepth() const
+{
+  const int min_left  = left == nullptr ? 0 : left->MinDepth();
   const int min_right = right == nullptr ? 0 : right->MinDepth();
   return 1 + std::min(min_left, min_right);
 }
 
 template <typename T>
-void RBTree<T>::Node::Recolor() noexcept {
+void RBTree<T>::Node::Recolor() noexcept
+{
   color = color == Color::Red ? Color::Black : Color::Red;
 }
 
 template <typename T>
-typename RBTree<T>::Node* RBTree<T>::Node::GetParent() const noexcept {
+typename RBTree<T>::Node* RBTree<T>::Node::GetParent() const noexcept
+{
   return parent;
 }
 
 template <typename T>
-typename RBTree<T>::Node* RBTree<T>::Node::GetGrandparent() const noexcept {
+typename RBTree<T>::Node* RBTree<T>::Node::GetGrandparent() const noexcept
+{
   return parent != nullptr ? parent->parent : nullptr;
 }
 
 template <typename T>
-typename RBTree<T>::Node* RBTree<T>::Node::GetUncle() const noexcept {
+typename RBTree<T>::Node* RBTree<T>::Node::GetUncle() const noexcept
+{
   Node* const grandparent = GetGrandparent();
-  return grandparent == nullptr        ? nullptr
-         : parent == grandparent->left ? grandparent->right
-                                       : grandparent->left;
+  return grandparent == nullptr ? nullptr : parent == grandparent->left ? grandparent->right : grandparent->left;
 }
 
 template <typename T>
-bool RBTree<T>::Node::IsColor(Color other_color) const noexcept {
+bool RBTree<T>::Node::IsColor(Color other_color) const noexcept
+{
   return color == other_color;
 }
 
 template <typename T>
-bool RBTree<T>::Node::Contains(T search_key) const {
+bool RBTree<T>::Node::Contains(T search_key) const
+{
   if (key == search_key) {
     return true;
   }
@@ -54,7 +60,8 @@ bool RBTree<T>::Node::Contains(T search_key) const {
 }
 
 template <typename T>
-void RBTree<T>::Node::Destroy() {
+void RBTree<T>::Node::Destroy()
+{
   if (left != nullptr) {
     left->Destroy();
     delete left;
@@ -67,9 +74,10 @@ void RBTree<T>::Node::Destroy() {
 }
 
 template <typename T>
-void RBTree<T>::SmallLeftRotation(Node* subtree) {
+void RBTree<T>::SmallLeftRotation(Node* subtree)
+{
   Node* right_subtree = subtree->right;
-  subtree->right = right_subtree->left;
+  subtree->right      = right_subtree->left;
   if (right_subtree->left != nullptr) {
     right_subtree->left->parent = subtree;
   }
@@ -77,20 +85,23 @@ void RBTree<T>::SmallLeftRotation(Node* subtree) {
   right_subtree->parent = subtree->parent;
   if (subtree->parent == nullptr) {
     root_ = right_subtree;
-  } else if (subtree == subtree->parent->left) {
+  }
+  else if (subtree == subtree->parent->left) {
     subtree->parent->left = right_subtree;
-  } else {
+  }
+  else {
     subtree->parent->right = right_subtree;
   }
 
   right_subtree->left = subtree;
-  subtree->parent = right_subtree;
+  subtree->parent     = right_subtree;
 }
 
 template <typename T>
-void RBTree<T>::SmallRightRotation(Node* subtree) {
+void RBTree<T>::SmallRightRotation(Node* subtree)
+{
   Node* left_subtree = subtree->left;
-  subtree->left = left_subtree->right;
+  subtree->left      = left_subtree->right;
   if (left_subtree->right != nullptr) {
     left_subtree->right->parent = subtree;
   }
@@ -98,18 +109,21 @@ void RBTree<T>::SmallRightRotation(Node* subtree) {
   left_subtree->parent = subtree->parent;
   if (subtree->parent == nullptr) {
     root_ = left_subtree;
-  } else if (subtree == subtree->parent->right) {
+  }
+  else if (subtree == subtree->parent->right) {
     subtree->parent->right = left_subtree;
-  } else {
+  }
+  else {
     subtree->parent->left = left_subtree;
   }
 
   left_subtree->right = subtree;
-  subtree->parent = left_subtree;
+  subtree->parent     = left_subtree;
 }
 
 template <typename T>
-void RBTree<T>::BalancingSubtree(Node* subtree) {
+void RBTree<T>::BalancingSubtree(Node* subtree)
+{
   while (subtree->GetParent()->IsColor(Color::Red)) {
     if (subtree->GetParent() == subtree->GetGrandparent()->right) {
       if (Node* uncle = subtree->GetUncle(); uncle && uncle->IsColor(Color::Red)) {
@@ -118,7 +132,8 @@ void RBTree<T>::BalancingSubtree(Node* subtree) {
         subtree->GetParent()->Recolor();
         subtree->GetGrandparent()->Recolor();
         subtree = subtree->GetGrandparent();
-      } else {
+      }
+      else {
         if (subtree == subtree->GetParent()->left) {
           // case 3.2.2
           subtree = subtree->GetParent();
@@ -129,14 +144,16 @@ void RBTree<T>::BalancingSubtree(Node* subtree) {
         subtree->GetGrandparent()->Recolor();
         SmallLeftRotation(subtree->GetGrandparent());
       }
-    } else {
+    }
+    else {
       if (Node* uncle = subtree->GetUncle(); uncle && uncle->IsColor(Color::Red)) {
         // mirror case 3.1
         uncle->Recolor();
         subtree->GetParent()->Recolor();
         subtree->GetGrandparent()->Recolor();
         subtree = subtree->GetGrandparent();
-      } else {
+      }
+      else {
         if (subtree == subtree->GetParent()->right) {
           // mirror case 3.2.2
           subtree = subtree->GetParent();
@@ -157,7 +174,8 @@ void RBTree<T>::BalancingSubtree(Node* subtree) {
 }
 
 template <typename T>
-void RBTree<T>::VisitImpl(Node* root, Visitor visitor) const {
+void RBTree<T>::VisitImpl(Node* root, Visitor visitor) const
+{
   if (root != nullptr) {
     VisitImpl(root->left, visitor);
     visitor(root->key);
@@ -166,7 +184,8 @@ void RBTree<T>::VisitImpl(Node* root, Visitor visitor) const {
 }
 
 template <typename T>
-RBTree<T>::~RBTree() {
+RBTree<T>::~RBTree()
+{
   if (root_ != nullptr) {
     root_->Destroy();
     delete root_;
@@ -174,24 +193,28 @@ RBTree<T>::~RBTree() {
 }
 
 template <typename T>
-void RBTree<T>::Insert(T key) {
+void RBTree<T>::Insert(T key)
+{
   Node* new_node = new Node{key};
 
   Node* parent = nullptr;
-  Node* child = root_;
-  while (child != nullptr) [[likely]] {
+  Node* child  = root_;
+  while (child != nullptr) [[likely]]
+    {
       parent = child;
-      child = new_node->key < child->key ? child->left : child->right;
+      child  = new_node->key < child->key ? child->left : child->right;
     }
 
   new_node->parent = parent;
   if (parent == nullptr) [[unlikely]] {
     new_node->color = Color::Black;
-    root_ = new_node;
+    root_           = new_node;
     return;
-  } else if (new_node->key < parent->key) {
+  }
+  else if (new_node->key < parent->key) {
     parent->left = new_node;
-  } else {
+  }
+  else {
     parent->right = new_node;
   }
 
@@ -204,22 +227,26 @@ void RBTree<T>::Insert(T key) {
 }
 
 template <typename T>
-int RBTree<T>::MaxDepth() const {
+int RBTree<T>::MaxDepth() const
+{
   return root_ == nullptr ? -1 : root_->MaxDepth() - 1;
 }
 
 template <typename T>
-int RBTree<T>::MinDepth() const {
+int RBTree<T>::MinDepth() const
+{
   return root_ == nullptr ? -1 : root_->MinDepth() - 1;
 }
 
 template <typename T>
-void RBTree<T>::Visit(Visitor visitor) const {
+void RBTree<T>::Visit(Visitor visitor) const
+{
   VisitImpl(root_, visitor);
 }
 
 template <typename T>
-bool RBTree<T>::Contains(T key) const {
+bool RBTree<T>::Contains(T key) const
+{
   return root_ && root_->Contains(key);
 }
 }  // namespace dsac::tree

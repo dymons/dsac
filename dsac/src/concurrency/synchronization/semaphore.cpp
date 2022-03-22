@@ -1,19 +1,21 @@
 #include <dsac/concurrency/synchronization/semaphore.hpp>
 
 namespace dsac::syncing {
-Semaphore::Semaphore(std::size_t consumers) : tokens_(consumers) {
+Semaphore::Semaphore(std::size_t consumers)
+  : tokens_(consumers)
+{
 }
 
-void Semaphore::Acquire() {
+void Semaphore::Acquire()
+{
   std::unique_lock guard(mutex_);
-  not_zero_.wait(guard, [this]() {
-    return tokens_.load() != 0U;
-  });
+  not_zero_.wait(guard, [this]() { return tokens_.load() != 0U; });
   --tokens_;
 }
 
-void Semaphore::Release() {
+void Semaphore::Release()
+{
   ++tokens_;
   not_zero_.notify_one();
 }
-}  // namespace dsac::synchronization
+}  // namespace dsac::syncing

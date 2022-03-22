@@ -6,34 +6,34 @@ namespace dsac::tree {
 template <typename T>
 class AVLTree final {
   // TODO (Dmitry Emelyanov) Реализовать методы begin()/end() для обхода дерева
- public:
+public:
   using Visitor = std::function<void(T)>;
 
- private:
+private:
   class Node final {
     const T key_;
-    Node* left_;
-    Node* right_;
-    int height_;
+    Node*   left_;
+    Node*   right_;
+    int     height_;
 
-   public:
+  public:
     explicit Node(T key);
 
     Node(const Node&) = delete;
-    Node(Node&&) = delete;
+    Node(Node&&)      = delete;
     Node& operator=(const Node&) = delete;
     Node& operator=(Node&&) = delete;
 
-    void SetLeftChild(Node* child) noexcept;
-    void SetRightChild(Node* child) noexcept;
-    void SetHeight(int height) noexcept;
+    void                 SetLeftChild(Node* child) noexcept;
+    void                 SetRightChild(Node* child) noexcept;
+    void                 SetHeight(int height) noexcept;
     [[nodiscard]] Node*& GetLeftChild() & noexcept;
     [[nodiscard]] Node*& GetRightChild() & noexcept;
-    [[nodiscard]] int GetHeight() noexcept;
-    void Destroy();
+    [[nodiscard]] int    GetHeight() noexcept;
+    void                 Destroy();
 
     [[nodiscard]] const T& GetKey() const noexcept;
-    [[nodiscard]] bool Contains(T key) const;
+    [[nodiscard]] bool     Contains(T key) const;
   };
 
   Node* root_{nullptr};
@@ -49,15 +49,15 @@ class AVLTree final {
   Node* DeleteMinChild(Node* subtree);
   Node* FindMinChild(Node* subtree) const;
 
-  [[nodiscard]] int GetMaxHeight(Node* left_subtree, Node* right_subtree) const;
-  [[nodiscard]] bool InsertImpl(Node*& root, Node* added) const;
+  [[nodiscard]] int   GetMaxHeight(Node* left_subtree, Node* right_subtree) const;
+  [[nodiscard]] bool  InsertImpl(Node*& root, Node* added) const;
   [[nodiscard]] Node* DeleteImpl(Node*& root, T deleted_key);
-  void VisitImpl(Node* root, Visitor visitor) const;
+  void                VisitImpl(Node* root, Visitor visitor) const;
 
- public:
-  AVLTree() = default;
+public:
+  AVLTree()               = default;
   AVLTree(const AVLTree&) = delete;
-  AVLTree(AVLTree&&) = delete;
+  AVLTree(AVLTree&&)      = delete;
   AVLTree& operator=(const AVLTree&) = delete;
   AVLTree& operator=(AVLTree&&) = delete;
   ~AVLTree();
@@ -66,7 +66,7 @@ class AVLTree final {
   void Delete(T deleted_key);
 
   [[nodiscard]] bool Contains(T key) const;
-  [[nodiscard]] int Depth() const;
+  [[nodiscard]] int  Depth() const;
 
   void Visit(Visitor visitor) const;
 };

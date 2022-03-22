@@ -5,25 +5,25 @@
 namespace dsac::tree {
 template <typename T>
 class RBTree final {
- public:
+public:
   using Visitor = std::function<void(T)>;
 
- private:
+private:
   enum class Color : unsigned char { Red, Black };
   struct Node final {
-    T key{};
+    T     key{};
     Node* left{nullptr};
     Node* right{nullptr};
     Node* parent{nullptr};
     Color color{Color::Red};
 
-    [[nodiscard]] int MaxDepth() const;
-    [[nodiscard]] int MinDepth() const;
-    [[nodiscard]] bool Contains(T search_key) const;
+    [[nodiscard]] int                              MaxDepth() const;
+    [[nodiscard]] int                              MinDepth() const;
+    [[nodiscard]] bool                             Contains(T search_key) const;
     [[nodiscard, gnu::always_inline]] inline Node* GetParent() const noexcept;
     [[nodiscard, gnu::always_inline]] inline Node* GetGrandparent() const noexcept;
     [[nodiscard, gnu::always_inline]] inline Node* GetUncle() const noexcept;
-    [[nodiscard, gnu::always_inline]] inline bool IsColor(Color color) const noexcept;
+    [[nodiscard, gnu::always_inline]] inline bool  IsColor(Color color) const noexcept;
 
     void Recolor() noexcept;
     void Destroy();
@@ -37,20 +37,20 @@ class RBTree final {
 
   Node* root_{nullptr};
 
- public:
-  RBTree() = default;
+public:
+  RBTree()              = default;
   RBTree(const RBTree&) = delete;
-  RBTree(RBTree&&) = delete;
+  RBTree(RBTree&&)      = delete;
   RBTree& operator=(const RBTree&) = delete;
   RBTree& operator=(RBTree&&) = delete;
   ~RBTree();
 
   void Insert(T key);
 
-  [[nodiscard]] int MaxDepth() const;
-  [[nodiscard]] int MinDepth() const;
+  [[nodiscard]] int  MaxDepth() const;
+  [[nodiscard]] int  MinDepth() const;
   [[nodiscard]] bool Contains(T key) const;
-  void Visit(Visitor visitor) const;
+  void               Visit(Visitor visitor) const;
 };
 }  // namespace dsac::tree
 

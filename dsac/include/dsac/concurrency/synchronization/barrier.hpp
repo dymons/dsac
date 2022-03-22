@@ -4,17 +4,17 @@
 
 namespace dsac::syncing {
 class Barrier final {
- public:
+public:
   explicit Barrier(std::size_t size_awaited_threads);
   Barrier(const Barrier&) = delete;
-  Barrier(Barrier&&) = delete;
+  Barrier(Barrier&&)      = delete;
   Barrier& operator=(const Barrier&) = delete;
   Barrier& operator=(Barrier&&) = delete;
 
   void ArriveAndWait();
 
- private:
+private:
   class Pimpl;
   std::shared_ptr<Pimpl> pimpl_;
 };
-}  // namespace dsac::synchronization
+}  // namespace dsac::syncing

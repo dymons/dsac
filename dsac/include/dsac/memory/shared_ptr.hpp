@@ -3,13 +3,13 @@
 namespace dsac::pointers {
 template <typename T>
 class SharedPtr final {
- private:
-  T* data_{nullptr};
+private:
+  T*           data_{nullptr};
   std::size_t* counter_{nullptr};
 
   void Destroy();
 
- public:
+public:
   SharedPtr() noexcept = default;
   explicit SharedPtr(T* data);
   SharedPtr(const SharedPtr& other);
@@ -19,7 +19,7 @@ class SharedPtr final {
   ~SharedPtr();
 
   [[nodiscard]] std::size_t UseCount() const noexcept;
-  [[nodiscard]] T* GetData() const noexcept;
+  [[nodiscard]] T*          GetData() const noexcept;
 
   T& operator*() const;
   T* operator->() const;

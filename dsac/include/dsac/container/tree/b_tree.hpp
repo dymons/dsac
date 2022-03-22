@@ -6,13 +6,13 @@ namespace dsac::tree {
 template <typename T>
 class BTree final {
   class Node final {
-    const int t_;
-    std::vector<T> keys_;
+    const int          t_;
+    std::vector<T>     keys_;
     std::vector<Node*> children_;
 
     void AddKeyImpl(T key);
 
-   public:
+  public:
     explicit Node(int t);
 
     void AddKey(T key);
@@ -24,16 +24,16 @@ class BTree final {
     void Destroy();
 
     [[nodiscard]] T const& GetKey(std::size_t index) const;
-    [[nodiscard]] Node* GetChild(std::size_t index) const;
-    [[nodiscard]] bool IsLeaf() const noexcept;
-    [[nodiscard]] bool IsKeysFull() const noexcept;
-    [[nodiscard]] bool Contains(T key) const;
+    [[nodiscard]] Node*    GetChild(std::size_t index) const;
+    [[nodiscard]] bool     IsLeaf() const noexcept;
+    [[nodiscard]] bool     IsKeysFull() const noexcept;
+    [[nodiscard]] bool     Contains(T key) const;
   };
 
   const int t_;
-  Node* root_;
+  Node*     root_;
 
- public:
+public:
   explicit BTree(int t);
   ~BTree();
 

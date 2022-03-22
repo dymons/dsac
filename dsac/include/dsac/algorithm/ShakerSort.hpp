@@ -4,8 +4,9 @@
 
 namespace dsac::sort::v1 {
 template <typename T>
-void ShakerSort(std::vector<T>& arr) {
-  int left = 0;
+void ShakerSort(std::vector<T>& arr)
+{
+  int left  = 0;
   int right = (int)arr.size() - 1;
   do {
     for (int i = left; i < right; ++i) {
@@ -27,9 +28,10 @@ void ShakerSort(std::vector<T>& arr) {
 
 namespace dsac::sort::v2 {
 template <typename T>
-void ShakerSort(std::vector<T>& arr) {
-  int left = 0;
-  int right = (int)arr.size() - 1;
+void ShakerSort(std::vector<T>& arr)
+{
+  int left        = 0;
+  int right       = (int)arr.size() - 1;
   int latest_swap = (int)arr.size() - 1;
   do {
     for (int i = left; i < right; ++i) {

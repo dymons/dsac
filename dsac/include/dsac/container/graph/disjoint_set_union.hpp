@@ -5,13 +5,15 @@
 
 namespace dsac::graph {
 class DisjointSetException : public std::logic_error {
- public:
+public:
   using std::logic_error::logic_error;
 };
 
 class DisjointSetOutOfRange : public DisjointSetException {
- public:
-  DisjointSetOutOfRange() : DisjointSetException("Out of range disjoint set") {
+public:
+  DisjointSetOutOfRange()
+    : DisjointSetException("Out of range disjoint set")
+  {
   }
 };
 
@@ -20,7 +22,7 @@ class DisjointSetOutOfRange : public DisjointSetException {
 class DisjointSet final {
   std::vector<std::size_t> parent_vertex_;
 
- public:
+public:
   //! Конструктор DisjointSet
   /*!
     \param size_set Размер системы непересекающихся множест

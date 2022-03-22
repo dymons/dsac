@@ -6,13 +6,13 @@ namespace dsac::syncing {
 class Mutex final {
   std::atomic_int state_ = 0;
 
- public:
+public:
   void Lock();
   void Unlock();
 };
 
 class UniqueLock final {
- public:
+public:
   explicit UniqueLock(Mutex& mutex);
   ~UniqueLock();
 
@@ -24,11 +24,11 @@ class UniqueLock final {
   void Lock();
   void Unlock();
 
- private:
+private:
   void Swap(UniqueLock& other);
 
- private:
+private:
   Mutex* mutex_ = nullptr;
-  bool owned_ = false;
+  bool   owned_ = false;
 };
-}  // namespace dsac::synchronization
+}  // namespace dsac::syncing

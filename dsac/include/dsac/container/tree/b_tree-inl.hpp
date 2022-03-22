@@ -6,60 +6,72 @@
 
 namespace dsac::tree {
 template <typename T>
-BTree<T>::Node::Node(int t) : t_(t) {
+BTree<T>::Node::Node(int t)
+  : t_(t)
+{
 }
 
 template <typename T>
-void BTree<T>::Node::AddKeyByIndex(std::size_t index, T key) {
+void BTree<T>::Node::AddKeyByIndex(std::size_t index, T key)
+{
   keys_.insert(std::next(keys_.begin(), index), key);
   // Ключи хранятся в отсортированном виде, проверяем инвариант
   // состояния узла на выполнение данного условия.
   assert(std::is_sorted(keys_.begin(), keys_.end()));
 }
 template <typename T>
-T const& BTree<T>::Node::GetKey(std::size_t index) const {
+T const& BTree<T>::Node::GetKey(std::size_t index) const
+{
   assert(index < keys_.size());
   return keys_[index];
 }
 
 template <typename T>
-void BTree<T>::Node::RemoveKey(T key) {
+void BTree<T>::Node::RemoveKey(T key)
+{
   keys_.erase(std::find(keys_.begin(), keys_.end(), key));
 }
 
 template <typename T>
-void BTree<T>::Node::AddChild(Node* node) {
+void BTree<T>::Node::AddChild(Node* node)
+{
   children_.push_back(node);
 }
 
 template <typename T>
-void BTree<T>::Node::AddChildByIndex(std::size_t index, Node* node) {
+void BTree<T>::Node::AddChildByIndex(std::size_t index, Node* node)
+{
   children_.insert(std::next(children_.begin(), index), node);
 }
 
 template <typename T>
-typename BTree<T>::Node* BTree<T>::Node::GetChild(std::size_t index) const {
+typename BTree<T>::Node* BTree<T>::Node::GetChild(std::size_t index) const
+{
   assert(index < children_.size());
   return children_[index];
 }
 
 template <typename T>
-bool BTree<T>::Node::IsLeaf() const noexcept {
+bool BTree<T>::Node::IsLeaf() const noexcept
+{
   return children_.empty();
 }
 
 template <typename T>
-bool BTree<T>::Node::IsKeysFull() const noexcept {
+bool BTree<T>::Node::IsKeysFull() const noexcept
+{
   return keys_.size() == (2 * t_ - 1);
 }
 
 template <typename T>
-void BTree<T>::Node::AddKey(T key) {
+void BTree<T>::Node::AddKey(T key)
+{
   if (IsLeaf()) {
     AddKeyImpl(key);
-  } else {
+  }
+  else {
     const auto upper = std::upper_bound(keys_.begin(), keys_.end(), key);
-    int index = std::distance(keys_.begin(), upper);
+    int        index = std::distance(keys_.begin(), upper);
     if (Node* const consider_node = GetChild(index); consider_node->IsKeysFull()) {
       SplitChild(index, consider_node);
       if (GetKey(index) < key) {
@@ -72,7 +84,8 @@ void BTree<T>::Node::AddKey(T key) {
 }
 
 template <typename T>
-void BTree<T>::Node::AddKeyImpl(T key) {
+void BTree<T>::Node::AddKeyImpl(T key)
+{
   keys_.insert(std::upper_bound(keys_.begin(), keys_.end(), key), key);
   // Ключи хранятся в отсортированном виде, проверяем инвариант
   // состояния узла на выполнение данного условия.
@@ -80,7 +93,8 @@ void BTree<T>::Node::AddKeyImpl(T key) {
 }
 
 template <typename T>
-void BTree<T>::Node::SplitChild(std::size_t index, Node* root) {
+void BTree<T>::Node::SplitChild(std::size_t index, Node* root)
+{
   Node* const new_node = new Node{root->t_};
   for (int j = 0; j < t_ - 1; j++) {
     new_node->AddKey(root->GetKey(j + t_));
@@ -101,13 +115,15 @@ void BTree<T>::Node::SplitChild(std::size_t index, Node* root) {
 }
 
 template <typename T>
-bool BTree<T>::Node::Contains(T key) const {
-  const auto lower = std::lower_bound(keys_.begin(), keys_.end(), key);
+bool BTree<T>::Node::Contains(T key) const
+{
+  const auto        lower = std::lower_bound(keys_.begin(), keys_.end(), key);
   const std::size_t index = std::distance(keys_.begin(), lower);
 
   if ((index < keys_.size()) && (GetKey(index) == key)) {
     return true;
-  } else if (IsLeaf()) {
+  }
+  else if (IsLeaf()) {
     return false;
   }
 
@@ -115,7 +131,8 @@ bool BTree<T>::Node::Contains(T key) const {
 }
 
 template <typename T>
-void BTree<T>::Node::Destroy() {
+void BTree<T>::Node::Destroy()
+{
   for (Node*& child : children_) {
     child->Destroy();
     delete child;
@@ -124,11 +141,15 @@ void BTree<T>::Node::Destroy() {
 }
 
 template <typename T>
-BTree<T>::BTree(int t) : t_(t), root_(nullptr) {
+BTree<T>::BTree(int t)
+  : t_(t)
+  , root_(nullptr)
+{
 }
 
 template <typename T>
-BTree<T>::~BTree() {
+BTree<T>::~BTree()
+{
   if (root_ != nullptr) {
     root_->Destroy();
     delete root_;
@@ -137,11 +158,13 @@ BTree<T>::~BTree() {
 }
 
 template <typename T>
-void BTree<T>::Insert(T key) {
+void BTree<T>::Insert(T key)
+{
   if (root_ == nullptr) {
     root_ = new Node{t_};
     root_->AddKey(key);
-  } else if (root_->IsKeysFull()) {
+  }
+  else if (root_->IsKeysFull()) {
     Node* const new_node = new Node{t_};
     new_node->AddChild(root_);
     new_node->SplitChild(0, root_);
@@ -150,13 +173,15 @@ void BTree<T>::Insert(T key) {
     new_node->GetChild(index)->AddKey(key);
 
     root_ = new_node;
-  } else {
+  }
+  else {
     root_->AddKey(key);
   }
 }
 
 template <typename T>
-bool BTree<T>::Contains(T key) const {
+bool BTree<T>::Contains(T key) const
+{
   return root_ != nullptr && root_->Contains(key);
 }
 }  // namespace dsac::tree

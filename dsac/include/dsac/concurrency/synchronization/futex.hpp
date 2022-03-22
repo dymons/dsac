@@ -5,7 +5,7 @@
 // see: https://eli.thegreenplace.net/2018/basics-of-futexes/
 namespace dsac::syncing {
 class Futex final {
- public:
+public:
   void Waiting(int* address, int expected_value) const;
   void WakeUp(int* address) const;
 
@@ -13,4 +13,4 @@ class Futex final {
   // EAGAIN вместо ETIMEDOUT
   bool Waiting(int* address, int expected_value, std::chrono::milliseconds timeout) const;
 };
-}  // namespace dsac::synchronization
+}  // namespace dsac::syncing

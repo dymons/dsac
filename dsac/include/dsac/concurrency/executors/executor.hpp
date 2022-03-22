@@ -5,11 +5,11 @@
 
 namespace dsac::concurrency {
 class IExecutor {
- public:
+public:
   virtual ~IExecutor() = default;
 
-  virtual void Submit(Task&& task) = 0;
-  virtual void Join() = 0;
+  virtual void Submit(task&& task) = 0;
+  virtual void Join()              = 0;
 };
 
 using IExecutorPtr = std::shared_ptr<IExecutor>;

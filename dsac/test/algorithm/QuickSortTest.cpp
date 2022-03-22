@@ -1,12 +1,12 @@
-#include "catch2/catch.hpp"
-#include <vector>
 #include <algorithm>
+#include <vector>
+#include "catch2/catch.hpp"
 
 #include <dsac/algorithm/QuickSort.hpp>
 
-TEST_CASE("Сортировка c использованием алгоритма быстрой сортировки",
-          "[quick_sort]") {
-  using Testcase = std::vector<int>;
+TEST_CASE("Сортировка c использованием алгоритма быстрой сортировки", "[quick_sort]")
+{
+  using Testcase  = std::vector<int>;
   using Testcases = std::vector<Testcase>;
 
   // clang-format off
@@ -23,13 +23,15 @@ TEST_CASE("Сортировка c использованием алгоритм�
   };
   // clang-format on
 
-  SECTION("Quick Sort, в качестве pivot выбираем значение по середине") {
+  SECTION("Quick Sort, в качестве pivot выбираем значение по середине")
+  {
     for (Testcase& testcase : testcases) {
       dsac::sort::v1::QuickSort(testcase);
       REQUIRE(std::is_sorted(testcase.begin(), testcase.end()));
     }
   }
-  SECTION("Quick Sort, в качестве pivot выбираем крайнее правое значение") {
+  SECTION("Quick Sort, в качестве pivot выбираем крайнее правое значение")
+  {
     for (Testcase& testcase : testcases) {
       dsac::sort::v2::QuickSort(testcase);
       REQUIRE(std::is_sorted(testcase.begin(), testcase.end()));

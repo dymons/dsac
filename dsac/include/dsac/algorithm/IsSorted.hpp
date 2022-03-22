@@ -1,8 +1,7 @@
 #pragma once
 
-#include <dsac/traits/ContainerTraits.hpp>
-#include <dsac/traits/IteratorTraits.hpp>
-#include <dsac/util/Functional.hpp>
+#include <dsac/type_traits/ContainerTraits.hpp>
+#include <dsac/type_traits/IteratorTraits.hpp>
 
 namespace dsac {
 

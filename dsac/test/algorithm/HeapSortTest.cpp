@@ -1,12 +1,12 @@
-#include "catch2/catch.hpp"
-#include <vector>
 #include <algorithm>
+#include <vector>
+#include "catch2/catch.hpp"
 
 #include <dsac/algorithm/HeapSort.hpp>
 
-TEST_CASE("Сортировка c использованием алгоритма пирамидальной сортировки",
-          "[heap_sort]") {
-  using Testcase = std::vector<int>;
+TEST_CASE("Сортировка c использованием алгоритма пирамидальной сортировки", "[heap_sort]")
+{
+  using Testcase  = std::vector<int>;
   using Testcases = std::vector<Testcase>;
 
   // clang-format off

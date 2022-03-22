@@ -1,12 +1,12 @@
-#include "catch2/catch.hpp"
-#include <vector>
 #include <algorithm>
+#include <vector>
+#include "catch2/catch.hpp"
 
 #include <dsac/algorithm/InsertionSort.hpp>
 
-TEST_CASE("Сортировка c использованием алгоритма сортировки вставкой",
-          "[insertion_sort]") {
-  using Testcase = std::vector<int>;
+TEST_CASE("Сортировка c использованием алгоритма сортировки вставкой", "[insertion_sort]")
+{
+  using Testcase  = std::vector<int>;
   using Testcases = std::vector<Testcase>;
 
   Testcases testcases{{1, 2, 3, 4, 5}, {}, {10, 9, 8, 7, 6}};
