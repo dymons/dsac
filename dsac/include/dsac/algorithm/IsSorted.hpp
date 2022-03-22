@@ -64,8 +64,8 @@ template <typename ForwardIterator>
 
     \ingroup DsacAlgorithms
 */
-template <typename Range, typename BinaryPredicate>
-[[gnu::always_inline]] inline bool is_sorted(Range const& range, BinaryPredicate predicate);
+template <typename ForwardRange, typename BinaryPredicate>
+[[gnu::always_inline]] inline bool is_sorted(ForwardRange&& range, BinaryPredicate predicate);
 
 /*!
     \brief
