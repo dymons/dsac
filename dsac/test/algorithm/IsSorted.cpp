@@ -15,4 +15,24 @@ TEST_CASE("Testcases are checked for the sorting", "[is_sorted]")
     REQUIRE(dsac::is_sorted(empty_testcase, std::greater<int>{}));
     REQUIRE(dsac::is_sorted(testcase{}, std::greater<int>{}));
   }
+
+  SECTION("Check sorted testcases")
+  {
+    REQUIRE(dsac::is_sorted({1, 2, 3, 4, 5}));
+    REQUIRE_FALSE(dsac::is_sorted({1, 2, 3, 4, 5}, std::greater<int>{}));
+    REQUIRE(dsac::is_sorted({5, 4, 3, 2, 1}, std::greater<int>{}));
+  }
+
+  SECTION("Check not sorted testcases")
+  {
+    REQUIRE_FALSE(dsac::is_sorted({1, 3, 2, 5, 4}));
+    REQUIRE_FALSE(dsac::is_sorted({1, 3, 2, 5, 4}, std::greater<int>{}));
+  }
+
+  SECTION("Check sorted testcases with duplicates")
+  {
+    REQUIRE(dsac::is_sorted({1, 1, 1, 1, 1}));
+    REQUIRE(dsac::is_sorted({1, 2, 3, 3, 4}));
+    REQUIRE(dsac::is_sorted({5, 4, 4, 3, 2, 1}, std::greater<int>{}));
+  }
 }
