@@ -76,4 +76,4 @@ void MergeSort(std::vector<T>& arr)
   //                          массива и сохраняться отсортированные значения In Place
   detail::MergeSortTopDownImpl(arr, 0, static_cast<int>(arr.size()) - 1);
 }
-}  // namespace dsac::sort
+}  // namespace dsac::is_sorted

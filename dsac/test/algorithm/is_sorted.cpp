@@ -1,6 +1,6 @@
 #include <catch2/catch.hpp>
 
-#include <dsac/algorithm/IsSorted.hpp>
+#include <dsac/algorithm/is_sorted.hpp>
 #include <vector>
 
 TEST_CASE("Testcases are checked for the sorting", "[is_sorted]")

@@ -52,4 +52,4 @@ void HeapSort(std::vector<T>& arr)
 {
   detail::SortingTree::Sort(arr);
 }
-}  // namespace dsac::sort
+}  // namespace dsac::is_sorted

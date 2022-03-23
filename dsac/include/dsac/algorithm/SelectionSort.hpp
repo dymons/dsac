@@ -15,4 +15,4 @@ void SelectionSort(std::vector<T>& arr)
     std::swap(arr[i], arr[min]);
   }
 }
-}  // namespace dsac::sort
+}  // namespace dsac::is_sorted

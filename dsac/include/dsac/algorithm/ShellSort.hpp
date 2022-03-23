@@ -16,4 +16,4 @@ void ShellSort(std::vector<T>& arr)
     }
   }
 }
-}  // namespace dsac::sort
+}  // namespace dsac::is_sorted

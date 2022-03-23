@@ -38,7 +38,7 @@ void QuickSort(std::vector<T>& arr)
 {
   detail::QuickSortImpl(arr, 0, static_cast<int>(arr.size()) - 1);
 }
-}  // namespace dsac::sort::v1
+}  // namespace dsac::is_sorted::v1
 
 namespace dsac::sort::v2 {
 namespace detail {
@@ -83,4 +83,4 @@ void QuickSort(std::vector<T>& arr)
 {
   detail::QuickSortImpl(arr, 0, static_cast<int>(arr.size()) - 1);
 }
-}  // namespace dsac::sort::v2
+}  // namespace dsac::is_sorted::v2

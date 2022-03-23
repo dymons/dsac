@@ -18,4 +18,4 @@ void InsertionSort(std::vector<T>& arr)
 }
 
 // TODO: Добавить версию сортировки Binary Insertion Sort
-}  // namespace dsac::sort
+}  // namespace dsac::is_sorted

@@ -3,9 +3,9 @@
 #include <vector>
 
 #include <dsac/algorithm/BinaryTreeSort.hpp>
-#include <dsac/algorithm/IsSorted.hpp>
+#include <dsac/algorithm/is_sorted.hpp>
 
-TEST_CASE("Testcases are sorted using Binary Tree Sort Algorithm", "[sort]")
+TEST_CASE("Testcases are sorted using Binary Tree Sort Algorithm", "[is_sorted]")
 {
   using Testcase  = std::vector<int>;
   using Testcases = std::vector<Testcase>;
