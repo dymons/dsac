@@ -9,11 +9,17 @@ TEST_CASE("Testcases are checked for the sorting", "[is_sorted]")
   {
     using testcase      = std::vector<int>;
     auto empty_testcase = testcase{};
-    REQUIRE(dsac::is_sorted(empty_testcase.begin(), empty_testcase.end()));
-    REQUIRE(dsac::is_sorted(empty_testcase.begin(), empty_testcase.end(), std::greater<int>{}));
-    REQUIRE(dsac::is_sorted(empty_testcase));
-    REQUIRE(dsac::is_sorted(empty_testcase, std::greater<int>{}));
-    REQUIRE(dsac::is_sorted(testcase{}, std::greater<int>{}));
+    SECTION("Using predicate by default")
+    {
+      REQUIRE(dsac::is_sorted(empty_testcase));
+      REQUIRE(dsac::is_sorted(empty_testcase.begin(), empty_testcase.end()));
+    }
+    SECTION("Using custom predicate")
+    {
+      REQUIRE(dsac::is_sorted(testcase{}, std::greater<int>{}));
+      REQUIRE(dsac::is_sorted(empty_testcase, std::greater<int>{}));
+      REQUIRE(dsac::is_sorted(empty_testcase.begin(), empty_testcase.end(), std::greater<int>{}));
+    }
   }
 
   SECTION("Check sorted testcases")
