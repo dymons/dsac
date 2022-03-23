@@ -6,7 +6,8 @@
 
 namespace dsac {
 template <typename ForwardIterator, typename BinaryPredicate>
-bool is_sorted(ForwardIterator begin, ForwardIterator end, BinaryPredicate predicate) {
+bool is_sorted(ForwardIterator begin, ForwardIterator end, BinaryPredicate predicate)
+{
   if (begin == end) {
     return true;
   }
@@ -22,29 +23,48 @@ bool is_sorted(ForwardIterator begin, ForwardIterator end, BinaryPredicate predi
 }
 
 template <typename ForwardIterator>
-bool is_sorted(ForwardIterator begin, ForwardIterator end) {
+bool is_sorted(ForwardIterator begin, ForwardIterator end)
+{
   using value_type = typename dsac::iterator_traits<ForwardIterator>::value_type;
   return ::dsac::is_sorted(begin, end, std::less<value_type>{});
 }
 
 template <typename ForwardRange, typename BinaryPredicate>
-bool is_sorted(ForwardRange&& range, BinaryPredicate predicate) {
+bool is_sorted(ForwardRange&& range, BinaryPredicate predicate)
+{
   using std::begin;
   using std::end;
-  return is_sorted(
+  return ::dsac::is_sorted(
       begin(std::forward<ForwardRange>(range)), end(std::forward<ForwardRange>(range)), predicate);
 }
 
 template <typename ForwardRange>
-bool is_sorted(ForwardRange&& range) {
+bool is_sorted(ForwardRange&& range)
+{
   using std::begin;
   using std::end;
   using iterator_type = typename dsac::container_traits<ForwardRange>::iterator_type;
   using value_type    = typename dsac::iterator_traits<iterator_type>::value_type;
 
-  return is_sorted(
+  return ::dsac::is_sorted(
       begin(std::forward<ForwardRange>(range)),
       end(std::forward<ForwardRange>(range)),
       std::less<value_type>{});
+}
+
+template <typename T>
+bool is_sorted(std::initializer_list<T> range)
+{
+  using std::begin;
+  using std::end;
+  return ::dsac::is_sorted(begin(range), end(range));
+}
+
+template <typename T, typename BinaryPredicate>
+bool is_sorted(std::initializer_list<T> range, BinaryPredicate predicate)
+{
+  using std::begin;
+  using std::end;
+  return ::dsac::is_sorted(begin(range), end(range), predicate);
 }
 }  // namespace dsac

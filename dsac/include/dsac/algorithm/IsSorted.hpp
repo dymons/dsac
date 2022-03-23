@@ -87,6 +87,45 @@ template <typename ForwardRange, typename BinaryPredicate>
 template <typename ForwardRange>
 [[gnu::always_inline]] inline bool is_sorted(ForwardRange&& range);
 
+/*!
+    \brief
+        Check whether adjacent elements in the range satisfy the condition \c predicate.
+
+    \param range
+        The sequence of elements
+
+    \returns
+        \c true if adjacent elements in the range satisfy \c predicate, \c false otherwise.
+
+    \par Worst Case Complexity:
+        Time Complexity \p O(N) and Space Complexity \p O(1)
+
+    \ingroup DsacAlgorithms
+*/
+template <typename T>
+[[gnu::always_inline]] inline bool is_sorted(std::initializer_list<T> range);
+
+
+/*!
+    \brief
+        Check whether adjacent elements in the range satisfy the condition \c predicate.
+
+    \param range
+        The sequence of elements
+    \param predicate
+        Function to invoke on adjacent pair of elements in the range
+
+    \returns
+        \c true if adjacent elements in the range satisfy \c predicate, \c false otherwise.
+
+    \par Worst Case Complexity:
+        Time Complexity \p O(N) and Space Complexity \p O(1)
+
+    \ingroup DsacAlgorithms
+*/
+template <typename T, typename BinaryPredicate>
+[[gnu::always_inline]] inline bool is_sorted(std::initializer_list<T> range, BinaryPredicate predicate);
+
 }  // namespace dsac
 
 #define ALGORITHM_IS_SORTED_HPP_
