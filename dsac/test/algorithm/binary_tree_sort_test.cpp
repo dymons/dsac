@@ -2,7 +2,7 @@
 
 #include <vector>
 
-#include <dsac/algorithm/BinaryTreeSort.hpp>
+#include <dsac/algorithm/binary_tree_sort.hpp>
 #include <dsac/algorithm/is_sorted.hpp>
 
 TEST_CASE("Testcases are sorted using Binary Tree Sort Algorithm", "[is_sorted]")

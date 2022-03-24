@@ -2,9 +2,9 @@
 #include <vector>
 #include "catch2/catch.hpp"
 
-#include <dsac/algorithm/SelectionSort.hpp>
+#include <dsac/algorithm/bubble_sort.hpp>
 
-TEST_CASE("Сортировка c использованием алгоритма сортировки выбором", "[selection_sort]")
+TEST_CASE("Сортировка c использованием алгоритма сортировки пузырьком", "[bubble_sort]")
 {
   using Testcase  = std::vector<int>;
   using Testcases = std::vector<Testcase>;
@@ -20,7 +20,7 @@ TEST_CASE("Сортировка c использованием алгоритм�
   // clang-format on
 
   for (Testcase& testcase : testcases) {
-    dsac::sort::SelectionSort(testcase);
+    dsac::sort::BubbleSort(testcase);
     REQUIRE(std::is_sorted(testcase.begin(), testcase.end()));
   }
 }

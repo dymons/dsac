@@ -2,7 +2,7 @@
 #include <vector>
 #include "catch2/catch.hpp"
 
-#include <dsac/algorithm/ShakerSort.hpp>
+#include <dsac/algorithm/shaker_sort.hpp>
 
 TEST_CASE("Сортировка c использованием алгоритма сортировки перемешиванием", "[shaker_sort]")
 {

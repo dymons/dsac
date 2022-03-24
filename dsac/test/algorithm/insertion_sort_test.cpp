@@ -2,7 +2,7 @@
 #include <vector>
 #include "catch2/catch.hpp"
 
-#include <dsac/algorithm/InsertionSort.hpp>
+#include <dsac/algorithm/insertion_sort.hpp>
 
 TEST_CASE("Сортировка c использованием алгоритма сортировки вставкой", "[insertion_sort]")
 {

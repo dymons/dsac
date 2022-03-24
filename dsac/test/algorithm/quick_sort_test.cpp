@@ -2,7 +2,7 @@
 #include <vector>
 #include "catch2/catch.hpp"
 
-#include <dsac/algorithm/QuickSort.hpp>
+#include <dsac/algorithm/quick_sort.hpp>
 
 TEST_CASE("Сортировка c использованием алгоритма быстрой сортировки", "[quick_sort]")
 {

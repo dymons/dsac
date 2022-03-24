@@ -2,9 +2,9 @@
 #include <vector>
 #include "catch2/catch.hpp"
 
-#include <dsac/algorithm/HeapSort.hpp>
+#include <dsac/algorithm/selection_sort.hpp>
 
-TEST_CASE("Сортировка c использованием алгоритма пирамидальной сортировки", "[heap_sort]")
+TEST_CASE("Сортировка c использованием алгоритма сортировки выбором", "[selection_sort]")
 {
   using Testcase  = std::vector<int>;
   using Testcases = std::vector<Testcase>;
@@ -13,18 +13,14 @@ TEST_CASE("Сортировка c использованием алгоритм�
   Testcases testcases
   {
       {},
-      {1},
-      {2,1},
-      {3,1,2},
       {1, 2, 3, 4, 5},
       {10, 9, 8, 7, 6},
-      {-5, 10, -3, 2, -8, 15, 4, 0, 0, -5, 4},
-      {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1}
+      {-5, 10, -3, 2, -8, 15, 4, 0, 0, -5, 4}
   };
   // clang-format on
 
   for (Testcase& testcase : testcases) {
-    dsac::sort::HeapSort(testcase);
+    dsac::sort::SelectionSort(testcase);
     REQUIRE(std::is_sorted(testcase.begin(), testcase.end()));
   }
 }

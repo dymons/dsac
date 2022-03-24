@@ -2,7 +2,7 @@
 #include <vector>
 #include "catch2/catch.hpp"
 
-#include <dsac/algorithm/ShellSort.hpp>
+#include <dsac/algorithm/shell_sort.hpp>
 
 TEST_CASE("Сортировка c использованием алгоритма сортировки Шелла", "[shell_sort]")
 {
