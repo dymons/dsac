@@ -28,7 +28,7 @@ using detail::is_sorted;
     \ingroup DsacAlgorithms
 */
 template <typename ForwardIterator>
-[[gnu::always_inline]] inline bool is_sorted(ForwardIterator begin, ForwardIterator end)
+[[gnu::always_inline]] constexpr inline bool is_sorted(ForwardIterator begin, ForwardIterator end)
 {
   using value_type = typename dsac::iterator_traits<ForwardIterator>::value_type;
   return detail::is_sorted(begin, end, std::less<value_type>{});
@@ -40,7 +40,7 @@ template <typename ForwardIterator>
 
     \param range
         The sequence of elements
-    \param predicate
+    \param comp
         Function to invoke on adjacent pair of elements in the range
 
     \returns
@@ -51,13 +51,13 @@ template <typename ForwardIterator>
 
     \ingroup DsacAlgorithms
 */
-template <typename ForwardRange, typename BinaryPredicate>
-[[gnu::always_inline]] inline bool is_sorted(ForwardRange&& range, BinaryPredicate predicate)
+template <typename ForwardRange, typename Compare>
+[[gnu::always_inline]] constexpr inline bool is_sorted(ForwardRange&& range, Compare comp)
 {
   using std::begin;
   using std::end;
   return detail::is_sorted(
-      begin(std::forward<ForwardRange>(range)), end(std::forward<ForwardRange>(range)), predicate);
+      begin(std::forward<ForwardRange>(range)), end(std::forward<ForwardRange>(range)), comp);
 }
 
 /*!
@@ -66,8 +66,6 @@ template <typename ForwardRange, typename BinaryPredicate>
 
     \param range
         The sequence of elements
-    \param predicate
-        Function to invoke on adjacent pair of elements in the range
 
     \returns
         \c true if adjacent elements in the range satisfy \c predicate, \c false otherwise.
@@ -78,7 +76,7 @@ template <typename ForwardRange, typename BinaryPredicate>
     \ingroup DsacAlgorithms
 */
 template <typename ForwardRange>
-[[gnu::always_inline]] inline bool is_sorted(ForwardRange&& range)
+[[gnu::always_inline]] constexpr inline bool is_sorted(ForwardRange&& range)
 {
   using std::begin;
   using std::end;
@@ -107,7 +105,7 @@ template <typename ForwardRange>
     \ingroup DsacAlgorithms
 */
 template <typename T>
-[[gnu::always_inline]] inline bool is_sorted(std::initializer_list<T> range)
+[[gnu::always_inline]] constexpr inline bool is_sorted(std::initializer_list<T> range)
 {
   using std::begin;
   using std::end;
@@ -120,7 +118,7 @@ template <typename T>
 
     \param range
         The sequence of elements
-    \param predicate
+    \param comp
         Function to invoke on adjacent pair of elements in the range
 
     \returns
@@ -131,12 +129,11 @@ template <typename T>
 
     \ingroup DsacAlgorithms
 */
-template <typename T, typename BinaryPredicate>
-[[gnu::always_inline]] inline bool is_sorted(
-    std::initializer_list<T> range, BinaryPredicate predicate)
+template <typename T, typename Compare>
+[[gnu::always_inline]] constexpr inline bool is_sorted(std::initializer_list<T> range, Compare comp)
 {
   using std::begin;
   using std::end;
-  return ::dsac::is_sorted(begin(range), end(range), predicate);
+  return ::dsac::is_sorted(begin(range), end(range), comp);
 }
 }  //  namespace dsac

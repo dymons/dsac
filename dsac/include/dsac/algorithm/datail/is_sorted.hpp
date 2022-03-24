@@ -24,8 +24,8 @@ namespace dsac::detail {
 
     \ingroup DsacAlgorithms
 */
-template <typename ForwardIterator, typename BinaryPredicate>
-bool is_sorted(ForwardIterator begin, ForwardIterator end, BinaryPredicate predicate)
+template <typename ForwardIterator, typename Compare>
+constexpr bool is_sorted(ForwardIterator begin, ForwardIterator end, Compare comp)
 {
   if (begin == end) {
     return true;
@@ -33,7 +33,7 @@ bool is_sorted(ForwardIterator begin, ForwardIterator end, BinaryPredicate predi
 
   ForwardIterator next = begin;
   for (++next; next != end; begin = next, (void)++next) {
-    if (predicate(*next, *begin)) {
+    if (comp(*next, *begin)) {
       return false;
     }
   }

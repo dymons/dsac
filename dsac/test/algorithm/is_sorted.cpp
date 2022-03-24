@@ -41,4 +41,18 @@ TEST_CASE("Testcases are checked for the sorting", "[is_sorted]")
     REQUIRE(dsac::is_sorted({1, 2, 3, 3, 4}));
     REQUIRE(dsac::is_sorted({5, 4, 4, 3, 2, 1}, std::greater<int>{}));
   }
+
+  SECTION("Check constexpr usage")
+  {
+    constexpr auto kNumElements = 5U;
+    using testcase              = std::array<int, kNumElements>;
+
+    constexpr auto kEmptyTestcase       = testcase{};
+    constexpr auto kEmptyTestcaseSorted = dsac::is_sorted(kEmptyTestcase);
+    STATIC_REQUIRE(kEmptyTestcaseSorted);
+
+    constexpr auto kSortedTestcase = testcase{1, 2, 3, 4, 5};
+    constexpr auto kTestcaseSorted = dsac::is_sorted(begin(kSortedTestcase), end(kSortedTestcase));
+    STATIC_REQUIRE(kTestcaseSorted);
+  }
 }
