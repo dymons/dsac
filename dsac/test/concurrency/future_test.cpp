@@ -1,12 +1,12 @@
 #include "catch2/catch.hpp"
 
-#include <concurrency/futures/future.hpp>
-#include <concurrency/futures/promise.hpp>
-#include <concurrency/executors/static_thread_pool.hpp>
+#include <dsac/concurrency/futures/future.hpp>
+#include <dsac/concurrency/futures/promise.hpp>
+#include <dsac/concurrency/executors/static_thread_pool.hpp>
 
 TEST_CASE("Проверка корректности Future&Promise", "[future_and_promise]") {
-  using namespace algo::futures;
-  using namespace algo::concurrency;
+  using namespace dsac::futures;
+  using namespace dsac::concurrency;
 
   SECTION("Выполнение Future&Promise в однопоточном исполнении") {
     Promise<int> promise;

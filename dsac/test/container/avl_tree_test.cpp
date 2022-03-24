@@ -2,11 +2,11 @@
 
 #include <random>
 #include <vector>
-#include <structures/tree/avl_tree.hpp>
+#include <dsac/container/tree/avl_tree.hpp>
 
 TEST_CASE("Проверка выполнения корректности поворотов для AVL дерева",
           "[avl_tree_rotate]") {
-  using namespace algo::tree;
+  using namespace dsac::tree;
 
   SECTION("Проверка корректности выполнения малого правого вращения") {
     AVLTree<int> tree;
@@ -66,7 +66,7 @@ TEST_CASE("Проверка выполнения корректности пов
 }
 
 TEST_CASE("Корректность построения AVL дерева", "[avl_tree_build]") {
-  using namespace algo::tree;
+  using namespace dsac::tree;
 
   SECTION("Проверка высоты AVL дерева") {
     AVLTree<int> tree;
@@ -168,7 +168,7 @@ TEST_CASE("Корректность построения AVL дерева", "[av
 }
 
 TEST_CASE("Корректность удаления элементов из AVL дерева", "[avl_tree_delete]") {
-  using namespace algo::tree;
+  using namespace dsac::tree;
 
   SECTION("Удаление элементов из пустого дерева") {
     AVLTree<int> tree;

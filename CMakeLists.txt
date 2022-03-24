@@ -13,6 +13,7 @@ project(${PACKAGE_NAME} CXX C ASM)
 include(cmake/CheckCompiler.cmake)
 include(cmake/CompileOptions.cmake)
 include(cmake/Modules.cmake)
+include(cmake/Macro.cmake)
 
 add_subdirectory(dsac)
 add_subdirectory(docs)

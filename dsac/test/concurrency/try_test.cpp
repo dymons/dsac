@@ -1,9 +1,9 @@
 #include "catch2/catch.hpp"
 
-#include <concurrency/futures/try.hpp>
+#include <dsac/concurrency/futures/try.hpp>
 
 TEST_CASE("Проверка корректности примитива Try", "[try]") {
-  using namespace algo::futures;
+  using namespace dsac::futures;
 
   SECTION("Проверка корректности хранения значений в примитиве Try") {
     Try<int> try_value{10};

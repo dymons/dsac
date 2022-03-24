@@ -1,13 +1,13 @@
 #include "catch2/catch.hpp"
 
-#include <concurrency/futures/future.hpp>
-#include <concurrency/futures/async_via.hpp>
-#include <concurrency/executors/static_thread_pool.hpp>
-#include <concurrency/coroutines/futures/promise.hpp>
-#include <concurrency/coroutines/futures/awaiter.hpp>
+#include <dsac/concurrency/futures/future.hpp>
+#include <dsac/concurrency/futures/async_via.hpp>
+#include <dsac/concurrency/executors/static_thread_pool.hpp>
+#include <dsac/concurrency/coroutines/futures/promise.hpp>
+#include <dsac/concurrency/coroutines/futures/awaiter.hpp>
 
-using namespace algo::futures;
-using namespace algo::concurrency;
+using namespace dsac::futures;
+using namespace dsac::concurrency;
 
 Future<int> Coroutine(IExecutorPtr executor) {
   Future<int> future = AsyncVia(executor, []() {

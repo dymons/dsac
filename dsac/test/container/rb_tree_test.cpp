@@ -2,18 +2,18 @@
 
 #include <random>
 #include <vector>
-#include <structures/tree/rb_tree.hpp>
+#include <dsac/container/tree/rb_tree.hpp>
 
 namespace {
 template <typename T>
-[[nodiscard]] bool IsInvariantRight(const algo::tree::RBTree<T>& tree) {
+[[nodiscard]] bool IsInvariantRight(const dsac::tree::RBTree<T>& tree) {
   return tree.MaxDepth() / 2 <= tree.MinDepth();
 }
 }  // namespace
 
 TEST_CASE("Проверка выполнения корректности поворотов для красно-черное дерево",
           "[rb_tree_rotate]") {
-  using namespace algo::tree;
+  using namespace dsac::tree;
 
   SECTION("Проверка корректности выполнения малого правого вращения") {
     RBTree<int> tree;
@@ -45,7 +45,7 @@ TEST_CASE("Проверка выполнения корректности пов
 }
 
 TEST_CASE("Корректность построения красно-черного дерева", "[rb_tree_build]") {
-  using namespace algo::tree;
+  using namespace dsac::tree;
 
   SECTION("Проверка высоты красно-черного дерева") {
     RBTree<int> tree;

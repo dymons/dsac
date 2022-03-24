@@ -1,9 +1,9 @@
 #include "catch2/catch.hpp"
 
-#include <structures/tree/b_tree.hpp>
+#include <dsac/container/tree/b_tree.hpp>
 
 TEST_CASE("Проверка B дерева поиска", "[b_tree]") {
-  using namespace algo::tree;
+  using namespace dsac::tree;
 
   constexpr int t = 3;
   BTree<int> tree(t);

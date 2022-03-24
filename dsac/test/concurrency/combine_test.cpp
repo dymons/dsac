@@ -1,16 +1,16 @@
 #include "catch2/catch.hpp"
 
-#include <concurrency/futures/future.hpp>
-#include <concurrency/futures/promise.hpp>
-#include <concurrency/executors/static_thread_pool.hpp>
-#include <concurrency/futures/combine/first_of.hpp>
-#include <concurrency/futures/combine/first_n.hpp>
+#include <dsac/concurrency/futures/future.hpp>
+#include <dsac/concurrency/futures/promise.hpp>
+#include <dsac/concurrency/executors/static_thread_pool.hpp>
+#include <dsac/concurrency/futures/combine/first_of.hpp>
+#include <dsac/concurrency/futures/combine/first_n.hpp>
 
 #include <chrono>
 
 TEST_CASE("Проверка корректности комбинатора на Future", "[combine]") {
-  using namespace algo::futures;
-  using namespace algo::concurrency;
+  using namespace dsac::futures;
+  using namespace dsac::concurrency;
 
   SECTION("Проверка исполнения комбинатора FirstOf") {
     constexpr std::size_t kNumberWorkers = 2U;

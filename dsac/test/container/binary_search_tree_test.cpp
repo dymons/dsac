@@ -1,9 +1,9 @@
 #include "catch2/catch.hpp"
 
-#include <structures/tree/binary_search_tree/tree.hpp>
+#include <dsac/container/tree/bs_tree.hpp>
 
 TEST_CASE("Создание бинарного дерева поиска", "[binary_search_tree][construct]") {
-  using namespace algo::tree;
+  using namespace dsac::tree;
 
   SECTION("Проверка метода size для пустого дерева") {
     BinarySearchTree<int> tree;
@@ -17,7 +17,7 @@ TEST_CASE("Создание бинарного дерева поиска", "[bin
 
 TEST_CASE("Создание итератора для бинарного дерева поиска",
           "[binary_search_tree][iterator]") {
-  using namespace algo::tree;
+  using namespace dsac::tree;
 
   SECTION("Проверка итераторов пустого дерева на равенство") {
     BinarySearchTree<int> tree;
@@ -44,7 +44,7 @@ TEST_CASE("Создание итератора для бинарного дер�
 
 TEST_CASE("Добавление элеметнов в бинарное дерево поиска",
           "[binary_search_tree][insert]") {
-  using namespace algo::tree;
+  using namespace dsac::tree;
 
   SECTION("Добавление элементов в дерево") {
     BinarySearchTree<int> tree;
@@ -139,7 +139,7 @@ TEST_CASE("Добавление элеметнов в бинарное дере�
 
 TEST_CASE("Удаление всух элеметнов из бинарного дерева поиска",
           "[binary_search_tree][clear]") {
-  using namespace algo::tree;
+  using namespace dsac::tree;
 
   BinarySearchTree<int> tree;
   REQUIRE(tree.IsEmpty());
@@ -154,7 +154,7 @@ TEST_CASE("Удаление всух элеметнов из бинарного 
 }
 
 TEST_CASE("Поиск элементов в бинарном дереве поиска", "[binary_search_tree][find]") {
-  using namespace algo::tree;
+  using namespace dsac::tree;
 
   SECTION("Проверка добавленного элемента в дерево") {
     BinarySearchTree<int> tree;
@@ -185,7 +185,7 @@ TEST_CASE("Поиск элементов в бинарном дереве пои
 
 TEST_CASE("Удаление элементов из бинарного дерева поиска",
           "[binary_search_tree][erase]") {
-  using namespace algo::tree;
+  using namespace dsac::tree;
 
   SECTION("Удаление вершины дерева без наличия левой и правой вершины") {
     BinarySearchTree<int> tree;
@@ -274,7 +274,7 @@ class AllocatorWithCounters : public std::allocator<T> {
 
 TEST_CASE("Управление ресурсами в бинарном дереве поиска",
           "[binary_search_tree][allocator]") {
-  using namespace algo::tree;
+  using namespace dsac::tree;
 
   using Tree = BinarySearchTree<int, std::less<int>, AllocatorWithCounters<int>>;
   using TreePtr = std::shared_ptr<Tree>;

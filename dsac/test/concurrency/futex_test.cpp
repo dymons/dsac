@@ -1,12 +1,12 @@
 #include "catch2/catch.hpp"
 
-#include <concurrency/syncing/futex.hpp>
+#include <dsac/concurrency/synchronization/futex.hpp>
 #include <thread>
 #include <chrono>
 #include <memory>
 
 TEST_CASE("Проверка корректности выполнения Futex", "[futex_work]") {
-  using namespace algo::syncing;
+  using namespace dsac::syncing;
 
   SECTION("Блокировка и ожидание значения в разделяемом состоянии") {
     Futex futex;

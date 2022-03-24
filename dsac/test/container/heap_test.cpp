@@ -2,10 +2,10 @@
 
 #include <random>
 #include <vector>
-#include <structures/heap/binary_heap.hpp>
+#include <dsac/container/heap/binary_heap.hpp>
 
 TEST_CASE("Добавление и удаление элементов в MinHeap", "[min_heap]") {
-  using namespace algo::heap;
+  using namespace dsac::heap;
 
   SECTION("Корректность структуры MinHeap при пустых данных") {
     MinBinaryHeap<int> heap;
@@ -46,7 +46,7 @@ TEST_CASE("Добавление и удаление элементов в MinHea
 }
 
 TEST_CASE("Добавление и удаление элементов в MaxHeap", "[max_heap]") {
-  using namespace algo::heap;
+  using namespace dsac::heap;
 
   SECTION("Корректность структуры MaxHeap при пустых данных") {
     MaxBinaryHeap<int> heap;

@@ -1,9 +1,9 @@
 #include "catch2/catch.hpp"
 
-#include <structures/graph/dijkstra_search.hpp>
+#include <dsac/container/graph/dijkstra_search.hpp>
 
 TEST_CASE("Алгоритм поиска Дейкстры", "[dijkstra]") {
-  using namespace algo::graph;
+  using namespace dsac::graph;
   using Edge = std::pair<int, int>;
   using Edges = std::vector<Edge>;
   // clang-format off

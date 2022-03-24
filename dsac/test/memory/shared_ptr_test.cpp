@@ -1,10 +1,10 @@
 #include "catch2/catch.hpp"
 
-#include "shared_ptr.hpp"
+#include <dsac/memory/shared_ptr.hpp>
 #include <functional>
 
 TEST_CASE("Создание умного указателя SharedPtr", "[shared_ptr_build]") {
-  using namespace algo::pointers;
+  using namespace dsac::pointers;
   SECTION("Проверка корректности для конструкторов и операторов пустого SharedPtr") {
     SharedPtr<int> shared;
     REQUIRE(shared.UseCount() == 0);

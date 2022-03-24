@@ -1,7 +1,7 @@
 #include "catch2/catch.hpp"
 #include <utility>
 
-#include <structures/graph/directed_graph.hpp>
+#include <dsac/container/graph/directed_graph.hpp>
 
 TEST_CASE("Проверка корректности работы неориентированного графа", "[undirected_graph]") {
   using Edge = std::pair<int, int>;
@@ -15,7 +15,7 @@ TEST_CASE("Проверка корректности работы неориен
   };
   // clang-format on
 
-  algo::graph::Digraph graph;
+  dsac::graph::Digraph graph;
   for (const Edge& edge : edges) {
     graph.AddEdge({edge.first}, {edge.second});
   }

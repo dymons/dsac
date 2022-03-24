@@ -1,6 +1,6 @@
 #include "catch2/catch.hpp"
 
-#include <concurrency/syncing/mvar.hpp>
+#include <dsac/concurrency/synchronization/mvar.hpp>
 
 #include <thread>
 #include <chrono>
@@ -8,7 +8,7 @@
 #include <iostream>
 
 TEST_CASE("Проверка корректности выполнения примитива синхронизации MVar", "[mvar]") {
-  using namespace algo::syncing;
+  using namespace dsac::syncing;
 
   static_assert(!std::is_copy_constructible<MVar<int>>::value);
   static_assert(!std::is_move_constructible<MVar<int>>::value);

@@ -1,10 +1,10 @@
 #include "catch2/catch.hpp"
 
-#include <concurrency/syncing/critical_section.hpp>
+#include <dsac/concurrency/synchronization/critical_section.hpp>
 #include <thread>
 
 TEST_CASE("Проверка корректности выполнения CriticalSection", "[critical_section]") {
-  using namespace algo::syncing;
+  using namespace dsac::syncing;
 
   SECTION("Проверка корректности изменения объекта несколькими потоками") {
     CriticalSection critical_section;

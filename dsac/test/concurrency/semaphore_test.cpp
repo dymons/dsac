@@ -1,11 +1,11 @@
 #include "catch2/catch.hpp"
 
-#include <concurrency/syncing/semaphore.hpp>
+#include <dsac/concurrency/synchronization/semaphore.hpp>
 #include <thread>
 #include <chrono>
 
 TEST_CASE("Semaphore как Mutex", "[semaphore_like_mutex]") {
-  using namespace algo::syncing;
+  using namespace dsac::syncing;
 
   constexpr std::size_t kNumberConsumers = 1U;
   Semaphore sema{kNumberConsumers};
@@ -51,7 +51,7 @@ TEST_CASE("Semaphore как Mutex", "[semaphore_like_mutex]") {
 }
 
 TEST_CASE("Ограниченное количество Consumers", "[semaphore_limited]") {
-  using namespace algo::syncing;
+  using namespace dsac::syncing;
 
   constexpr std::size_t kNumberConsumers = 4U;
   Semaphore sema{kNumberConsumers};

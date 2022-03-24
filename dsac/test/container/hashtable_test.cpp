@@ -1,10 +1,10 @@
 #include "catch2/catch.hpp"
 
 #include <string>
-#include <structures/hashtable/hashtable.hpp>
+#include <dsac/container/hash/hashtable.hpp>
 
 TEST_CASE("Проверка корректности работы стандартных функция с HashTable", "[hash]") {
-  using namespace algo::hashtable;
+  using namespace dsac::hashtable;
 
   SECTION("Проверка корректности выполнения добавления элементов в HashTable") {
     HashTable<int, std::string> hashtable;

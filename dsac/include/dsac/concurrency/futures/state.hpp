@@ -1,9 +1,9 @@
 #pragma once
 
-#include <concurrency/executors/executor.hpp>
-#include <concurrency/futures/callback.hpp>
-#include <concurrency/futures/try.hpp>
-#include <concurrency/syncing/mvar.hpp>
+#include <dsac/concurrency/executors/executor.hpp>
+#include <dsac/concurrency/futures/callback.hpp>
+#include <dsac/concurrency/futures/try.hpp>
+#include <dsac/concurrency/synchronization/mvar.hpp>
 
 #include <variant>
 
@@ -120,15 +120,18 @@ inline StateRef<T> MakeSharedState()
 //////////////////////////////////////////////////////////////////////
 
 template <typename T>
-class HoldState : public detail::NonCopyable {
+class HoldState {
 protected:
-  HoldState(StateRef<T> state)
+  explicit HoldState(StateRef<T> state)
     : state_(std::move(state))
   {
   }
 
-  HoldState(HoldState&& that) = default;
+  HoldState(HoldState const& that) = delete;
+  HoldState& operator=(HoldState const& that) = delete;
+  HoldState(HoldState&& that)                 = default;
   HoldState& operator=(HoldState&& that) = default;
+  ~HoldState()                           = default;
 
   StateRef<T> ReleaseState()
   {

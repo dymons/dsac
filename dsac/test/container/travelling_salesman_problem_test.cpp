@@ -1,10 +1,10 @@
 #include "catch2/catch.hpp"
 #include <utility>
 
-#include <structures/graph/travelling_salesman_problem.hpp>
+#include <dsac/container/graph/travelling_salesman_problem.hpp>
 
 TEST_CASE("Задача коммивояжёра", "[travelling_salesman_problem]") {
-  using namespace algo::graph;
+  using namespace dsac::graph;
 
   constexpr int size_graph = 4;
   tsp::CompleteGraph graph(size_graph);

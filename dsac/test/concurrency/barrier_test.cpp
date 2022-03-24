@@ -1,11 +1,11 @@
 #include "catch2/catch.hpp"
 
-#include <concurrency/syncing/barrier.hpp>
+#include <dsac/concurrency/synchronization/barrier.hpp>
 #include <thread>
 #include <vector>
 
 TEST_CASE("Проверка корректности выполнения Barrier", "[barrier]") {
-  using namespace algo::syncing;
+  using namespace dsac::syncing;
 
   constexpr std::size_t kNumWorkers = 10u;
   Barrier barrier{kNumWorkers};

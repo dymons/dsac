@@ -1,9 +1,9 @@
 #include "catch2/catch.hpp"
 
-#include <structures/graph/disjoint_set_union.hpp>
+#include <dsac/container/graph/disjoint_set_union.hpp>
 
 TEST_CASE("Структура данных Disjoint Set Union", "[disjoint]") {
-  using namespace algo::graph;
+  using namespace dsac::graph;
 
   constexpr std::size_t kSizeDisjointSet = 10U;
   DisjointSet disjoint_set(kSizeDisjointSet);

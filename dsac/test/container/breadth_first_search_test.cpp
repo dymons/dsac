@@ -1,9 +1,9 @@
 #include "catch2/catch.hpp"
 
-#include <structures/graph/breadth_first_search.hpp>
+#include <dsac/container/graph/breadth_first_search.hpp>
 
 TEST_CASE("Поиск в ширину на графе", "[breadth_first_search]") {
-  using namespace algo::graph;
+  using namespace dsac::graph;
   using Edge = std::pair<int, int>;
   using Edges = std::vector<Edge>;
   // clang-format off

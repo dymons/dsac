@@ -1,11 +1,11 @@
 #include "catch2/catch.hpp"
 
-#include <concurrency/syncing/mutex.hpp>
+#include <dsac/concurrency/synchronization/mutex.hpp>
 #include <thread>
 #include <memory>
 
 TEST_CASE("Проверка корректности выполнения Mutex", "[mutex_work]") {
-  using namespace algo::syncing;
+  using namespace dsac::syncing;
 
   SECTION("Проверка корректности изменения объекта несколькими потоками") {
     Mutex mutex;

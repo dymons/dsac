@@ -1,9 +1,9 @@
 #include "catch2/catch.hpp"
 
-#include <structures/graph/depth_first_search.hpp>
+#include <dsac/container/graph/depth_first_search.hpp>
 
 TEST_CASE("Поиск в глубину на графе", "[depth_first_search]") {
-  using namespace algo::graph;
+  using namespace dsac::graph;
   using Edge = std::pair<int, int>;
   using Edges = std::vector<Edge>;
   // clang-format off

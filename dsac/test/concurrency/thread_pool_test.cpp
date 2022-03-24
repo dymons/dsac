@@ -1,10 +1,10 @@
 #include "catch2/catch.hpp"
 
-#include <concurrency/executors/static_thread_pool.hpp>
+#include <dsac/concurrency/executors/static_thread_pool.hpp>
 #include <chrono>
 
 TEST_CASE("Проверка корректности выполнения Thread Pool", "[static_thread_pool]") {
-  using namespace algo::concurrency;
+  using namespace dsac::concurrency;
 
   constexpr std::size_t kNumberWorkers = 4U;
   IExecutorPtr executor = StaticThreadPool::Make(kNumberWorkers);
