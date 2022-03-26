@@ -1,6 +1,25 @@
 #pragma once
 
 #include <algorithm>
+#include <iterator>
+#include <stdexcept>
+
+namespace dsac {
+
+class BinaryTreeSortException : public std::range_error {
+public:
+  using std::range_error::range_error;
+};
+
+class DublicatesNotSupported : public BinaryTreeSortException {
+public:
+  DublicatesNotSupported()
+    : BinaryTreeSortException("Work with duplicates is not supported yet")
+  {
+  }
+};
+
+}  // namespace dsac
 
 namespace dsac::detail {
 
@@ -21,10 +40,15 @@ namespace dsac::detail {
 template <class BinaryTreePolicy, typename ForwardIterator>
 void binary_tree_sort(ForwardIterator first, ForwardIterator last)
 {
+  BinaryTreePolicy binary_tree(first, last);
+  auto const       range_size = std::distance(first, last);
+  if (binary_tree.size() != range_size) {
+    throw DublicatesNotSupported{};
+  }
+
   using std::begin;
   using std::end;
-
-  BinaryTreePolicy tree(first, last);
-  std::copy(begin(tree), end(tree), first);
+  std::copy(begin(binary_tree), end(binary_tree), first);
 }
+
 }  // namespace dsac::detail

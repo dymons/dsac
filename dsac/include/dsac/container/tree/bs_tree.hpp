@@ -235,10 +235,10 @@ public:
 
   inline bool IsEmpty() const noexcept
   {
-    return Size() == 0;
+    return size() == 0;
   }
 
-  inline std::size_t Size() const noexcept
+  inline std::size_t size() const noexcept
   {
     return size_;
   }

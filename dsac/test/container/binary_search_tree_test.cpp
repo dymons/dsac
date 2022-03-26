@@ -7,7 +7,7 @@ TEST_CASE("Создание бинарного дерева поиска", "[bin
 
   SECTION("Проверка метода size для пустого дерева") {
     binary_search_tree<int> tree;
-    REQUIRE(tree.Size() == 0);
+    REQUIRE(tree.size() == 0);
   }
   SECTION("Проверка метода empty для пустого дерева") {
     binary_search_tree<int> tree;
@@ -50,14 +50,14 @@ TEST_CASE("Добавление элеметнов в бинарное дере�
     binary_search_tree<int> tree;
     auto const [_, is_added] = tree.Insert(0);
     REQUIRE(is_added);
-    REQUIRE(tree.Size() == 1);
+    REQUIRE(tree.size() == 1);
   }
   SECTION("Проверка на выполнение условия о хранении уникальных элементов в дереве") {
     binary_search_tree<int> tree;
     tree.Insert(0);
     auto const [_, is_added] = tree.Insert(0);
     REQUIRE_FALSE(is_added);
-    REQUIRE(tree.Size() == 1);
+    REQUIRE(tree.size() == 1);
   }
   SECTION("Проверка итерирования по дереву") {
     binary_search_tree<int> tree;
@@ -105,7 +105,7 @@ TEST_CASE("Добавление элеметнов в бинарное дере�
 
     auto counter(std::make_shared<int>());
     tree.Insert({counter});
-    REQUIRE(tree.Size() == 1);
+    REQUIRE(tree.size() == 1);
     REQUIRE(*counter == 1);
   }
 
@@ -132,7 +132,7 @@ TEST_CASE("Добавление элеметнов в бинарное дере�
 
     auto counter(std::make_shared<int>());
     tree.Emplace(counter);
-    REQUIRE(tree.Size() == 1);
+    REQUIRE(tree.size() == 1);
     REQUIRE(*counter == 0);
   }
 }
@@ -191,21 +191,21 @@ TEST_CASE("Удаление элементов из бинарного дере�
     binary_search_tree<int> tree;
 
     REQUIRE(tree.Insert(1).second);
-    REQUIRE(tree.Size() == 1);
+    REQUIRE(tree.size() == 1);
 
     REQUIRE(tree.Erase(1));
-    REQUIRE(tree.Size() == 0);
+    REQUIRE(tree.size() == 0);
   }
   SECTION("Удаление самого левого элемента из дерева") {
     binary_search_tree<int> tree;
 
     REQUIRE(tree.Insert(2).second);
     REQUIRE(tree.Insert(1).second);
-    REQUIRE(tree.Size() == 2);
+    REQUIRE(tree.size() == 2);
     REQUIRE(*tree.Begin() == 1);
 
     REQUIRE(tree.Erase(1));
-    REQUIRE(tree.Size() == 1);
+    REQUIRE(tree.size() == 1);
     REQUIRE(*tree.Begin() == 2);
   }
   SECTION("Удаление самого правого элемента из дерева") {
@@ -213,10 +213,10 @@ TEST_CASE("Удаление элементов из бинарного дере�
 
     REQUIRE(tree.Insert(1).second);
     REQUIRE(tree.Insert(2).second);
-    REQUIRE(tree.Size() == 2);
+    REQUIRE(tree.size() == 2);
 
     REQUIRE(tree.Erase(2));
-    REQUIRE(tree.Size() == 1);
+    REQUIRE(tree.size() == 1);
   }
   SECTION("Удаление вершины дерева с наличием левой и правой вершины") {
     binary_search_tree<int> tree;
@@ -224,10 +224,10 @@ TEST_CASE("Удаление элементов из бинарного дере�
     REQUIRE(tree.Insert(2).second);
     REQUIRE(tree.Insert(1).second);
     REQUIRE(tree.Insert(3).second);
-    REQUIRE(tree.Size() == 3);
+    REQUIRE(tree.size() == 3);
 
     REQUIRE(tree.Erase(2));
-    REQUIRE(tree.Size() == 2);
+    REQUIRE(tree.size() == 2);
   }
   SECTION("Удаление всех элементов") {
     binary_search_tree<int> tree;
@@ -235,12 +235,12 @@ TEST_CASE("Удаление элементов из бинарного дере�
     for (int i{}; i < 100; ++i) {
       REQUIRE(tree.Insert(i).second);
     }
-    REQUIRE(tree.Size() == 100);
+    REQUIRE(tree.size() == 100);
 
     for (int i{}; i < 100; ++i) {
       REQUIRE(tree.Erase(i));
     }
-    REQUIRE(tree.Size() == 0);
+    REQUIRE(tree.size() == 0);
   }
 }
 

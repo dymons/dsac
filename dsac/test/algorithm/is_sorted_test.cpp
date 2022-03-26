@@ -1,9 +1,10 @@
 #include <catch2/catch.hpp>
 
 #include <dsac/algorithm/is_sorted.hpp>
+#include <limits>
 #include <vector>
 
-TEST_CASE("Testcases are checked for the sorting", "[is_sorted]")
+TEST_CASE("Testcases are checked for the sorting", "[is_sorted-default]")
 {
   SECTION("Check an empty testcase")
   {
@@ -40,6 +41,16 @@ TEST_CASE("Testcases are checked for the sorting", "[is_sorted]")
     REQUIRE(dsac::is_sorted({1, 1, 1, 1, 1}));
     REQUIRE(dsac::is_sorted({1, 2, 3, 3, 4}));
     REQUIRE(dsac::is_sorted({5, 4, 4, 3, 2, 1}, std::greater<int>{}));
+  }
+
+  SECTION("Check working with boundary values")
+  {
+    using testcase               = std::vector<int>;
+    auto const max_value         = std::numeric_limits<int>::max();
+    auto const min_value         = std::numeric_limits<int>::min();
+    auto const zuro_value        = 0;
+    auto const boundary_testcase = testcase{min_value, zuro_value, max_value};
+    REQUIRE(dsac::is_sorted(boundary_testcase));
   }
 
   SECTION("Check constexpr usage")

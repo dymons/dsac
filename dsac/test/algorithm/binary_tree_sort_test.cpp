@@ -1,18 +1,24 @@
 #include <catch2/catch.hpp>
 
-#include <vector>
-
 #include <dsac/algorithm/binary_tree_sort.hpp>
 #include <dsac/algorithm/is_sorted.hpp>
+#include <vector>
+#include "dsac/algorithm/is_sorted/is_sorted_seq.hpp"
 
-TEST_CASE("Testcases are sorted using Binary Tree Sort Algorithm", "[is_sorted]")
+TEST_CASE("Testcases are sorted using binary tree sort algorithm", "[binary_tree_sort]")
 {
-  using Testcase  = std::vector<int>;
-  using Testcases = std::vector<Testcase>;
+  using testcase = std::vector<int>;
+  SECTION("Sorting an empty testcase")
+  {
+    auto empty_testcase = testcase{};
+    dsac::binary_tree_sort(std::begin(empty_testcase), std::end(empty_testcase));
+    REQUIRE(dsac::is_sorted(empty_testcase));
+  }
 
-  Testcases testcases{{}, {1, 2, 3, 4, 5}, {10, 9, 8, 7, 6}, {10, -3, 2, -8, 15, 0, -5, 4}};
-  for (Testcase& testcase : testcases) {
-    dsac::binary_tree_sort(std::begin(testcase), std::end(testcase));
-    REQUIRE(dsac::is_sorted(testcase.begin(), testcase.end()));
+  SECTION("Sorting a sorted testcase")
+  {
+    auto sorted_testcase = testcase{1, 2, 3, 4, 5};
+    dsac::binary_tree_sort(std::begin(sorted_testcase), std::end(sorted_testcase));
+    REQUIRE(dsac::is_sorted(sorted_testcase));
   }
 }
