@@ -41,8 +41,7 @@ template <class BinaryTreePolicy, typename ForwardIterator>
 void binary_tree_sort(ForwardIterator first, ForwardIterator last)
 {
   BinaryTreePolicy binary_tree(first, last);
-  auto const       range_size = std::distance(first, last);
-  if (binary_tree.size() != range_size) {
+  if (binary_tree.size() != std::distance(first, last)) {
     throw DublicatesNotSupported{};
   }
 
