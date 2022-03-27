@@ -1,7 +1,9 @@
 #include <catch2/catch.hpp>
 
 #include <dsac/algorithm/is_sorted.hpp>
+
 #include <limits>
+#include <random>
 #include <vector>
 
 TEST_CASE("Testcases are checked for the sorting", "[is_sorted-default]")
@@ -65,5 +67,21 @@ TEST_CASE("Testcases are checked for the sorting", "[is_sorted-default]")
     constexpr auto kSortedTestcase = testcase{1, 2, 3, 4, 5};
     constexpr auto kTestcaseSorted = dsac::is_sorted(begin(kSortedTestcase), end(kSortedTestcase));
     STATIC_REQUIRE(kTestcaseSorted);
+  }
+}
+
+TEST_CASE("Testcases are checked for the sorting in the stress", "[is_sorted-stress]")
+{
+  constexpr std::size_t kNumberOfIteration = 10'000U;
+
+  std::vector<int>                                         testcase(100);
+  std::random_device                                       dev;
+  std::mt19937                                             rng(dev());
+  std::uniform_int_distribution<std::mt19937::result_type> dist(1U, testcase.size());
+
+  for (std::size_t i{}; i < kNumberOfIteration; ++i) {
+    std::generate(begin(testcase), end(testcase), [cnt = dist(rng)]() mutable { return cnt++; });
+    REQUIRE(std::is_sorted(begin(testcase), end(testcase)));
+    REQUIRE(dsac::is_sorted(begin(testcase), end(testcase)));
   }
 }
