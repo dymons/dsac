@@ -3,9 +3,8 @@
 #include <dsac/algorithm/binary_tree_sort.hpp>
 #include <dsac/algorithm/is_sorted.hpp>
 #include <vector>
-#include "dsac/algorithm/is_sorted/is_sorted_seq.hpp"
 
-TEST_CASE("Testcases are sorted using binary tree sort algorithm", "[binary_tree_sort]")
+TEST_CASE("Testcases are sorted using binary tree sort algorithm", "[binary_tree_sort-default]")
 {
   using testcase = std::vector<int>;
   SECTION("Sorting an empty testcase")

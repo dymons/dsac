@@ -36,7 +36,7 @@ template <typename ForwardIterator>
 
 /*!
     \brief
-        Check whether adjacent elements in the range satisfy the condition \c predicate.
+        Check whether adjacent elements in the range satisfy the condition \c comp.
 
     \param range
         The sequence of elements
@@ -62,7 +62,7 @@ template <typename ForwardRange, typename Compare>
 
 /*!
     \brief
-        Check whether adjacent elements in the range satisfy the condition \c predicate.
+        Check whether adjacent elements in the range satisfy the condition std::less.
 
     \param range
         The sequence of elements

@@ -11,9 +11,9 @@ public:
   using std::range_error::range_error;
 };
 
-class DublicatesNotSupported : public BinaryTreeSortException {
+class DublicateNotSupported : public BinaryTreeSortException {
 public:
-  DublicatesNotSupported()
+  DublicateNotSupported()
     : BinaryTreeSortException("Work with duplicates is not supported yet")
   {
   }
@@ -56,7 +56,7 @@ void binary_tree_sort(ForwardIterator first, ForwardIterator last, BinaryTreePol
 {
   binary_tree.insert(first, last);
   if (binary_tree.size() != std::distance(first, last)) {
-    throw DublicatesNotSupported{};
+    throw DublicateNotSupported{};
   }
 
   using std::begin;
