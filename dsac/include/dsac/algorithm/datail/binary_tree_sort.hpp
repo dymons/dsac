@@ -27,10 +27,13 @@ namespace dsac::detail {
     \brief
         Tree sort is a sorting algorithm that is based on Binary Search Tree data structure.
 
-    \tparam BinaryTreePolicy
+    \param first
+        Iterator to the initial position in the sequence
+    \param last
+        Iterator to the final position in the sequence
+    \param binary_tree
         A policy class that allows you to combine different behaviors to create a rich variety of
-   binary sorting algorithm combinations. \param first Iterator to the initial position in the
-   sequence \param last Iterator to the final position in the sequence
+        binary sorting algorithm combinations.
 
     \throw DublicatesNotSupported
         The algorithm does not support working with duplicate values at the moment
@@ -42,16 +45,16 @@ namespace dsac::detail {
 
     \code
         using binary_tree_policy = dsac::binary_search_tree<int>;
-        dsac::binary_tree_sort<binary_tree_policy>(begin(testcase), end(testcase));
+        dsac::binary_tree_sort(begin(testcase), end(testcase), binary_tree_policy{});
 
         using binary_tree_policy = dsac::red_black_tree<int, std::greater<int>>;
-        dsac::binary_tree_sort<binary_tree_policy>(begin(testcase), end(testcase));
+        dsac::binary_tree_sort(begin(testcase), end(testcase), binary_tree_policy{});
     \endcode
 */
-template <class BinaryTreePolicy, typename ForwardIterator>
-void binary_tree_sort(ForwardIterator first, ForwardIterator last)
+template <typename ForwardIterator, class BinaryTreePolicy>
+void binary_tree_sort(ForwardIterator first, ForwardIterator last, BinaryTreePolicy&& binary_tree)
 {
-  BinaryTreePolicy binary_tree(first, last);
+  binary_tree.insert(first, last);
   if (binary_tree.size() != std::distance(first, last)) {
     throw DublicatesNotSupported{};
   }

@@ -227,6 +227,16 @@ public:
     return InsertUnique(value);
   }
 
+  template <typename ForwardIterator>
+  void insert(ForwardIterator begin, ForwardIterator end)
+  {
+    using user_value_type = dsac::iterator_traits<ForwardIterator>::value_type;
+    static_assert(std::is_same_v<user_value_type, value_type>);
+    for (auto it = begin; it != end; ++it) {
+      [[maybe_unused]] auto const added = InsertUnique(*it);
+    }
+  }
+
   template <typename... Args>
   std::pair<iterator, bool> Emplace(Args... args)
   {

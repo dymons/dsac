@@ -5,12 +5,14 @@
 #include <dsac/type_traits/iterator_traits.hpp>
 
 namespace dsac {
+using detail::binary_tree_sort;
+
 template <typename ForwardIterator>
 void binary_tree_sort(ForwardIterator first, ForwardIterator last)
 {
   using value_type         = typename dsac::iterator_traits<ForwardIterator>::value_type;
   using binary_tree_policy = binary_search_tree<value_type>;
-  detail::binary_tree_sort<binary_tree_policy>(first, last);
+  detail::binary_tree_sort(first, last, binary_tree_policy{});
 }
 }  // namespace dsac
 
