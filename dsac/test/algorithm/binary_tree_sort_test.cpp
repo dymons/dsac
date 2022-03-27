@@ -18,7 +18,19 @@ TEST_CASE("Testcases are sorted using binary tree sort algorithm", "[binary_tree
   SECTION("Sorting a sorted testcase")
   {
     auto sorted_testcase = testcase{1, 2, 3, 4, 5};
-    dsac::binary_tree_sort(std::begin(sorted_testcase), std::end(sorted_testcase));
-    REQUIRE(dsac::is_sorted(sorted_testcase));
+    SECTION("Using predicate by default")
+    {
+      dsac::binary_tree_sort(std::begin(sorted_testcase), std::end(sorted_testcase));
+      REQUIRE(dsac::is_sorted(sorted_testcase));
+
+      dsac::binary_tree_sort(sorted_testcase);
+      REQUIRE(dsac::is_sorted(sorted_testcase));
+    }
+
+    SECTION("Using custom predicate")
+    {
+      dsac::binary_tree_sort(sorted_testcase, std::greater<int>{});
+      REQUIRE(dsac::is_sorted(sorted_testcase, std::greater<int>{}));
+    }
   }
 }
