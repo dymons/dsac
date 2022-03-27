@@ -6,7 +6,7 @@
 #include <random>
 #include <vector>
 
-TEST_CASE("Testcases are checked for the sorting", "[is_sorted-default]")
+TEST_CASE("Testcases are checked for the sorting (D)", "[is_sorted-default]")
 {
   SECTION("Check an empty testcase")
   {
@@ -70,7 +70,7 @@ TEST_CASE("Testcases are checked for the sorting", "[is_sorted-default]")
   }
 }
 
-TEST_CASE("Testcases are checked for the sorting in the stress", "[is_sorted-stress]")
+TEST_CASE("Testcases are checked for the sorting (S)", "[is_sorted-stress]")
 {
   constexpr std::size_t kNumberOfIteration = 10'000U;
 
