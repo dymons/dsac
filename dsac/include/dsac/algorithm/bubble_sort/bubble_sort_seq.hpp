@@ -27,10 +27,10 @@ using detail::bubble_sort;
 
     \ingroup DsacAlgorithms
 */
-template <typename ForwardIterator>
-void bubble_sort(ForwardIterator first, ForwardIterator last)
+template <typename RandomIterator>
+void bubble_sort(RandomIterator first, RandomIterator last)
 {
-  using value_type = typename dsac::iterator_traits<ForwardIterator>::value_type;
+  using value_type = typename dsac::iterator_traits<RandomIterator>::value_type;
   detail::bubble_sort(first, last, std::less<value_type>{});
 }
 
@@ -49,15 +49,15 @@ void bubble_sort(ForwardIterator first, ForwardIterator last)
 
     \ingroup DsacAlgorithms
 */
-template <typename ForwardRange, typename Compare>
-void bubble_sort(ForwardRange&& range, Compare comp)
+template <typename RandomRange, typename Compare>
+void bubble_sort(RandomRange&& range, Compare comp)
 {
   using std::begin;
   using std::end;
 
   return detail::bubble_sort(
-      begin(std::forward<ForwardRange>(range)),
-      end(std::forward<ForwardRange>(range)),
+      begin(std::forward<RandomRange>(range)),
+      end(std::forward<RandomRange>(range)),
       std::move(comp));
 }
 
@@ -74,15 +74,15 @@ void bubble_sort(ForwardRange&& range, Compare comp)
 
     \ingroup DsacAlgorithms
 */
-template <typename ForwardRange>
-void bubble_sort(ForwardRange&& range)
+template <typename RandomRange>
+void bubble_sort(RandomRange&& range)
 {
   using std::begin;
   using std::end;
-  using iterator_type = typename dsac::container_traits<ForwardRange>::iterator_type;
+  using iterator_type = typename dsac::container_traits<RandomRange>::iterator_type;
   using value_type    = typename dsac::iterator_traits<iterator_type>::value_type;
 
-  return ::dsac::bubble_sort(std::forward<ForwardRange>(range), std::less<value_type>{});
+  return ::dsac::bubble_sort(std::forward<RandomRange>(range), std::less<value_type>{});
 }
 
 }  // namespace dsac

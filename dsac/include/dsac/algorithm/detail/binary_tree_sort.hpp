@@ -47,7 +47,7 @@ namespace dsac::detail {
         using binary_tree_policy = dsac::binary_search_tree<int>;
         dsac::binary_tree_sort(begin(testcase), end(testcase), binary_tree_policy{});
 
-        using binary_tree_policy = dsac::red_black_tree<int, std::greater<int>>;
+        using binary_tree_policy = dsac::red_black_tree<int, std::greater<>>;
         dsac::binary_tree_sort(begin(testcase), end(testcase), binary_tree_policy{});
     \endcode
 */
