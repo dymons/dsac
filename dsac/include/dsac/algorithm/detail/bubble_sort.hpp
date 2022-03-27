@@ -20,11 +20,11 @@ namespace dsac::detail {
 
     \ingroup DsacAlgorithms
 */
-template <typename RandomRange, typename Compare>
-void bubble_sort(RandomRange begin, RandomRange end, Compare comp)
+template <typename RandomIterator, typename Compare>
+void bubble_sort(RandomIterator begin, RandomIterator end, Compare comp)
 {
-  for (RandomRange i = begin; i != end; ++i) {
-    for (RandomRange j = begin; j < i; ++j) {
+  for (RandomIterator i = begin; i != end; ++i) {
+    for (RandomIterator j = begin; j < i; ++j) {
       if (comp(*i, *j)) {
         std::iter_swap(i, j);
       }
