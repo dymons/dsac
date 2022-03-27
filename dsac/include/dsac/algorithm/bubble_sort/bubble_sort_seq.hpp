@@ -1,6 +1,6 @@
 #pragma once
 
-#include <dsac/algorithm/datail/bubble_sort.hpp>
+#include <dsac/algorithm/detail/bubble_sort.hpp>
 #include <dsac/type_traits/container_traits.hpp>
 #include <dsac/type_traits/iterator_traits.hpp>
 

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <dsac/algorithm/datail/is_sorted.hpp>
+#include <dsac/algorithm/detail/is_sorted.hpp>
 
 namespace dsac {
 

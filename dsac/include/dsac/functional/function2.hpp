@@ -168,7 +168,7 @@ struct config {
   // Is true if the function is copyable.
   static constexpr auto const is_copyable = Copyable;
 
-  // The datail capacity of the function
+  // The detail capacity of the function
   // used in small functor optimization.
   // The object shall expose the real capacity through Capacity::capacity
   // and the intended alignment through Capacity::alignment.
@@ -476,7 +476,7 @@ FU2_DETAIL_CXX14_CONSTEXPR auto retrieve(std::true_type /*is_inplace*/, Accessor
 {
   using type = transfer_const_t<Accessor, transfer_volatile_t<Accessor, void>>*;
 
-  /// Process the command by using the data inside the datail capacity
+  /// Process the command by using the data inside the detail capacity
   auto storage = &(from->inplace_storage_);
   auto inplace = const_cast<void*>(static_cast<type>(storage));
   return type(std::align(alignof(T), sizeof(T), inplace, from_capacity));
@@ -1073,7 +1073,7 @@ public:
 }  // namespace tables
 
 /// A union which makes the pointer to the heap object share the
-/// same space with the datail capacity.
+/// same space with the detail capacity.
 /// The storage type is distinguished by multiple versions of the
 /// control and vtable.
 template <typename Capacity, typename = void>
@@ -1082,7 +1082,7 @@ struct internal_capacity {
   typedef union {
     /// Tag to access the structure in a type-safe way
     data_accessor accessor_;
-    /// The datail capacity we use to allocate in-place
+    /// The detail capacity we use to allocate in-place
     std::aligned_storage_t<Capacity::capacity, Capacity::alignment> capacity_;
   } type;
 };
@@ -1293,7 +1293,7 @@ class erasure<false, Config, property<IsThrowing, HasStrongExceptGuarantee, Args
   using invoke_table_t = invocation_table::invoke_table<Args...>;
   typename invoke_table_t::type invoke_table_;
 
-  /// The datail pointer to the non owned object
+  /// The detail pointer to the non owned object
   data_accessor view_;
 
 public:
@@ -1719,7 +1719,7 @@ using object_size = std::integral_constant<std::size_t, 32U>;
 }  // namespace abi_400
 
 /// Can be passed to function_base as template argument which causes
-/// the datail small buffer to be sized according to the given size,
+/// the detail small buffer to be sized according to the given size,
 /// and aligned with the given alignment.
 template <std::size_t Capacity, std::size_t Alignment = alignof(std::max_align_t)>
 struct capacity_fixed {
@@ -1732,14 +1732,14 @@ struct capacity_default : capacity_fixed<detail::object_size::value - (2 * sizeo
 };
 
 /// Can be passed to function_base as template argument which causes
-/// the datail small buffer to be removed from the callable wrapper.
+/// the detail small buffer to be removed from the callable wrapper.
 /// The owning function_base will then allocate memory for every object
 /// it applies a type erasure on.
 struct capacity_none : capacity_fixed<0UL> {
 };
 
 /// Can be passed to function_base as template argument which causes
-/// the datail small buffer to be sized such that it can hold
+/// the detail small buffer to be sized such that it can hold
 /// the given object without allocating memory for an applied type erasure.
 template <typename T>
 struct capacity_can_hold {
@@ -1753,7 +1753,7 @@ struct capacity_can_hold {
 ///
 /// \tparam IsCopyable Defines whether the function is copyable or not
 ///
-/// \tparam Capacity Defines the datail capacity of the function
+/// \tparam Capacity Defines the detail capacity of the function
 ///                  for small functor optimization.
 ///                  The size of the whole function object will be the capacity
 ///                  plus the size of two pointers. If the capacity is zero,
