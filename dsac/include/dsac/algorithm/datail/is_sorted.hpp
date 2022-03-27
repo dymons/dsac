@@ -7,13 +7,13 @@ namespace dsac::detail {
 
 /*!
     \brief
-        Check whether adjacent elements in the range satisfy the condition \c predicate.
+        Check whether adjacent elements in the range satisfy the condition \c comp.
 
     \param begin
         Iterator to the initial position in the sequence
     \param end
         Iterator to the final position in the sequence
-    \param predicate
+    \param comp
             Function to invoke on adjacent pair of elements in the range
 
     \returns

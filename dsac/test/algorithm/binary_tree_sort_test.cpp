@@ -4,7 +4,7 @@
 #include <dsac/algorithm/is_sorted.hpp>
 #include <vector>
 
-TEST_CASE("Testcases are sorted using binary tree sort algorithm (D)", "[binary_tree_sort-default]")
+TEST_CASE("Testcases are sorted using binary tree sort (D)", "[binary_tree_sort][default]")
 {
   using testcase = std::vector<int>;
   SECTION("Sorting an empty testcase")
@@ -34,7 +34,7 @@ TEST_CASE("Testcases are sorted using binary tree sort algorithm (D)", "[binary_
   }
 }
 
-TEST_CASE("Testcases are sorted using binary tree sort algorithm (S)", "[binary_tree_sort-stress]")
+TEST_CASE("Testcases are sorted using binary tree sort (S)", "[binary_tree_sort][stress]")
 {
   constexpr std::size_t kNumberOfIteration = 10'000U;
 
