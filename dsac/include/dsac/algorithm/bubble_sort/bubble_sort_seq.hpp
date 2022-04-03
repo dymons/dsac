@@ -28,10 +28,9 @@ using detail::bubble_sort;
     \ingroup DsacAlgorithms
 */
 template <typename RandomIterator>
-[[gnu::always_inline]] inline  void bubble_sort(RandomIterator first, RandomIterator last)
+[[gnu::always_inline]] inline void bubble_sort(RandomIterator first, RandomIterator last)
 {
-  using value_type = typename dsac::iterator_traits<RandomIterator>::value_type;
-  detail::bubble_sort(first, last, std::less<value_type>{});
+  detail::bubble_sort(first, last, std::less<>{});
 }
 
 /*!
@@ -56,9 +55,7 @@ template <typename RandomRange, typename Compare>
   using std::end;
 
   return detail::bubble_sort(
-      begin(std::forward<RandomRange>(range)),
-      end(std::forward<RandomRange>(range)),
-      std::move(comp));
+      begin(std::forward<RandomRange>(range)), end(std::forward<RandomRange>(range)), comp);
 }
 
 /*!
@@ -79,10 +76,8 @@ template <typename RandomRange>
 {
   using std::begin;
   using std::end;
-  using iterator_type = typename dsac::container_traits<RandomRange>::iterator_type;
-  using value_type    = typename dsac::iterator_traits<iterator_type>::value_type;
 
-  return ::dsac::bubble_sort(std::forward<RandomRange>(range), std::less<value_type>{});
+  return ::dsac::bubble_sort(std::forward<RandomRange>(range), std::less<>{});
 }
 
 }  // namespace dsac

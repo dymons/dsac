@@ -55,9 +55,7 @@ template <typename RandomRange, typename Compare>
   using std::end;
 
   return detail::insertion_sort(
-      begin(std::forward<RandomRange>(range)),
-      end(std::forward<RandomRange>(range)),
-      std::move(comp));
+      begin(std::forward<RandomRange>(range)), end(std::forward<RandomRange>(range)), comp);
 }
 
 /*!
@@ -78,10 +76,8 @@ template <typename RandomRange>
 {
   using std::begin;
   using std::end;
-  using iterator_type = typename dsac::container_traits<RandomRange>::iterator_type;
-  using value_type    = typename dsac::iterator_traits<iterator_type>::value_type;
 
-  return ::dsac::insertion_sort(std::forward<RandomRange>(range), std::less<value_type>{});
+  return ::dsac::insertion_sort(std::forward<RandomRange>(range), std::less<>{});
 }
 
 }  // namespace dsac

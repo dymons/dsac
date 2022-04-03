@@ -86,10 +86,8 @@ template <typename RandomRange>
 {
   using std::begin;
   using std::end;
-  using iterator_type = typename dsac::container_traits<RandomRange>::iterator_type;
-  using value_type    = typename dsac::iterator_traits<iterator_type>::value_type;
 
-  return ::dsac::binary_tree_sort(std::forward<RandomRange>(range), std::less<value_type>{});
+  return ::dsac::binary_tree_sort(std::forward<RandomRange>(range), std::less<>{});
 }
 
 }  // namespace dsac
