@@ -24,7 +24,7 @@ namespace dsac::detail {
 
     \ingroup DsacAlgorithms
 */
-template <typename ForwardIterator, typename Compare>
+template <std::forward_iterator ForwardIterator, typename Compare>
 constexpr bool is_sorted(ForwardIterator begin, ForwardIterator end, Compare comp)
 {
   if (begin == end) {

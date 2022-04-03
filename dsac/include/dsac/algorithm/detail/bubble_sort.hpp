@@ -20,7 +20,7 @@ namespace dsac::detail {
 
     \ingroup DsacAlgorithms
 */
-template <typename RandomIterator, typename Compare>
+template <std::random_access_iterator RandomIterator, typename Compare>
 void bubble_sort(RandomIterator begin, RandomIterator end, Compare comp)
 {
   for (RandomIterator i = begin; i != end; ++i) {

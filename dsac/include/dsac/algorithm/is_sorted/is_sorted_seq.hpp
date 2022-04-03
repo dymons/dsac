@@ -27,7 +27,7 @@ using detail::is_sorted;
 
     \ingroup DsacAlgorithms
 */
-template <typename ForwardIterator>
+template <std::forward_iterator ForwardIterator>
 [[gnu::always_inline]] constexpr inline bool is_sorted(ForwardIterator begin, ForwardIterator end)
 {
   using value_type = typename dsac::iterator_traits<ForwardIterator>::value_type;

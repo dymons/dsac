@@ -27,7 +27,7 @@ using detail::bubble_sort;
 
     \ingroup DsacAlgorithms
 */
-template <typename RandomIterator>
+template <std::random_access_iterator RandomIterator>
 [[gnu::always_inline]] inline void bubble_sort(RandomIterator first, RandomIterator last)
 {
   detail::bubble_sort(first, last, std::less<>{});

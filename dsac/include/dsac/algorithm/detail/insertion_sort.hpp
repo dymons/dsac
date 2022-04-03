@@ -20,7 +20,7 @@ namespace dsac::detail {
 
     \ingroup DsacAlgorithms
 */
-template <typename RandomIterator, typename Compare>
+template <std::random_access_iterator RandomIterator, typename Compare>
 void insertion_sort(RandomIterator begin, RandomIterator end, Compare comp)
 {
   using value_type      = typename dsac::iterator_traits<RandomIterator>::value_type;

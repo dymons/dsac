@@ -27,7 +27,7 @@ using detail::insertion_sort;
 
     \ingroup DsacAlgorithms
 */
-template <typename RandomIterator>
+template <std::random_access_iterator RandomIterator>
 [[gnu::always_inline]] inline void insertion_sort(RandomIterator first, RandomIterator last)
 {
   detail::insertion_sort(first, last, std::less<>{});
