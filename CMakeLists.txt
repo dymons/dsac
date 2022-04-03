@@ -4,7 +4,6 @@ set(PACKAGE_NAME "dsac")
 if (NOT DEFINED PACKAGE_VERSION)
     set(PACKAGE_VERSION "1.0.0-dev")
 endif ()
-
 set(PACKAGE_STRING "${PACKAGE_NAME} ${PACKAGE_VERSION}")
 set(PACKAGE_TARNAME "${PACKAGE_NAME}-${PACKAGE_VERSION}")
 set(PACKAGE_BUGREPORT "https://github.com/dymons/dsac/issues")

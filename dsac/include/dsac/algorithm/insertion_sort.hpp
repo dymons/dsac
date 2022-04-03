@@ -1,21 +1,23 @@
 #pragma once
 
-#include <vector>
+#include <dsac/type_traits/iterator_traits.hpp>
 
-namespace dsac::sort {
-template <typename T>
-void InsertionSort(std::vector<T>& arr)
+namespace dsac {
+template <typename ForwardIterator, typename Compare>
+void insertion_sort(ForwardIterator begin, ForwardIterator end, Compare comp)
 {
-  for (int j = 1; j < arr.size(); ++j) {
-    T   key = arr[j];
-    int i   = j - 1;
-    while ((i >= 0) && (arr[i] > key)) {
-      arr[i + 1] = arr[i];
-      i          = i - 1;
+  using value_type      = typename dsac::iterator_traits<ForwardIterator>::value_type;
+  using difference_type = typename dsac::iterator_traits<ForwardIterator>::difference_type;
+
+  difference_type const n = std::distance(begin, end);
+  for (difference_type j = 1; j < n; ++j) {
+    value_type      key = begin[j];
+    difference_type i   = j - 1;
+    while ((i >= 0) && comp(key, begin[i])) {
+      begin[i + 1] = begin[i];
+      i            = i - 1;
     }
-    arr[i + 1] = key;
+    begin[i + 1] = key;
   }
 }
-
-// TODO: Добавить версию сортировки Binary Insertion Sort
-}  // namespace dsac::is_sorted
+}  // namespace dsac

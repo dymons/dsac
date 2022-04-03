@@ -11,7 +11,7 @@ TEST_CASE("Сортировка c использованием алгоритм�
 
   Testcases testcases{{1, 2, 3, 4, 5}, {}, {10, 9, 8, 7, 6}};
   for (Testcase& testcase : testcases) {
-    dsac::sort::InsertionSort(testcase);
+    dsac::insertion_sort(testcase.begin(), testcase.end(), std::less<>{});
     REQUIRE(std::is_sorted(testcase.begin(), testcase.end()));
   }
 }

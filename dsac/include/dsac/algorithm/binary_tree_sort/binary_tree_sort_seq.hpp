@@ -30,7 +30,7 @@ using detail::binary_tree_sort;
     \ingroup DsacAlgorithms
 */
 template <typename ForwardIterator>
-void binary_tree_sort(ForwardIterator first, ForwardIterator last)
+[[gnu::always_inline]] inline void binary_tree_sort(ForwardIterator first, ForwardIterator last)
 {
   using value_type         = typename dsac::iterator_traits<ForwardIterator>::value_type;
   using binary_tree_policy = binary_search_tree<value_type>;
@@ -54,7 +54,7 @@ void binary_tree_sort(ForwardIterator first, ForwardIterator last)
     \ingroup DsacAlgorithms
 */
 template <typename ForwardRange, typename Compare>
-void binary_tree_sort(ForwardRange&& range, Compare comp)
+[[gnu::always_inline]] inline void binary_tree_sort(ForwardRange&& range, Compare comp)
 {
   using std::begin;
   using std::end;
@@ -82,7 +82,7 @@ void binary_tree_sort(ForwardRange&& range, Compare comp)
     \ingroup DsacAlgorithms
 */
 template <typename ForwardRange>
-void binary_tree_sort(ForwardRange&& range)
+[[gnu::always_inline]] inline void binary_tree_sort(ForwardRange&& range)
 {
   using std::begin;
   using std::end;
