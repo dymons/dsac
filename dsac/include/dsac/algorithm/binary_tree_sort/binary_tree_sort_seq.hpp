@@ -29,10 +29,10 @@ using detail::binary_tree_sort;
 
     \ingroup DsacAlgorithms
 */
-template <typename ForwardIterator>
-[[gnu::always_inline]] inline void binary_tree_sort(ForwardIterator first, ForwardIterator last)
+template <typename RandomIterator>
+[[gnu::always_inline]] inline void binary_tree_sort(RandomIterator first, RandomIterator last)
 {
-  using value_type         = typename dsac::iterator_traits<ForwardIterator>::value_type;
+  using value_type         = typename dsac::iterator_traits<RandomIterator>::value_type;
   using binary_tree_policy = binary_search_tree<value_type>;
   detail::binary_tree_sort(first, last, binary_tree_policy{});
 }
@@ -53,18 +53,18 @@ template <typename ForwardIterator>
 
     \ingroup DsacAlgorithms
 */
-template <typename ForwardRange, typename Compare>
-[[gnu::always_inline]] inline void binary_tree_sort(ForwardRange&& range, Compare comp)
+template <typename RandomRange, typename Compare>
+[[gnu::always_inline]] inline void binary_tree_sort(RandomRange&& range, Compare comp)
 {
   using std::begin;
   using std::end;
-  using iterator_type = typename dsac::container_traits<ForwardRange>::iterator_type;
+  using iterator_type = typename dsac::container_traits<RandomRange>::iterator_type;
   using value_type    = typename dsac::iterator_traits<iterator_type>::value_type;
 
   binary_search_tree<value_type, Compare> binary_tree{std::move(comp)};
   return detail::binary_tree_sort(
-      begin(std::forward<ForwardRange>(range)),
-      end(std::forward<ForwardRange>(range)),
+      begin(std::forward<RandomRange>(range)),
+      end(std::forward<RandomRange>(range)),
       std::move(binary_tree));
 }
 
@@ -81,15 +81,15 @@ template <typename ForwardRange, typename Compare>
 
     \ingroup DsacAlgorithms
 */
-template <typename ForwardRange>
-[[gnu::always_inline]] inline void binary_tree_sort(ForwardRange&& range)
+template <typename RandomRange>
+[[gnu::always_inline]] inline void binary_tree_sort(RandomRange&& range)
 {
   using std::begin;
   using std::end;
-  using iterator_type = typename dsac::container_traits<ForwardRange>::iterator_type;
+  using iterator_type = typename dsac::container_traits<RandomRange>::iterator_type;
   using value_type    = typename dsac::iterator_traits<iterator_type>::value_type;
 
-  return ::dsac::binary_tree_sort(std::forward<ForwardRange>(range), std::less<value_type>{});
+  return ::dsac::binary_tree_sort(std::forward<RandomRange>(range), std::less<value_type>{});
 }
 
 }  // namespace dsac
