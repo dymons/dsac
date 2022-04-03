@@ -51,8 +51,8 @@ namespace dsac::detail {
         dsac::binary_tree_sort(begin(testcase), end(testcase), binary_tree_policy{});
     \endcode
 */
-template <std::random_access_iterator RandomIterator, class BinaryTreePolicy>
-void binary_tree_sort(RandomIterator first, RandomIterator last, BinaryTreePolicy&& binary_tree)
+template <std::forward_iterator ForwardIterator, class BinaryTreePolicy>
+void binary_tree_sort(ForwardIterator first, ForwardIterator last, BinaryTreePolicy&& binary_tree)
 {
   binary_tree.insert(first, last);
   if (binary_tree.size() != std::distance(first, last)) {

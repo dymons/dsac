@@ -29,10 +29,10 @@ using detail::binary_tree_sort;
 
     \ingroup DsacAlgorithms
 */
-template <std::random_access_iterator RandomIterator>
-[[gnu::always_inline]] inline void binary_tree_sort(RandomIterator first, RandomIterator last)
+template <std::forward_iterator ForwardIterator>
+[[gnu::always_inline]] inline void binary_tree_sort(ForwardIterator first, ForwardIterator last)
 {
-  using value_type         = typename dsac::iterator_traits<RandomIterator>::value_type;
+  using value_type         = typename dsac::iterator_traits<ForwardIterator>::value_type;
   using binary_tree_policy = binary_search_tree<value_type>;
   detail::binary_tree_sort(first, last, binary_tree_policy{});
 }
