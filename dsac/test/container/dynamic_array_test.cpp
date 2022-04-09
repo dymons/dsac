@@ -37,4 +37,24 @@ TEST_CASE("Dynamic array should expand automatically", "[dynamic_array][default]
     REQUIRE(dynamic_array.size() == 5);
     REQUIRE(dynamic_array.capacity() == 8);
   }
+
+  SECTION("When inserting elements, data is not lost")
+  {
+    constexpr int kNumberOfElements = 100;
+    for (int i{}; i < kNumberOfElements; ++i) {
+      dynamic_array.push_back(i);
+    }
+    REQUIRE(dynamic_array.size() == kNumberOfElements);
+  }
+
+  SECTION("When inserting elements, the insertion order is preserved")
+  {
+    constexpr int kNumberOfElements = 100;
+    for (int i{}; i < kNumberOfElements; ++i) {
+      dynamic_array.push_back(i);
+    }
+    for (int i{}; i < kNumberOfElements; ++i) {
+      REQUIRE(dynamic_array[i] == i);
+    }
+  }
 }

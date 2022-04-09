@@ -133,12 +133,12 @@ public:
     dsac::destroy(storage.start, storage.finish, allocator);
   }
 
-  [[nodiscard]] size_type size() const noexcept
+  [[nodiscard]] inline size_type size() const noexcept
   {
     return size_type(storage.finish - storage.start);
   }
 
-  [[nodiscard]] size_type capacity() const noexcept
+  [[nodiscard]] inline size_type capacity() const noexcept
   {
     return size_type(storage.end_of_storage - storage.start);
   }
@@ -174,6 +174,11 @@ public:
     return const_iterator(storage.finish);
   }
 
+  [[nodiscard]] reference operator[](size_type n) noexcept
+  {
+    return *(storage.start + n);
+  }
+
 private:
   size_type twice_size(size_type current_size) const
   {
@@ -192,17 +197,16 @@ private:
     const size_type new_size   = twice_size(size());
     pointer         new_start  = dsac::allocate(new_size, allocator);
     pointer         new_finish = pointer{};
-    const size_type curr_size  = size();
 
     try {
       // clang-format off
-      dsac::construct(new_start + curr_size, allocator, std::forward<Args>(args)...);
+      dsac::construct(new_start + size(), allocator, std::forward<Args>(args)...);
       new_finish = dsac::uninitialized_move_if_noexcept(storage.start, storage.finish, new_start, allocator);
       // clang-format on
     }
     catch (...) {
       if (!new_finish) {
-        allocator_traits::destroy(allocator, new_start + curr_size);
+        allocator_traits::destroy(allocator, new_start + size());
       }
       else {
         dsac::destroy(new_start, new_finish, allocator);
@@ -213,7 +217,7 @@ private:
     }
 
     dsac::destroy(storage.start, storage.finish, allocator);
-    dsac::deallocate(storage.start, storage.end_of_storage - storage.start, allocator);
+    dsac::deallocate(storage.start, capacity(), allocator);
 
     storage.start          = new_start;
     storage.finish         = ++new_finish;
