@@ -9,7 +9,9 @@
 #include <vector>
 
 namespace {
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define DEFINE_FUNCTOR_FOR(sort_name, sort_function) \
+                                                     \
   struct sort_name##Functor {                        \
     template <typename... Args>                      \
     void operator()(Args&&... kwargs)                \
@@ -24,7 +26,8 @@ DEFINE_FUNCTOR_FOR(InsertionSort, dsac::insertion_sort)
 DEFINE_FUNCTOR_FOR(BinaryTreeSort, dsac::binary_tree_sort)
 }  // namespace
 
-// step 3. include a new wrapper for default and stress template test case
+// step 3. include a new functor for default and stress template test case
+// NOLINTNEXTLINE
 TEMPLATE_TEST_CASE(
     "Testcases are sorted using different sort algorithm",
     "[sort][default]",
@@ -62,6 +65,7 @@ TEMPLATE_TEST_CASE(
   }
 }
 
+// NOLINTNEXTLINE
 TEMPLATE_TEST_CASE(
     "Testcases are sorted using different sort algorithm under stress tests",
     "[sort][stress]",
