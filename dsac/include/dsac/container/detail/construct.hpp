@@ -12,6 +12,23 @@ void destroy(ForwardIterator first, ForwardIterator last, Allocator& allocator)
   }
 }
 
+template <typename Allocator>
+[[nodiscard, gnu::always_inline]] inline auto allocate(size_t n, Allocator& allocator)
+{
+  using allocator_traits = std::allocator_traits<Allocator>;
+  using pointer          = typename allocator_traits::pointer;
+  return n != 0 ? allocator_traits::allocate(allocator, n) : pointer{};
+}
+
+template <typename Pointer, typename Allocator>
+[[gnu::always_inline]] inline void deallocate(Pointer pointer, size_t n, Allocator& allocator)
+{
+  using allocator_traits = std::allocator_traits<Allocator>;
+  if (pointer) {
+    allocator_traits::deallocate(allocator, pointer, n);
+  }
+}
+
 template <typename InputIt, typename NoThrowForwardIt, typename Allocator>
 NoThrowForwardIt uninitialized_copy(
     InputIt first, InputIt last, NoThrowForwardIt d_first, Allocator& allocator)

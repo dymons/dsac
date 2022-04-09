@@ -84,6 +84,13 @@ public:
     , storage(std::move(other))
   {
   }
+  DynamicArrayBase(size_t n, const allocator_type& allocator)
+    : allocator(allocator)
+  {
+    storage.start          = dsac::allocate(n, allocator);
+    storage.finish         = storage.start;
+    storage.end_of_storage = storage.start + n;
+  }
 
   DynamicArrayBase(DynamicArrayBase const&) = delete;
   DynamicArrayBase(DynamicArrayBase&& other) noexcept
@@ -94,48 +101,11 @@ public:
 
   ~DynamicArrayBase() noexcept
   {
-    deallocate(storage.start, storage.end_of_storage - storage.start);
+    dsac::deallocate(storage.start, storage.end_of_storage - storage.start, allocator);
   }
 
   rebind_allocator_type allocator;
   DynamicArrayData      storage;
-
-protected:
-  rebind_allocator_type& get_rebind_allocator() noexcept
-  {
-    return allocator;
-  }
-
-  const rebind_allocator_type& get_rebind_allocator() const noexcept
-  {
-    return allocator;
-  }
-
-  allocator_type get_allocator() const noexcept
-  {
-    return allocator_type(get_rebind_allocator());
-  }
-
-  [[nodiscard]] pointer allocate(size_t n)
-  {
-    using allocator_traits = std::allocator_traits<rebind_allocator_type>;
-    return n != 0 ? allocator_traits::allocate(allocator, n) : pointer{};
-  }
-
-  void deallocate(pointer raw_pointer, size_t n)
-  {
-    using allocator_traits = std::allocator_traits<rebind_allocator_type>;
-    if (raw_pointer) {
-      allocator_traits::deallocate(allocator, raw_pointer, n);
-    }
-  }
-
-  void create_storage(size_t n)
-  {
-    storage.start          = allocate(n);
-    storage.finish         = storage.start;
-    storage.end_of_storage = storage.start + n;
-  }
 };
 
 template <typename T, typename Allocator>
@@ -158,10 +128,7 @@ public:
   using const_reverse_iterator = std::reverse_iterator<const_iterator>;
 
 protected:
-  using base::allocate;
   using base::allocator;
-  using base::deallocate;
-  using base::get_rebind_allocator;
   using base::storage;
 
 public:
@@ -174,7 +141,7 @@ public:
 
   ~DynamicArray() noexcept
   {
-    dsac::destroy(storage.start, storage.finish, get_rebind_allocator());
+    dsac::destroy(storage.start, storage.finish, allocator);
   }
 
   [[nodiscard]] size_type size() const noexcept
@@ -221,7 +188,7 @@ public:
 private:
   size_type max_size() const noexcept
   {
-    return allocator_traits::max_size(get_rebind_allocator());
+    return allocator_traits::max_size(allocator);
   }
 
   size_type check_len(size_type n, const char* message) const
@@ -239,7 +206,7 @@ private:
   {
     const size_type length          = check_len(size_type(1U), "DynamicArray::realloc_insert");
     const size_type elements_before = position - begin();
-    pointer         new_start       = this->allocate(length);
+    pointer         new_start       = dsac::allocate(length, allocator);
     pointer         new_finish      = pointer{};
 
     try {
@@ -247,7 +214,7 @@ private:
           allocator, new_start + elements_before, std::forward<Args>(args)...);
 
       new_finish = dsac::uninitialized_move_if_noexcept(
-          storage.start, position.base(), new_start, get_rebind_allocator());
+          storage.start, position.base(), new_start, allocator);
 
       ++new_finish;
     }
@@ -256,15 +223,15 @@ private:
         allocator_traits::destroy(allocator, new_start + elements_before);
       }
       else {
-        dsac::destroy(new_start, new_finish, get_rebind_allocator());
+        dsac::destroy(new_start, new_finish, allocator);
       }
 
-      this->deallocate(new_start, length);
+      dsac::deallocate(new_start, length, allocator);
       throw;
     }
 
-    dsac::destroy(storage.start, storage.finish, get_rebind_allocator());
-    this->deallocate(storage.start, storage.end_of_storage - storage.start);
+    dsac::destroy(storage.start, storage.finish, allocator);
+    dsac::deallocate(storage.start, storage.end_of_storage - storage.start, allocator);
 
     storage.start          = new_start;
     storage.finish         = new_finish;
