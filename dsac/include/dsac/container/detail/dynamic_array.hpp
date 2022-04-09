@@ -65,77 +65,50 @@ class DynamicArrayBase {
     }
   };
 
-  struct DynamicArrayImpl : public rebind_allocator_type, public DynamicArrayData {
-    // clang-format off
-    DynamicArrayImpl() noexcept(std::is_nothrow_default_constructible<rebind_allocator_type>::value) = default;
-    // clang-format on
-
-    explicit DynamicArrayImpl(rebind_allocator_type const& allocator) noexcept
-      : rebind_allocator_type(allocator)
-    {
-    }
-    explicit DynamicArrayImpl(rebind_allocator_type&& allocator) noexcept
-      : rebind_allocator_type(std::move(allocator))
-    {
-    }
-    DynamicArrayImpl(rebind_allocator_type&& allocator, DynamicArrayImpl&& other) noexcept
-      : rebind_allocator_type(std::move(allocator))
-      , DynamicArrayData(std::move(other))
-    {
-    }
-
-    DynamicArrayImpl(DynamicArrayImpl const&) = delete;
-    DynamicArrayImpl(DynamicArrayImpl&& other) noexcept
-      : rebind_allocator_type(std::move(other))
-      , DynamicArrayData(std::move(other))
-    {
-    }
-
-    DynamicArrayImpl& operator=(DynamicArrayImpl const&) = delete;
-    DynamicArrayImpl& operator=(DynamicArrayImpl&&) noexcept = delete;
-
-    ~DynamicArrayImpl() = default;
-  };
-
 public:
   using allocator_type = Allocator;
 
-  DynamicArrayBase() = default;
+  DynamicArrayBase() noexcept(std::is_nothrow_default_constructible<rebind_allocator_type>::value) =
+      default;
 
-  explicit DynamicArrayBase(const allocator_type& allocator) noexcept
-    : impl_(allocator)
+  explicit DynamicArrayBase(rebind_allocator_type const& allocator) noexcept
+    : allocator(allocator)
+  {
+  }
+  explicit DynamicArrayBase(rebind_allocator_type&& allocator) noexcept
+    : allocator(std::move(allocator))
+  {
+  }
+  DynamicArrayBase(rebind_allocator_type&& allocator, DynamicArrayBase&& other) noexcept
+    : allocator(std::move(allocator))
+    , storage(std::move(other))
   {
   }
 
-  DynamicArrayBase(size_t n, const allocator_type& allocator)
-    : impl_(allocator)
-  {
-    create_storage(n);
-  }
-
-  DynamicArrayBase(const allocator_type& allocator, DynamicArrayBase&& other)
-    : impl_(rebind_allocator_type(allocator), std::move(other.impl))
+  DynamicArrayBase(DynamicArrayBase const&) = delete;
+  DynamicArrayBase(DynamicArrayBase&& other) noexcept
+    : allocator(std::move(other))
+    , storage(std::move(other))
   {
   }
-
-  DynamicArrayBase(DynamicArrayBase&&) noexcept = default;
 
   ~DynamicArrayBase() noexcept
   {
-    deallocate(impl_.start, impl_.end_of_storage - impl_.start);
+    deallocate(storage.start, storage.end_of_storage - storage.start);
   }
 
-  DynamicArrayImpl impl_;
+  rebind_allocator_type allocator;
+  DynamicArrayData      storage;
 
 protected:
   rebind_allocator_type& get_rebind_allocator() noexcept
   {
-    return this->impl_;
+    return allocator;
   }
 
   const rebind_allocator_type& get_rebind_allocator() const noexcept
   {
-    return this->impl_;
+    return allocator;
   }
 
   allocator_type get_allocator() const noexcept
@@ -145,23 +118,23 @@ protected:
 
   [[nodiscard]] pointer allocate(size_t n)
   {
-    using allocator = std::allocator_traits<rebind_allocator_type>;
-    return n != 0 ? allocator::allocate(impl_, n) : pointer{};
+    using allocator_traits = std::allocator_traits<rebind_allocator_type>;
+    return n != 0 ? allocator_traits::allocate(allocator, n) : pointer{};
   }
 
   void deallocate(pointer raw_pointer, size_t n)
   {
-    using allocator = std::allocator_traits<rebind_allocator_type>;
+    using allocator_traits = std::allocator_traits<rebind_allocator_type>;
     if (raw_pointer) {
-      allocator::deallocate(impl_, raw_pointer, n);
+      allocator_traits::deallocate(allocator, raw_pointer, n);
     }
   }
 
   void create_storage(size_t n)
   {
-    this->impl.start          = this->allocate(n);
-    this->impl.finish         = this->impl.start;
-    this->impl.end_of_storage = this->impl.start + n;
+    storage.start          = allocate(n);
+    storage.finish         = storage.start;
+    storage.end_of_storage = storage.start + n;
   }
 };
 
@@ -186,9 +159,10 @@ public:
 
 protected:
   using base::allocate;
+  using base::allocator;
   using base::deallocate;
   using base::get_rebind_allocator;
-  using base::impl_;
+  using base::storage;
 
 public:
   DynamicArray() noexcept = default;
@@ -200,24 +174,24 @@ public:
 
   ~DynamicArray() noexcept
   {
-    dsac::destroy(impl_.start, impl_.finish, get_rebind_allocator());
+    dsac::destroy(storage.start, storage.finish, get_rebind_allocator());
   }
 
   [[nodiscard]] size_type size() const noexcept
   {
-    return size_type(impl_.finish - impl_.start);
+    return size_type(storage.finish - storage.start);
   }
 
   [[nodiscard]] size_type capacity() const noexcept
   {
-    return size_type(impl_.end_of_storage - impl_.start);
+    return size_type(storage.end_of_storage - storage.start);
   }
 
   void push_back(value_type const& value)
   {
-    if (impl_.finish != impl_.end_of_storage) {
-      allocator_traits::construct(impl_, impl_.finish, value);
-      ++impl_.finish;
+    if (storage.finish != storage.end_of_storage) {
+      allocator_traits::construct(allocator, storage.finish, value);
+      ++storage.finish;
     }
     else {
       realloc_insert(end(), value);
@@ -226,22 +200,22 @@ public:
 
   [[nodiscard]] iterator begin() noexcept
   {
-    return iterator(impl_.start);
+    return iterator(storage.start);
   }
 
   [[nodiscard]] const_iterator begin() const noexcept
   {
-    return const_iterator(impl_.start);
+    return const_iterator(storage.start);
   }
 
   [[nodiscard]] iterator end() noexcept
   {
-    return iterator(impl_.finish);
+    return iterator(storage.finish);
   }
 
   [[nodiscard]] const_iterator end() const noexcept
   {
-    return const_iterator(impl_.finish);
+    return const_iterator(storage.finish);
   }
 
 private:
@@ -269,16 +243,17 @@ private:
     pointer         new_finish      = pointer{};
 
     try {
-      allocator_traits::construct(impl_, new_start + elements_before, std::forward<Args>(args)...);
+      allocator_traits::construct(
+          allocator, new_start + elements_before, std::forward<Args>(args)...);
 
       new_finish = dsac::uninitialized_move_if_noexcept(
-          impl_.start, position.base(), new_start, get_rebind_allocator());
+          storage.start, position.base(), new_start, get_rebind_allocator());
 
       ++new_finish;
     }
     catch (...) {
       if (!new_finish) {
-        allocator_traits::destroy(impl_, new_start + elements_before);
+        allocator_traits::destroy(allocator, new_start + elements_before);
       }
       else {
         dsac::destroy(new_start, new_finish, get_rebind_allocator());
@@ -288,12 +263,12 @@ private:
       throw;
     }
 
-    dsac::destroy(impl_.start, impl_.finish, get_rebind_allocator());
-    this->deallocate(impl_.start, impl_.end_of_storage - impl_.start);
+    dsac::destroy(storage.start, storage.finish, get_rebind_allocator());
+    this->deallocate(storage.start, storage.end_of_storage - storage.start);
 
-    impl_.start          = new_start;
-    impl_.finish         = new_finish;
-    impl_.end_of_storage = new_start + length;
+    storage.start          = new_start;
+    storage.finish         = new_finish;
+    storage.end_of_storage = new_start + length;
   }
 };
 
