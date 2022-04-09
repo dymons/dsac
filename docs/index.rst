@@ -7,6 +7,7 @@ Welcome to dsac's documentation!
 .. doxygenfunction:: dsac::detail::binary_tree_sort(ForwardIterator begin, ForwardIterator end, BinaryTreePolicy&& binary_tree)
 .. doxygenfunction:: dsac::detail::bubble_sort(RandomIterator begin, RandomIterator end, Compare comp)
 .. doxygenfunction:: dsac::detail::insertion_sort(RandomIterator begin, RandomIterator end, Compare comp)
+.. doxygenfunction:: dsac::detail::selection_sort(RandomIterator begin, RandomIterator end, Compare comp)
 
 Indices and tables
 ==================

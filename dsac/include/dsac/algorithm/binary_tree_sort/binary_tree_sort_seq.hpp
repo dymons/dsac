@@ -84,9 +84,6 @@ template <typename RandomRange, typename Compare>
 template <typename RandomRange>
 [[gnu::always_inline]] inline void binary_tree_sort(RandomRange&& range)
 {
-  using std::begin;
-  using std::end;
-
   return ::dsac::binary_tree_sort(std::forward<RandomRange>(range), std::less<>{});
 }
 

@@ -5,6 +5,7 @@
 #include <dsac/algorithm/bubble_sort.hpp>
 #include <dsac/algorithm/insertion_sort.hpp>
 #include <dsac/algorithm/is_sorted.hpp>
+#include <dsac/algorithm/selection_sort.hpp>
 
 #include <vector>
 
@@ -24,6 +25,7 @@ namespace {
 DEFINE_FUNCTOR_FOR(BubbleSort, dsac::bubble_sort)
 DEFINE_FUNCTOR_FOR(InsertionSort, dsac::insertion_sort)
 DEFINE_FUNCTOR_FOR(BinaryTreeSort, dsac::binary_tree_sort)
+DEFINE_FUNCTOR_FOR(SelectionSort, dsac::selection_sort)
 }  // namespace
 
 // step 3. include a new functor for default and stress template test case
@@ -33,7 +35,8 @@ TEMPLATE_TEST_CASE(
     "[sort][default]",
     BubbleSortFunctor,
     InsertionSortFunctor,
-    BinaryTreeSortFunctor)
+    BinaryTreeSortFunctor,
+    SelectionSortFunctor)
 {
   TestType sort_type;
 
@@ -68,14 +71,15 @@ TEMPLATE_TEST_CASE(
 // NOLINTNEXTLINE
 TEMPLATE_TEST_CASE(
     "Testcases are sorted using different sort algorithm under stress tests",
-    "[sort][stress]",
+    "[.][sort][stress]",
     BubbleSortFunctor,
     InsertionSortFunctor,
-    BinaryTreeSortFunctor)
+    BinaryTreeSortFunctor,
+    SelectionSortFunctor)
 {
   TestType sort_type;
 
-  constexpr std::size_t kNumberOfIteration = 10'000U;
+  constexpr std::size_t kNumberOfIteration = 1000U;
 
   std::vector<int>                                         testcase(1000);
   std::random_device                                       dev;

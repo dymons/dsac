@@ -74,9 +74,6 @@ template <typename RandomRange, typename Compare>
 template <typename RandomRange>
 [[gnu::always_inline]] inline void insertion_sort(RandomRange&& range)
 {
-  using std::begin;
-  using std::end;
-
   return ::dsac::insertion_sort(std::forward<RandomRange>(range), std::less<>{});
 }
 
