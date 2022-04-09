@@ -3,6 +3,14 @@
 #include <dsac/type_traits/iterator_traits.hpp>
 
 namespace dsac {
+
+template <typename Pointer, typename Allocator, typename... Args>
+[[gnu::always_inline]] inline void construct(Pointer pointer, Allocator& allocator, Args&&... args)
+{
+  using allocator_traits = typename std::allocator_traits<Allocator>;
+  allocator_traits::construct(allocator, pointer, std::forward<Args>(args)...);
+}
+
 template <std::forward_iterator ForwardIterator, typename Allocator>
 void destroy(ForwardIterator first, ForwardIterator last, Allocator& allocator)
 {
@@ -83,4 +91,5 @@ NoThrowForwardIt uninitialized_move_if_noexcept(
 
   return dsac::uninitialized_move(first, last, d_first, allocator);
 }
+
 }  // namespace dsac

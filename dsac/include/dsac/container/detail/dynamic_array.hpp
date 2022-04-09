@@ -5,15 +5,6 @@
 #include <memory>
 #include <stdexcept>
 
-namespace dsac {
-
-class DynamicArrayException : public std::range_error {
-public:
-  using std::range_error::range_error;
-};
-
-}  // namespace dsac
-
 namespace dsac::detail {
 
 template <typename T, typename Allocator>
@@ -132,10 +123,8 @@ protected:
   using base::storage;
 
 public:
-  DynamicArray() noexcept = default;
-
-  explicit DynamicArray(const allocator_type& allocator) noexcept
-    : base(allocator)
+  explicit DynamicArray(allocator_type allocator = allocator_type{}) noexcept
+    : base(std::move(allocator))
   {
   }
 
@@ -157,11 +146,11 @@ public:
   void push_back(value_type const& value)
   {
     if (storage.finish != storage.end_of_storage) {
-      allocator_traits::construct(allocator, storage.finish, value);
+      dsac::construct(storage.finish, allocator, value);
       ++storage.finish;
     }
     else {
-      realloc_insert(end(), value);
+      realloc_and_insert(value);
     }
   }
 
@@ -186,47 +175,40 @@ public:
   }
 
 private:
-  size_type max_size() const noexcept
+  size_type twice_size(size_type current_size) const
   {
-    return allocator_traits::max_size(allocator);
-  }
-
-  size_type check_len(size_type n, const char* message) const
-  {
-    if (max_size() - size() < n) {
-      throw DynamicArrayException{message};
+    const size_type max_size = allocator_traits::max_size(allocator);
+    if (max_size - current_size < 1U) {
+      throw std::range_error{"Not enough memory to allocate"};
     }
 
-    const size_type len = size() + std::max(size(), n);
-    return (len < size() || len > max_size()) ? max_size() : len;
+    const size_type len = current_size + std::max<size_type>(current_size, 1U);
+    return (len < current_size || len > max_size) ? max_size : len;
   }
 
   template <typename... Args>
-  void realloc_insert(iterator position, Args&&... args)
+  void realloc_and_insert(Args&&... args)
   {
-    const size_type length          = check_len(size_type(1U), "DynamicArray::realloc_insert");
-    const size_type elements_before = position - begin();
-    pointer         new_start       = dsac::allocate(length, allocator);
-    pointer         new_finish      = pointer{};
+    const size_type new_size   = twice_size(size());
+    pointer         new_start  = dsac::allocate(new_size, allocator);
+    pointer         new_finish = pointer{};
+    const size_type curr_size  = size();
 
     try {
-      allocator_traits::construct(
-          allocator, new_start + elements_before, std::forward<Args>(args)...);
-
-      new_finish = dsac::uninitialized_move_if_noexcept(
-          storage.start, position.base(), new_start, allocator);
-
-      ++new_finish;
+      // clang-format off
+      dsac::construct(new_start + curr_size, allocator, std::forward<Args>(args)...);
+      new_finish = dsac::uninitialized_move_if_noexcept(storage.start, storage.finish, new_start, allocator);
+      // clang-format on
     }
     catch (...) {
       if (!new_finish) {
-        allocator_traits::destroy(allocator, new_start + elements_before);
+        allocator_traits::destroy(allocator, new_start + curr_size);
       }
       else {
         dsac::destroy(new_start, new_finish, allocator);
       }
 
-      dsac::deallocate(new_start, length, allocator);
+      dsac::deallocate(new_start, new_size, allocator);
       throw;
     }
 
@@ -234,8 +216,8 @@ private:
     dsac::deallocate(storage.start, storage.end_of_storage - storage.start, allocator);
 
     storage.start          = new_start;
-    storage.finish         = new_finish;
-    storage.end_of_storage = new_start + length;
+    storage.finish         = ++new_finish;
+    storage.end_of_storage = new_start + new_size;
   }
 };
 
