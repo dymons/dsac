@@ -129,6 +129,15 @@ public:
   {
   }
 
+  DynamicArray(std::initializer_list<T> list, allocator_type allocator = allocator_type{})
+    : base(std::move(allocator))
+  {
+    const size_type size   = list.size();
+    storage.start          = dsac::allocate(size, allocator);
+    storage.end_of_storage = storage.start + size;
+    storage.finish = dsac::uninitialized_copy(list.begin(), list.end(), storage.start, allocator);
+  }
+
   DynamicArray(DynamicArray const& other)
     : base(
           other.size(),
