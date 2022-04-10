@@ -23,7 +23,7 @@ void destroy(ForwardIterator first, ForwardIterator last, Allocator& allocator)
 template <typename Allocator>
 [[nodiscard, gnu::always_inline]] inline auto allocate(size_t n, Allocator& allocator)
 {
-  using allocator_traits = std::allocator_traits<Allocator>;
+  using allocator_traits = typename std::allocator_traits<Allocator>;
   using pointer          = typename allocator_traits::pointer;
   return n != 0 ? allocator_traits::allocate(allocator, n) : pointer{};
 }

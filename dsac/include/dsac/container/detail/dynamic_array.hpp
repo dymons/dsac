@@ -8,7 +8,7 @@
 namespace dsac::detail {
 
 template <typename T, typename Allocator>
-class DynamicArrayBase {
+struct DynamicArrayBase {
   // clang-format off
   using rebind_allocator_type = typename std::allocator_traits<Allocator>::template rebind_alloc<T>;
   using pointer               = typename std::allocator_traits<Allocator>::pointer;
@@ -56,21 +56,20 @@ class DynamicArrayBase {
     }
   };
 
-public:
   using allocator_type = Allocator;
 
   DynamicArrayBase() noexcept(std::is_nothrow_default_constructible<rebind_allocator_type>::value) =
       default;
 
-  explicit DynamicArrayBase(rebind_allocator_type const& allocator) noexcept
+  explicit DynamicArrayBase(allocator_type const& allocator) noexcept
     : allocator(allocator)
   {
   }
-  explicit DynamicArrayBase(rebind_allocator_type&& allocator) noexcept
+  explicit DynamicArrayBase(allocator_type&& allocator) noexcept
     : allocator(std::move(allocator))
   {
   }
-  DynamicArrayBase(rebind_allocator_type&& allocator, DynamicArrayBase&& other) noexcept
+  DynamicArrayBase(allocator_type&& allocator, DynamicArrayBase&& other) noexcept
     : allocator(std::move(allocator))
     , storage(std::move(other))
   {
@@ -78,7 +77,7 @@ public:
   DynamicArrayBase(size_t n, const allocator_type& allocator)
     : allocator(allocator)
   {
-    storage.start          = dsac::allocate(n, allocator);
+    storage.start          = dsac::allocate(n, this->allocator);
     storage.finish         = storage.start;
     storage.end_of_storage = storage.start + n;
   }
@@ -101,7 +100,9 @@ public:
 
 template <typename T, typename Allocator>
 class DynamicArray : protected DynamicArrayBase<T, Allocator> {
-  using base = DynamicArrayBase<T, Allocator>;
+  using base                    = DynamicArrayBase<T, Allocator>;
+  using rebind_allocator_type   = typename base::rebind_allocator_type;
+  using rebind_allocator_traits = typename std::allocator_traits<rebind_allocator_type>;
 
 public:
   using value_type             = T;
@@ -126,6 +127,14 @@ public:
   explicit DynamicArray(allocator_type allocator = allocator_type{}) noexcept
     : base(std::move(allocator))
   {
+  }
+
+  DynamicArray(DynamicArray const& other)
+    : base(
+          other.size(),
+          rebind_allocator_traits::select_on_container_copy_construction(other.allocator))
+  {
+    storage.finish = dsac::uninitialized_copy(other.begin(), other.end(), storage.start, allocator);
   }
 
   ~DynamicArray() noexcept
@@ -224,5 +233,14 @@ private:
     storage.end_of_storage = new_start + new_size;
   }
 };
+
+template <class T, class Allocator>
+
+bool operator==(const DynamicArray<T, Allocator>& lhs, const DynamicArray<T, Allocator>& rhs)
+{
+  using std::begin;
+  using std::end;
+  return std::equal(begin(lhs), end(lhs), begin(rhs), end(rhs));
+}
 
 }  // namespace dsac::detail

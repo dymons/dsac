@@ -58,3 +58,15 @@ TEST_CASE("Dynamic array should expand automatically", "[dynamic_array][default]
     }
   }
 }
+
+TEST_CASE("Dynamic array should be copyable", "[dynamic_array][default]")
+{
+  dsac::dynamic_array<int> dynamic_array;
+  for (int i{}; i < 10; ++i) {
+    dynamic_array.push_back(i);
+  }
+
+  auto copy_dynamic_array = dynamic_array;
+  REQUIRE(dynamic_array.size() == 10);
+  REQUIRE(copy_dynamic_array == dynamic_array);
+}
