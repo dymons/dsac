@@ -169,7 +169,7 @@ public:
   binary_search_tree(ForwardIterator begin, ForwardIterator end)
     : binary_search_tree()
   {
-    using user_value_type = dsac::iterator_traits<ForwardIterator>::value_type;
+    using user_value_type = typename dsac::iterator_traits<ForwardIterator>::value_type;
     static_assert(std::is_same_v<user_value_type, value_type>);
     for (auto it = begin; it != end; ++it) {
       InsertUnique(*it);
@@ -178,7 +178,7 @@ public:
 
   explicit binary_search_tree(Compare comp = Compare(), Allocator alloc = Allocator())
     : compare_(std::move(comp))
-    , allocator_(node_allocator(std::move(alloc)))
+    , allocator_(std::move(alloc))
     , size_(0)
     , root_(nullptr){};
 
@@ -230,7 +230,7 @@ public:
   template <typename ForwardIterator>
   void insert(ForwardIterator begin, ForwardIterator end)
   {
-    using user_value_type = dsac::iterator_traits<ForwardIterator>::value_type;
+    using user_value_type = typename dsac::iterator_traits<ForwardIterator>::value_type;
     static_assert(std::is_same_v<user_value_type, value_type>);
     for (auto it = begin; it != end; ++it) {
       [[maybe_unused]] auto const added = InsertUnique(*it);
@@ -340,6 +340,7 @@ private:
         parent = parent->right_;
       }
       else {
+        DestroyNode(inserted_node);
         return std::make_pair(MakeIterator(parent), false);
       }
     }
