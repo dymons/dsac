@@ -92,4 +92,21 @@ NoThrowForwardIt uninitialized_move_if_noexcept(
   return dsac::uninitialized_move(first, last, d_first, allocator);
 }
 
+template <typename ForwardIterator, typename Size, typename T, typename Allocator>
+void uninitialized_fill_n(ForwardIterator first, Size n, const T& value, Allocator& allocator)
+{
+  using allocator_traits = typename std::allocator_traits<Allocator>;
+
+  ForwardIterator curr = first;
+  try {
+    for (; n > 0; --n, ++curr) {
+      allocator_traits::construct(allocator, &*curr, value);
+    }
+  }
+  catch (...) {
+    dsac::destroy(first, curr, allocator);
+    throw;
+  }
+}
+
 }  // namespace dsac

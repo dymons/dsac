@@ -129,6 +129,16 @@ public:
   {
   }
 
+  DynamicArray(
+      size_type             n,
+      const value_type&     value     = value_type{},
+      const allocator_type& allocator = allocator_type())
+    : base(n, allocator)
+  {
+    dsac::uninitialized_fill_n(storage.start, n, value, allocator);
+    storage.finish = storage.end_of_storage;
+  }
+
   DynamicArray(std::initializer_list<T> list, allocator_type allocator = allocator_type{})
     : base(std::move(allocator))
   {

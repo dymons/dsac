@@ -2,11 +2,11 @@
 
 #include <dsac/algorithm/binary_tree_sort.hpp>
 #include <dsac/algorithm/is_sorted.hpp>
-#include <vector>
+#include <dsac/container/dynamic_array.hpp>
 
 TEST_CASE("Testcases are sorted using binary tree sort (D)", "[binary_tree_sort][default]")
 {
-  using testcase = std::vector<int>;
+  using testcase = dsac::dynamic_array<int>;
 
   SECTION("Sorting a testcase with custom policy")
   {

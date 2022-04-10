@@ -6,8 +6,7 @@
 #include <dsac/algorithm/insertion_sort.hpp>
 #include <dsac/algorithm/is_sorted.hpp>
 #include <dsac/algorithm/selection_sort.hpp>
-
-#include <vector>
+#include <dsac/container/dynamic_array.hpp>
 
 namespace {
 // NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
@@ -40,7 +39,7 @@ TEMPLATE_TEST_CASE(
 {
   TestType sort_type;
 
-  using testcase = std::vector<int>;
+  using testcase = dsac::dynamic_array<int>;
   SECTION("Sorting an empty testcase")
   {
     auto empty_testcase = testcase{};
@@ -81,7 +80,7 @@ TEMPLATE_TEST_CASE(
 
   constexpr std::size_t kNumberOfIteration = 1000U;
 
-  std::vector<int>                                         testcase(1000);
+  dsac::dynamic_array<int>                                 testcase(1000);
   std::random_device                                       dev;
   std::mt19937                                             rng(dev());
   std::uniform_int_distribution<std::mt19937::result_type> dist(1U, testcase.size());

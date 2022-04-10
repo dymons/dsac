@@ -1,16 +1,16 @@
 #include <catch2/catch.hpp>
 
 #include <dsac/algorithm/is_sorted.hpp>
+#include <dsac/container/dynamic_array.hpp>
 
 #include <limits>
 #include <random>
-#include <vector>
 
 TEST_CASE("Testcases are checked for the sorting (D)", "[is_sorted][default]")
 {
   SECTION("Check an empty testcase")
   {
-    using testcase      = std::vector<int>;
+    using testcase      = dsac::dynamic_array<int>;
     auto empty_testcase = testcase{};
     SECTION("Using predicate by default")
     {
@@ -74,7 +74,7 @@ TEST_CASE("Testcases are checked for the sorting (S)", "[is_sorted][stress]")
 {
   constexpr std::size_t kNumberOfIteration = 10'000U;
 
-  std::vector<int>                                         testcase(100);
+  dsac::dynamic_array<int>                                 testcase(100);
   std::random_device                                       dev;
   std::mt19937                                             rng(dev());
   std::uniform_int_distribution<std::mt19937::result_type> dist(1U, testcase.size());
