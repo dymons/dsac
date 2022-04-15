@@ -100,7 +100,6 @@ public:
   }
 };
 
-// Forward iterator requirements
 template <typename IteratorL, typename IteratorR, typename Container>
 inline bool operator==(
     const NormalIterator<IteratorL, Container>& lhs,

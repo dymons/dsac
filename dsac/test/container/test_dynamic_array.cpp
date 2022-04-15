@@ -2,6 +2,14 @@
 
 #include <dsac/container/dynamic_array.hpp>
 
+TEST_CASE("Dynamic array should be constructable", "[dynamic_array][default]")
+{
+  SECTION("Construct dynamic array by using default constructor")
+  {
+    dsac::dynamic_array<int> default_dynamic_array{};
+  }
+}
+
 TEST_CASE("Dynamic array should expand automatically", "[dynamic_array][default]")
 {
   dsac::dynamic_array<int> dynamic_array;

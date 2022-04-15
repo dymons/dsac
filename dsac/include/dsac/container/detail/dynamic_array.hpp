@@ -129,7 +129,7 @@ public:
   {
   }
 
-  DynamicArray(
+  explicit DynamicArray(
       size_type             n,
       const value_type&     value     = value_type{},
       const allocator_type& allocator = allocator_type())
@@ -254,7 +254,6 @@ private:
 };
 
 template <class T, class Allocator>
-
 bool operator==(const DynamicArray<T, Allocator>& lhs, const DynamicArray<T, Allocator>& rhs)
 {
   using std::begin;
