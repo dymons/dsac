@@ -5,8 +5,8 @@
 namespace dsac::detail {
 /*!
     \brief
-        Insertion sort is a sorting algorithm that places an unsorted element at its suitable place
-        in each iteration.
+        Insertion sort is a sorting algorithm that places an unsorted element at
+   its suitable place in each iteration.
 
     \param begin
             Iterator to the initial position in the sequence
@@ -21,12 +21,13 @@ namespace dsac::detail {
     \ingroup DsacAlgorithms
 */
 template <std::random_access_iterator RandomIterator, typename Compare>
-void insertion_sort(RandomIterator begin, RandomIterator end, Compare comp)
-{
-  using value_type      = typename dsac::iterator_traits<RandomIterator>::value_type;
-  using difference_type = typename dsac::iterator_traits<RandomIterator>::difference_type;
+void insertion_sort(RandomIterator begin, RandomIterator end, Compare comp) {
+  using value_type = typename dsac::iterator_traits<RandomIterator>::value_type;
+  using difference_type =
+      typename dsac::iterator_traits<RandomIterator>::difference_type;
 
-  static_assert(std::is_signed_v<difference_type>, "difference type must be signed");
+  static_assert(
+      std::is_signed_v<difference_type>, "difference type must be signed");
 
   difference_type const n = std::distance(begin, end);
   for (difference_type j = 1; j < n; ++j) {

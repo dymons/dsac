@@ -10,17 +10,14 @@ class Try {
 
 public:
   explicit Try(T value)
-    : store_(std::move(value))
-  {
+    : store_(std::move(value)) {
   }
 
   explicit Try(std::exception_ptr&& exception)
-    : store_(std::move(exception))
-  {
+    : store_(std::move(exception)) {
   }
 
-  const T& ValueOrThrow() const
-  {
+  const T& ValueOrThrow() const {
     if (HasException()) {
       std::rethrow_exception(std::get<std::exception_ptr>(store_));
     }
@@ -28,20 +25,18 @@ public:
     return std::get<T>(store_);
   }
 
-  [[nodiscard]] bool HasValue() const noexcept
-  {
+  [[nodiscard]] bool HasValue() const noexcept {
     return store_.index() == 0;
   }
 
-  [[nodiscard]] bool HasException() const noexcept
-  {
+  [[nodiscard]] bool HasException() const noexcept {
     return store_.index() == 1;
   }
 };
 
 template <typename T>
-bool operator==(const Try<T>& p, const Try<T>& b)
-{
-  return (p.HasValue() && b.HasValue()) && (p.ValueOrThrow() == b.ValueOrThrow());
+bool operator==(const Try<T>& p, const Try<T>& b) {
+  return (p.HasValue() && b.HasValue()) &&
+         (p.ValueOrThrow() == b.ValueOrThrow());
 }
 }  // namespace dsac::futures

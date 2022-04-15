@@ -15,42 +15,34 @@ class HashTable final {
     explicit Node(Key key, Value value)
       : key_(key)
       , value_(value)
-      , bucket_(nullptr)
-    {
+      , bucket_(nullptr) {
     }
 
-    void SetKey(Key key)
-    {
+    void SetKey(Key key) {
       key_ = key;
     }
 
-    void SetValue(Value value)
-    {
+    void SetValue(Value value) {
       value_ = value;
     }
 
-    void SetBucket(Node* bucket)
-    {
+    void SetBucket(Node* bucket) {
       bucket_ = bucket;
     }
 
-    Key GetKey() const noexcept
-    {
+    Key GetKey() const noexcept {
       return key_;
     }
 
-    Value GetValue() const noexcept
-    {
+    Value GetValue() const noexcept {
       return value_;
     }
 
-    Node* GetBucket() const noexcept
-    {
+    Node* GetBucket() const noexcept {
       return bucket_;
     }
 
-    void Destroy()
-    {
+    void Destroy() {
       if (bucket_ != nullptr) {
         bucket_->Destroy();
         delete bucket_;
@@ -58,13 +50,11 @@ class HashTable final {
     }
   };
 
-  [[nodiscard]] std::size_t Hashing(Key key) const
-  {
+  [[nodiscard]] std::size_t Hashing(Key key) const {
     return Hash{}(key) % hashtable_.size();
   }
 
-  void DestroyImpl(std::vector<Node*>& hashtable)
-  {
+  void DestroyImpl(std::vector<Node*>& hashtable) {
     for (Node*& node : hashtable) {
       if (node != nullptr) {
         node->Destroy();
@@ -73,8 +63,7 @@ class HashTable final {
     }
   }
 
-  void InsertImpl(Key key, Value value)
-  {
+  void InsertImpl(Key key, Value value) {
     std::size_t const hash = Hashing(key);
 
     Node* parent = nullptr;
@@ -89,19 +78,16 @@ class HashTable final {
       child = new Node{key, value};
       if (parent == nullptr) {
         hashtable_[hash] = child;
-      }
-      else {
+      } else {
         parent->SetBucket(child);
       }
       ++buffer_size_;
-    }
-    else {
+    } else {
       child->SetValue(value);
     }
   }
 
-  void Rehash()
-  {
+  void Rehash() {
     std::vector<Node*> latest_hashtable(hashtable_.size() * 2, nullptr);
     std::swap(latest_hashtable, hashtable_);
 
@@ -116,8 +102,7 @@ class HashTable final {
     DestroyImpl(latest_hashtable);
   }
 
-  void TryRehash()
-  {
+  void TryRehash() {
     double const alpha = static_cast<double>(buffer_size_) / hashtable_.size();
     if (alpha > rehash_size_) {
       Rehash();
@@ -132,23 +117,19 @@ class HashTable final {
 
 public:
   HashTable()
-    : hashtable_(default_size_, nullptr)
-  {
+    : hashtable_(default_size_, nullptr) {
   }
 
-  ~HashTable()
-  {
+  ~HashTable() {
     DestroyImpl(hashtable_);
   }
 
-  void Insert(Key key, Value value)
-  {
+  void Insert(Key key, Value value) {
     TryRehash();
     InsertImpl(key, value);
   }
 
-  [[nodiscard]] bool Contains(Key key) const
-  {
+  [[nodiscard]] bool Contains(Key key) const {
     std::size_t const hash = Hashing(key);
 
     Node* entry = hashtable_[hash];
@@ -162,8 +143,7 @@ public:
     return false;
   }
 
-  [[nodiscard]] Value GetValue(Key key) const
-  {
+  [[nodiscard]] Value GetValue(Key key) const {
     std::size_t const hash = Hashing(key);
 
     Node* entry = hashtable_[hash];
@@ -177,8 +157,7 @@ public:
     throw std::out_of_range{""};
   }
 
-  void Remove(Key key)
-  {
+  void Remove(Key key) {
     std::size_t const hash = Hashing(key);
 
     Node* parent = nullptr;
@@ -192,8 +171,7 @@ public:
     if (child != nullptr) {
       if (parent == nullptr) {
         hashtable_[hash] = child->GetBucket();
-      }
-      else {
+      } else {
         parent->SetBucket(child->GetBucket());
       }
 

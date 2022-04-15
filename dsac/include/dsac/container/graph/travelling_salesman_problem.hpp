@@ -5,8 +5,7 @@
 namespace dsac::graph::tsp {
 struct Node final {
   int                         id{};
-  [[gnu::always_inline]] bool operator==(const Node other) const noexcept
-  {
+  [[gnu::always_inline]] bool operator==(const Node other) const noexcept {
     return id == other.id;
   }
 };
@@ -17,22 +16,18 @@ public:
   using AdjacencyRow    = std::vector<Cost>;
   using AdjacencyMatrix = std::vector<AdjacencyRow>;
   explicit CompleteGraph(int n)
-    : graph_(n, std::vector<Cost>(n, 0))
-  {
+    : graph_(n, std::vector<Cost>(n, 0)) {
   }
 
-  void AddEdge(Node from, Node to, Cost cost)
-  {
+  void AddEdge(Node from, Node to, Cost cost) {
     graph_[from.id][to.id] = cost;
   }
 
-  [[nodiscard]] Cost GetCost(Node from, Node to) const
-  {
+  [[nodiscard]] Cost GetCost(Node from, Node to) const {
     return graph_[from.id][to.id];
   }
 
-  [[nodiscard]] int GetMatrixSize() const noexcept
-  {
+  [[nodiscard]] int GetMatrixSize() const noexcept {
     return graph_.size();
   }
 

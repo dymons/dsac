@@ -7,7 +7,8 @@ namespace dsac::detail {
 
 /*!
     \brief
-        Check whether adjacent elements in the range satisfy the condition \c comp.
+        Check whether adjacent elements in the range satisfy the condition \c
+   comp.
 
     \param begin
         Iterator to the initial position in the sequence
@@ -17,7 +18,8 @@ namespace dsac::detail {
             Function to invoke on adjacent pair of elements in the range
 
     \returns
-        \c true if adjacent elements in the range satisfy \c predicate, \c false otherwise.
+        \c true if adjacent elements in the range satisfy \c predicate, \c false
+   otherwise.
 
     \par Worst Case Complexity:
         Time Complexity \p O(N) and Space Complexity \p O(1)
@@ -25,8 +27,8 @@ namespace dsac::detail {
     \ingroup DsacAlgorithms
 */
 template <std::forward_iterator ForwardIterator, typename Compare>
-constexpr bool is_sorted(ForwardIterator begin, ForwardIterator end, Compare comp)
-{
+constexpr bool is_sorted(
+    ForwardIterator begin, ForwardIterator end, Compare comp) {
   if (begin == end) {
     return true;
   }

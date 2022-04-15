@@ -14,16 +14,14 @@ public:
 class FutureNoExecutor : public FutureException {
 public:
   FutureNoExecutor()
-    : FutureException("No executor provided to via")
-  {
+    : FutureException("No executor provided to via") {
   }
 };
 
 class FutureNoCallback : public FutureException {
 public:
   FutureNoCallback()
-    : FutureException("No callback provided to subscribe")
-  {
+    : FutureException("No callback provided to subscribe") {
   }
 };
 
@@ -44,20 +42,18 @@ class Future : public HoldState<T> {
   using HoldState<T>::ReleaseState;
 
 public:
-  static Future<T> Fail(const char* message)
-  {
+  static Future<T> Fail(const char* message) {
     auto state = MakeSharedState<T>();
-    state->SetResult(Try<T>{std::make_exception_ptr(std::logic_error{message})});
+    state->SetResult(
+        Try<T>{std::make_exception_ptr(std::logic_error{message})});
     return Future<T>(std::move(state));
   }
 
-  Try<T> Get() &&
-  {
+  Try<T> Get() && {
     return ReleaseState()->GetResult();
   }
 
-  Future<T> Via(concurrency::IExecutorPtr exec) &&
-  {
+  Future<T> Via(concurrency::IExecutorPtr exec) && {
     if (exec == nullptr) {
       throw FutureNoExecutor{};
     }
@@ -67,8 +63,7 @@ public:
     return new_future;
   }
 
-  Future<T> Subscribe(Callback<T> callback) &&
-  {
+  Future<T> Subscribe(Callback<T> callback) && {
     if (callback == nullptr) {
       throw FutureNoCallback{};
     }
@@ -79,19 +74,18 @@ public:
   }
 
   template <typename F>
-  auto Then(F&& continuation) &&
-  {
+  auto Then(F&& continuation) && {
     using ReturnType = typename std::result_of<F(const Try<T>&)>::type;
 
     Promise<ReturnType> promise;
     Future<ReturnType>  future = promise.MakeFuture();
 
     std::move(*this).Subscribe(
-        [continuation = std::forward<F>(continuation), promise = std::move(promise)](Try<T> result) mutable {
+        [continuation = std::forward<F>(continuation),
+         promise      = std::move(promise)](Try<T> result) mutable {
           try {
             promise.Set(continuation(result));
-          }
-          catch (...) {
+          } catch (...) {
             promise.Set(std::current_exception());
           }
         });
@@ -100,19 +94,16 @@ public:
   }
 
 private:
-  void SetExecutor(concurrency::IExecutorPtr&& exec)
-  {
+  void SetExecutor(concurrency::IExecutorPtr&& exec) {
     GetState()->SetExecutor(std::move(exec));
   }
 
-  void SetCallback(Callback<T>&& callback)
-  {
+  void SetCallback(Callback<T>&& callback) {
     GetState()->SetCallback(std::move(callback));
   }
 
   explicit Future(StateRef<T> state)
-    : HoldState<T>(std::move(state))
-  {
+    : HoldState<T>(std::move(state)) {
   }
 };
 }  // namespace dsac::futures

@@ -8,15 +8,13 @@
 
 namespace dsac::futures {
 template <typename T>
-auto FirstN(std::vector<Future<T>>&& futures, std::size_t const n)
-{
+auto FirstN(std::vector<Future<T>>&& futures, std::size_t const n) {
   using Result = std::vector<Try<T>>;
 
   struct Context {
     explicit Context(size_t num_futures, size_t min)
       : v(num_futures)
-      , min(min)
-    {
+      , min(min) {
     }
 
     std::vector<std::optional<Try<T>>> v;

@@ -5,7 +5,9 @@
 
 TEST_CASE("Создание умного указателя SharedPtr", "[shared_ptr_build]") {
   using namespace dsac::pointers;
-  SECTION("Проверка корректности для конструкторов и операторов пустого SharedPtr") {
+  SECTION(
+      "Проверка корректности для конструкторов и операторов пустого "
+      "SharedPtr") {
     SharedPtr<int> shared;
     REQUIRE(shared.UseCount() == 0);
 
@@ -48,9 +50,10 @@ TEST_CASE("Создание умного указателя SharedPtr", "[shared
     class Local final {
       bool* destroyed_{nullptr};
 
-     public:
+    public:
       Local() noexcept = default;
-      explicit Local(bool* destroyed) noexcept : destroyed_(destroyed) {
+      explicit Local(bool* destroyed) noexcept
+        : destroyed_(destroyed) {
       }
       ~Local() noexcept {
         if (destroyed_ != nullptr) {
@@ -59,7 +62,7 @@ TEST_CASE("Создание умного указателя SharedPtr", "[shared
       }
     };
 
-    bool is_destroyed = false;
+    bool             is_destroyed = false;
     SharedPtr<Local> shared_local_1{new Local{&is_destroyed}};
     SharedPtr<Local> shared_local_2{new Local{}};
     REQUIRE(shared_local_1.UseCount() == 1);
@@ -91,9 +94,10 @@ TEST_CASE("Создание умного указателя SharedPtr", "[shared
     class Local final {
       bool* destroyed_{nullptr};
 
-     public:
+    public:
       Local() noexcept = default;
-      explicit Local(bool* destroyed) noexcept : destroyed_(destroyed) {
+      explicit Local(bool* destroyed) noexcept
+        : destroyed_(destroyed) {
       }
       ~Local() noexcept {
         if (destroyed_ != nullptr) {
@@ -102,7 +106,7 @@ TEST_CASE("Создание умного указателя SharedPtr", "[shared
       }
     };
 
-    bool is_destroyed = false;
+    bool             is_destroyed = false;
     SharedPtr<Local> shared_local_1{new Local{&is_destroyed}};
     SharedPtr<Local> shared_local_2{new Local{}};
     REQUIRE(shared_local_1.UseCount() == 1);

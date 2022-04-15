@@ -10,66 +10,58 @@ AVLTree<T>::Node::Node(T key)
   : key_(key)
   , left_(nullptr)
   , right_(nullptr)
-  , height_(0)
-{
+  , height_(0) {
 }
 
 template <typename T>
-void AVLTree<T>::Node::SetLeftChild(Node* child) noexcept
-{
+void AVLTree<T>::Node::SetLeftChild(Node* child) noexcept {
   left_ = child;
 }
 
 template <typename T>
-void AVLTree<T>::Node::SetRightChild(Node* child) noexcept
-{
+void AVLTree<T>::Node::SetRightChild(Node* child) noexcept {
   right_ = child;
 }
 
 template <typename T>
-void AVLTree<T>::Node::SetHeight(int height) noexcept
-{
+void AVLTree<T>::Node::SetHeight(int height) noexcept {
   height_ = height;
 }
 
 template <typename T>
-typename AVLTree<T>::Node*& AVLTree<T>::Node::GetLeftChild() & noexcept
-{
+typename AVLTree<T>::Node*& AVLTree<T>::Node::GetLeftChild() & noexcept {
   return left_;
 }
 
 template <typename T>
-typename AVLTree<T>::Node*& AVLTree<T>::Node::GetRightChild() & noexcept
-{
+typename AVLTree<T>::Node*& AVLTree<T>::Node::GetRightChild() & noexcept {
   return right_;
 }
 
 template <typename T>
-const T& AVLTree<T>::Node::GetKey() const noexcept
-{
+const T& AVLTree<T>::Node::GetKey() const noexcept {
   return key_;
 }
 
 template <typename T>
-int AVLTree<T>::Node::GetHeight() noexcept
-{
+int AVLTree<T>::Node::GetHeight() noexcept {
   return height_;
 }
 
 template <typename T>
-bool AVLTree<T>::Node::Contains(T key) const
-{
+bool AVLTree<T>::Node::Contains(T key) const {
   if (key == key_) {
     return true;
   }
 
-  return (left_ != nullptr && left_->Contains(key)) || (right_ != nullptr && right_->Contains(key));
+  return (left_ != nullptr && left_->Contains(key)) ||
+         (right_ != nullptr && right_->Contains(key));
 }
 
 template <typename T>
-void AVLTree<T>::Node::Destroy()
-{
-  // TODO (Dmitry Emelyanov) Вынести удаление объекта в PostOrder на уровень дерева
+void AVLTree<T>::Node::Destroy() {
+  // TODO (Dmitry Emelyanov) Вынести удаление объекта в PostOrder на уровень
+  // дерева
   // TODO (Dmitry Emelyanov) Использовать аллокаторы памяти
   if (left_ != nullptr) {
     left_->Destroy();
@@ -83,51 +75,49 @@ void AVLTree<T>::Node::Destroy()
 }
 
 template <typename T>
-void AVLTree<T>::SmallLeftRotation(Node*& subtree) const
-{
+void AVLTree<T>::SmallLeftRotation(Node*& subtree) const {
   Node* const heavy_right = subtree->GetRightChild();
 
   subtree->SetRightChild(heavy_right->GetLeftChild());
   heavy_right->SetLeftChild(subtree);
 
-  subtree->SetHeight(GetMaxHeight(subtree->GetLeftChild(), subtree->GetRightChild()));
+  subtree->SetHeight(
+      GetMaxHeight(subtree->GetLeftChild(), subtree->GetRightChild()));
   heavy_right->SetHeight(GetMaxHeight(subtree, heavy_right->GetRightChild()));
 
   subtree = heavy_right;
 }
 
 template <typename T>
-void AVLTree<T>::SmallRightRotation(Node*& subtree) const
-{
+void AVLTree<T>::SmallRightRotation(Node*& subtree) const {
   Node* const heavy_left = subtree->GetLeftChild();
 
   subtree->SetLeftChild(heavy_left->GetRightChild());
   heavy_left->SetRightChild(subtree);
 
-  subtree->SetHeight(GetMaxHeight(subtree->GetLeftChild(), subtree->GetRightChild()));
+  subtree->SetHeight(
+      GetMaxHeight(subtree->GetLeftChild(), subtree->GetRightChild()));
   heavy_left->SetHeight(GetMaxHeight(heavy_left->GetLeftChild(), subtree));
 
   subtree = heavy_left;
 }
 
 template <typename T>
-void AVLTree<T>::LargeLeftRotation(Node*& subtree) const
-{
+void AVLTree<T>::LargeLeftRotation(Node*& subtree) const {
   SmallRightRotation(subtree->GetRightChild());
   SmallLeftRotation(subtree);
 }
 
 template <typename T>
-void AVLTree<T>::LargeRightRotation(Node*& subtree) const
-{
+void AVLTree<T>::LargeRightRotation(Node*& subtree) const {
   SmallLeftRotation(subtree->GetLeftChild());
   SmallRightRotation(subtree);
 }
 
 template <typename T>
 template <typename Comp>
-void AVLTree<T>::BalancingSubtree(Node*& subtree, T destination_key, T source_key, Comp comp) const
-{
+void AVLTree<T>::BalancingSubtree(
+    Node*& subtree, T destination_key, T source_key, Comp comp) const {
   const int left_depth  = GetMaxHeight(subtree->GetLeftChild(), nullptr);
   const int right_depth = GetMaxHeight(nullptr, subtree->GetRightChild());
 
@@ -135,40 +125,37 @@ void AVLTree<T>::BalancingSubtree(Node*& subtree, T destination_key, T source_ke
   if (balance_factor == -2) {
     if (comp(destination_key, source_key)) {
       LargeLeftRotation(subtree);
-    }
-    else {
+    } else {
       SmallLeftRotation(subtree);
     }
-  }
-  else if (balance_factor == 2) {
+  } else if (balance_factor == 2) {
     if (comp(destination_key, source_key)) {
       LargeRightRotation(subtree);
-    }
-    else {
+    } else {
       SmallRightRotation(subtree);
     }
   }
 
-  subtree->SetHeight(GetMaxHeight(subtree->GetLeftChild(), subtree->GetRightChild()));
+  subtree->SetHeight(
+      GetMaxHeight(subtree->GetLeftChild(), subtree->GetRightChild()));
 }
 
 template <typename T>
-bool AVLTree<T>::InsertImpl(Node*& root, Node* added) const
-{
+bool AVLTree<T>::InsertImpl(Node*& root, Node* added) const {
   if (root == nullptr) {
     root = added;
     return true;
-  }
-  else if (const bool is_less = added->GetKey() < root->GetKey(); is_less) {
-    if (const bool is_added = InsertImpl(root->GetLeftChild(), added); is_added) {
+  } else if (const bool is_less = added->GetKey() < root->GetKey(); is_less) {
+    if (const bool is_added = InsertImpl(root->GetLeftChild(), added);
+        is_added) {
       T const& dest_key   = added->GetKey();
       T const& source_key = root->GetLeftChild()->GetKey();
       BalancingSubtree(root, dest_key, source_key, std::greater{});
       return true;
     }
-  }
-  else if (const bool is_more = added->GetKey() > root->GetKey(); is_more) {
-    if (const bool is_added = InsertImpl(root->GetRightChild(), added); is_added) {
+  } else if (const bool is_more = added->GetKey() > root->GetKey(); is_more) {
+    if (const bool is_added = InsertImpl(root->GetRightChild(), added);
+        is_added) {
       T const& dest_key   = added->GetKey();
       T const& source_key = root->GetRightChild()->GetKey();
       BalancingSubtree(root, dest_key, source_key, std::less{});
@@ -180,23 +167,22 @@ bool AVLTree<T>::InsertImpl(Node*& root, Node* added) const
 }
 
 template <typename T>
-int AVLTree<T>::GetMaxHeight(Node* left_subtree, Node* right_subtree) const
-{
-  const int left_height  = left_subtree == nullptr ? 0 : left_subtree->GetHeight() + 1;
-  const int right_height = right_subtree == nullptr ? 0 : right_subtree->GetHeight() + 1;
+int AVLTree<T>::GetMaxHeight(Node* left_subtree, Node* right_subtree) const {
+  const int left_height =
+      left_subtree == nullptr ? 0 : left_subtree->GetHeight() + 1;
+  const int right_height =
+      right_subtree == nullptr ? 0 : right_subtree->GetHeight() + 1;
   return std::max(left_height, right_height);
 }
 
 template <typename T>
-typename AVLTree<T>::Node* AVLTree<T>::FindMinChild(Node* subtree) const
-{
+typename AVLTree<T>::Node* AVLTree<T>::FindMinChild(Node* subtree) const {
   Node* const child = subtree->GetLeftChild();
   return child != nullptr ? FindMinChild(child) : subtree;
 }
 
 template <typename T>
-typename AVLTree<T>::Node* AVLTree<T>::DeleteMinChild(Node* subtree)
-{
+typename AVLTree<T>::Node* AVLTree<T>::DeleteMinChild(Node* subtree) {
   Node* left_child = subtree->GetLeftChild();
   if (left_child == nullptr) {
     return subtree->GetRightChild();
@@ -207,17 +193,14 @@ typename AVLTree<T>::Node* AVLTree<T>::DeleteMinChild(Node* subtree)
 }
 
 template <typename T>
-typename AVLTree<T>::Node* AVLTree<T>::DeleteImpl(Node*& root, T deleted_key)
-{
+typename AVLTree<T>::Node* AVLTree<T>::DeleteImpl(Node*& root, T deleted_key) {
   if (root == nullptr) {
     return nullptr;
-  }
-  else if (const bool is_less = deleted_key < root->GetKey(); is_less) {
+  } else if (const bool is_less = deleted_key < root->GetKey(); is_less) {
     root->SetLeftChild(DeleteImpl(root->GetLeftChild(), deleted_key));
     BalancingSubtree(root, deleted_key, root->GetKey(), std::greater{});
     return root;
-  }
-  else if (const bool is_more = deleted_key > root->GetKey(); is_more) {
+  } else if (const bool is_more = deleted_key > root->GetKey(); is_more) {
     root->SetRightChild(DeleteImpl(root->GetRightChild(), deleted_key));
     BalancingSubtree(root, deleted_key, root->GetKey(), std::less{});
     return root;
@@ -238,8 +221,7 @@ typename AVLTree<T>::Node* AVLTree<T>::DeleteImpl(Node*& root, T deleted_key)
 }
 
 template <typename T>
-void AVLTree<T>::VisitImpl(Node* root, Visitor visitor) const
-{
+void AVLTree<T>::VisitImpl(Node* root, Visitor visitor) const {
   if (root != nullptr) {
     VisitImpl(root->GetLeftChild(), visitor);
     visitor(root->GetKey());
@@ -248,8 +230,7 @@ void AVLTree<T>::VisitImpl(Node* root, Visitor visitor) const
 }
 
 template <typename T>
-AVLTree<T>::~AVLTree()
-{
+AVLTree<T>::~AVLTree() {
   if (root_ != nullptr) {
     root_->Destroy();
     delete root_;
@@ -257,8 +238,7 @@ AVLTree<T>::~AVLTree()
 }
 
 template <typename T>
-bool AVLTree<T>::Insert(T added_key)
-{
+bool AVLTree<T>::Insert(T added_key) {
   if (const bool exist = Contains(added_key); !exist) {
     return InsertImpl(root_, new Node{added_key});
   }
@@ -266,26 +246,22 @@ bool AVLTree<T>::Insert(T added_key)
   return false;
 }
 template <typename T>
-void AVLTree<T>::Delete(T deleted_key)
-{
+void AVLTree<T>::Delete(T deleted_key) {
   root_ = DeleteImpl(root_, deleted_key);
 }
 
 template <typename T>
-void AVLTree<T>::Visit(Visitor visitor) const
-{
+void AVLTree<T>::Visit(Visitor visitor) const {
   VisitImpl(root_, visitor);
 }
 
 template <typename T>
-bool AVLTree<T>::Contains(T key) const
-{
+bool AVLTree<T>::Contains(T key) const {
   return root_ != nullptr && root_->Contains(key);
 }
 
 template <typename T>
-int AVLTree<T>::Depth() const
-{
+int AVLTree<T>::Depth() const {
   return root_ == nullptr ? -1 : root_->GetHeight();
 }
 }  // namespace dsac::tree

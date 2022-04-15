@@ -1,12 +1,12 @@
-#include "catch2/catch.hpp"
 #include <utility>
+#include "catch2/catch.hpp"
 
 #include <dsac/container/graph/travelling_salesman_problem.hpp>
 
 TEST_CASE("Задача коммивояжёра", "[travelling_salesman_problem]") {
   using namespace dsac::graph;
 
-  constexpr int size_graph = 4;
+  constexpr int      size_graph = 4;
   tsp::CompleteGraph graph(size_graph);
 
   graph.AddEdge({0}, {1}, 4);
@@ -25,8 +25,8 @@ TEST_CASE("Задача коммивояжёра", "[travelling_salesman_problem
   graph.AddEdge({3}, {1}, 5);
   graph.AddEdge({3}, {2}, -4);
 
-  const tsp::TravellingSalesmanResult expected{.tour = {{0}, {3}, {2}, {1}, {0}},
-                                               .min_cost = 9};
+  const tsp::TravellingSalesmanResult expected{
+      .tour = {{0}, {3}, {2}, {1}, {0}}, .min_cost = 9};
   const tsp::TravellingSalesmanResult solved = tsp::Solve(graph, {0});
   REQUIRE(solved.tour == expected.tour);
   REQUIRE(solved.min_cost == expected.min_cost);

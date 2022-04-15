@@ -4,7 +4,7 @@
 
 TEST_CASE("Поиск в ширину на графе", "[breadth_first_search]") {
   using namespace dsac::graph;
-  using Edge = std::pair<int, int>;
+  using Edge  = std::pair<int, int>;
   using Edges = std::vector<Edge>;
   // clang-format off
   const Edges edges {

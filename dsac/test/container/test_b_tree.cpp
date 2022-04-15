@@ -6,7 +6,7 @@ TEST_CASE("Проверка B дерева поиска", "[b_tree]") {
   using namespace dsac::tree;
 
   constexpr int t = 3;
-  BTree<int> tree(t);
+  BTree<int>    tree(t);
 
   for (const int i : {10, 20, 30, 40, 50, 60, 70, 80, 90}) {
     tree.Insert(i);

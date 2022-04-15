@@ -18,33 +18,28 @@ public:
   explicit Pimpl(std::size_t size_awaited_threads)
     : size_awaited_threads_(size_awaited_threads)
     , current_awaited_threads_(size_awaited_threads)
-    , state_(State::Blocking)
-  {
+    , state_(State::Blocking) {
   }
 
-  Pimpl(const Pimpl&) = delete;
-  Pimpl(Pimpl&&)      = delete;
+  Pimpl(const Pimpl&)            = delete;
+  Pimpl(Pimpl&&)                 = delete;
   Pimpl& operator=(const Pimpl&) = delete;
-  Pimpl& operator=(Pimpl&&) = delete;
+  Pimpl& operator=(Pimpl&&)      = delete;
 
-  void ArriveAndWait()
-  {
+  void ArriveAndWait() {
     std::unique_lock<std::mutex> lock{mutex_};
     if (state_ == State::Blocking) {
       if (--current_awaited_threads_ == 0u) {
         state_ = State::Unblocking;
         cv_.notify_all();
-      }
-      else {
+      } else {
         cv_.wait(lock, [this]() { return state_ == State::Unblocking; });
       }
-    }
-    else {
+    } else {
       if (++current_awaited_threads_ == size_awaited_threads_) {
         state_ = State::Blocking;
         cv_.notify_all();
-      }
-      else {
+      } else {
         cv_.wait(lock, [this] { return state_ == State::Blocking; });
       }
     }
@@ -52,12 +47,10 @@ public:
 };
 
 Barrier::Barrier(std::size_t size_awaited_threads)
-  : pimpl_(std::make_shared<Pimpl>(size_awaited_threads))
-{
+  : pimpl_(std::make_shared<Pimpl>(size_awaited_threads)) {
 }
 
-void Barrier::ArriveAndWait()
-{
+void Barrier::ArriveAndWait() {
   pimpl_->ArriveAndWait();
 }
 }  // namespace dsac::syncing

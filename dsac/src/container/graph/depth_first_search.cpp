@@ -5,8 +5,7 @@
 #include <unordered_set>
 
 namespace dsac::graph::dfs {
-bool IsPathExist(Graph& graph, const Node from, const Node to)
-{
+bool IsPathExist(Graph& graph, const Node from, const Node to) {
   std::stack<Node> processing;
   processing.push(from);
 
@@ -14,10 +13,10 @@ bool IsPathExist(Graph& graph, const Node from, const Node to)
   visited.emplace(from);
 
   while (!processing.empty()) {
-    if (const Node considered = processing.top(); considered == to) [[unlikely]] {
+    if (const Node considered = processing.top(); considered == to)
+        [[unlikely]] {
       return true;
-    }
-    else {
+    } else {
       processing.pop();
       for (const Node successor : graph.GetSuccessors(considered)) {
         if (auto [it, not_exist] = visited.emplace(successor); not_exist) {
@@ -30,8 +29,7 @@ bool IsPathExist(Graph& graph, const Node from, const Node to)
   return false;
 }
 
-Path ShortestPath(Graph& graph, const Node from, const Node to)
-{
+Path ShortestPath(Graph& graph, const Node from, const Node to) {
   std::stack<Node> processing;
   processing.push(from);
 
@@ -42,10 +40,10 @@ Path ShortestPath(Graph& graph, const Node from, const Node to)
   visited.emplace(from);
 
   while (!processing.empty()) {
-    if (const Node considered = processing.top(); considered == to) [[unlikely]] {
+    if (const Node considered = processing.top(); considered == to)
+        [[unlikely]] {
       break;
-    }
-    else {
+    } else {
       processing.pop();
       for (const Node successor : graph.GetSuccessors(considered)) {
         if (auto [it, not_exist] = visited.emplace(successor); not_exist) {

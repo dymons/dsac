@@ -2,42 +2,38 @@
 
 #include <dsac/container/tree/bs_tree.hpp>
 
-TEST_CASE("Создание бинарного дерева поиска", "[binary_search_tree][construct]")
-{
+TEST_CASE(
+    "Создание бинарного дерева поиска", "[binary_search_tree][construct]") {
   using namespace dsac;
 
-  SECTION("Проверка метода size для пустого дерева")
-  {
+  SECTION("Проверка метода size для пустого дерева") {
     binary_search_tree<int> tree;
     REQUIRE(tree.size() == 0);
   }
-  SECTION("Проверка метода empty для пустого дерева")
-  {
+  SECTION("Проверка метода empty для пустого дерева") {
     binary_search_tree<int> tree;
     REQUIRE(tree.IsEmpty());
   }
 }
 
-TEST_CASE("Создание итератора для бинарного дерева поиска", "[binary_search_tree][iterator]")
-{
+TEST_CASE(
+    "Создание итератора для бинарного дерева поиска",
+    "[binary_search_tree][iterator]") {
   using namespace dsac;
 
-  SECTION("Проверка итераторов пустого дерева на равенство")
-  {
+  SECTION("Проверка итераторов пустого дерева на равенство") {
     binary_search_tree<int> tree;
     auto                    begin(tree.Begin());
     auto                    end(tree.End());
     REQUIRE(begin == end);
   }
-  SECTION("Проверка константных итераторов пустого дерева на равенство")
-  {
+  SECTION("Проверка константных итераторов пустого дерева на равенство") {
     binary_search_tree<int> tree;
     auto                    begin(tree.CBegin());
     auto                    end(tree.CEnd());
     REQUIRE(begin == end);
   }
-  SECTION("Получение значения из итератора")
-  {
+  SECTION("Получение значения из итератора") {
     binary_search_tree<int, std::less<int>> tree;
     tree.Insert(1);
     auto begin(tree.CBegin());
@@ -48,27 +44,27 @@ TEST_CASE("Создание итератора для бинарного дер�
   }
 }
 
-TEST_CASE("Добавление элеметнов в бинарное дерево поиска", "[binary_search_tree][insert]")
-{
+TEST_CASE(
+    "Добавление элеметнов в бинарное дерево поиска",
+    "[binary_search_tree][insert]") {
   using namespace dsac;
 
-  SECTION("Добавление элементов в дерево")
-  {
+  SECTION("Добавление элементов в дерево") {
     binary_search_tree<int> tree;
     auto const [_, is_added] = tree.Insert(0);
     REQUIRE(is_added);
     REQUIRE(tree.size() == 1);
   }
-  SECTION("Проверка на выполнение условия о хранении уникальных элементов в дереве")
-  {
+  SECTION(
+      "Проверка на выполнение условия о хранении уникальных элементов в "
+      "дереве") {
     binary_search_tree<int> tree;
     tree.Insert(0);
     auto const [_, is_added] = tree.Insert(0);
     REQUIRE_FALSE(is_added);
     REQUIRE(tree.size() == 1);
   }
-  SECTION("Проверка итерирования по дереву")
-  {
+  SECTION("Проверка итерирования по дереву") {
     binary_search_tree<int> tree;
     for (int i{}; i < 100; ++i) {
       tree.Insert(i);
@@ -78,8 +74,7 @@ TEST_CASE("Добавление элеметнов в бинарное дере�
       REQUIRE(data == value++);
     }
   }
-  SECTION("Проверка итерирования с помощью range-based for")
-  {
+  SECTION("Проверка итерирования с помощью range-based for") {
     binary_search_tree<int> tree;
 
     tree.Insert(2);
@@ -92,27 +87,22 @@ TEST_CASE("Добавление элеметнов в бинарное дере�
     }
   }
 
-  SECTION("Вставка rvalue значения с помощью метода Insert")
-  {
+  SECTION("Вставка rvalue значения с помощью метода Insert") {
     struct CopyObject {
       std::shared_ptr<int> counter_copy;
       CopyObject(std::shared_ptr<int> counter_copy)
-        : counter_copy(std::move(counter_copy))
-      {
+        : counter_copy(std::move(counter_copy)) {
       }
       CopyObject(CopyObject const& other)
-        : counter_copy(other.counter_copy)
-      {
+        : counter_copy(other.counter_copy) {
         ++(*counter_copy);
       }
-      CopyObject& operator=(CopyObject const& other)
-      {
+      CopyObject& operator=(CopyObject const& other) {
         counter_copy = other.counter_copy;
         ++(*counter_copy);
         return *this;
       }
-      bool operator<(CopyObject const&) const noexcept
-      {
+      bool operator<(CopyObject const&) const noexcept {
         return true;
       }
     };
@@ -125,27 +115,22 @@ TEST_CASE("Добавление элеметнов в бинарное дере�
     REQUIRE(*counter == 1);
   }
 
-  SECTION("Вставка rvalue значения с помощью метода Empalce")
-  {
+  SECTION("Вставка rvalue значения с помощью метода Empalce") {
     struct CopyObject {
       std::shared_ptr<int> counter_copy;
       CopyObject(std::shared_ptr<int> counter_copy)
-        : counter_copy(std::move(counter_copy))
-      {
+        : counter_copy(std::move(counter_copy)) {
       }
       CopyObject(CopyObject const& other)
-        : counter_copy(other.counter_copy)
-      {
+        : counter_copy(other.counter_copy) {
         ++(*counter_copy);
       }
-      CopyObject& operator=(CopyObject const& other)
-      {
+      CopyObject& operator=(CopyObject const& other) {
         counter_copy = other.counter_copy;
         ++(*counter_copy);
         return *this;
       }
-      bool operator<(CopyObject const&) const noexcept
-      {
+      bool operator<(CopyObject const&) const noexcept {
         return true;
       }
     };
@@ -159,8 +144,9 @@ TEST_CASE("Добавление элеметнов в бинарное дере�
   }
 }
 
-TEST_CASE("Удаление всух элеметнов из бинарного дерева поиска", "[binary_search_tree][clear]")
-{
+TEST_CASE(
+    "Удаление всух элеметнов из бинарного дерева поиска",
+    "[binary_search_tree][clear]") {
   using namespace dsac;
 
   binary_search_tree<int> tree;
@@ -175,12 +161,11 @@ TEST_CASE("Удаление всух элеметнов из бинарного 
   REQUIRE(tree.IsEmpty());
 }
 
-TEST_CASE("Поиск элементов в бинарном дереве поиска", "[binary_search_tree][find]")
-{
+TEST_CASE(
+    "Поиск элементов в бинарном дереве поиска", "[binary_search_tree][find]") {
   using namespace dsac;
 
-  SECTION("Проверка добавленного элемента в дерево")
-  {
+  SECTION("Проверка добавленного элемента в дерево") {
     binary_search_tree<int> tree;
     REQUIRE(tree.Find(1) == tree.CEnd());
 
@@ -188,8 +173,7 @@ TEST_CASE("Поиск элементов в бинарном дереве пои
     REQUIRE(tree.Find(1) != tree.CEnd());
   }
 
-  SECTION("Проверка множества добавленных элементов в дерево")
-  {
+  SECTION("Проверка множества добавленных элементов в дерево") {
     binary_search_tree<int> tree;
     for (int i{}; i < 100; ++i) {
       tree.Insert(i);
@@ -199,8 +183,7 @@ TEST_CASE("Поиск элементов в бинарном дереве пои
     }
   }
 
-  SECTION("Поиск элемента в дереве после его удаления")
-  {
+  SECTION("Поиск элемента в дереве после его удаления") {
     binary_search_tree<int> tree;
     REQUIRE(tree.Insert(1).second);
     REQUIRE(tree.Find(1) != tree.CEnd());
@@ -209,12 +192,12 @@ TEST_CASE("Поиск элементов в бинарном дереве пои
   }
 }
 
-TEST_CASE("Удаление элементов из бинарного дерева поиска", "[binary_search_tree][erase]")
-{
+TEST_CASE(
+    "Удаление элементов из бинарного дерева поиска",
+    "[binary_search_tree][erase]") {
   using namespace dsac;
 
-  SECTION("Удаление вершины дерева без наличия левой и правой вершины")
-  {
+  SECTION("Удаление вершины дерева без наличия левой и правой вершины") {
     binary_search_tree<int> tree;
 
     REQUIRE(tree.Insert(1).second);
@@ -223,8 +206,7 @@ TEST_CASE("Удаление элементов из бинарного дере�
     REQUIRE(tree.Erase(1));
     REQUIRE(tree.size() == 0);
   }
-  SECTION("Удаление самого левого элемента из дерева")
-  {
+  SECTION("Удаление самого левого элемента из дерева") {
     binary_search_tree<int> tree;
 
     REQUIRE(tree.Insert(2).second);
@@ -236,8 +218,7 @@ TEST_CASE("Удаление элементов из бинарного дере�
     REQUIRE(tree.size() == 1);
     REQUIRE(*tree.Begin() == 2);
   }
-  SECTION("Удаление самого правого элемента из дерева")
-  {
+  SECTION("Удаление самого правого элемента из дерева") {
     binary_search_tree<int> tree;
 
     REQUIRE(tree.Insert(1).second);
@@ -247,8 +228,7 @@ TEST_CASE("Удаление элементов из бинарного дере�
     REQUIRE(tree.Erase(2));
     REQUIRE(tree.size() == 1);
   }
-  SECTION("Удаление вершины дерева с наличием левой и правой вершины")
-  {
+  SECTION("Удаление вершины дерева с наличием левой и правой вершины") {
     binary_search_tree<int> tree;
 
     REQUIRE(tree.Insert(2).second);
@@ -259,8 +239,7 @@ TEST_CASE("Удаление элементов из бинарного дере�
     REQUIRE(tree.Erase(2));
     REQUIRE(tree.size() == 2);
   }
-  SECTION("Удаление всех элементов")
-  {
+  SECTION("Удаление всех элементов") {
     binary_search_tree<int> tree;
 
     for (int i{}; i < 100; ++i) {

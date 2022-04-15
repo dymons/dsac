@@ -8,38 +8,37 @@ namespace dsac::graph::dijkstra {
 namespace detail {
 using Distance = int;
 
-static auto InitDistances(Graph& graph)
-{
+static auto InitDistances(Graph& graph) {
   std::unordered_map<Node, Distance> distances;
-  graph.Visit([&](Node node) { distances.emplace(node, std::numeric_limits<Distance>::max()); });
+  graph.Visit([&](Node node) {
+    distances.emplace(node, std::numeric_limits<Distance>::max());
+  });
   return distances;
 }
 
-static auto InitPriorityQueue()
-{
+static auto InitPriorityQueue() {
   struct ComparedNode {
     ComparedNode(Node node, Distance distance)
       : node(node)
-      , distance(distance)
-    {
+      , distance(distance) {
     }
 
     Node     node;
     Distance distance;
 
-    [[gnu::always_inline]] bool operator<(const ComparedNode& other) const noexcept
-    {
+    [[gnu::always_inline]] bool operator<(
+        const ComparedNode& other) const noexcept {
       return distance < other.distance;
     }
   };
 
-  // TODO Использовать Binary Heap Priority Queue для избежания работы с дубликатами
+  // TODO Использовать Binary Heap Priority Queue для избежания работы с
+  // дубликатами
   return std::priority_queue<ComparedNode>{};
 }
 }  // namespace detail
 
-bool IsPathExist(Graph& graph, const Node from, const Node to)
-{
+bool IsPathExist(Graph& graph, const Node from, const Node to) {
   auto distances  = detail::InitDistances(graph);
   distances[from] = 0;
 
@@ -52,8 +51,7 @@ bool IsPathExist(Graph& graph, const Node from, const Node to)
   while (!processing.empty()) {
     if (auto [considered, min_dist] = processing.top(); considered == to) {
       return true;
-    }
-    else {
+    } else {
       processing.pop();
       if (distances[considered] >= min_dist) {
         for (const Node successor : graph.GetSuccessors(considered)) {
@@ -72,8 +70,7 @@ bool IsPathExist(Graph& graph, const Node from, const Node to)
   return false;
 }
 
-Path ShortestPath(Graph& graph, const Node from, const Node to)
-{
+Path ShortestPath(Graph& graph, const Node from, const Node to) {
   auto distances  = detail::InitDistances(graph);
   distances[from] = 0;
 
@@ -87,10 +84,10 @@ Path ShortestPath(Graph& graph, const Node from, const Node to)
   visited.emplace(from);
 
   while (!processing.empty()) {
-    if (auto [considered, min_dist] = processing.top(); considered == to) [[unlikely]] {
+    if (auto [considered, min_dist] = processing.top(); considered == to)
+        [[unlikely]] {
       break;
-    }
-    else {
+    } else {
       processing.pop();
       if (distances[considered] >= min_dist) [[likely]] {
         for (const Node successor : graph.GetSuccessors(considered)) {

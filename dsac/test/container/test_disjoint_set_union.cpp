@@ -6,7 +6,7 @@ TEST_CASE("Структура данных Disjoint Set Union", "[disjoint]") {
   using namespace dsac::graph;
 
   constexpr std::size_t kSizeDisjointSet = 10U;
-  DisjointSet disjoint_set(kSizeDisjointSet);
+  DisjointSet           disjoint_set(kSizeDisjointSet);
 
   // 0 - 1 - 2 - 3
   disjoint_set.Union(0U, 1U);

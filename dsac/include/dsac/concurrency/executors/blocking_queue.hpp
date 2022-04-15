@@ -10,15 +10,13 @@ namespace dsac::concurrency {
 template <typename T>
 class UnboundedBlockingMPMCQueue final {
 public:
-  void Push(T value)
-  {
+  void Push(T value) {
     std::lock_guard guard(mutex_);
     buffer_.push_back(std::move(value));
     not_empty_.notify_one();
   }
 
-  T Pop()
-  {
+  T Pop() {
     std::unique_lock guard(mutex_);
     not_empty_.wait(guard, [this]() { return !buffer_.empty(); });
 
@@ -26,8 +24,7 @@ public:
   }
 
 private:
-  T Pop_NoLock()
-  {
+  T Pop_NoLock() {
     T data = std::move(buffer_.front());
     buffer_.pop_front();
     return data;

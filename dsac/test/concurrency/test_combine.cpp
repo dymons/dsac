@@ -1,10 +1,10 @@
 #include "catch2/catch.hpp"
 
+#include <dsac/concurrency/executors/static_thread_pool.hpp>
+#include <dsac/concurrency/futures/combine/first_n.hpp>
+#include <dsac/concurrency/futures/combine/first_of.hpp>
 #include <dsac/concurrency/futures/future.hpp>
 #include <dsac/concurrency/futures/promise.hpp>
-#include <dsac/concurrency/executors/static_thread_pool.hpp>
-#include <dsac/concurrency/futures/combine/first_of.hpp>
-#include <dsac/concurrency/futures/combine/first_n.hpp>
 
 #include <chrono>
 
@@ -14,7 +14,7 @@ TEST_CASE("Проверка корректности комбинатора на
 
   SECTION("Проверка исполнения комбинатора FirstOf") {
     constexpr std::size_t kNumberWorkers = 2U;
-    IExecutorPtr executor = StaticThreadPool::Make(kNumberWorkers);
+    IExecutorPtr          executor = StaticThreadPool::Make(kNumberWorkers);
 
     std::vector<Future<int>> futures;
     {
@@ -36,7 +36,7 @@ TEST_CASE("Проверка корректности комбинатора на
     }
 
     Future<int> future = FirstOf(std::move(futures));
-    Try<int> result = std::move(future).Get();
+    Try<int>    result = std::move(future).Get();
     REQUIRE(result.HasValue());
     REQUIRE(result.ValueOrThrow() == 2);
 
@@ -44,9 +44,9 @@ TEST_CASE("Проверка корректности комбинатора на
   }
   SECTION("Проверка исполнения комбинатора FirstN") {
     constexpr std::size_t kNumberWorkers = 2U;
-    IExecutorPtr executor = StaticThreadPool::Make(kNumberWorkers);
+    IExecutorPtr          executor = StaticThreadPool::Make(kNumberWorkers);
 
-    constexpr std::size_t kNumberOfTasks = 10U;
+    constexpr std::size_t            kNumberOfTasks = 10U;
     std::vector<Future<std::size_t>> futures;
     futures.reserve(kNumberOfTasks);
     for (std::size_t i{}; i < kNumberOfTasks; ++i) {
@@ -58,8 +58,9 @@ TEST_CASE("Проверка корректности комбинатора на
       });
     }
 
-    constexpr std::size_t kQuorum = 4U;
-    Future<std::vector<Try<std::size_t>>> future = FirstN(std::move(futures), kQuorum);
+    constexpr std::size_t                 kQuorum = 4U;
+    Future<std::vector<Try<std::size_t>>> future =
+        FirstN(std::move(futures), kQuorum);
     Try<std::vector<Try<std::size_t>>> result = std::move(future).Get();
     REQUIRE(result.HasValue());
 

@@ -9,8 +9,11 @@ public:
   void Waiting(int* address, int expected_value) const;
   void WakeUp(int* address) const;
 
-  // TODO Разобраться почему под Debug работает, а в Unit Tests постоянно выдается статус
-  // EAGAIN вместо ETIMEDOUT
-  bool Waiting(int* address, int expected_value, std::chrono::milliseconds timeout) const;
+  // TODO Разобраться почему под Debug работает, а в Unit Tests постоянно
+  // выдается статус EAGAIN вместо ETIMEDOUT
+  bool Waiting(
+      int*                      address,
+      int                       expected_value,
+      std::chrono::milliseconds timeout) const;
 };
 }  // namespace dsac::syncing

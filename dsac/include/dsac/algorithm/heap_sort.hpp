@@ -7,16 +7,14 @@ namespace detail {
 class SortingTree {
 public:
   template <typename T>
-  static void Heapify(std::vector<T>& arr)
-  {
+  static void Heapify(std::vector<T>& arr) {
     for (int i = arr.size() / 2 - 1; i >= 0; i--) {
       SortingTree::Heapify(arr, arr.size(), i);
     }
   }
 
   template <typename T>
-  static void Heapify(std::vector<T>& arr, const int size, const int root)
-  {
+  static void Heapify(std::vector<T>& arr, const int size, const int root) {
     int       largest = root;
     const int left    = 2 * root + 1;
     const int right   = 2 * root + 2;
@@ -36,8 +34,7 @@ public:
   }
 
   template <typename T>
-  static void Sort(std::vector<T>& arr)
-  {
+  static void Sort(std::vector<T>& arr) {
     SortingTree::Heapify(arr);
     for (int i = arr.size() - 1; i >= 0; i--) {
       std::swap(arr[0], arr[i]);
@@ -48,8 +45,7 @@ public:
 }  // namespace detail
 
 template <typename T>
-void HeapSort(std::vector<T>& arr)
-{
+void HeapSort(std::vector<T>& arr) {
   detail::SortingTree::Sort(arr);
 }
-}  // namespace dsac::is_sorted
+}  // namespace dsac::sort

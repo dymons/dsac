@@ -12,8 +12,7 @@ public:
 class DisjointSetOutOfRange : public DisjointSetException {
 public:
   DisjointSetOutOfRange()
-    : DisjointSetException("Out of range disjoint set")
-  {
+    : DisjointSetException("Out of range disjoint set") {
   }
 };
 

@@ -4,7 +4,7 @@
 
 TEST_CASE("Алгоритм поиска Дейкстры", "[dijkstra]") {
   using namespace dsac::graph;
-  using Edge = std::pair<int, int>;
+  using Edge  = std::pair<int, int>;
   using Edges = std::vector<Edge>;
   // clang-format off
   const Edges edges {

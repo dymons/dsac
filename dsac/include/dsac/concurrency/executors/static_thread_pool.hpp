@@ -12,11 +12,11 @@ public:
   static IExecutorPtr Make(std::size_t workers);
 
   explicit StaticThreadPool(std::size_t workers);
-  StaticThreadPool(const StaticThreadPool&) = delete;
-  StaticThreadPool(StaticThreadPool&&)      = delete;
+  StaticThreadPool(const StaticThreadPool&)            = delete;
+  StaticThreadPool(StaticThreadPool&&)                 = delete;
   StaticThreadPool& operator=(const StaticThreadPool&) = delete;
-  StaticThreadPool& operator=(StaticThreadPool&&) = delete;
-  ~StaticThreadPool() override                    = default;
+  StaticThreadPool& operator=(StaticThreadPool&&)      = delete;
+  ~StaticThreadPool() override                         = default;
 
   void Submit(task&& task) override;
   void Join() override;

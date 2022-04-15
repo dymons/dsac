@@ -1,24 +1,25 @@
+#include <netinet/in.h>
+#include <sys/socket.h>
+#include <sys/types.h>
+#include <unistd.h>
 #include <iostream>
 #include <string>
 #include <string_view>
-#include <unistd.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
 
 namespace {
-constexpr const int kPort = 5555;
+constexpr const int kPort       = 5555;
 constexpr const int kBufferSize = 512;
 
-using Descriptor = int;
-using Message = std::string;
+using Descriptor  = int;
+using Message     = std::string;
 using MessageView = std::string_view;
 
 enum class Status : unsigned char { Ok, Error };
 Status sent_message(Descriptor descriptor, Message message) {
   std::reverse(message.begin(), message.end());
 
-  std::cout << "Descriptor: " << descriptor << ", Message " << message << std::endl;
+  std::cout << "Descriptor: " << descriptor << ", Message " << message
+            << std::endl;
   int const bytes = write(descriptor, message.data(), message.size());
   if (bytes < 0) {
     return Status::Error;
@@ -28,11 +29,11 @@ Status sent_message(Descriptor descriptor, Message message) {
 }
 
 struct Response {
-  Status status;
+  Status  status;
   Message message;
 };
 Response receive_message(Descriptor descriptor) {
-  Message message(kBufferSize, '0');
+  Message   message(kBufferSize, '0');
   int const bytes = read(descriptor, message.data(), kBufferSize);
   if (bytes < 0) {
     return {Status::Error};
@@ -41,10 +42,12 @@ Response receive_message(Descriptor descriptor) {
     message.shrink_to_fit();
 
     if (bytes == 0) {
-      std::cout << "Descriptor: " << descriptor << ", not data from client" << std::endl;
+      std::cout << "Descriptor: " << descriptor << ", not data from client"
+                << std::endl;
       return {Status::Error};
     } else {
-      std::cout << "Descriptor: " << descriptor << ", Message " << message << std::endl;
+      std::cout << "Descriptor: " << descriptor << ", Message " << message
+                << std::endl;
     }
   }
 
@@ -54,9 +57,9 @@ Response receive_message(Descriptor descriptor) {
 
 int main() {
   // Create a connection description
-  int opt = 1;
-  constexpr const int kUseTcp = 0;
-  Descriptor const descriptor = socket(PF_INET, SOCK_STREAM, kUseTcp);
+  int                 opt        = 1;
+  constexpr const int kUseTcp    = 0;
+  Descriptor const    descriptor = socket(PF_INET, SOCK_STREAM, kUseTcp);
   if (descriptor < 0) {
     std::cout << "Socket was not created" << std::endl;
     return 1;
@@ -65,11 +68,13 @@ int main() {
 
   // Start listening on the port
   sockaddr_in socket_description;
-  socket_description.sin_family = AF_INET;
-  socket_description.sin_port = htons(kPort);
+  socket_description.sin_family      = AF_INET;
+  socket_description.sin_port        = htons(kPort);
   socket_description.sin_addr.s_addr = htonl(INADDR_ANY);
-  if (int const error =
-          bind(descriptor, (sockaddr*)(&socket_description), sizeof(socket_description));
+  if (int const error = bind(
+          descriptor,
+          (sockaddr*)(&socket_description),
+          sizeof(socket_description));
       error < 0) {
     std::cout << "Failed to bind a socket" << std::endl;
     return 1;
@@ -88,7 +93,8 @@ int main() {
   FD_SET(descriptor, &active_set);
 
   // Handling request from client
-  std::cout << "Start handling request from client on port " << kPort << std::endl;
+  std::cout << "Start handling request from client on port " << kPort
+            << std::endl;
   sockaddr_in client_socket_description;
   while (true) {
     fd_set current_set = active_set;
@@ -103,7 +109,7 @@ int main() {
       }
 
       if (i == descriptor) {
-        socklen_t size = sizeof(client_socket_description);
+        socklen_t  size = sizeof(client_socket_description);
         Descriptor new_descriptor =
             accept(descriptor, (sockaddr*)(&client_socket_description), &size);
         if (new_descriptor < 0) {

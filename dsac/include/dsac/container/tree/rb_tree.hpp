@@ -21,9 +21,11 @@ private:
     [[nodiscard]] int                              MinDepth() const;
     [[nodiscard]] bool                             Contains(T search_key) const;
     [[nodiscard, gnu::always_inline]] inline Node* GetParent() const noexcept;
-    [[nodiscard, gnu::always_inline]] inline Node* GetGrandparent() const noexcept;
+    [[nodiscard, gnu::always_inline]] inline Node* GetGrandparent()
+        const noexcept;
     [[nodiscard, gnu::always_inline]] inline Node* GetUncle() const noexcept;
-    [[nodiscard, gnu::always_inline]] inline bool  IsColor(Color color) const noexcept;
+    [[nodiscard, gnu::always_inline]] inline bool  IsColor(
+         Color color) const noexcept;
 
     void Recolor() noexcept;
     void Destroy();
@@ -38,11 +40,11 @@ private:
   Node* root_{nullptr};
 
 public:
-  RBTree()              = default;
-  RBTree(const RBTree&) = delete;
-  RBTree(RBTree&&)      = delete;
+  RBTree()                         = default;
+  RBTree(const RBTree&)            = delete;
+  RBTree(RBTree&&)                 = delete;
   RBTree& operator=(const RBTree&) = delete;
-  RBTree& operator=(RBTree&&) = delete;
+  RBTree& operator=(RBTree&&)      = delete;
   ~RBTree();
 
   void Insert(T key);

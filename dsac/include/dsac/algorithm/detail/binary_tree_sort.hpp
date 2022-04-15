@@ -14,8 +14,7 @@ public:
 class DublicateNotSupported : public BinaryTreeSortException {
 public:
   DublicateNotSupported()
-    : BinaryTreeSortException("Work with duplicates is not supported yet")
-  {
+    : BinaryTreeSortException("Work with duplicates is not supported yet") {
   }
 };
 
@@ -25,18 +24,20 @@ namespace dsac::detail {
 
 /*!
     \brief
-        Tree sort is a sorting algorithm that is based on Binary Search Tree data structure.
+        Tree sort is a sorting algorithm that is based on Binary Search Tree
+   data structure.
 
     \param first
         Iterator to the initial position in the sequence
     \param last
         Iterator to the final position in the sequence
     \param binary_tree
-        A policy class that allows you to combine different behaviors to create a rich variety of
-        binary sorting algorithm combinations.
+        A policy class that allows you to combine different behaviors to create
+   a rich variety of binary sorting algorithm combinations.
 
     \throw DublicatesNotSupported
-        The algorithm does not support working with duplicate values at the moment
+        The algorithm does not support working with duplicate values at the
+   moment
 
     \par Worst Case Complexity:
         Time Complexity \p O(N) and Space Complexity \p O(N)
@@ -45,15 +46,18 @@ namespace dsac::detail {
 
     \code
         using binary_tree_policy = dsac::binary_search_tree<int>;
-        dsac::binary_tree_sort(begin(testcase), end(testcase), binary_tree_policy{});
+        dsac::binary_tree_sort(begin(testcase), end(testcase),
+   binary_tree_policy{});
 
         using binary_tree_policy = dsac::red_black_tree<int, std::greater<>>;
-        dsac::binary_tree_sort(begin(testcase), end(testcase), binary_tree_policy{});
-    \endcode
+        dsac::binary_tree_sort(begin(testcase), end(testcase),
+   binary_tree_policy{}); \endcode
 */
 template <std::forward_iterator ForwardIterator, class BinaryTreePolicy>
-void binary_tree_sort(ForwardIterator first, ForwardIterator last, BinaryTreePolicy&& binary_tree)
-{
+void binary_tree_sort(
+    ForwardIterator    first,
+    ForwardIterator    last,
+    BinaryTreePolicy&& binary_tree) {
   binary_tree.insert(first, last);
   if (binary_tree.size() != std::distance(first, last)) {
     throw DublicateNotSupported{};

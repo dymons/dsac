@@ -5,8 +5,7 @@
 namespace dsac::sort::v1 {
 namespace detail {
 template <typename T>
-void QuickSortImpl(std::vector<T>& arr, const int low, const int high)
-{
+void QuickSortImpl(std::vector<T>& arr, const int low, const int high) {
   if (low < high) {
     int       left  = low;
     int       right = high;
@@ -34,17 +33,15 @@ void QuickSortImpl(std::vector<T>& arr, const int low, const int high)
 }  // namespace detail
 
 template <typename T>
-void QuickSort(std::vector<T>& arr)
-{
+void QuickSort(std::vector<T>& arr) {
   detail::QuickSortImpl(arr, 0, static_cast<int>(arr.size()) - 1);
 }
-}  // namespace dsac::is_sorted::v1
+}  // namespace dsac::sort::v1
 
 namespace dsac::sort::v2 {
 namespace detail {
 template <typename T>
-void QuickSortImpl(std::vector<T>& arr, const int low, const int high)
-{
+void QuickSortImpl(std::vector<T>& arr, const int low, const int high) {
   // Lomuto partition
   if (low < high) {
     int left = low;
@@ -79,8 +76,7 @@ void QuickSortImpl(std::vector<T>& arr, const int low, const int high)
 }  // namespace detail
 
 template <typename T>
-void QuickSort(std::vector<T>& arr)
-{
+void QuickSort(std::vector<T>& arr) {
   detail::QuickSortImpl(arr, 0, static_cast<int>(arr.size()) - 1);
 }
-}  // namespace dsac::is_sorted::v2
+}  // namespace dsac::sort::v2

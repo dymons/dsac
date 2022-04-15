@@ -6,10 +6,10 @@ namespace dsac::syncing {
 class Barrier final {
 public:
   explicit Barrier(std::size_t size_awaited_threads);
-  Barrier(const Barrier&) = delete;
-  Barrier(Barrier&&)      = delete;
+  Barrier(const Barrier&)            = delete;
+  Barrier(Barrier&&)                 = delete;
   Barrier& operator=(const Barrier&) = delete;
-  Barrier& operator=(Barrier&&) = delete;
+  Barrier& operator=(Barrier&&)      = delete;
 
   void ArriveAndWait();
 

@@ -1,8 +1,8 @@
 #include "catch2/catch.hpp"
 
+#include <dsac/container/tree/rb_tree.hpp>
 #include <random>
 #include <vector>
-#include <dsac/container/tree/rb_tree.hpp>
 
 namespace {
 template <typename T>
@@ -11,8 +11,9 @@ template <typename T>
 }
 }  // namespace
 
-TEST_CASE("Проверка выполнения корректности поворотов для красно-черное дерево",
-          "[rb_tree_rotate]") {
+TEST_CASE(
+    "Проверка выполнения корректности поворотов для красно-черное дерево",
+    "[rb_tree_rotate]") {
   using namespace dsac::tree;
 
   SECTION("Проверка корректности выполнения малого правого вращения") {
@@ -21,7 +22,7 @@ TEST_CASE("Проверка выполнения корректности пов
       tree.Insert(i);
     }
 
-    int index = 0;
+    int                    index = 0;
     const std::vector<int> expected{1, 2, 3};
     tree.Visit([&index, &expected](int data) {
       REQUIRE(index < expected.size());
@@ -35,7 +36,7 @@ TEST_CASE("Проверка выполнения корректности пов
       tree.Insert(i);
     }
 
-    int index = 0;
+    int                    index = 0;
     const std::vector<int> expected{1, 2, 3};
     tree.Visit([&index, &expected](int data) {
       REQUIRE(index < expected.size());
@@ -109,7 +110,7 @@ TEST_CASE("Корректность построения красно-черно
     REQUIRE(IsInvariantRight(tree));
     REQUIRE(tree.Contains(10));
 
-    int index = 0;
+    int                    index = 0;
     const std::vector<int> expected{1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
     tree.Visit([&index, &expected](int data) {
       REQUIRE(index < expected.size());
@@ -124,7 +125,7 @@ TEST_CASE("Корректность построения красно-черно
     }
     REQUIRE(tree.MaxDepth() == 4);
 
-    int index = 0;
+    int                    index = 0;
     const std::vector<int> expected{1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
     tree.Visit([&index, &expected](int data) {
       REQUIRE(index < expected.size());
@@ -139,7 +140,7 @@ TEST_CASE("Корректность построения красно-черно
     }
     REQUIRE(tree.MaxDepth() == 4);
 
-    int index = 0;
+    int                    index = 0;
     const std::vector<int> expected{-5, -4, -3, -2, -1, 1, 2, 3, 4, 5};
     tree.Visit([&index, &expected](int data) {
       REQUIRE(index < expected.size());
@@ -152,19 +153,17 @@ TEST_CASE("Корректность построения красно-черно
     REQUIRE(tree.MaxDepth() == -1);
 
     int index = 0;
-    tree.Visit([&index](int data) {
-      index++;
-    });
+    tree.Visit([&index](int data) { index++; });
     REQUIRE(index == 0);
   }
 
   SECTION("Добавление/Удаление случайных элементов в AVL дерева") {
-    std::random_device random_device;
-    std::mt19937 generator(random_device());
+    std::random_device              random_device;
+    std::mt19937                    generator(random_device());
     std::uniform_int_distribution<> distribution(-10000, 10000);
 
     constexpr int count_samples = 20000;
-    RBTree<int> tree;
+    RBTree<int>   tree;
     for (int i = 0; i < count_samples; ++i) {
       tree.Insert(distribution(generator));
       REQUIRE(IsInvariantRight(tree));

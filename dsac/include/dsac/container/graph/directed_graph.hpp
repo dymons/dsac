@@ -7,8 +7,7 @@
 namespace dsac::graph {
 struct Node final {
   int                         id{};
-  [[gnu::always_inline]] bool operator==(const Node other) const noexcept
-  {
+  [[gnu::always_inline]] bool operator==(const Node other) const noexcept {
     return id == other.id;
   }
 };
@@ -17,8 +16,8 @@ struct Node final {
 namespace std {
 template <>
 struct hash<dsac::graph::Node> {
-  [[gnu::always_inline]] std::size_t operator()(dsac::graph::Node node) const noexcept
-  {
+  [[gnu::always_inline]] std::size_t operator()(
+      dsac::graph::Node node) const noexcept {
     return node.id;
   }
 };
@@ -31,18 +30,15 @@ public:
   using AdjacencyList = std::unordered_map<Node, Successors>;
   using Visitor       = std::function<void(Node)>;
 
-  void AddEdge(Node from, Node to)
-  {
+  void AddEdge(Node from, Node to) {
     graph_[from].push_back(to);
   }
 
-  Successors const& GetSuccessors(const Node node)
-  {
+  Successors const& GetSuccessors(const Node node) {
     return graph_[node];
   }
 
-  void Visit(Visitor visitor) const
-  {
+  void Visit(Visitor visitor) const {
     for (const auto& [node, successors] : graph_) {
       visitor(node);
     }

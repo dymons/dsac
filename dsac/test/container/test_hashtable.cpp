@@ -1,9 +1,10 @@
 #include "catch2/catch.hpp"
 
-#include <string>
 #include <dsac/container/hash/hashtable.hpp>
+#include <string>
 
-TEST_CASE("Проверка корректности работы стандартных функция с HashTable", "[hash]") {
+TEST_CASE(
+    "Проверка корректности работы стандартных функция с HashTable", "[hash]") {
   using namespace dsac::hashtable;
 
   SECTION("Проверка корректности выполнения добавления элементов в HashTable") {

@@ -11,27 +11,23 @@ template <typename T>
 class FutureAwaiter {
 public:
   FutureAwaiter(futures::Future<T>&& future)
-    : future_(std::move(future))
-  {
+    : future_(std::move(future)) {
   }
 
-  bool await_ready()
-  {
+  bool await_ready() {
     if (result_.has_value()) {
     }
     return false;
   }
 
-  void await_suspend(std::coroutine_handle<> h)
-  {
+  void await_suspend(std::coroutine_handle<> h) {
     std::move(future_).Subscribe([this, h](futures::Try<T> result) mutable {
       result_.emplace(std::move(result));
       h.resume();
     });
   }
 
-  auto await_resume()
-  {
+  auto await_resume() {
     return (*result_).ValueOrThrow();
   }
 
@@ -42,7 +38,6 @@ private:
 }  // namespace dsac::coroutines
 
 template <typename T>
-auto operator co_await(dsac::futures::Future<T>&& future)
-{
+auto operator co_await(dsac::futures::Future<T>&& future) {
   return dsac::coroutines::FutureAwaiter<T>(std::move(future));
 }

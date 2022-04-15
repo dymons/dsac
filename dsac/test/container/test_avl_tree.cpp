@@ -1,11 +1,12 @@
 #include "catch2/catch.hpp"
 
+#include <dsac/container/tree/avl_tree.hpp>
 #include <random>
 #include <vector>
-#include <dsac/container/tree/avl_tree.hpp>
 
-TEST_CASE("Проверка выполнения корректности поворотов для AVL дерева",
-          "[avl_tree_rotate]") {
+TEST_CASE(
+    "Проверка выполнения корректности поворотов для AVL дерева",
+    "[avl_tree_rotate]") {
   using namespace dsac::tree;
 
   SECTION("Проверка корректности выполнения малого правого вращения") {
@@ -14,7 +15,7 @@ TEST_CASE("Проверка выполнения корректности пов
       tree.Insert(i);
     }
 
-    int index = 0;
+    int                    index = 0;
     const std::vector<int> expected{1, 2, 3};
     tree.Visit([&index, &expected](int data) {
       REQUIRE(index < expected.size());
@@ -28,7 +29,7 @@ TEST_CASE("Проверка выполнения корректности пов
       tree.Insert(i);
     }
 
-    int index = 0;
+    int                    index = 0;
     const std::vector<int> expected{1, 2, 3};
     tree.Visit([&index, &expected](int data) {
       REQUIRE(index < expected.size());
@@ -42,7 +43,7 @@ TEST_CASE("Проверка выполнения корректности пов
       tree.Insert(i);
     }
 
-    int index = 0;
+    int                    index = 0;
     const std::vector<int> expected{1, 2, 3};
     tree.Visit([&index, &expected](int data) {
       REQUIRE(index < expected.size());
@@ -56,7 +57,7 @@ TEST_CASE("Проверка выполнения корректности пов
       tree.Insert(i);
     }
 
-    int index = 0;
+    int                    index = 0;
     const std::vector<int> expected{1, 2, 3};
     tree.Visit([&index, &expected](int data) {
       REQUIRE(index < expected.size());
@@ -99,7 +100,7 @@ TEST_CASE("Корректность построения AVL дерева", "[av
     REQUIRE(tree.Insert(10));
     REQUIRE(tree.Depth() == 3);
 
-    int index = 0;
+    int                    index = 0;
     const std::vector<int> expected{1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
     tree.Visit([&index, &expected](int data) {
       REQUIRE(index < expected.size());
@@ -114,7 +115,7 @@ TEST_CASE("Корректность построения AVL дерева", "[av
     }
     REQUIRE(tree.Depth() == 3);
 
-    int index = 0;
+    int                    index = 0;
     const std::vector<int> expected{1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
     tree.Visit([&index, &expected](int data) {
       REQUIRE(index < expected.size());
@@ -129,7 +130,7 @@ TEST_CASE("Корректность построения AVL дерева", "[av
     }
     REQUIRE(tree.Depth() == 3);
 
-    int index = 0;
+    int                    index = 0;
     const std::vector<int> expected{-5, -4, -3, -2, -1, 1, 2, 3, 4, 5};
     tree.Visit([&index, &expected](int data) {
       REQUIRE(index < expected.size());
@@ -147,7 +148,7 @@ TEST_CASE("Корректность построения AVL дерева", "[av
     }
     REQUIRE(tree.Depth() == 3);
 
-    int index = 0;
+    int                    index = 0;
     const std::vector<int> expected{1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
     tree.Visit([&index, &expected](int data) {
       REQUIRE(index < expected.size());
@@ -160,14 +161,13 @@ TEST_CASE("Корректность построения AVL дерева", "[av
     REQUIRE(tree.Depth() == -1);
 
     int index = 0;
-    tree.Visit([&index](int data) {
-      index++;
-    });
+    tree.Visit([&index](int data) { index++; });
     REQUIRE(index == 0);
   }
 }
 
-TEST_CASE("Корректность удаления элементов из AVL дерева", "[avl_tree_delete]") {
+TEST_CASE(
+    "Корректность удаления элементов из AVL дерева", "[avl_tree_delete]") {
   using namespace dsac::tree;
 
   SECTION("Удаление элементов из пустого дерева") {
@@ -185,7 +185,7 @@ TEST_CASE("Корректность удаления элементов из AVL
     tree.Delete(2);
     REQUIRE_FALSE(tree.Contains(2));
 
-    int index = 0;
+    int                    index = 0;
     const std::vector<int> expected{1, 3, 4};
     tree.Visit([&index, &expected](int data) {
       REQUIRE(index < expected.size());
@@ -206,18 +206,16 @@ TEST_CASE("Корректность удаления элементов из AVL
     REQUIRE(tree.Depth() == -1);
 
     int index = 0;
-    tree.Visit([&index](int data) {
-      ++index;
-    });
+    tree.Visit([&index](int data) { ++index; });
     REQUIRE(index == 0);
   }
 
   SECTION("Добавление/Удаление случайных элементов в AVL дерева") {
-    std::random_device random_device;
-    std::mt19937 generator(random_device());
+    std::random_device              random_device;
+    std::mt19937                    generator(random_device());
     std::uniform_int_distribution<> distribution(-10000, 10000);
 
-    constexpr int count_samples = 20000;
+    constexpr int    count_samples = 20000;
     std::vector<int> buffer;
     buffer.reserve(count_samples);
 
@@ -233,9 +231,7 @@ TEST_CASE("Корректность удаления элементов из AVL
     REQUIRE(tree.Depth() == -1);
 
     int index = 0;
-    tree.Visit([&index](int data) {
-      ++index;
-    });
+    tree.Visit([&index](int data) { ++index; });
     REQUIRE(index == 0);
   }
 }

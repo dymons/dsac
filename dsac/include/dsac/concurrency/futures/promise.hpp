@@ -13,8 +13,7 @@ public:
 class PromiseAlreadySatisfied : public PromiseException {
 public:
   PromiseAlreadySatisfied()
-    : PromiseException("Promise already satisfied")
-  {
+    : PromiseException("Promise already satisfied") {
   }
 };
 
@@ -29,39 +28,33 @@ class Promise : public HoldState<T> {
 
 public:
   Promise()
-    : HoldState<T>(MakeSharedState<T>())
-  {
+    : HoldState<T>(MakeSharedState<T>()) {
   }
 
-  Promise(Promise&& that) = default;
+  Promise(Promise&& that)            = default;
   Promise& operator=(Promise&& that) = default;
 
-  Future<T> MakeFuture()
-  {
+  Future<T> MakeFuture() {
     assert(!std::exchange(future_extracted_, true));
     return Future{state_};
   }
 
-  void Set(T value)
-  {
+  void Set(T value) {
     ThrowIfFulfilled();
     ReleaseState()->SetResult(Try<T>(std::move(value)));
   }
 
-  void Set(Try<T>&& value)
-  {
+  void Set(Try<T>&& value) {
     ThrowIfFulfilled();
     ReleaseState()->SetResult(std::move(value));
   }
 
-  void Set(std::exception_ptr&& exception)
-  {
+  void Set(std::exception_ptr&& exception) {
     ReleaseState()->SetResult(Try<T>(std::move(exception)));
   }
 
 private:
-  void ThrowIfFulfilled() const
-  {
+  void ThrowIfFulfilled() const {
     if (GetState()->HasResult()) {
       throw PromiseAlreadySatisfied{};
     }

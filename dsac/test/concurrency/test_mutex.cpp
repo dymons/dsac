@@ -1,8 +1,8 @@
 #include "catch2/catch.hpp"
 
 #include <dsac/concurrency/synchronization/mutex.hpp>
-#include <thread>
 #include <memory>
+#include <thread>
 
 TEST_CASE("Проверка корректности выполнения Mutex", "[mutex_work]") {
   using namespace dsac::syncing;
@@ -10,7 +10,7 @@ TEST_CASE("Проверка корректности выполнения Mutex"
   SECTION("Проверка корректности изменения объекта несколькими потоками") {
     Mutex mutex;
 
-    int counter = 0;
+    int         counter = 0;
     std::thread adder([&]() {
       for (int i{}; i < 1'000'000; ++i) {
         UniqueLock guard(mutex);

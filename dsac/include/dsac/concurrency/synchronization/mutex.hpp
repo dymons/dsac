@@ -16,7 +16,7 @@ public:
   explicit UniqueLock(Mutex& mutex);
   ~UniqueLock();
 
-  UniqueLock(const UniqueLock&) = delete;
+  UniqueLock(const UniqueLock&)            = delete;
   UniqueLock& operator=(const UniqueLock&) = delete;
   UniqueLock(UniqueLock&&);
   UniqueLock& operator=(UniqueLock&&);

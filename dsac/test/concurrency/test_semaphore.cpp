@@ -1,16 +1,16 @@
 #include "catch2/catch.hpp"
 
+#include <chrono>
 #include <dsac/concurrency/synchronization/semaphore.hpp>
 #include <thread>
-#include <chrono>
 
 TEST_CASE("Semaphore как Mutex", "[semaphore_like_mutex]") {
   using namespace dsac::syncing;
 
   constexpr std::size_t kNumberConsumers = 1U;
-  Semaphore sema{kNumberConsumers};
+  Semaphore             sema{kNumberConsumers};
 
-  auto start = std::chrono::steady_clock::now();
+  auto        start   = std::chrono::steady_clock::now();
   std::size_t counter = 0U;
   std::thread consumer1([&]() {
     sema.Acquire();
@@ -54,9 +54,9 @@ TEST_CASE("Ограниченное количество Consumers", "[semaphore
   using namespace dsac::syncing;
 
   constexpr std::size_t kNumberConsumers = 4U;
-  Semaphore sema{kNumberConsumers};
+  Semaphore             sema{kNumberConsumers};
 
-  auto start = std::chrono::steady_clock::now();
+  auto        start = std::chrono::steady_clock::now();
   std::thread consumer1([&]() {
     sema.Acquire();
     std::this_thread::sleep_for(std::chrono::milliseconds(100));

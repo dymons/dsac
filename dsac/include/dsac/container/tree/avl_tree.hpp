@@ -19,10 +19,10 @@ private:
   public:
     explicit Node(T key);
 
-    Node(const Node&) = delete;
-    Node(Node&&)      = delete;
+    Node(const Node&)            = delete;
+    Node(Node&&)                 = delete;
     Node& operator=(const Node&) = delete;
-    Node& operator=(Node&&) = delete;
+    Node& operator=(Node&&)      = delete;
 
     void                 SetLeftChild(Node* child) noexcept;
     void                 SetRightChild(Node* child) noexcept;
@@ -44,22 +44,23 @@ private:
   void LargeRightRotation(Node*& subtree) const;
 
   template <typename Comp>
-  void BalancingSubtree(Node*& subtree, T destination_key, T source_key, Comp comp) const;
+  void BalancingSubtree(
+      Node*& subtree, T destination_key, T source_key, Comp comp) const;
 
   Node* DeleteMinChild(Node* subtree);
   Node* FindMinChild(Node* subtree) const;
 
-  [[nodiscard]] int   GetMaxHeight(Node* left_subtree, Node* right_subtree) const;
+  [[nodiscard]] int GetMaxHeight(Node* left_subtree, Node* right_subtree) const;
   [[nodiscard]] bool  InsertImpl(Node*& root, Node* added) const;
   [[nodiscard]] Node* DeleteImpl(Node*& root, T deleted_key);
   void                VisitImpl(Node* root, Visitor visitor) const;
 
 public:
-  AVLTree()               = default;
-  AVLTree(const AVLTree&) = delete;
-  AVLTree(AVLTree&&)      = delete;
+  AVLTree()                          = default;
+  AVLTree(const AVLTree&)            = delete;
+  AVLTree(AVLTree&&)                 = delete;
   AVLTree& operator=(const AVLTree&) = delete;
-  AVLTree& operator=(AVLTree&&) = delete;
+  AVLTree& operator=(AVLTree&&)      = delete;
   ~AVLTree();
 
   bool Insert(T added_key);

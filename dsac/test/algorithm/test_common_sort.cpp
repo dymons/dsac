@@ -14,8 +14,7 @@ namespace {
                                                      \
   struct sort_name##Functor {                        \
     template <typename... Args>                      \
-    void operator()(Args&&... kwargs)                \
-    {                                                \
+    void operator()(Args&&... kwargs) {              \
       sort_function(std::forward<Args>(kwargs)...);  \
     }                                                \
   };
@@ -35,23 +34,19 @@ TEMPLATE_TEST_CASE(
     BubbleSortFunctor,
     InsertionSortFunctor,
     BinaryTreeSortFunctor,
-    SelectionSortFunctor)
-{
+    SelectionSortFunctor) {
   TestType sort_type;
 
   using testcase = dsac::dynamic_array<int>;
-  SECTION("Sorting an empty testcase")
-  {
+  SECTION("Sorting an empty testcase") {
     auto empty_testcase = testcase{};
     sort_type(std::begin(empty_testcase), std::end(empty_testcase));
     REQUIRE(dsac::is_sorted(empty_testcase));
   }
 
-  SECTION("Sorting a sorted testcase")
-  {
+  SECTION("Sorting a sorted testcase") {
     auto sorted_testcase = testcase{1, 2, 3, 4, 5};
-    SECTION("Using predicate by default")
-    {
+    SECTION("Using predicate by default") {
       sort_type(std::begin(sorted_testcase), std::end(sorted_testcase));
       REQUIRE(dsac::is_sorted(sorted_testcase));
 
@@ -59,8 +54,7 @@ TEMPLATE_TEST_CASE(
       REQUIRE(dsac::is_sorted(sorted_testcase));
     }
 
-    SECTION("Using custom predicate")
-    {
+    SECTION("Using custom predicate") {
       sort_type(sorted_testcase, std::greater<int>{});
       REQUIRE(dsac::is_sorted(sorted_testcase, std::greater<int>{}));
     }
@@ -74,8 +68,7 @@ TEMPLATE_TEST_CASE(
     BubbleSortFunctor,
     InsertionSortFunctor,
     BinaryTreeSortFunctor,
-    SelectionSortFunctor)
-{
+    SelectionSortFunctor) {
   TestType sort_type;
 
   constexpr std::size_t kNumberOfIteration = 1000U;
@@ -83,7 +76,8 @@ TEMPLATE_TEST_CASE(
   dsac::dynamic_array<int>                                 testcase(1000);
   std::random_device                                       dev;
   std::mt19937                                             rng(dev());
-  std::uniform_int_distribution<std::mt19937::result_type> dist(1U, testcase.size());
+  std::uniform_int_distribution<std::mt19937::result_type> dist(
+      1U, testcase.size());
 
   for (std::size_t i{}; i < kNumberOfIteration; ++i) {
     std::iota(begin(testcase), end(testcase), dist(rng));

@@ -2,12 +2,13 @@
 
 #include <dsac/concurrency/synchronization/mvar.hpp>
 
-#include <thread>
 #include <chrono>
 #include <future>
 #include <iostream>
+#include <thread>
 
-TEST_CASE("Проверка корректности выполнения примитива синхронизации MVar", "[mvar]") {
+TEST_CASE(
+    "Проверка корректности выполнения примитива синхронизации MVar", "[mvar]") {
   using namespace dsac::syncing;
 
   static_assert(!std::is_copy_constructible<MVar<int>>::value);

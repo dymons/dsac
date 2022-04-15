@@ -5,7 +5,8 @@
 namespace dsac::detail {
 /*!
     \brief
-        The selection sort algorithm sorts an array by repeatedly finding the minimum element.
+        The selection sort algorithm sorts an array by repeatedly finding the
+   minimum element.
 
     \param begin
         Iterator to the initial position in the sequence
@@ -20,8 +21,7 @@ namespace dsac::detail {
     \ingroup DsacAlgorithms
 */
 template <std::random_access_iterator RandomIterator, typename Compare>
-void selection_sort(RandomIterator begin, RandomIterator end, Compare comp)
-{
+void selection_sort(RandomIterator begin, RandomIterator end, Compare comp) {
   for (RandomIterator i = begin; i < end; ++i) {
     RandomIterator min = i;
     for (RandomIterator j = i + 1; j < end; ++j) {

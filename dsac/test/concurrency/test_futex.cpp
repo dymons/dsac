@@ -1,15 +1,15 @@
 #include "catch2/catch.hpp"
 
-#include <dsac/concurrency/synchronization/futex.hpp>
-#include <thread>
 #include <chrono>
+#include <dsac/concurrency/synchronization/futex.hpp>
 #include <memory>
+#include <thread>
 
 TEST_CASE("Проверка корректности выполнения Futex", "[futex_work]") {
   using namespace dsac::syncing;
 
   SECTION("Блокировка и ожидание значения в разделяемом состоянии") {
-    Futex futex;
+    Futex           futex;
     std::unique_ptr shared_state = std::make_unique<int>(0);
 
     std::thread child([&]() {

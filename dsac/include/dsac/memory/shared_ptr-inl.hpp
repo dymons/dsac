@@ -4,8 +4,7 @@
 
 namespace dsac::pointers {
 template <typename T>
-void SharedPtr<T>::Destroy()
-{
+void SharedPtr<T>::Destroy() {
   if (counter_ != nullptr) {
     --*counter_;
     if (*counter_ == 0) {
@@ -17,16 +16,14 @@ void SharedPtr<T>::Destroy()
 
 template <typename T>
 SharedPtr<T>::SharedPtr(T* data)
-  : data_(data)
-{
+  : data_(data) {
   if (data == nullptr) {
     return;
   }
 
   try {
     counter_ = new std::size_t{1u};
-  }
-  catch (...) {
+  } catch (...) {
     delete counter_;
     throw;
   }
@@ -35,8 +32,7 @@ SharedPtr<T>::SharedPtr(T* data)
 template <typename T>
 SharedPtr<T>::SharedPtr(const SharedPtr& other)
   : data_(other.data_)
-  , counter_(other.counter_)
-{
+  , counter_(other.counter_) {
   if (counter_ != nullptr) {
     ++*counter_;
   }
@@ -45,15 +41,13 @@ SharedPtr<T>::SharedPtr(const SharedPtr& other)
 template <typename T>
 SharedPtr<T>::SharedPtr(SharedPtr&& other)
   : data_(other.data_)
-  , counter_(other.counter_)
-{
+  , counter_(other.counter_) {
   other.data_    = nullptr;
   other.counter_ = nullptr;
 }
 
 template <typename T>
-SharedPtr<T>& SharedPtr<T>::operator=(const SharedPtr& other)
-{
+SharedPtr<T>& SharedPtr<T>::operator=(const SharedPtr& other) {
   Destroy();
 
   data_    = other.data_;
@@ -66,8 +60,7 @@ SharedPtr<T>& SharedPtr<T>::operator=(const SharedPtr& other)
 }
 
 template <typename T>
-SharedPtr<T>& SharedPtr<T>::operator=(SharedPtr&& other)
-{
+SharedPtr<T>& SharedPtr<T>::operator=(SharedPtr&& other) {
   Destroy();
 
   data_    = other.data_;
@@ -80,32 +73,27 @@ SharedPtr<T>& SharedPtr<T>::operator=(SharedPtr&& other)
 }
 
 template <typename T>
-SharedPtr<T>::~SharedPtr()
-{
+SharedPtr<T>::~SharedPtr() {
   Destroy();
 }
 
 template <typename T>
-std::size_t SharedPtr<T>::UseCount() const noexcept
-{
+std::size_t SharedPtr<T>::UseCount() const noexcept {
   return counter_ == nullptr ? 0u : *counter_;
 }
 
 template <typename T>
-T* SharedPtr<T>::GetData() const noexcept
-{
+T* SharedPtr<T>::GetData() const noexcept {
   return data_;
 }
 
 template <typename T>
-T& SharedPtr<T>::operator*() const
-{
+T& SharedPtr<T>::operator*() const {
   return *data_;
 }
 
 template <typename T>
-T* SharedPtr<T>::operator->() const
-{
+T* SharedPtr<T>::operator->() const {
   return data_;
 }
 }  // namespace dsac::pointers
