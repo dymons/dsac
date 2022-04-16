@@ -80,9 +80,3 @@ TEST_CASE("Dynamic array should expand automatically", "[dynamic_array][default]
     }
   }
 }
-
-TEST_CASE("Dynamic array should be copyable", "[dynamic_array][default]") {
-  const auto dynamic_array      = dsac::dynamic_array<int>{1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
-  const auto copy_dynamic_array = dynamic_array;  // NOLINT
-  REQUIRE(copy_dynamic_array == dynamic_array);
-}

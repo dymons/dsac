@@ -170,6 +170,8 @@ public:
     return *this;
   }
 
+  DynamicArray& operator=(DynamicArray&& other) = delete; // Sorry, unimplemented yet ¯\_(ツ)_/¯
+
   ~DynamicArray() noexcept {
     dsac::destroy(storage_.start, storage_.finish, allocator_);
   }
