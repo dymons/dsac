@@ -77,8 +77,8 @@ struct DynamicArrayBase {
 
   DynamicArrayBase(DynamicArrayBase const&) = delete;
   DynamicArrayBase(DynamicArrayBase&& other) noexcept
-    : allocator(std::move(other))
-    , storage(std::move(other)) {
+    : allocator(std::move(other.allocator))
+    , storage(std::move(other.storage)) {
   }
 
   ~DynamicArrayBase() noexcept {
@@ -150,6 +150,8 @@ public:
         other.begin(), other.end(), storage.start, allocator);
   }
 
+  DynamicArray(DynamicArray&& other) noexcept = default;
+
   ~DynamicArray() noexcept {
     dsac::destroy(storage.start, storage.finish, allocator);
   }
@@ -189,6 +191,10 @@ public:
 
   [[nodiscard]] reference operator[](size_type n) noexcept {
     return *(storage.start + n);
+  }
+
+  [[nodiscard]] bool empty() const noexcept {
+    return begin() == end();
   }
 
 private:

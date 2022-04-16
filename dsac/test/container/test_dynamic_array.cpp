@@ -6,6 +6,18 @@ TEST_CASE("Dynamic array should be constructable", "[dynamic_array][default]") {
   SECTION("Construct dynamic array by using default constructor") {
     dsac::dynamic_array<int> default_dynamic_array{};
   }
+  SECTION("Construct dynamic array by using copy constructor") {
+    dsac::dynamic_array<int> init_dynamic_array{1, 2, 3, 4, 5};
+    // NOLINTNEXTLINE(performance-unnecessary-copy-initialization)
+    dsac::dynamic_array<int> copy_dynamic_array = init_dynamic_array;
+    REQUIRE(init_dynamic_array == copy_dynamic_array);
+  }
+  SECTION("Construct dynamic array by using move constructor") {
+    dsac::dynamic_array<int> init_dynamic_array{1, 2, 3, 4, 5};
+    dsac::dynamic_array<int> copy_dynamic_array = std::move(init_dynamic_array);
+    REQUIRE(init_dynamic_array.empty());  // NOLINT(bugprone-use-after-move)
+    REQUIRE(copy_dynamic_array == dsac::dynamic_array<int>{1, 2, 3, 4, 5});
+  }
 }
 
 TEST_CASE(
