@@ -7,21 +7,28 @@ TEST_CASE("Dynamic array should be constructable", "[dynamic_array][default]") {
     dsac::dynamic_array<int> default_dynamic_array{};
   }
   SECTION("Construct dynamic array by using copy constructor") {
-    dsac::dynamic_array<int> init_dynamic_array{1, 2, 3, 4, 5};
+    dsac::dynamic_array<int> const one_dynamic_array{1, 2, 3, 4, 5};
     // NOLINTNEXTLINE(performance-unnecessary-copy-initialization)
-    dsac::dynamic_array<int> copy_dynamic_array = init_dynamic_array;
-    REQUIRE(init_dynamic_array == copy_dynamic_array);
+    dsac::dynamic_array<int> two_dynamic_array = one_dynamic_array;
+    REQUIRE(one_dynamic_array == dsac::dynamic_array<int>{1, 2, 3, 4, 5});
+    REQUIRE(one_dynamic_array == two_dynamic_array);
   }
   SECTION("Construct dynamic array by using move constructor") {
-    dsac::dynamic_array<int> init_dynamic_array{1, 2, 3, 4, 5};
-    dsac::dynamic_array<int> copy_dynamic_array = std::move(init_dynamic_array);
-    REQUIRE(init_dynamic_array.empty());  // NOLINT(bugprone-use-after-move)
-    REQUIRE(copy_dynamic_array == dsac::dynamic_array<int>{1, 2, 3, 4, 5});
+    dsac::dynamic_array<int> one_dynamic_array{1, 2, 3, 4, 5};
+    dsac::dynamic_array<int> two_dynamic_array = std::move(one_dynamic_array);
+    REQUIRE(one_dynamic_array.empty());  // NOLINT(bugprone-use-after-move)
+    REQUIRE(two_dynamic_array == dsac::dynamic_array<int>{1, 2, 3, 4, 5});
+  }
+  SECTION("Construct dynamic array by using copy operator") {
+    dsac::dynamic_array<int>       one_dynamic_array{1, 2, 3, 4, 5};
+    dsac::dynamic_array<int> const two_dynamic_array{6, 7, 8, 9, 10};
+    one_dynamic_array = two_dynamic_array;
+    REQUIRE(two_dynamic_array == dsac::dynamic_array<int>{6, 7, 8, 9, 10});
+    REQUIRE(one_dynamic_array == two_dynamic_array);
   }
 }
 
-TEST_CASE(
-    "Dynamic array should expand automatically", "[dynamic_array][default]") {
+TEST_CASE("Dynamic array should expand automatically", "[dynamic_array][default]") {
   dsac::dynamic_array<int> dynamic_array;
 
   SECTION("Empty dynamic array does not take up memory") {
@@ -75,8 +82,7 @@ TEST_CASE(
 }
 
 TEST_CASE("Dynamic array should be copyable", "[dynamic_array][default]") {
-  const auto dynamic_array =
-      dsac::dynamic_array<int>{1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+  const auto dynamic_array      = dsac::dynamic_array<int>{1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
   const auto copy_dynamic_array = dynamic_array;  // NOLINT
   REQUIRE(copy_dynamic_array == dynamic_array);
 }

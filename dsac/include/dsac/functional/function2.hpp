@@ -362,7 +362,7 @@ struct address_taker<T, std::enable_if_t<std::is_pointer<T>::value>> {
 
 template <typename Box>
 struct box_factory;
-/// Store the allocator inside the box
+/// Store the allocator_ inside the box
 template <bool IsCopyable, typename T, typename Allocator>
 struct box : private Allocator {
   friend box_factory<box>;
@@ -405,7 +405,7 @@ struct box_factory<box<IsCopyable, T, Allocator>> {
   using real_allocator =
       typename std::allocator_traits<std::decay_t<Allocator>>::template rebind_alloc<box<IsCopyable, T, Allocator>>;
 
-  /// Allocates space through the boxed allocator
+  /// Allocates space through the boxed allocator_
   static box<IsCopyable, T, Allocator>* box_allocate(box<IsCopyable, T, Allocator> const* me)
   {
     real_allocator allocator(*static_cast<Allocator const*>(me));
@@ -413,7 +413,7 @@ struct box_factory<box<IsCopyable, T, Allocator>> {
     return static_cast<box<IsCopyable, T, Allocator>*>(std::allocator_traits<real_allocator>::allocate(allocator, 1U));
   }
 
-  /// Destroys the box through the given allocator
+  /// Destroys the box through the given allocator_
   static void box_deallocate(box<IsCopyable, T, Allocator>* me)
   {
     real_allocator allocator(*static_cast<Allocator const*>(me));
@@ -423,7 +423,7 @@ struct box_factory<box<IsCopyable, T, Allocator>> {
   }
 };
 
-/// Creates a box containing the given value and allocator
+/// Creates a box containing the given value and allocator_
 template <bool IsCopyable, typename T, typename Allocator>
 auto make_box(std::integral_constant<bool, IsCopyable>, T&& value, Allocator&& allocator)
 {
@@ -439,7 +439,7 @@ struct is_box<box<IsCopyable, T, Allocator>> : std::true_type {
 };
 
 /// Provides access to the pointer to a heal allocated erased object
-/// as well to the inplace storage.
+/// as well to the inplace storage_.
 union data_accessor {
   data_accessor() = default;
   explicit constexpr data_accessor(std::nullptr_t) noexcept
@@ -453,7 +453,7 @@ union data_accessor {
 
   /// The pointer we use if the object is on the heap
   void* ptr_;
-  /// The first field of the inplace storage
+  /// The first field of the inplace storage_
   std::size_t inplace_storage_;
 };
 
@@ -483,7 +483,7 @@ FU2_DETAIL_CXX14_CONSTEXPR auto retrieve(std::true_type /*is_inplace*/, Accessor
 }
 
 /// The retriever which is used when the object is allocated
-/// through the allocator
+/// through the allocator_
 template <typename T, typename Accessor>
 constexpr auto retrieve(std::false_type /*is_inplace*/, Accessor from, std::size_t /*from_capacity*/)
 {
@@ -816,7 +816,7 @@ enum class opcode {
   op_copy,          ///< Copy the object and set the vtable
   op_destroy,       ///< Destroy the object and reset the vtable
   op_weak_destroy,  ///< Destroy the object without resetting the vtable
-  op_fetch_empty,   ///< Stores true or false into the to storage
+  op_fetch_empty,   ///< Stores true or false into the to storage_
                     ///< to indicate emptiness
 };
 
@@ -931,7 +931,7 @@ class vtable<property<IsThrowing, HasStrongExceptGuarantee, FormalArgs...>> {
         to_table->template set_inplace<T>();
       }
       else {
-        // Allocate the object through the allocator
+        // Allocate the object through the allocator_
         to->ptr_ = storage = box_factory<std::decay_t<Box>>::box_allocate(std::addressof(box));
         to_table->template set_allocated<T>();
       }
@@ -1074,7 +1074,7 @@ public:
 
 /// A union which makes the pointer to the heap object share the
 /// same space with the detail capacity.
-/// The storage type is distinguished by multiple versions of the
+/// The storage_ type is distinguished by multiple versions of the
 /// control and vtable.
 template <typename Capacity, typename = void>
 struct internal_capacity {
@@ -1654,7 +1654,7 @@ public:
     return !empty();
   }
 
-  /// Assigns a new target with an optional allocator
+  /// Assigns a new target with an optional allocator_
   template <
       typename T,
       typename Allocator                      = std::allocator<std::decay_t<T>>,

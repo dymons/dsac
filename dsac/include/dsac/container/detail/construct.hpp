@@ -12,7 +12,7 @@ template <typename Pointer, typename Allocator, typename... Args>
 }
 
 template <std::forward_iterator ForwardIterator, typename Allocator>
-void destroy(
+[[gnu::always_inline]] inline void destroy(
     ForwardIterator first, ForwardIterator last, Allocator& allocator) {
   using allocator_traits = typename std::allocator_traits<Allocator>;
   for (; first != last; ++first) {
@@ -43,14 +43,10 @@ NoThrowForwardIt uninitialized_copy(
     InputIt          last,
     NoThrowForwardIt d_first,
     Allocator&       allocator) {
-  using value_type =
-      typename std::iterator_traits<NoThrowForwardIt>::value_type;
-  using allocator_traits = typename std::allocator_traits<Allocator>;
-
   NoThrowForwardIt current = d_first;
   try {
     for (; first != last; (void)++first, (void)++current) {
-      allocator_traits::construct(allocator, current, *first);
+      dsac::construct(current, allocator, *first);
     }
   } catch (...) {
     dsac::destroy(d_first, current, allocator);
@@ -65,14 +61,10 @@ NoThrowForwardIt uninitialized_move(
     InputIt          last,
     NoThrowForwardIt d_first,
     Allocator&       allocator) {
-  using value_type =
-      typename std::iterator_traits<NoThrowForwardIt>::value_type;
-  using allocator_traits = typename std::allocator_traits<Allocator>;
-
   NoThrowForwardIt current = d_first;
   try {
     for (; first != last; (void)++first, (void)++current) {
-      allocator_traits::construct(allocator, current, std::move(*first));
+      dsac::construct(current, allocator, std::move(*first));
     }
   } catch (...) {
     dsac::destroy(d_first, current, allocator);
@@ -108,15 +100,42 @@ template <
     typename Allocator>
 void uninitialized_fill_n(
     ForwardIterator first, Size n, const T& value, Allocator& allocator) {
-  using allocator_traits = typename std::allocator_traits<Allocator>;
-
   ForwardIterator curr = first;
   try {
     for (; n > 0; --n, ++curr) {
-      allocator_traits::construct(allocator, &*curr, value);
+      dsac::construct(&*curr, allocator, value);
     }
   } catch (...) {
     dsac::destroy(first, curr, allocator);
+    throw;
+  }
+}
+
+template <typename Allocator>
+constexpr inline void alloc_on_copy(Allocator& one, const Allocator& two) {
+  using allocator_traits = typename std::allocator_traits<Allocator>;
+  using pocca =
+      typename allocator_traits::propagate_on_container_copy_assignment;
+
+  if constexpr (pocca::value) {
+    one = two;
+  }
+}
+
+template <typename ForwardIterator, typename Allocator>
+typename std::allocator_traits<Allocator>::pointer allocate_and_copy(
+    std::size_t     n,
+    ForwardIterator first,
+    ForwardIterator last,
+    Allocator&      allocator) {
+  using pointer = typename std::allocator_traits<Allocator>::pointer;
+
+  pointer result = dsac::allocate(n, allocator);
+  try {
+    dsac::uninitialized_copy(first, last, result, allocator);
+    return result;
+  } catch (...) {
+    dsac::deallocate(result, n, allocator);
     throw;
   }
 }

@@ -9,9 +9,8 @@ namespace dsac::detail {
 
 template <typename T, typename Allocator>
 struct DynamicArrayBase {
-  using rebind_allocator_type =
-      typename std::allocator_traits<Allocator>::template rebind_alloc<T>;
-  using pointer = typename std::allocator_traits<Allocator>::pointer;
+  using rebind_allocator_type = typename std::allocator_traits<Allocator>::template rebind_alloc<T>;
+  using pointer               = typename std::allocator_traits<Allocator>::pointer;
 
   struct DynamicArrayData {
     pointer start;
@@ -53,49 +52,44 @@ struct DynamicArrayBase {
 
   using allocator_type = Allocator;
 
-  DynamicArrayBase() noexcept(
-      std::is_nothrow_default_constructible<rebind_allocator_type>::value) =
-      default;
+  DynamicArrayBase() noexcept(std::is_nothrow_default_constructible<rebind_allocator_type>::value) = default;
 
   explicit DynamicArrayBase(allocator_type const& allocator) noexcept
-    : allocator(allocator) {
+    : allocator_(allocator) {
   }
   explicit DynamicArrayBase(allocator_type&& allocator) noexcept
-    : allocator(std::move(allocator)) {
+    : allocator_(std::move(allocator)) {
   }
-  DynamicArrayBase(
-      allocator_type&& allocator, DynamicArrayBase&& other) noexcept
-    : allocator(std::move(allocator))
-    , storage(std::move(other)) {
+  DynamicArrayBase(allocator_type&& allocator, DynamicArrayBase&& other) noexcept
+    : allocator_(std::move(allocator))
+    , storage_(std::move(other)) {
   }
   DynamicArrayBase(size_t n, const allocator_type& allocator)
-    : allocator(allocator) {
-    storage.start          = dsac::allocate(n, this->allocator);
-    storage.finish         = storage.start;
-    storage.end_of_storage = storage.start + n;
+    : allocator_(allocator) {
+    storage_.start          = dsac::allocate(n, this->allocator_);
+    storage_.finish         = storage_.start;
+    storage_.end_of_storage = storage_.start + n;
   }
 
   DynamicArrayBase(DynamicArrayBase const&) = delete;
   DynamicArrayBase(DynamicArrayBase&& other) noexcept
-    : allocator(std::move(other.allocator))
-    , storage(std::move(other.storage)) {
+    : allocator_(std::move(other.allocator_))
+    , storage_(std::move(other.storage_)) {
   }
 
   ~DynamicArrayBase() noexcept {
-    dsac::deallocate(
-        storage.start, storage.end_of_storage - storage.start, allocator);
+    dsac::deallocate(storage_.start, storage_.end_of_storage - storage_.start, allocator_);
   }
 
-  rebind_allocator_type allocator;
-  DynamicArrayData      storage;
+  rebind_allocator_type allocator_;
+  DynamicArrayData      storage_;
 };
 
 template <typename T, typename Allocator>
 class DynamicArray : protected DynamicArrayBase<T, Allocator> {
-  using base                  = DynamicArrayBase<T, Allocator>;
-  using rebind_allocator_type = typename base::rebind_allocator_type;
-  using rebind_allocator_traits =
-      typename std::allocator_traits<rebind_allocator_type>;
+  using base                    = DynamicArrayBase<T, Allocator>;
+  using rebind_allocator_type   = typename base::rebind_allocator_type;
+  using rebind_allocator_traits = typename std::allocator_traits<rebind_allocator_type>;
 
 public:
   using value_type             = T;
@@ -113,8 +107,8 @@ public:
   using const_reverse_iterator = std::reverse_iterator<const_iterator>;
 
 protected:
-  using base::allocator;
-  using base::storage;
+  using base::allocator_;
+  using base::storage_;
 
 public:
   explicit DynamicArray(allocator_type allocator = allocator_type{}) noexcept
@@ -122,84 +116,113 @@ public:
   }
 
   explicit DynamicArray(
-      size_type             n,
-      const value_type&     value     = value_type{},
-      const allocator_type& allocator = allocator_type())
+      size_type n, const value_type& value = value_type{}, const allocator_type& allocator = allocator_type())
     : base(n, allocator) {
-    dsac::uninitialized_fill_n(storage.start, n, value, allocator);
-    storage.finish = storage.end_of_storage;
+    dsac::uninitialized_fill_n(storage_.start, n, value, allocator);
+    storage_.finish = storage_.end_of_storage;
   }
 
-  DynamicArray(
-      std::initializer_list<T> list,
-      allocator_type           allocator = allocator_type{})
+  DynamicArray(std::initializer_list<T> list, allocator_type allocator = allocator_type{})
     : base(std::move(allocator)) {
-    const size_type size   = list.size();
-    storage.start          = dsac::allocate(size, allocator);
-    storage.end_of_storage = storage.start + size;
-    storage.finish         = dsac::uninitialized_copy(
-        list.begin(), list.end(), storage.start, allocator);
+    const size_type size    = list.size();
+    storage_.start          = dsac::allocate(size, allocator);
+    storage_.end_of_storage = storage_.start + size;
+    storage_.finish         = dsac::uninitialized_copy(list.begin(), list.end(), storage_.start, allocator);
   }
 
   DynamicArray(DynamicArray const& other)
-    : base(
-          other.size(),
-          rebind_allocator_traits::select_on_container_copy_construction(
-              other.allocator)) {
-    storage.finish = dsac::uninitialized_copy(
-        other.begin(), other.end(), storage.start, allocator);
+    : base(other.size(), rebind_allocator_traits::select_on_container_copy_construction(other.allocator_)) {
+    storage_.finish = dsac::uninitialized_copy(other.begin(), other.end(), storage_.start, allocator_);
   }
 
   DynamicArray(DynamicArray&& other) noexcept = default;
 
+  DynamicArray& operator=(DynamicArray const& x) {
+    if (&x != this) {
+      if (allocator_traits::propagate_on_container_copy_assignment::value) {
+        bool const is_always_equal     = allocator_traits::is_always_equal::value;
+        bool const is_allocators_equal = allocator_ == x.allocator_;
+        if (is_always_equal && !is_allocators_equal) {
+          clear();
+          dsac::deallocate(storage_.start, storage_.end_of_storage - storage_.start, allocator_);
+          storage_.start          = nullptr;
+          storage_.finish         = nullptr;
+          storage_.end_of_storage = nullptr;
+        }
+        dsac::alloc_on_copy(allocator_, x.allocator_);
+      }
+
+      const size_type xsize = x.size();
+      if (xsize > capacity()) {
+        pointer tmp = dsac::allocate_and_copy(xsize, x.begin(), x.end(), allocator_);
+        dsac::destroy(storage_.start, storage_.finish, allocator_);
+        dsac::deallocate(storage_.start, storage_.end_of_storage - storage_.start, allocator_);
+        storage_.start          = tmp;
+        storage_.end_of_storage = storage_.start + xsize;
+      } else if (size() >= xsize) {
+        dsac::destroy(std::copy(x.begin(), x.end(), begin()), end(), allocator_);
+      } else {
+        std::copy(x.storage_.start, x.storage_.start + size(), storage_.start);
+        dsac::uninitialized_copy(x.storage_.start + size(), x.storage_.finish, storage_.finish, allocator_);
+      }
+      storage_.finish = storage_.start + xsize;
+    }
+    return *this;
+  }
+
   ~DynamicArray() noexcept {
-    dsac::destroy(storage.start, storage.finish, allocator);
+    dsac::destroy(storage_.start, storage_.finish, allocator_);
   }
 
   [[nodiscard]] inline size_type size() const noexcept {
-    return size_type(storage.finish - storage.start);
+    return size_type(storage_.finish - storage_.start);
   }
 
   [[nodiscard]] inline size_type capacity() const noexcept {
-    return size_type(storage.end_of_storage - storage.start);
+    return size_type(storage_.end_of_storage - storage_.start);
   }
 
   void push_back(value_type const& value) {
-    if (storage.finish != storage.end_of_storage) {
-      dsac::construct(storage.finish, allocator, value);
-      ++storage.finish;
+    if (storage_.finish != storage_.end_of_storage) {
+      dsac::construct(storage_.finish, allocator_, value);
+      ++storage_.finish;
     } else {
       realloc_and_insert(value);
     }
   }
 
   [[nodiscard]] iterator begin() noexcept {
-    return iterator(storage.start);
+    return iterator(storage_.start);
   }
 
   [[nodiscard]] const_iterator begin() const noexcept {
-    return const_iterator(storage.start);
+    return const_iterator(storage_.start);
   }
 
   [[nodiscard]] iterator end() noexcept {
-    return iterator(storage.finish);
+    return iterator(storage_.finish);
   }
 
   [[nodiscard]] const_iterator end() const noexcept {
-    return const_iterator(storage.finish);
+    return const_iterator(storage_.finish);
   }
 
   [[nodiscard]] reference operator[](size_type n) noexcept {
-    return *(storage.start + n);
+    return *(storage_.start + n);
   }
 
   [[nodiscard]] bool empty() const noexcept {
     return begin() == end();
   }
 
+  void clear() noexcept {
+    dsac::destroy(storage_.start, storage_.finish, allocator_);
+    storage_.finish = storage_.start;
+  }
+
 private:
   size_type twice_size(size_type current_size) const {
-    const size_type max_size = allocator_traits::max_size(allocator);
+    const size_type max_size = allocator_traits::max_size(allocator_);
     if (max_size - current_size < 1U) {
       throw std::range_error{"Not enough memory to allocate"};
     }
@@ -211,38 +234,34 @@ private:
   template <typename... Args>
   void realloc_and_insert(Args&&... args) {
     const size_type new_size   = twice_size(size());
-    pointer         new_start  = dsac::allocate(new_size, allocator);
+    pointer         new_start  = dsac::allocate(new_size, allocator_);
     pointer         new_finish = pointer{};
 
     try {
-      dsac::construct(
-          new_start + size(), allocator, std::forward<Args>(args)...);
-      new_finish = dsac::uninitialized_move_if_noexcept(
-          storage.start, storage.finish, new_start, allocator);
+      dsac::construct(new_start + size(), allocator_, std::forward<Args>(args)...);
+      new_finish = dsac::uninitialized_move_if_noexcept(storage_.start, storage_.finish, new_start, allocator_);
     } catch (...) {
       if (!new_finish) {
-        allocator_traits::destroy(allocator, new_start + size());
+        allocator_traits::destroy(allocator_, new_start + size());
       } else {
-        dsac::destroy(new_start, new_finish, allocator);
+        dsac::destroy(new_start, new_finish, allocator_);
       }
 
-      dsac::deallocate(new_start, new_size, allocator);
+      dsac::deallocate(new_start, new_size, allocator_);
       throw;
     }
 
-    dsac::destroy(storage.start, storage.finish, allocator);
-    dsac::deallocate(storage.start, capacity(), allocator);
+    dsac::destroy(storage_.start, storage_.finish, allocator_);
+    dsac::deallocate(storage_.start, capacity(), allocator_);
 
-    storage.start          = new_start;
-    storage.finish         = ++new_finish;
-    storage.end_of_storage = new_start + new_size;
+    storage_.start          = new_start;
+    storage_.finish         = ++new_finish;
+    storage_.end_of_storage = new_start + new_size;
   }
 };
 
 template <class T, class Allocator>
-bool operator==(
-    const DynamicArray<T, Allocator>& lhs,
-    const DynamicArray<T, Allocator>& rhs) {
+bool operator==(const DynamicArray<T, Allocator>& lhs, const DynamicArray<T, Allocator>& rhs) {
   using std::begin;
   using std::end;
   return std::equal(begin(lhs), end(lhs), begin(rhs), end(rhs));

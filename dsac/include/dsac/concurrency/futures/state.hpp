@@ -55,10 +55,10 @@ public:
   }
 
   Try<T> GetResult() {
-    // We are waiting for the user value to be saved in the storage
+    // We are waiting for the user value to be saved in the storage_
     has_value_.ReadOnly();
 
-    // Then we try to get this value from the storage
+    // Then we try to get this value from the storage_
     return std::get<Try<T>>(storage_->ReadOnly());
   }
 
