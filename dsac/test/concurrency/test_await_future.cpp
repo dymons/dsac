@@ -6,11 +6,10 @@
 #include <dsac/concurrency/futures/async_via.hpp>
 #include <dsac/concurrency/futures/future.hpp>
 
-using namespace dsac::futures;
 using namespace dsac::concurrency;
 
-Future<int> Coroutine(IExecutorPtr executor) {
-  Future<int> future = AsyncVia(executor, []() { return 42; });
+dsac::Future<int> Coroutine(IExecutorPtr executor) {
+  dsac::Future<int> future = dsac::AsyncVia(executor, []() { return 42; });
   co_return co_await std::move(future);
 }
 

@@ -9,16 +9,14 @@
 #include <chrono>
 
 TEST_CASE("Проверка корректности комбинатора на Future", "[combine]") {
-  using namespace dsac::futures;
   using namespace dsac::concurrency;
-
   SECTION("Проверка исполнения комбинатора FirstOf") {
     constexpr std::size_t kNumberWorkers = 2U;
-    IExecutorPtr          executor = StaticThreadPool::Make(kNumberWorkers);
+    IExecutorPtr          executor       = StaticThreadPool::Make(kNumberWorkers);
 
-    std::vector<Future<int>> futures;
+    std::vector<dsac::Future<int>> futures;
     {
-      Promise<int> promise;
+      dsac::Promise<int> promise;
       futures.push_back(promise.MakeFuture().Via(executor));
       executor->Submit([promise = std::move(promise)]() mutable {
         std::this_thread::sleep_for(std::chrono::milliseconds(200));
@@ -27,7 +25,7 @@ TEST_CASE("Проверка корректности комбинатора на
     }
 
     {
-      Promise<int> promise;
+      dsac::Promise<int> promise;
       futures.push_back(promise.MakeFuture().Via(executor));
       executor->Submit([promise = std::move(promise)]() mutable {
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
@@ -35,8 +33,8 @@ TEST_CASE("Проверка корректности комбинатора на
       });
     }
 
-    Future<int> future = FirstOf(std::move(futures));
-    Try<int>    result = std::move(future).Get();
+    dsac::Future<int> future = dsac::first_of(std::move(futures));
+    dsac::result<int> result = std::move(future).Get();
     REQUIRE(result.HasValue());
     REQUIRE(result.ValueOrThrow() == 2);
 
@@ -44,13 +42,13 @@ TEST_CASE("Проверка корректности комбинатора на
   }
   SECTION("Проверка исполнения комбинатора FirstN") {
     constexpr std::size_t kNumberWorkers = 2U;
-    IExecutorPtr          executor = StaticThreadPool::Make(kNumberWorkers);
+    IExecutorPtr          executor       = StaticThreadPool::Make(kNumberWorkers);
 
-    constexpr std::size_t            kNumberOfTasks = 10U;
-    std::vector<Future<std::size_t>> futures;
+    constexpr std::size_t                  kNumberOfTasks = 10U;
+    std::vector<dsac::Future<std::size_t>> futures;
     futures.reserve(kNumberOfTasks);
     for (std::size_t i{}; i < kNumberOfTasks; ++i) {
-      Promise<std::size_t> promise;
+      dsac::Promise<std::size_t> promise;
       futures.push_back(promise.MakeFuture().Via(executor));
       executor->Submit([promise = std::move(promise), i]() mutable {
         std::this_thread::sleep_for(std::chrono::milliseconds(i * 10U));
@@ -58,19 +56,16 @@ TEST_CASE("Проверка корректности комбинатора на
       });
     }
 
-    constexpr std::size_t                 kQuorum = 4U;
-    Future<std::vector<Try<std::size_t>>> future =
-        FirstN(std::move(futures), kQuorum);
-    Try<std::vector<Try<std::size_t>>> result = std::move(future).Get();
+    constexpr std::size_t                                kQuorum = 4U;
+    dsac::Future<std::vector<dsac::result<std::size_t>>> future  = dsac::first_n(std::move(futures), kQuorum);
+    dsac::result<std::vector<dsac::result<std::size_t>>> result  = std::move(future).Get();
     REQUIRE(result.HasValue());
 
-    std::vector<Try<std::size_t>> sequence = result.ValueOrThrow();
+    std::vector<dsac::result<std::size_t>> sequence = result.ValueOrThrow();
     REQUIRE(sequence.size() == kQuorum);
 
-    std::vector<Try<std::size_t>> expected(kQuorum, Try<std::size_t>(0U));
-    std::generate(expected.begin(), expected.end(), [n = 0U]() mutable {
-      return Try<std::size_t>{n++};
-    });
+    std::vector<dsac::result<std::size_t>> expected(kQuorum, dsac::result<std::size_t>(0U));
+    std::generate(expected.begin(), expected.end(), [n = 0U]() mutable { return dsac::result<std::size_t>{n++}; });
     REQUIRE(sequence == expected);
 
     executor->Join();

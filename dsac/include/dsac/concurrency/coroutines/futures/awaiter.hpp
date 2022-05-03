@@ -6,11 +6,11 @@
 #include <coroutine>
 #include <optional>
 
-namespace dsac::coroutines {
+namespace dsac {
 template <typename T>
 class FutureAwaiter {
 public:
-  FutureAwaiter(futures::Future<T>&& future)
+  FutureAwaiter(Future<T>&& future)
     : future_(std::move(future)) {
   }
 
@@ -21,7 +21,7 @@ public:
   }
 
   void await_suspend(std::coroutine_handle<> h) {
-    std::move(future_).Subscribe([this, h](futures::Try<T> result) mutable {
+    std::move(future_).Subscribe([this, h](result<T> result) mutable {
       result_.emplace(std::move(result));
       h.resume();
     });
@@ -32,12 +32,12 @@ public:
   }
 
 private:
-  futures::Future<T>             future_;
-  std::optional<futures::Try<T>> result_;
+  Future<T>                future_;
+  std::optional<result<T>> result_;
 };
-}  // namespace dsac::coroutines
+}  // namespace dsac
 
 template <typename T>
-auto operator co_await(dsac::futures::Future<T>&& future) {
-  return dsac::coroutines::FutureAwaiter<T>(std::move(future));
+auto operator co_await(dsac::Future<T>&& future) {
+  return dsac::FutureAwaiter<T>(std::move(future));
 }

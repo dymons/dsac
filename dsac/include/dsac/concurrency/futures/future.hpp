@@ -4,7 +4,7 @@
 #include <dsac/concurrency/futures/callback.hpp>
 #include <dsac/concurrency/futures/state.hpp>
 
-namespace dsac::futures {
+namespace dsac {
 
 class FutureException : public std::logic_error {
 public:
@@ -63,7 +63,7 @@ public:
     return new_future;
   }
 
-  Future<T> Subscribe(Callback<T> callback) && {
+  Future<T> Subscribe(callback<T> callback) && {
     if (callback == nullptr) {
       throw FutureNoCallback{};
     }
@@ -98,7 +98,7 @@ private:
     GetState()->SetExecutor(std::move(exec));
   }
 
-  void SetCallback(Callback<T>&& callback) {
+  void SetCallback(callback<T>&& callback) {
     GetState()->SetCallback(std::move(callback));
   }
 
@@ -106,4 +106,4 @@ private:
     : HoldState<T>(std::move(state)) {
   }
 };
-}  // namespace dsac::futures
+}  // namespace dsac

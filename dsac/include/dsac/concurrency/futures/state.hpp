@@ -7,16 +7,12 @@
 
 #include <variant>
 
-// TODO: Не эффективная реализация SharedState, посмотреть и изучить реализацию
-// из
-//       библиотеки folly, основанную на использовании FSM
-
-namespace dsac::futures {
+namespace dsac {
 template <typename T>
 class SharedState {
   template <typename U>
   using MVarRef    = std::shared_ptr<syncing::MVar<U>>;
-  using StateValue = std::variant<Try<T>, Callback<T>>;
+  using StateValue = std::variant<Try<T>, callback<T>>;
 
   MVarRef<StateValue>                      storage_;
   syncing::MVar<void>                      has_value_;
@@ -32,10 +28,10 @@ public:
     if (HasResult()) {
       // If we already have the value, what to do? ¯\_(ツ)_/¯
     } else if (HasCallback()) {
-      Callback<T> callback = std::get<Callback<T>>(storage_->Take());
+      callback<T> handler = std::get<callback<T>>(storage_->Take());
       storage_->Put(std::move(result));
       has_value_.Put();
-      DoCallback(std::move(callback));
+      DoCallback(std::move(handler));
     } else {
       storage_->Put(std::move(result));
       has_value_.Put();
@@ -73,7 +69,7 @@ public:
     return executor_.IsEmpty() ? nullptr : executor_.ReadOnly();
   }
 
-  void SetCallback(Callback<T>&& callback) {
+  void SetCallback(callback<T>&& callback) {
     if (HasCallback()) {
       // If we already have the callback, what to do? ¯\_(ツ)_/¯
     } else if (HasResult()) {
@@ -84,7 +80,7 @@ public:
   }
 
 private:
-  void DoCallback(Callback<T>&& callback) {
+  void DoCallback(callback<T>&& callback) {
     if (concurrency::IExecutorPtr executor = GetExecutor();
         executor != nullptr) {
       executor->Submit(
@@ -141,4 +137,4 @@ protected:
 protected:
   StateRef<T> state_;
 };
-}  // namespace dsac::futures
+}  // namespace dsac

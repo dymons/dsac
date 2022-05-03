@@ -4,7 +4,7 @@
 #include <dsac/concurrency/futures/future.hpp>
 #include <dsac/concurrency/futures/promise.hpp>
 
-namespace dsac::futures {
+namespace dsac {
 template <typename F>
 auto AsyncVia(concurrency::IExecutorPtr executor, F routine) {
   using ReturnType = typename std::result_of<F()>::type;
@@ -18,4 +18,4 @@ auto AsyncVia(concurrency::IExecutorPtr executor, F routine) {
 
   return future;
 }
-}  // namespace dsac::futures
+}  // namespace dsac

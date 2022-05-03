@@ -5,10 +5,10 @@
 
 #include <coroutine>
 
-namespace dsac::coroutines {
+namespace dsac {
 template <typename T>
 struct CoroutinePromise {
-  futures::Promise<T> promise_;
+  Promise<T> promise_;
 
   auto get_return_object() {
     return promise_.MakeFuture();
@@ -32,13 +32,13 @@ struct CoroutinePromise {
 
   template <typename U>
   void return_value(U&& u) {
-    std::move(promise_).Set(futures::Try<U>(std::forward<U>(u)));
+    std::move(promise_).Set(result<U>(std::forward<U>(u)));
   }
 };
 
-}  // namespace dsac::coroutines
+}  // namespace dsac
 
 template <typename R, typename... Args>
-struct std::coroutine_traits<dsac::futures::Future<R>, Args...> {
-  using promise_type = dsac::coroutines::CoroutinePromise<R>;
+struct std::coroutine_traits<dsac::Future<R>, Args...> {
+  using promise_type = dsac::CoroutinePromise<R>;
 };

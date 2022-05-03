@@ -5,9 +5,9 @@
 
 #include <atomic>
 
-namespace dsac::futures {
+namespace dsac {
 template <typename T>
-Future<T> FirstOf(std::vector<Future<T>>&& futures) {
+Future<T> first_of(std::vector<Future<T>>&& futures) {
   struct Context {
     Promise<T>       promise;
     std::atomic_bool done{false};
@@ -24,4 +24,4 @@ Future<T> FirstOf(std::vector<Future<T>>&& futures) {
 
   return ctx->promise.MakeFuture();
 }
-}  // namespace dsac::futures
+}  // namespace dsac

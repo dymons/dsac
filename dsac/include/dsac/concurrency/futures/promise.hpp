@@ -3,7 +3,7 @@
 #include <dsac/concurrency/futures/future.hpp>
 #include <dsac/concurrency/futures/state.hpp>
 
-namespace dsac::futures {
+namespace dsac {
 
 class PromiseException : public std::logic_error {
 public:
@@ -62,4 +62,4 @@ private:
 
   bool future_extracted_{false};
 };
-}  // namespace dsac::futures
+}  // namespace dsac
