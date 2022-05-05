@@ -8,8 +8,8 @@
 
 using namespace dsac::concurrency;
 
-dsac::Future<int> Coroutine(IExecutorPtr executor) {
-  dsac::Future<int> future = dsac::AsyncVia(executor, []() { return 42; });
+dsac::future<int> Coroutine(IExecutorPtr executor) {
+  dsac::future<int> future = dsac::AsyncVia(executor, []() { return 42; });
   co_return co_await std::move(future);
 }
 

@@ -14,9 +14,9 @@ TEST_CASE("Проверка корректности комбинатора на
     constexpr std::size_t kNumberWorkers = 2U;
     IExecutorPtr          executor       = StaticThreadPool::Make(kNumberWorkers);
 
-    std::vector<dsac::Future<int>> futures;
+    std::vector<dsac::future<int>> futures;
     {
-      dsac::Promise<int> promise;
+      dsac::promise<int> promise;
       futures.push_back(promise.MakeFuture().Via(executor));
       executor->Submit([promise = std::move(promise)]() mutable {
         std::this_thread::sleep_for(std::chrono::milliseconds(200));
@@ -25,7 +25,7 @@ TEST_CASE("Проверка корректности комбинатора на
     }
 
     {
-      dsac::Promise<int> promise;
+      dsac::promise<int> promise;
       futures.push_back(promise.MakeFuture().Via(executor));
       executor->Submit([promise = std::move(promise)]() mutable {
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
@@ -33,7 +33,7 @@ TEST_CASE("Проверка корректности комбинатора на
       });
     }
 
-    dsac::Future<int> future = dsac::first_of(std::move(futures));
+    dsac::future<int> future = dsac::first_of(std::move(futures));
     dsac::result<int> result = std::move(future).Get();
     REQUIRE(result.HasValue());
     REQUIRE(result.ValueOrThrow() == 2);
@@ -45,10 +45,10 @@ TEST_CASE("Проверка корректности комбинатора на
     IExecutorPtr          executor       = StaticThreadPool::Make(kNumberWorkers);
 
     constexpr std::size_t                  kNumberOfTasks = 10U;
-    std::vector<dsac::Future<std::size_t>> futures;
+    std::vector<dsac::future<std::size_t>> futures;
     futures.reserve(kNumberOfTasks);
     for (std::size_t i{}; i < kNumberOfTasks; ++i) {
-      dsac::Promise<std::size_t> promise;
+      dsac::promise<std::size_t> promise;
       futures.push_back(promise.MakeFuture().Via(executor));
       executor->Submit([promise = std::move(promise), i]() mutable {
         std::this_thread::sleep_for(std::chrono::milliseconds(i * 10U));
@@ -57,7 +57,7 @@ TEST_CASE("Проверка корректности комбинатора на
     }
 
     constexpr std::size_t                                kQuorum = 4U;
-    dsac::Future<std::vector<dsac::result<std::size_t>>> future  = dsac::first_n(std::move(futures), kQuorum);
+    dsac::future<std::vector<dsac::result<std::size_t>>> future  = dsac::first_n(std::move(futures), kQuorum);
     dsac::result<std::vector<dsac::result<std::size_t>>> result  = std::move(future).Get();
     REQUIRE(result.HasValue());
 

@@ -8,7 +8,7 @@
 
 namespace dsac {
 template <typename T>
-auto first_n(std::vector<Future<T>>&& futures, std::size_t const n) {
+auto first_n(std::vector<future<T>>&& futures, std::size_t const n) {
   using Result = std::vector<Try<T>>;
 
   struct Context {
@@ -21,11 +21,11 @@ auto first_n(std::vector<Future<T>>&& futures, std::size_t const n) {
     std::size_t                        min;
     std::atomic<std::size_t>           completed = {0U};
     std::atomic<std::size_t>           stored    = {0U};
-    Promise<Result>                    promise;
+    promise<Result>                    promise_;
   };
 
   if (futures.size() < n) {
-    return Future<Result>::Fail("Not enough futures");
+    return future<Result>::Fail("Not enough futures");
   }
 
   auto ctx = std::make_shared<Context>(futures.size(), n);
@@ -50,10 +50,10 @@ auto first_n(std::vector<Future<T>>&& futures, std::size_t const n) {
           result.emplace_back(std::move(entry).value());
         }
       }
-      ctx->promise.Set(Try<Result>(std::move(result)));
+      ctx->promise_.Set(Try<Result>(std::move(result)));
     });
   }
 
-  return ctx->promise.MakeFuture();
+  return ctx->promise_.MakeFuture();
 }
 }  // namespace dsac

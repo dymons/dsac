@@ -10,7 +10,7 @@ namespace dsac {
 template <typename T>
 class FutureAwaiter {
 public:
-  FutureAwaiter(Future<T>&& future)
+  FutureAwaiter(future<T>&& future)
     : future_(std::move(future)) {
   }
 
@@ -32,12 +32,12 @@ public:
   }
 
 private:
-  Future<T>                future_;
+  future<T>                future_;
   std::optional<result<T>> result_;
 };
 }  // namespace dsac
 
 template <typename T>
-auto operator co_await(dsac::Future<T>&& future) {
+auto operator co_await(dsac::future<T>&& future) {
   return dsac::FutureAwaiter<T>(std::move(future));
 }
