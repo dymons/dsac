@@ -17,7 +17,7 @@ TEST_CASE("Проверка корректности комбинатора на
     {
       dsac::promise<int> promise;
       futures.push_back(promise.MakeFuture().Via(executor));
-      executor->Submit([promise = std::move(promise)]() mutable {
+      executor->submit([promise = std::move(promise)]() mutable {
         std::this_thread::sleep_for(std::chrono::milliseconds(200));
         promise.Set(1);
       });
@@ -26,7 +26,7 @@ TEST_CASE("Проверка корректности комбинатора на
     {
       dsac::promise<int> promise;
       futures.push_back(promise.MakeFuture().Via(executor));
-      executor->Submit([promise = std::move(promise)]() mutable {
+      executor->submit([promise = std::move(promise)]() mutable {
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
         promise.Set(2);
       });
@@ -37,7 +37,7 @@ TEST_CASE("Проверка корректности комбинатора на
     REQUIRE(result.HasValue());
     REQUIRE(result.ValueOrThrow() == 2);
 
-    executor->Join();
+    executor->join();
   }
   SECTION("Проверка исполнения комбинатора FirstN") {
     constexpr std::size_t   kNumberWorkers = 2U;
@@ -49,7 +49,7 @@ TEST_CASE("Проверка корректности комбинатора на
     for (std::size_t i{}; i < kNumberOfTasks; ++i) {
       dsac::promise<std::size_t> promise;
       futures.push_back(promise.MakeFuture().Via(executor));
-      executor->Submit([promise = std::move(promise), i]() mutable {
+      executor->submit([promise = std::move(promise), i]() mutable {
         std::this_thread::sleep_for(std::chrono::milliseconds(i * 10U));
         promise.Set(i);
       });
@@ -67,6 +67,6 @@ TEST_CASE("Проверка корректности комбинатора на
     std::generate(expected.begin(), expected.end(), [n = 0U]() mutable { return dsac::result<std::size_t>{n++}; });
     REQUIRE(sequence == expected);
 
-    executor->Join();
+    executor->join();
   }
 }

@@ -13,7 +13,7 @@ void static_thread_poll::StartWorkerThreads(std::size_t workers) {
 
 void static_thread_poll::WorkerRoutine() {
   while (true) {
-    if (task task = tasks_.Pop(); task) {
+    if (task task = tasks_.pop(); task) {
       task();
     } else {
       break;
@@ -21,13 +21,13 @@ void static_thread_poll::WorkerRoutine() {
   }
 }
 
-void static_thread_poll::Submit(task&& task) {
-  tasks_.Push(std::move(task));
+void static_thread_poll::submit(task&& task) {
+  tasks_.push(std::move(task));
 }
 
-void static_thread_poll::Join() {
+void static_thread_poll::join() {
   for (auto& worker : workers_) {
-    tasks_.Push({});  // Poison Pill
+    tasks_.push({});  // Poison Pill
   }
   for (auto& worker : workers_) {
     worker.join();

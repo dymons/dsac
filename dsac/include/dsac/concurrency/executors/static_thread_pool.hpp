@@ -16,15 +16,15 @@ public:
   static_thread_poll& operator=(static_thread_poll&&)      = delete;
   ~static_thread_poll() override                           = default;
 
-  void Submit(task&& task) override;
-  void Join() override;
+  void submit(task&& task) override;
+  void join() override;
 
 private:
   void StartWorkerThreads(std::size_t workers);
   void WorkerRoutine();
 
   std::vector<std::thread>         workers_;
-  UnboundedBlockingMPMCQueue<task> tasks_;
+  unbounded_blocking_mpmc_queue<task> tasks_;
 };
 
 base_executor_ptr make_static_thread_pool(std::size_t workers);

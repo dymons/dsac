@@ -21,7 +21,7 @@ TEST_CASE("Проверка корректности Future&Promise", "[future_a
     dsac::promise<int> promise;
     dsac::future<int>  future = promise.MakeFuture();
 
-    executor->Submit([promise = std::move(promise)]() mutable {
+    executor->submit([promise = std::move(promise)]() mutable {
       std::this_thread::sleep_for(std::chrono::milliseconds(100));
       promise.Set(10);
     });
@@ -30,7 +30,7 @@ TEST_CASE("Проверка корректности Future&Promise", "[future_a
     REQUIRE(value.HasValue());
     REQUIRE(value.ValueOrThrow() == 10);
 
-    executor->Join();
+    executor->join();
   }
   SECTION("Подписка на результат Future и выполнение Callback в потоке Main") {
     std::thread::id const main_thread_id = std::this_thread::get_id();
@@ -70,20 +70,20 @@ TEST_CASE("Проверка корректности Future&Promise", "[future_a
     REQUIRE(result.HasValue());
     REQUIRE(result.ValueOrThrow() == 10);
 
-    executor->Join();
+    executor->join();
   }
   SECTION("Выполнение последовательности цепочек через функцию Then") {
-    const auto add_10 = [](dsac::result<int> result) {
+    const auto add_10 = [](const dsac::result<int>& result) {
       REQUIRE(result.HasValue());
       return result.ValueOrThrow() + 10;
     };
 
-    const auto mul_2 = [](dsac::result<int> result) {
+    const auto mul_2 = [](const dsac::result<int>& result) {
       REQUIRE(result.HasValue());
       return result.ValueOrThrow() * 2;
     };
 
-    const auto sub_5 = [](dsac::result<int> result) {
+    const auto sub_5 = [](const dsac::result<int>& result) {
       REQUIRE(result.HasValue());
       return result.ValueOrThrow() - 5;
     };
@@ -104,7 +104,7 @@ TEST_CASE("Проверка корректности Future&Promise", "[future_a
     std::thread::id const main_thread_id = std::this_thread::get_id();
 
     dsac::promise<int> promise;
-    /* Future<int> future = */ promise.MakeFuture()
+    /* dsac::future<int> future = */ promise.MakeFuture()
         .Via(executor)
         .Then([main_thread_id](dsac::result<int> result) {
           REQUIRE_FALSE(std::this_thread::get_id() == main_thread_id);
@@ -121,13 +121,13 @@ TEST_CASE("Проверка корректности Future&Promise", "[future_a
           return 0;
         });
 
-    executor->Submit([promise = std::move(promise), main_thread_id]() mutable {
+    executor->submit([promise = std::move(promise), main_thread_id]() mutable {
       REQUIRE_FALSE(std::this_thread::get_id() == main_thread_id);
 
       std::this_thread::sleep_for(std::chrono::milliseconds(100));
       promise.Set(10);
     });
 
-    executor->Join();
+    executor->join();
   }
 }

@@ -9,10 +9,10 @@ TEST_CASE("Проверка корректности выполнения Thread
 
   auto start = std::chrono::steady_clock::now();
   for (std::size_t i{}; i < kNumberWorkers; ++i) {
-    executor->Submit([]() { std::this_thread::sleep_for(std::chrono::milliseconds(750)); });
+    executor->submit([]() { std::this_thread::sleep_for(std::chrono::milliseconds(750)); });
   }
 
-  executor->Join();
+  executor->join();
   auto end = std::chrono::steady_clock::now();
 
   REQUIRE((end - start) < std::chrono::seconds(1));

@@ -8,23 +8,23 @@
 
 namespace dsac {
 template <typename T>
-class UnboundedBlockingMPMCQueue final {
+class unbounded_blocking_mpmc_queue final {
 public:
-  void Push(T value) {
+  void push(T value) {
     std::lock_guard guard(mutex_);
     buffer_.push_back(std::move(value));
     not_empty_.notify_one();
   }
 
-  T Pop() {
+  T pop() {
     std::unique_lock guard(mutex_);
     not_empty_.wait(guard, [this]() { return !buffer_.empty(); });
 
-    return Pop_NoLock();
+    return pop_no_lock();
   }
 
 private:
-  T Pop_NoLock() {
+  T pop_no_lock() {
     T data = std::move(buffer_.front());
     buffer_.pop_front();
     return data;

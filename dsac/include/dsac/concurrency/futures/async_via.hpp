@@ -11,7 +11,7 @@ auto async_via(base_executor_ptr executor, F routine) {
 
   promise<return_type> promise;
   future<return_type>  future = promise.MakeFuture().Via(executor);
-  executor->Submit([promise = std::move(promise), routine = std::move(routine)]() mutable { promise.Set(routine()); });
+  executor->submit([promise = std::move(promise), routine = std::move(routine)]() mutable { promise.Set(routine()); });
 
   return future;
 }
