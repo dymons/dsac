@@ -27,5 +27,5 @@ private:
   UnboundedBlockingMPMCQueue<task> tasks_;
 };
 
-base_executor_ptr make_static_thead_pool(std::size_t workers);
+base_executor_ptr make_static_thread_pool(std::size_t workers);
 }  // namespace dsac

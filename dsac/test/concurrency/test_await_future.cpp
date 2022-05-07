@@ -13,7 +13,7 @@ dsac::future<int> Coroutine(dsac::base_executor_ptr executor) {
 
 TEST_CASE("Stackless coroutine C++", "[awaiter]") {
   constexpr const std::size_t kNumberWorkers = 4U;
-  dsac::base_executor_ptr     executor       = dsac::make_static_thead_pool(kNumberWorkers);
+  dsac::base_executor_ptr     executor       = dsac::make_static_thread_pool(kNumberWorkers);
 
   auto future = Coroutine(executor);
   REQUIRE(std::move(future).Get().ValueOrThrow() == 42);

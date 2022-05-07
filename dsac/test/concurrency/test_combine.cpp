@@ -11,7 +11,7 @@
 TEST_CASE("Проверка корректности комбинатора на Future", "[combine]") {
   SECTION("Проверка исполнения комбинатора FirstOf") {
     constexpr std::size_t   kNumberWorkers = 2U;
-    dsac::base_executor_ptr executor       = dsac::make_static_thead_pool(kNumberWorkers);
+    dsac::base_executor_ptr executor       = dsac::make_static_thread_pool(kNumberWorkers);
 
     std::vector<dsac::future<int>> futures;
     {
@@ -41,7 +41,7 @@ TEST_CASE("Проверка корректности комбинатора на
   }
   SECTION("Проверка исполнения комбинатора FirstN") {
     constexpr std::size_t   kNumberWorkers = 2U;
-    dsac::base_executor_ptr executor       = dsac::make_static_thead_pool(kNumberWorkers);
+    dsac::base_executor_ptr executor       = dsac::make_static_thread_pool(kNumberWorkers);
 
     constexpr std::size_t                  kNumberOfTasks = 10U;
     std::vector<dsac::future<std::size_t>> futures;
