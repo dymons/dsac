@@ -33,6 +33,8 @@ public:
   template <typename U>
   friend class shared_ptr;
 
+  // Constructors
+
   /*!
     \brief
         Default constructor, constructs an empty shared_ptr.
@@ -106,20 +108,6 @@ public:
     other.ref_count_ = nullptr;
   }
 
-  /*!
-    \brief
-        Move conversion constructor.
-  */
-  shared_ptr& operator=(shared_ptr&& other) noexcept {
-    reset();
-
-    ptr_       = std::exchange(other.ptr_, nullptr);
-    ref_count_ = std::exchange(other.ref_count_, nullptr);
-    deleter_   = std::exchange(other.deleter_, nullptr);
-
-    return *this;
-  }
-
   // Destructor
 
   /// No side-effect if shared_ptr is empty or use_count() > 1,
@@ -136,6 +124,10 @@ public:
 
   // Assignment
 
+  /*!
+    \brief
+        Copy conversion constructor.
+  */
   shared_ptr& operator=(const shared_ptr& sp) noexcept {
     /// copy and swap idiom
     shared_ptr tmp{sp};
@@ -143,24 +135,50 @@ public:
     return *this;
   }
 
+  /*!
+    \brief
+        Move conversion constructor.
+  */
+  shared_ptr& operator=(shared_ptr&& other) noexcept {
+    reset();
+
+    ptr_       = std::exchange(other.ptr_, nullptr);
+    ref_count_ = std::exchange(other.ref_count_, nullptr);
+    deleter_   = std::exchange(other.deleter_, nullptr);
+
+    return *this;
+  }
+
   // Observers
 
-  /// Dereferences pointer to the managed object
+  /*!
+    \brief
+        Dereferences pointer to the managed object.
+  */
   T& operator*() const noexcept {
     return *ptr_;
   }
 
-  /// Dereferences pointer to the managed object
+  /*!
+    \brief
+        Dereferences pointer to the managed object.
+  */
   T* operator->() const noexcept {
     return ptr_;
   }
 
-  /// Returns the contained pointer
+  /*!
+    \brief
+        Returns the contained pointer.
+  */
   T* get() const noexcept {
     return ptr_;
   }
 
-  /// Returns use_count (use_count == 0 if shared_ptr is empty)
+  /*!
+    \brief
+        Returns use_count (use_count == 0 if shared_ptr is empty).
+  */
   long use_count() const noexcept {
     if (ptr_) {
       return *ref_count_;
@@ -168,32 +186,47 @@ public:
     return 0;
   }
 
-  /// Checks if solely owns the managed object
+  /*!
+    \brief
+        Checks if solely owns the managed object.
+  */
   bool unique() const noexcept {
     return (use_count() == 1);
   }
 
-  /// Checks if there is an associated managed object
+  /*!
+    \brief
+        Checks if there is an associated managed object.
+  */
   explicit operator bool() const noexcept {
     return (ptr_ != nullptr);
   }
 
   // Modifiers
 
-  /// Resets shared_ptr to empty
+  /*!
+    \brief
+        Resets shared_ptr to empty.
+  */
   void reset() noexcept {
     shared_ptr tmp{};
     tmp.swap(*this);
   }
 
-  /// Resets shared_ptr to wrap raw pointer p
+  /*!
+    \brief
+        Resets shared_ptr to wrap raw pointer p.
+  */
   template <typename U>
   void reset(U* p) {
     shared_ptr tmp{p};
     tmp.swap(*this);
   }
 
-  /// Swap with another shared_ptr
+  /*!
+    \brief
+        Swap with another shared_ptr.
+  */
   void swap(shared_ptr& sp) noexcept {
     using std::swap;
     swap(ptr_, sp.ptr_);
@@ -202,9 +235,14 @@ public:
   }
 
 private:
-  T*                    ptr_       = nullptr;  /// contained pointer
-  std::atomic<long>*    ref_count_ = nullptr;  /// reference counter
-  detail::deleter_base* deleter_   = nullptr;  /// deleter
+  /// Contained pointer to the user data
+  T* ptr_ = nullptr;
+
+  /// Reference counter
+  std::atomic<long>* ref_count_ = nullptr;
+
+  /// Deleter
+  detail::deleter_base* deleter_ = nullptr;
 };
 
 // Operator == overloading

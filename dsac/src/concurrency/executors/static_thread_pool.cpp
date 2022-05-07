@@ -46,16 +46,7 @@ public:
   */
   ~static_thread_poll() override = default;
 
-  /*!
-    \brief
-        Add a new task to complete in the thread pool.
-  */
   void submit(task&& task) override;
-
-  /*!
-    \brief
-        Finish processing the current tasks and suspend the execution of the thread pool.
-  */
   void join() override;
 
 private:
