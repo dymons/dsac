@@ -7,7 +7,7 @@
 #include <vector>
 
 namespace dsac {
-class static_thread_poll final : public base_executor {
+class static_thread_poll final : public executor_base {
 public:
   explicit static_thread_poll(std::size_t workers);
   static_thread_poll(const static_thread_poll&)            = delete;
@@ -27,5 +27,5 @@ private:
   unbounded_blocking_mpmc_queue<task> tasks_;
 };
 
-base_executor_ptr make_static_thread_pool(std::size_t workers);
+executor_base_ptr make_static_thread_pool(std::size_t workers);
 }  // namespace dsac

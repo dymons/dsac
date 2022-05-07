@@ -4,18 +4,18 @@
 #include <dsac/memory/shared_ptr.hpp>
 
 namespace dsac {
-class base_executor {
+class executor_base {
 public:
-  base_executor()                                = default;
-  base_executor(const base_executor&)            = default;
-  base_executor(base_executor&&)                 = default;
-  base_executor& operator=(const base_executor&) = default;
-  base_executor& operator=(base_executor&&)      = default;
-  virtual ~base_executor()                       = default;
+  executor_base()                                = default;
+  executor_base(const executor_base&)            = default;
+  executor_base(executor_base&&)                 = default;
+  executor_base& operator=(const executor_base&) = default;
+  executor_base& operator=(executor_base&&)      = default;
+  virtual ~executor_base()                       = default;
 
   virtual void submit(task&& task) = 0;
   virtual void join()              = 0;
 };
 
-using base_executor_ptr = dsac::shared_ptr<base_executor>;
+using executor_base_ptr = dsac::shared_ptr<executor_base>;
 }  // namespace dsac

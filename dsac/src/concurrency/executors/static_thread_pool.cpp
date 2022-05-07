@@ -35,7 +35,7 @@ void static_thread_poll::join() {
   workers_.clear();
 }
 
-base_executor_ptr make_static_thread_pool(std::size_t workers) {
+executor_base_ptr make_static_thread_pool(std::size_t workers) {
   return dsac::make_shared<static_thread_poll>(workers);
 }
 }  // namespace dsac

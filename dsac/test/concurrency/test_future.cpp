@@ -16,7 +16,7 @@ TEST_CASE("Проверка корректности Future&Promise", "[future_a
   }
   SECTION("Выполнение Future&Promise в разных потоках исполнения") {
     constexpr std::size_t   kNumberWorkers = 2U;
-    dsac::base_executor_ptr executor       = dsac::make_static_thread_pool(kNumberWorkers);
+    dsac::executor_base_ptr executor       = dsac::make_static_thread_pool(kNumberWorkers);
 
     dsac::promise<int> promise;
     dsac::future<int>  future = promise.MakeFuture();
@@ -51,7 +51,7 @@ TEST_CASE("Проверка корректности Future&Promise", "[future_a
   }
   SECTION("Подписка на результат Future и выполнение Callback в потоке Worker") {
     constexpr std::size_t   kNumberWorkers = 2U;
-    dsac::base_executor_ptr executor       = dsac::make_static_thread_pool(kNumberWorkers);
+    dsac::executor_base_ptr executor       = dsac::make_static_thread_pool(kNumberWorkers);
 
     std::thread::id const main_thread_id = std::this_thread::get_id();
 
@@ -99,7 +99,7 @@ TEST_CASE("Проверка корректности Future&Promise", "[future_a
   }
   SECTION("Выполнение последовательности цепочек в потоке Worker") {
     constexpr std::size_t   kNumberWorkers = 2U;
-    dsac::base_executor_ptr executor       = dsac::make_static_thread_pool(kNumberWorkers);
+    dsac::executor_base_ptr executor       = dsac::make_static_thread_pool(kNumberWorkers);
 
     std::thread::id const main_thread_id = std::this_thread::get_id();
 

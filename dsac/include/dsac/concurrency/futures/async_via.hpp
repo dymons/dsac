@@ -6,7 +6,7 @@
 
 namespace dsac {
 template <typename F>
-auto async_via(base_executor_ptr executor, F routine) {
+auto async_via(executor_base_ptr executor, F routine) {
   using return_type = typename std::result_of<F()>::type;
 
   promise<return_type> promise;

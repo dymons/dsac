@@ -16,7 +16,7 @@ class SharedState {
 
   MVarRef<StateValue>              storage_;
   syncing::MVar<void>              has_value_;
-  syncing::MVar<base_executor_ptr> executor_;
+  syncing::MVar<executor_base_ptr> executor_;
 
 public:
   SharedState()
@@ -59,13 +59,13 @@ public:
   }
 
   /// Call only from consumer thread
-  void SetExecutor(base_executor_ptr&& exec) {
+  void SetExecutor(executor_base_ptr&& exec) {
     assert(executor_.IsEmpty());
     executor_.Put(std::move(exec));
   }
 
   /// May call from any thread
-  base_executor_ptr GetExecutor() {
+  executor_base_ptr GetExecutor() {
     return executor_.IsEmpty() ? nullptr : executor_.ReadOnly();
   }
 
@@ -81,7 +81,7 @@ public:
 
 private:
   void DoCallback(callback<T>&& callback) {
-    if (base_executor_ptr executor = GetExecutor(); executor != nullptr) {
+    if (executor_base_ptr executor = GetExecutor(); executor != nullptr) {
       executor->submit([callback = std::move(callback), storage = storage_]() mutable {
         callback(std::get<Try<T>>(storage->ReadOnly()));
       });
