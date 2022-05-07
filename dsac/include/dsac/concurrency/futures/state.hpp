@@ -14,9 +14,9 @@ class SharedState {
   using MVarRef    = std::shared_ptr<syncing::MVar<U>>;
   using StateValue = std::variant<Try<T>, callback<T>>;
 
-  MVarRef<StateValue>                      storage_;
-  syncing::MVar<void>                      has_value_;
-  syncing::MVar<concurrency::IExecutorPtr> executor_;
+  MVarRef<StateValue>              storage_;
+  syncing::MVar<void>              has_value_;
+  syncing::MVar<base_executor_ptr> executor_;
 
 public:
   SharedState()
@@ -59,13 +59,13 @@ public:
   }
 
   /// Call only from consumer thread
-  void SetExecutor(concurrency::IExecutorPtr&& exec) {
+  void SetExecutor(base_executor_ptr&& exec) {
     assert(executor_.IsEmpty());
     executor_.Put(std::move(exec));
   }
 
   /// May call from any thread
-  concurrency::IExecutorPtr GetExecutor() {
+  base_executor_ptr GetExecutor() {
     return executor_.IsEmpty() ? nullptr : executor_.ReadOnly();
   }
 
@@ -81,12 +81,10 @@ public:
 
 private:
   void DoCallback(callback<T>&& callback) {
-    if (concurrency::IExecutorPtr executor = GetExecutor();
-        executor != nullptr) {
-      executor->Submit(
-          [callback = std::move(callback), storage = storage_]() mutable {
-            callback(std::get<Try<T>>(storage->ReadOnly()));
-          });
+    if (base_executor_ptr executor = GetExecutor(); executor != nullptr) {
+      executor->Submit([callback = std::move(callback), storage = storage_]() mutable {
+        callback(std::get<Try<T>>(storage->ReadOnly()));
+      });
     } else {
       callback(std::get<Try<T>>(storage_->ReadOnly()));
     }

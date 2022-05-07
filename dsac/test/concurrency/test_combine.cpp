@@ -9,10 +9,9 @@
 #include <chrono>
 
 TEST_CASE("Проверка корректности комбинатора на Future", "[combine]") {
-  using namespace dsac::concurrency;
   SECTION("Проверка исполнения комбинатора FirstOf") {
-    constexpr std::size_t kNumberWorkers = 2U;
-    IExecutorPtr          executor       = StaticThreadPool::Make(kNumberWorkers);
+    constexpr std::size_t   kNumberWorkers = 2U;
+    dsac::base_executor_ptr executor       = dsac::make_static_thead_pool(kNumberWorkers);
 
     std::vector<dsac::future<int>> futures;
     {
@@ -41,8 +40,8 @@ TEST_CASE("Проверка корректности комбинатора на
     executor->Join();
   }
   SECTION("Проверка исполнения комбинатора FirstN") {
-    constexpr std::size_t kNumberWorkers = 2U;
-    IExecutorPtr          executor       = StaticThreadPool::Make(kNumberWorkers);
+    constexpr std::size_t   kNumberWorkers = 2U;
+    dsac::base_executor_ptr executor       = dsac::make_static_thead_pool(kNumberWorkers);
 
     constexpr std::size_t                  kNumberOfTasks = 10U;
     std::vector<dsac::future<std::size_t>> futures;

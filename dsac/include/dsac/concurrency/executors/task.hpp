@@ -2,6 +2,6 @@
 
 #include <dsac/functional/function2.hpp>
 
-namespace dsac::concurrency {
+namespace dsac {
 using task = fu2::unique_function<void()>;
-}  // namespace dsac::concurrency
+}  // namespace dsac

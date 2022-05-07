@@ -6,7 +6,7 @@
 
 // Unbounded Blocking Multi-Producer/Multi-Consumer Queue
 
-namespace dsac::concurrency {
+namespace dsac {
 template <typename T>
 class UnboundedBlockingMPMCQueue final {
 public:
@@ -30,9 +30,8 @@ private:
     return data;
   }
 
-private:
   std::mutex              mutex_;
   std::deque<T>           buffer_;  // Guarded by mutex_
   std::condition_variable not_empty_;
 };
-}  // namespace dsac::concurrency
+}  // namespace dsac

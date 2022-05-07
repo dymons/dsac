@@ -6,17 +6,15 @@
 #include <thread>
 #include <vector>
 
-namespace dsac::concurrency {
-class StaticThreadPool final : public IExecutor {
+namespace dsac {
+class static_thread_poll final : public base_executor {
 public:
-  static IExecutorPtr Make(std::size_t workers);
-
-  explicit StaticThreadPool(std::size_t workers);
-  StaticThreadPool(const StaticThreadPool&)            = delete;
-  StaticThreadPool(StaticThreadPool&&)                 = delete;
-  StaticThreadPool& operator=(const StaticThreadPool&) = delete;
-  StaticThreadPool& operator=(StaticThreadPool&&)      = delete;
-  ~StaticThreadPool() override                         = default;
+  explicit static_thread_poll(std::size_t workers);
+  static_thread_poll(const static_thread_poll&)            = delete;
+  static_thread_poll(static_thread_poll&&)                 = delete;
+  static_thread_poll& operator=(const static_thread_poll&) = delete;
+  static_thread_poll& operator=(static_thread_poll&&)      = delete;
+  ~static_thread_poll() override                           = default;
 
   void Submit(task&& task) override;
   void Join() override;
@@ -25,8 +23,9 @@ private:
   void StartWorkerThreads(std::size_t workers);
   void WorkerRoutine();
 
-private:
   std::vector<std::thread>         workers_;
   UnboundedBlockingMPMCQueue<task> tasks_;
 };
-}  // namespace dsac::concurrency
+
+base_executor_ptr make_static_thead_pool(std::size_t workers);
+}  // namespace dsac

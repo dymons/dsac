@@ -56,7 +56,7 @@ public:
     return ReleaseState()->GetResult();
   }
 
-  Future<T> Via(concurrency::IExecutorPtr exec) && {
+  Future<T> Via(base_executor_ptr exec) && {
     if (exec == nullptr) {
       throw FutureNoExecutor{};
     }
@@ -96,7 +96,7 @@ public:
   }
 
 private:
-  void SetExecutor(concurrency::IExecutorPtr&& exec) {
+  void SetExecutor(base_executor_ptr&& exec) {
     GetState()->SetExecutor(std::move(exec));
   }
 

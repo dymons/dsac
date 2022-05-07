@@ -5,8 +5,6 @@
 #include <dsac/concurrency/futures/promise.hpp>
 
 TEST_CASE("Проверка корректности Future&Promise", "[future_and_promise]") {
-  using namespace dsac::concurrency;
-
   SECTION("Выполнение Future&Promise в однопоточном исполнении") {
     dsac::promise<int> promise;
     dsac::future<int>  future = promise.MakeFuture();
@@ -17,8 +15,8 @@ TEST_CASE("Проверка корректности Future&Promise", "[future_a
     REQUIRE(value.ValueOrThrow() == 10);
   }
   SECTION("Выполнение Future&Promise в разных потоках исполнения") {
-    constexpr std::size_t kNumberWorkers = 2U;
-    IExecutorPtr          executor       = StaticThreadPool::Make(kNumberWorkers);
+    constexpr std::size_t   kNumberWorkers = 2U;
+    dsac::base_executor_ptr executor       = dsac::make_static_thead_pool(kNumberWorkers);
 
     dsac::promise<int> promise;
     dsac::future<int>  future = promise.MakeFuture();
@@ -52,8 +50,8 @@ TEST_CASE("Проверка корректности Future&Promise", "[future_a
     REQUIRE(result.ValueOrThrow() == 10);
   }
   SECTION("Подписка на результат Future и выполнение Callback в потоке Worker") {
-    constexpr std::size_t kNumberWorkers = 2U;
-    IExecutorPtr          executor       = StaticThreadPool::Make(kNumberWorkers);
+    constexpr std::size_t   kNumberWorkers = 2U;
+    dsac::base_executor_ptr executor       = dsac::make_static_thead_pool(kNumberWorkers);
 
     std::thread::id const main_thread_id = std::this_thread::get_id();
 
@@ -100,8 +98,8 @@ TEST_CASE("Проверка корректности Future&Promise", "[future_a
     REQUIRE(result.ValueOrThrow() == 35);
   }
   SECTION("Выполнение последовательности цепочек в потоке Worker") {
-    constexpr std::size_t kNumberWorkers = 2U;
-    IExecutorPtr          executor       = StaticThreadPool::Make(kNumberWorkers);
+    constexpr std::size_t   kNumberWorkers = 2U;
+    dsac::base_executor_ptr executor       = dsac::make_static_thead_pool(kNumberWorkers);
 
     std::thread::id const main_thread_id = std::this_thread::get_id();
 

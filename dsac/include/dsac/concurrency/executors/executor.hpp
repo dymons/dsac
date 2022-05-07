@@ -1,16 +1,16 @@
 #pragma once
 
 #include <dsac/concurrency/executors/task.hpp>
-#include <memory>
+#include <dsac/memory/shared_ptr.hpp>
 
-namespace dsac::concurrency {
-class IExecutor {
+namespace dsac {
+class base_executor {
 public:
-  virtual ~IExecutor() = default;
+  virtual ~base_executor() = default;
 
   virtual void Submit(task&& task) = 0;
   virtual void Join()              = 0;
 };
 
-using IExecutorPtr = std::shared_ptr<IExecutor>;
-}  // namespace dsac::concurrency
+using base_executor_ptr = dsac::shared_ptr<base_executor>;
+}  // namespace dsac
