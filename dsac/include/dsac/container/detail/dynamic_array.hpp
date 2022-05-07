@@ -170,7 +170,7 @@ public:
     return *this;
   }
 
-  DynamicArray& operator=(DynamicArray&& other) = delete; // Sorry, unimplemented yet ¯\_(ツ)_/¯
+  DynamicArray& operator=(DynamicArray&& other) = delete;  // Sorry, unimplemented yet ¯\_(ツ)_/¯
 
   ~DynamicArray() noexcept {
     dsac::destroy(storage_.start, storage_.finish, allocator_);
@@ -190,6 +190,16 @@ public:
       ++storage_.finish;
     } else {
       realloc_and_insert(value);
+    }
+  }
+
+  template <typename... Args>
+  void emplace_back(Args&&... args) {
+    if (storage_.finish != storage_.end_of_storage) {
+      dsac::construct(storage_.finish, allocator_, T{std::forward<Args>(args)...});
+      ++storage_.finish;
+    } else {
+      realloc_and_insert(std::forward<Args>(args)...);
     }
   }
 
@@ -240,7 +250,7 @@ private:
     pointer         new_finish = pointer{};
 
     try {
-      dsac::construct(new_start + size(), allocator_, std::forward<Args>(args)...);
+      dsac::construct(new_start + size(), allocator_, T{std::forward<Args>(args)...});
       new_finish = dsac::uninitialized_move_if_noexcept(storage_.start, storage_.finish, new_start, allocator_);
     } catch (...) {
       if (!new_finish) {

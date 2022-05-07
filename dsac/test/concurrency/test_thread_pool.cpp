@@ -1,7 +1,9 @@
-#include "catch2/catch.hpp"
+#include <catch2/catch.hpp>
+
+#include <dsac/concurrency/executors/static_thread_pool.hpp>
 
 #include <chrono>
-#include <dsac/concurrency/executors/static_thread_pool.hpp>
+#include <thread>
 
 TEST_CASE("Проверка корректности выполнения Thread Pool", "[static_thread_pool]") {
   constexpr std::size_t   kNumberWorkers = 4U;

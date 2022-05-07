@@ -4,9 +4,8 @@
 #include <deque>
 #include <mutex>
 
-// Unbounded Blocking Multi-Producer/Multi-Consumer Queue
-
 namespace dsac {
+
 template <typename T>
 class unbounded_blocking_mpmc_queue final {
 public:
@@ -34,4 +33,5 @@ private:
   std::deque<T>           buffer_;  // Guarded by mutex_
   std::condition_variable not_empty_;
 };
+
 }  // namespace dsac

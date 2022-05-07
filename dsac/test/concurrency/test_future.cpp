@@ -4,6 +4,8 @@
 #include <dsac/concurrency/futures/future.hpp>
 #include <dsac/concurrency/futures/promise.hpp>
 
+#include <thread>
+
 TEST_CASE("Проверка корректности Future&Promise", "[future_and_promise]") {
   SECTION("Выполнение Future&Promise в однопоточном исполнении") {
     dsac::promise<int> promise;
