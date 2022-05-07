@@ -10,9 +10,9 @@ namespace dsac {
 template <typename T>
 class unbounded_blocking_mpmc_queue final {
 public:
-  void push(T value) {
+  void push(T&& value) {
     std::lock_guard guard(mutex_);
-    buffer_.push_back(std::move(value));
+    buffer_.push_back(std::forward<T>(value));
     not_empty_.notify_one();
   }
 
