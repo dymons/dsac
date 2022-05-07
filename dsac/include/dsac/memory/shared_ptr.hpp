@@ -60,7 +60,7 @@ public:
     \brief
         Constructor to wrap raw pointer of convertible type.
   */
-  template <typename U>
+  template <std::derived_from<T> U>
   explicit shared_ptr(U* p)
     : _ptr{p}
     , _ref_count{new std::atomic<long>{1}}
