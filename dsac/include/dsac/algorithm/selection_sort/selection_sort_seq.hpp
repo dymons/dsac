@@ -26,7 +26,8 @@ using detail::selection_sort;
     \par Worst Case Complexity:
         Time Complexity \p O(N^2) and Space Complexity \p O(1)
 
-    \ingroup DsacAlgorithms
+    \ingroup
+        DsacAlgorithms
 */
 template <std::random_access_iterator RandomIterator>
 [[gnu::always_inline]] inline void selection_sort(
@@ -47,7 +48,8 @@ template <std::random_access_iterator RandomIterator>
     \par Worst Case Complexity:
         Time Complexity \p O(N^2) and Space Complexity \p O(1)
 
-    \ingroup DsacAlgorithms
+    \ingroup
+        DsacAlgorithms
 */
 template <typename RandomRange, typename Compare>
 [[gnu::always_inline]] inline void selection_sort(
@@ -72,7 +74,8 @@ template <typename RandomRange, typename Compare>
     \par Worst Case Complexity:
         Time Complexity \p O(N^2) and Space Complexity \p O(1)
 
-    \ingroup DsacAlgorithms
+    \ingroup
+        DsacAlgorithms
 */
 template <typename RandomRange>
 [[gnu::always_inline]] inline void selection_sort(RandomRange&& range) {

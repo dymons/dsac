@@ -18,7 +18,8 @@ namespace dsac::detail {
     \par Worst Case Complexity:
         Time Complexity \p O(N^2) and Space Complexity \p O(1)
 
-    \ingroup DsacAlgorithms
+    \ingroup
+        DsacAlgorithms
 */
 template <std::random_access_iterator RandomIterator, typename Compare>
 void selection_sort(RandomIterator begin, RandomIterator end, Compare comp) {

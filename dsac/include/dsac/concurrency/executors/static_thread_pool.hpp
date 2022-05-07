@@ -11,7 +11,8 @@ namespace dsac {
     \param workers
         Number of worker threads in static thread pool
 
-    \ingroup DsacConcurrency
+    \ingroup
+        DsacConcurrency
 
     \code
         auto executor = dsac::make_static_thread_pool(4U);

@@ -15,7 +15,7 @@ namespace dsac::detail {
     \param end
         Iterator to the final position in the sequence
     \param comp
-            Function to invoke on adjacent pair of elements in the range
+        Function to invoke on adjacent pair of elements in the range
 
     \returns
         \c true if adjacent elements in the range satisfy \c predicate, \c false
@@ -24,7 +24,8 @@ namespace dsac::detail {
     \par Worst Case Complexity:
         Time Complexity \p O(N) and Space Complexity \p O(1)
 
-    \ingroup DsacAlgorithms
+    \ingroup
+        DsacAlgorithms
 */
 template <std::forward_iterator ForwardIterator, typename Compare>
 constexpr bool is_sorted(

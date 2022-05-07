@@ -28,7 +28,8 @@ using detail::is_sorted;
     \par Worst Case Complexity:
         Time Complexity \p O(N) and Space Complexity \p O(1)
 
-    \ingroup DsacAlgorithms
+    \ingroup
+        DsacAlgorithms
 */
 template <std::forward_iterator ForwardIterator>
 [[gnu::always_inline]] constexpr inline bool is_sorted(
@@ -55,7 +56,8 @@ template <std::forward_iterator ForwardIterator>
     \par Worst Case Complexity:
         Time Complexity \p O(N) and Space Complexity \p O(1)
 
-    \ingroup DsacAlgorithms
+    \ingroup
+        DsacAlgorithms
 */
 template <typename ForwardRange, typename Compare>
 [[gnu::always_inline]] constexpr inline bool is_sorted(
@@ -83,7 +85,8 @@ template <typename ForwardRange, typename Compare>
     \par Worst Case Complexity:
         Time Complexity \p O(N) and Space Complexity \p O(1)
 
-    \ingroup DsacAlgorithms
+    \ingroup
+        DsacAlgorithms
 */
 template <typename ForwardRange>
 [[gnu::always_inline]] constexpr inline bool is_sorted(ForwardRange&& range) {
@@ -114,7 +117,8 @@ template <typename ForwardRange>
     \par Worst Case Complexity:
         Time Complexity \p O(N) and Space Complexity \p O(1)
 
-    \ingroup DsacAlgorithms
+    \ingroup
+        DsacAlgorithms
 */
 template <typename T>
 [[gnu::always_inline]] constexpr inline bool is_sorted(
@@ -141,7 +145,8 @@ template <typename T>
     \par Worst Case Complexity:
         Time Complexity \p O(N) and Space Complexity \p O(1)
 
-    \ingroup DsacAlgorithms
+    \ingroup
+        DsacAlgorithms
 */
 template <typename T, typename Compare>
 [[gnu::always_inline]] constexpr inline bool is_sorted(

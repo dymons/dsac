@@ -9,25 +9,24 @@ namespace dsac::detail {
    its suitable place in each iteration.
 
     \param begin
-            Iterator to the initial position in the sequence
+        Iterator to the initial position in the sequence
     \param end
-            Iterator to the final position in the sequence
+        Iterator to the final position in the sequence
     \param comp
-            By what criteria should values be sorted in the range
+        By what criteria should values be sorted in the range
 
     \par Worst Case Complexity:
-            Time Complexity \p O(N^2) and Space Complexity \p O(1)
+        Time Complexity \p O(N^2) and Space Complexity \p O(1)
 
-    \ingroup DsacAlgorithms
+    \ingroup
+        DsacAlgorithms
 */
 template <std::random_access_iterator RandomIterator, typename Compare>
 void insertion_sort(RandomIterator begin, RandomIterator end, Compare comp) {
-  using value_type = typename dsac::iterator_traits<RandomIterator>::value_type;
-  using difference_type =
-      typename dsac::iterator_traits<RandomIterator>::difference_type;
+  using value_type      = typename dsac::iterator_traits<RandomIterator>::value_type;
+  using difference_type = typename dsac::iterator_traits<RandomIterator>::difference_type;
 
-  static_assert(
-      std::is_signed_v<difference_type>, "difference type must be signed");
+  static_assert(std::is_signed_v<difference_type>, "difference type must be signed");
 
   difference_type const n = std::distance(begin, end);
   for (difference_type j = 1; j < n; ++j) {

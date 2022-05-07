@@ -28,7 +28,8 @@ using detail::binary_tree_sort;
     \par Worst Case Complexity:
         Time Complexity \p O(N) and Space Complexity \p O(N)
 
-    \ingroup DsacAlgorithms
+    \ingroup
+        DsacAlgorithms
 */
 template <std::forward_iterator ForwardIterator>
 [[gnu::always_inline]] inline void binary_tree_sort(
@@ -53,7 +54,8 @@ template <std::forward_iterator ForwardIterator>
     \par Worst Case Complexity:
         Time Complexity \p O(N) and Space Complexity \p O(N)
 
-    \ingroup DsacAlgorithms
+    \ingroup
+        DsacAlgorithms
 */
 template <typename RandomRange, typename Compare>
 [[gnu::always_inline]] inline void binary_tree_sort(
@@ -83,7 +85,8 @@ template <typename RandomRange, typename Compare>
     \par Worst Case Complexity:
         Time Complexity \p O(N) and Space Complexity \p O(N)
 
-    \ingroup DsacAlgorithms
+    \ingroup
+        DsacAlgorithms
 */
 template <typename RandomRange>
 [[gnu::always_inline]] inline void binary_tree_sort(RandomRange&& range) {

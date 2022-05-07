@@ -174,44 +174,195 @@ protected:
   using base::storage_;
 
 public:
+  // Constructors
+
+  /*!
+    \brief
+        User constructor, constructs an dynamic_array_base with predefined allocator.
+  */
   explicit dynamic_array(allocator_type allocator = allocator_type{}) noexcept;
 
+  /*!
+    \brief
+        User constructor, constructs an dynamic_array_base with predefined number of empty elements.
+  */
   explicit dynamic_array(size_type n, value_type const& value = value_type{}, allocator_type alloc = allocator_type{});
 
+  /*!
+    \brief
+        User constructor, constructs an dynamic_array_base with predefined number of elements.
+  */
   dynamic_array(std::initializer_list<T> list, allocator_type allocator = allocator_type{});
 
+  /*!
+    \brief
+        Copy constructor.
+  */
   dynamic_array(dynamic_array const& other);
 
+  /*!
+    \brief
+        Move constructor.
+  */
   dynamic_array(dynamic_array&& other) noexcept = default;
 
-  dynamic_array& operator=(dynamic_array const& x);
-
-  dynamic_array& operator=(dynamic_array&& other) = delete;  // Sorry, unimplemented yet ¯\_(ツ)_/¯
+  // Destructor
 
   ~dynamic_array() noexcept;
 
-  [[nodiscard]] inline size_type size() const noexcept;
+  // Assignment
 
-  [[nodiscard]] inline size_type capacity() const noexcept;
+  /*!
+    \brief
+        Copy conversion constructor.
+  */
+  dynamic_array& operator=(dynamic_array const& other);
 
+  /*!
+    \brief
+        Move conversion constructor.
+  */
+  dynamic_array& operator=(dynamic_array&& other) = delete;  // Sorry, unimplemented yet ¯\_(ツ)_/¯
+
+  // Observers
+
+  /*!
+    \brief
+        Returns a read/write iterator that points to the first element in the dynamic_array.
+        Iteration is done in ordinary element order.
+  */
+  [[nodiscard]] iterator begin() noexcept;
+
+  /*!
+    \brief
+        Returns a read-only (constant) iterator that points to the first element in the dynamic_array.
+        Iteration is done in ordinary element order.
+  */
+  [[nodiscard]] const_iterator begin() const noexcept;
+
+  /*!
+    \brief
+        Returns a read/write iterator that points one past the last element in the dynamic_array.
+        Iteration is done in ordinary element order.
+  */
+  [[nodiscard]] iterator end() noexcept;
+
+  /*!
+    \brief
+        Returns a read-only (constant) iterator that points one past the last element in the dynamic_array.
+        Iteration is done in ordinary element order.
+  */
+  [[nodiscard]] const_iterator end() const noexcept;
+
+  /*!
+    \brief
+        Returns true if the dynamic_array is empty. (Thus begin() would equal end().)
+  */
+  [[nodiscard]] bool empty() const noexcept;
+
+  /*!
+    \brief
+        Returns the number of elements in the dynamic_array.
+  */
+  [[nodiscard]] size_type size() const noexcept;
+
+  /*!
+    \brief
+        Returns the total number of elements that the dynamic_array can hold before needing to allocate more memory.
+  */
+  [[nodiscard]] size_type capacity() const noexcept;
+
+  // Modifiers
+
+  /*!
+    \brief
+        Add data to the end of the dynamic_array.
+
+    \param value
+        Data to be added
+
+    \throw std::range_error
+        During reallocation, there may not be enough memory to double the size of the vector
+
+    \par Amortized Case Complexity:
+        This is a typical stack operation. The function creates an element at the end of the %vector and assigns the
+        given data to it.  Due to the nature of a %vector this operation can be done in constant time if the
+        dynamic_array has preallocated space available.
+        Amortized Time Complexity \p O(1) and Space Complexity \p O(1)
+
+    \ingroup
+        DsacContainer
+
+    \code
+        auto user_data = dsac::dynamic_array<int>{};
+        user_data.push_back(1);
+        user_data.push_back(2);
+        ...
+    \endcode
+  */
   void push_back(value_type const& value);
 
+  /*!
+    \brief
+        Add data to the end of the dynamic_array.
+
+    \param value
+        Data to be added
+
+    \throw std::range_error
+        During reallocation, there may not be enough memory to double the size of the vector
+
+    \par Amortized Case Complexity:
+        This is a typical stack operation. The function creates an element at the end of the %vector and assigns the
+        given data to it.  Due to the nature of a %vector this operation can be done in constant time if the
+        dynamic_array has preallocated space available.
+        Amortized Time Complexity \p O(1) and Space Complexity \p O(1)
+
+    \ingroup
+        DsacContainer
+
+    \code
+        struct color {
+          color(std::uint8_t r, std::uint8_t g, std::uint8_t b) {...}
+        };
+        auto colors = dsac::dynamic_array<color>{};
+        colors.emplace_back(255,255,255);
+        colors.emplace_back(0,255,0);
+        ...
+    \endcode
+  */
   template <typename... Args>
   void emplace_back(Args&&... args);
 
-  [[nodiscard]] iterator begin() noexcept;
-
-  [[nodiscard]] const_iterator begin() const noexcept;
-
-  [[nodiscard]] iterator end() noexcept;
-
-  [[nodiscard]] const_iterator end() const noexcept;
-
-  [[nodiscard]] reference operator[](size_type n) noexcept;
-
-  [[nodiscard]] bool empty() const noexcept;
-
+  /*!
+    \brief
+        Erases all the elements.  Note that this function only erases the elements, and that if the elements themselves
+        are pointers, the pointed-to memory is not touched in any way.  Managing the pointer is the user's
+        responsibility.
+  */
   void clear() noexcept;
+
+  /*!
+    \brief
+        Add data to the end of the dynamic_array.
+
+    \param value
+        Data to be added
+
+    \par Worst Case Complexity:
+        Time Complexity \p O(1) and Space Complexity \p O(1)
+
+    \ingroup
+        DsacContainer
+
+    \code
+        auto user_data = dsac::dynamic_array<int>{1,2,3,4,5,6,7,8};
+        for (std::size_type i{}; i < user_data.size(); ++i) {
+          do_something(user_data[i]);
+        }
+    \endcode
+  */
+  [[nodiscard]] reference operator[](size_type n) noexcept;
 
 private:
   size_type twice_size(size_type current_size) const;

@@ -91,11 +91,11 @@ dynamic_array<T, Allocator>::dynamic_array(dynamic_array const& other)
 }
 
 template <typename T, typename Allocator>
-dynamic_array<T, Allocator>& dynamic_array<T, Allocator>::operator=(dynamic_array const& x) {
-  if (&x != this) {
+dynamic_array<T, Allocator>& dynamic_array<T, Allocator>::operator=(dynamic_array const& other) {
+  if (&other != this) {
     if (allocator_traits::propagate_on_container_copy_assignment::value) {
       bool const is_always_equal     = allocator_traits::is_always_equal::value;
-      bool const is_allocators_equal = allocator_ == x.allocator_;
+      bool const is_allocators_equal = allocator_ == other.allocator_;
       if (is_always_equal && !is_allocators_equal) {
         clear();
         dsac::deallocate(storage_.start, storage_.end_of_storage - storage_.start, allocator_);
@@ -103,21 +103,21 @@ dynamic_array<T, Allocator>& dynamic_array<T, Allocator>::operator=(dynamic_arra
         storage_.finish         = nullptr;
         storage_.end_of_storage = nullptr;
       }
-      dsac::alloc_on_copy(allocator_, x.allocator_);
+      dsac::alloc_on_copy(allocator_, other.allocator_);
     }
 
-    const size_type xsize = x.size();
+    const size_type xsize = other.size();
     if (xsize > capacity()) {
-      pointer tmp = dsac::allocate_and_copy(xsize, x.begin(), x.end(), allocator_);
+      pointer tmp = dsac::allocate_and_copy(xsize, other.begin(), other.end(), allocator_);
       dsac::destroy(storage_.start, storage_.finish, allocator_);
       dsac::deallocate(storage_.start, storage_.end_of_storage - storage_.start, allocator_);
       storage_.start          = tmp;
       storage_.end_of_storage = storage_.start + xsize;
     } else if (size() >= xsize) {
-      dsac::destroy(std::copy(x.begin(), x.end(), begin()), end(), allocator_);
+      dsac::destroy(std::copy(other.begin(), other.end(), begin()), end(), allocator_);
     } else {
-      std::copy(x.storage_.start, x.storage_.start + size(), storage_.start);
-      dsac::uninitialized_copy(x.storage_.start + size(), x.storage_.finish, storage_.finish, allocator_);
+      std::copy(other.storage_.start, other.storage_.start + size(), storage_.start);
+      dsac::uninitialized_copy(other.storage_.start + size(), other.storage_.finish, storage_.finish, allocator_);
     }
     storage_.finish = storage_.start + xsize;
   }

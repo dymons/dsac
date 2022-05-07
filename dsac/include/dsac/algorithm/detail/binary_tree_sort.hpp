@@ -42,7 +42,8 @@ namespace dsac::detail {
     \par Worst Case Complexity:
         Time Complexity \p O(N) and Space Complexity \p O(N)
 
-    \ingroup DsacAlgorithms
+    \ingroup
+           DsacAlgorithms
 
     \code
         using binary_tree_policy = dsac::binary_search_tree<int>;
