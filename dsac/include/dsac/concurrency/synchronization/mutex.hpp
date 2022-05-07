@@ -2,33 +2,32 @@
 
 #include <atomic>
 
-namespace dsac::syncing {
-class Mutex final {
+namespace dsac {
+class mutex final {
   std::atomic_int state_ = 0;
 
 public:
-  void Lock();
-  void Unlock();
+  void lock();
+  void unlock();
 };
 
-class UniqueLock final {
+class unique_lock final {
 public:
-  explicit UniqueLock(Mutex& mutex);
-  ~UniqueLock();
+  explicit unique_lock(mutex& mutex);
+  ~unique_lock();
 
-  UniqueLock(const UniqueLock&)            = delete;
-  UniqueLock& operator=(const UniqueLock&) = delete;
-  UniqueLock(UniqueLock&&);
-  UniqueLock& operator=(UniqueLock&&);
+  unique_lock(const unique_lock&)            = delete;
+  unique_lock& operator=(const unique_lock&) = delete;
+  unique_lock(unique_lock&&);
+  unique_lock& operator=(unique_lock&&);
 
-  void Lock();
-  void Unlock();
-
-private:
-  void Swap(UniqueLock& other);
+  void lock();
+  void unlock();
 
 private:
-  Mutex* mutex_ = nullptr;
+  void swap(unique_lock& other);
+
+  mutex* mutex_ = nullptr;
   bool   owned_ = false;
 };
-}  // namespace dsac::syncing
+}  // namespace dsac

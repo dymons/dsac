@@ -4,7 +4,7 @@
 #include <dsac/concurrency/synchronization/semaphore.hpp>
 #include <thread>
 
-TEST_CASE("Semaphore как Mutex", "[semaphore_like_mutex]") {
+TEST_CASE("Semaphore как mutex", "[semaphore_like_mutex]") {
   using namespace dsac::syncing;
 
   constexpr std::size_t kNumberConsumers = 1U;

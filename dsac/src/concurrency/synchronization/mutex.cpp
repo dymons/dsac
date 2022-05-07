@@ -20,8 +20,8 @@ long int SysCall(int* address, int futex_op, int val) noexcept {
 }
 }  // namespace
 
-namespace dsac::syncing {
-void Mutex::Lock() {
+namespace dsac {
+void mutex::lock() {
   if (int c = CompareAndSet(&state_, 0, 1); c != 0) {
     do {
       if (c == 2 || CompareAndSet(&state_, 1, 2) != 0) {
@@ -31,31 +31,31 @@ void Mutex::Lock() {
   }
 }
 
-void Mutex::Unlock() {
+void mutex::unlock() {
   if (state_.fetch_sub(1) != 1) {
     state_.store(0);
     SysCall((int*)&state_, FUTEX_WAKE, 1);
   }
 }
 
-UniqueLock::UniqueLock(Mutex& mutex)
+unique_lock::unique_lock(mutex& mutex)
   : mutex_(std::addressof(mutex)) {
-  Lock();
+  lock();
 }
 
-UniqueLock::UniqueLock(UniqueLock&& other)
+unique_lock::unique_lock(unique_lock&& other)
   : mutex_(other.mutex_)
   , owned_(other.owned_) {
   other.mutex_ = nullptr;
   other.owned_ = false;
 }
 
-UniqueLock& UniqueLock::operator=(UniqueLock&& other) {
+unique_lock& unique_lock::operator=(unique_lock&& other) {
   if (owned_) {
-    Unlock();
+    unlock();
   }
 
-  UniqueLock(std::move(other)).Swap(*this);
+  unique_lock(std::move(other)).swap(*this);
 
   other.mutex_ = nullptr;
   other.owned_ = false;
@@ -63,24 +63,24 @@ UniqueLock& UniqueLock::operator=(UniqueLock&& other) {
   return *this;
 }
 
-UniqueLock::~UniqueLock() {
+unique_lock::~unique_lock() {
   if (owned_) {
-    Unlock();
+    unlock();
   }
 }
 
-void UniqueLock::Swap(UniqueLock& other) {
+void unique_lock::swap(unique_lock& other) {
   std::swap(mutex_, other.mutex_);
   std::swap(owned_, other.owned_);
 }
 
-void UniqueLock::Lock() {
-  mutex_->Lock();
+void unique_lock::lock() {
+  mutex_->lock();
   owned_ = true;
 }
 
-void UniqueLock::Unlock() {
-  mutex_->Unlock();
+void unique_lock::unlock() {
+  mutex_->unlock();
   owned_ = false;
 }
-}  // namespace dsac::syncing
+}  // namespace dsac
