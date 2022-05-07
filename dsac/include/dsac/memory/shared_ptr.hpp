@@ -51,9 +51,9 @@ public:
         Constructor to wrap raw pointer.
   */
   explicit shared_ptr(T* p)
-    : _ptr{p}
-    , _ref_count{new std::atomic<long>{1}}
-    , _deleter{new detail::deleter<T>()} {
+    : ptr_{p}
+    , ref_count_{new std::atomic<long>{1}}
+    , deleter_{new detail::deleter<T>()} {
   }
 
   /*!
@@ -62,9 +62,9 @@ public:
   */
   template <std::derived_from<T> U>
   explicit shared_ptr(U* p)
-    : _ptr{p}
-    , _ref_count{new std::atomic<long>{1}}
-    , _deleter{new detail::deleter<U>()} {
+    : ptr_{p}
+    , ref_count_{new std::atomic<long>{1}}
+    , deleter_{new detail::deleter<U>()} {
   }
 
   /*!
@@ -72,11 +72,11 @@ public:
         Copy constructor.
   */
   shared_ptr(const shared_ptr& sp) noexcept
-    : _ptr{sp._ptr}
-    , _ref_count{sp._ref_count}
-    , _deleter{sp._deleter} {
-    if (_ptr != nullptr) {
-      ++(*_ref_count);
+    : ptr_{sp.ptr_}
+    , ref_count_{sp.ref_count_}
+    , deleter_{sp.deleter_} {
+    if (ptr_ != nullptr) {
+      ++(*ref_count_);
     }
   }
 
@@ -86,11 +86,11 @@ public:
   */
   template <typename U>
   shared_ptr(const shared_ptr<U>& sp) noexcept  // NOLINT(google-explicit-constructor)
-    : _ptr{sp._ptr}
-    , _ref_count{sp._ref_count}
-    , _deleter{sp._deleter} {
-    if (_ptr != nullptr) {
-      ++(*_ref_count);
+    : ptr_{sp.ptr_}
+    , ref_count_{sp.ref_count_}
+    , deleter_{sp.deleter_} {
+    if (ptr_ != nullptr) {
+      ++(*ref_count_);
     }
   }
 
@@ -99,11 +99,11 @@ public:
         Move constructor.
   */
   shared_ptr(shared_ptr&& other) noexcept
-    : _ptr(other._ptr)
-    , _ref_count(other._ref_count)
-    , _deleter(other._deleter) {
-    other._ptr       = nullptr;
-    other._ref_count = nullptr;
+    : ptr_(other.ptr_)
+    , ref_count_(other.ref_count_)
+    , deleter_(other.deleter_) {
+    other.ptr_       = nullptr;
+    other.ref_count_ = nullptr;
   }
 
   /*!
@@ -113,9 +113,9 @@ public:
   shared_ptr& operator=(shared_ptr&& other) noexcept {
     reset();
 
-    _ptr       = std::exchange(other._ptr, nullptr);
-    _ref_count = std::exchange(other._ref_count, nullptr);
-    _deleter   = std::exchange(other._deleter, nullptr);
+    ptr_       = std::exchange(other.ptr_, nullptr);
+    ref_count_ = std::exchange(other.ref_count_, nullptr);
+    deleter_   = std::exchange(other.deleter_, nullptr);
 
     return *this;
   }
@@ -125,11 +125,11 @@ public:
   /// No side-effect if shared_ptr is empty or use_count() > 1,
   /// otherwise release the resources
   ~shared_ptr() {
-    if (_ptr) {
-      if (--(*_ref_count) == 0) {
-        delete _ref_count;
-        (*_deleter)(_ptr);
-        delete _deleter;
+    if (ptr_) {
+      if (--(*ref_count_) == 0) {
+        delete ref_count_;
+        (*deleter_)(ptr_);
+        delete deleter_;
       }
     }
   }
@@ -147,36 +147,35 @@ public:
 
   /// Dereferences pointer to the managed object
   T& operator*() const noexcept {
-    return *_ptr;
+    return *ptr_;
   }
 
   /// Dereferences pointer to the managed object
   T* operator->() const noexcept {
-    return _ptr;
+    return ptr_;
   }
 
   /// Returns the contained pointer
   T* get() const noexcept {
-    return _ptr;
+    return ptr_;
   }
 
   /// Returns use_count (use_count == 0 if shared_ptr is empty)
   long use_count() const noexcept {
-    if (_ptr) {
-      return *_ref_count;
-    } else {
-      return 0;
+    if (ptr_) {
+      return *ref_count_;
     }
+    return 0;
   }
 
   /// Checks if solely owns the managed object
   bool unique() const noexcept {
-    return (use_count() == 1) ? true : false;
+    return (use_count() == 1);
   }
 
   /// Checks if there is an associated managed object
   explicit operator bool() const noexcept {
-    return (_ptr) ? true : false;
+    return (ptr_ != nullptr);
   }
 
   // Modifiers
@@ -197,15 +196,15 @@ public:
   /// Swap with another shared_ptr
   void swap(shared_ptr& sp) noexcept {
     using std::swap;
-    swap(_ptr, sp._ptr);
-    swap(_ref_count, sp._ref_count);
-    swap(_deleter, sp._deleter);
+    swap(ptr_, sp.ptr_);
+    swap(ref_count_, sp.ref_count_);
+    swap(deleter_, sp.deleter_);
   }
 
 private:
-  T*                    _ptr       = nullptr;  /// contained pointer
-  std::atomic<long>*    _ref_count = nullptr;  /// reference counter
-  detail::deleter_base* _deleter   = nullptr;  /// deleter
+  T*                    ptr_       = nullptr;  /// contained pointer
+  std::atomic<long>*    ref_count_ = nullptr;  /// reference counter
+  detail::deleter_base* deleter_   = nullptr;  /// deleter
 };
 
 // Operator == overloading
