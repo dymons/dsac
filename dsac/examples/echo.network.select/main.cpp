@@ -11,7 +11,7 @@
 namespace {
 
 constexpr const int kPort       = 8080;
-constexpr const int kBufferSize = 2048;
+constexpr const int kBufferSize = 512;
 
 using descriptor   = int;
 using message      = std::string;
@@ -24,20 +24,20 @@ enum class status : unsigned char { ok, error };
 }
 
 struct request {
-  status  code;
-  message text;
+  status      code;
+  message     text;
+  std::size_t bytes;
 };
 [[nodiscard]] request receive_message(descriptor const descriptor) {
-  request    request{.code = status::ok, .text = message(kBufferSize, '0')};
-  long const bytes = read(descriptor, request.text.data(), request.text.size());
-  if (bytes <= 0) {
+  request request{.code = status::ok, .text = message(kBufferSize, '0')};
+  request.bytes = read(descriptor, request.text.data(), request.text.size());
+  if (request.bytes <= 0) {
     request.code = status::error;
     request.text.clear();
     request.text.shrink_to_fit();
     return request;
   }
 
-  request.text.resize(bytes);
   return request;
 }
 
@@ -45,10 +45,10 @@ struct request {
   return fmt::format("HTTP/1.1 200 OK\nContent-Length: {}\n\n{}", payload.size(), payload);
 }
 
-[[nodiscard]] message_view get_payload_from_text(message_view const& view) {
-  std::size_t const payload_start = view.find_last_of("\n\n", view.find_last_of("\n\n"));
+[[nodiscard]] message get_payload_from_request(request const& req) {
+  std::size_t const payload_start = req.text.find_last_of("\n\n", req.text.find_last_of("\n\n", req.bytes - 1U));
   if (payload_start != message::npos) {
-    return view.substr(payload_start + 1U, view.size() - payload_start);
+    return req.text.substr(payload_start + 1U, req.bytes - payload_start - 1U);
   }
 
   return {};
@@ -85,7 +85,7 @@ int start_handling_requests_on_socket(descriptor const listen_socket) {
           close(socket);
           FD_CLR(socket, &active_sockets);
         } else {
-          message_view const payload = get_payload_from_text(request.text);
+          message const payload = get_payload_from_request(request);
           if (sent_message(socket, make_http_response(payload)) == status::error) {
             close(socket);
             FD_CLR(socket, &active_sockets);
