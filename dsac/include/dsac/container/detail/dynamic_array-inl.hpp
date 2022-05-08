@@ -200,7 +200,7 @@ template <typename T, typename Allocator>
 typename dynamic_array<T, Allocator>::size_type dynamic_array<T, Allocator>::twice_size(size_type current_size) const {
   const size_type max_size = allocator_traits::max_size(allocator_);
   if (max_size - current_size < 1U) {
-    throw std::range_error{"Not enough memory to allocate"};
+    throw std::range_error{"not enough memory to allocate"};
   }
 
   const size_type len = current_size + std::max<size_type>(current_size, 1U);
@@ -234,6 +234,26 @@ void dynamic_array<T, Allocator>::realloc_and_insert(Args&&... args) {
   storage_.start          = new_start;
   storage_.finish         = ++new_finish;
   storage_.end_of_storage = new_start + new_size;
+}
+
+template <typename T, typename Allocator>
+void dynamic_array<T, Allocator>::reserve(size_type n) {
+  const size_type max_size = allocator_traits::max_size(allocator_);
+  if (n > max_size) {
+    throw std::range_error{"not enough memory to allocate"};
+  }
+
+  if (capacity() < n) {
+    size_type const current_size = size();
+    pointer         pointer = allocate_and_copy(n, make_move_iterator(begin()), make_move_iterator(end()), allocator_);
+
+    destroy(storage_.start, storage_.finish, allocator_);
+    deallocate(storage_.start, storage_.end_of_storage - storage_.start, allocator_);
+
+    storage_.start          = pointer;
+    storage_.finish         = pointer + current_size;
+    storage_.end_of_storage = pointer + n;
+  }
 }
 
 }  // namespace dsac

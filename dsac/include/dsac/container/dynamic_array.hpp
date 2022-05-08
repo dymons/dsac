@@ -297,7 +297,6 @@ public:
         auto user_data = dsac::dynamic_array<int>{};
         user_data.push_back(1);
         user_data.push_back(2);
-        ...
     \endcode
   */
   void push_back(value_type const& value);
@@ -328,7 +327,6 @@ public:
         auto colors = dsac::dynamic_array<color>{};
         colors.emplace_back(255,255,255);
         colors.emplace_back(0,255,0);
-        ...
     \endcode
   */
   template <typename... Args>
@@ -363,6 +361,30 @@ public:
     \endcode
   */
   [[nodiscard]] reference operator[](size_type n) noexcept;
+
+  /*!
+    \brief
+        Attempt to preallocate enough memory for specified number of elements.
+
+    \param n
+        Number of elements required
+
+    \throw std::range_error
+        During reallocation, there may not be enough memory to allocate
+
+    \par Worst Case Complexity:
+        Amortized Time Complexity \p O(N) and Space Complexity \p O(N)
+
+    \ingroup
+        DsacContainer
+
+    \code
+        struct point {...};
+        auto triangle = dsac::dynamic_array<point>{};
+        triangle.reserve(3);
+    \endcode
+  */
+  void reserve(size_type n);
 
 private:
   size_type twice_size(size_type current_size) const;

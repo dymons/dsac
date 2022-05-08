@@ -5,6 +5,7 @@
 #include <dsac/concurrency/futures/combine/first_of.hpp>
 #include <dsac/concurrency/futures/future.hpp>
 #include <dsac/concurrency/futures/promise.hpp>
+#include <dsac/container/dynamic_array.hpp>
 
 #include <chrono>
 
@@ -13,10 +14,10 @@ TEST_CASE("Проверка корректности комбинатора на
     constexpr std::size_t   kNumberWorkers = 2U;
     dsac::executor_base_ref executor       = dsac::make_static_thread_pool(kNumberWorkers);
 
-    std::vector<dsac::future<int>> futures;
+    dsac::dynamic_array<dsac::future<int>> futures;
     {
       dsac::promise<int> promise;
-      futures.push_back(promise.make_future().via(executor));
+      futures.emplace_back(promise.make_future().via(executor));
       executor->submit([promise = std::move(promise)]() mutable {
         std::this_thread::sleep_for(std::chrono::milliseconds(200));
         promise.set(1);
@@ -25,7 +26,7 @@ TEST_CASE("Проверка корректности комбинатора на
 
     {
       dsac::promise<int> promise;
-      futures.push_back(promise.make_future().via(executor));
+      futures.emplace_back(promise.make_future().via(executor));
       executor->submit([promise = std::move(promise)]() mutable {
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
         promise.set(2);
@@ -43,27 +44,27 @@ TEST_CASE("Проверка корректности комбинатора на
     constexpr std::size_t   kNumberWorkers = 2U;
     dsac::executor_base_ref executor       = dsac::make_static_thread_pool(kNumberWorkers);
 
-    constexpr std::size_t                  kNumberOfTasks = 10U;
-    std::vector<dsac::future<std::size_t>> futures;
+    constexpr std::size_t                          kNumberOfTasks = 10U;
+    dsac::dynamic_array<dsac::future<std::size_t>> futures;
     futures.reserve(kNumberOfTasks);
     for (std::size_t i{}; i < kNumberOfTasks; ++i) {
       dsac::promise<std::size_t> promise;
-      futures.push_back(promise.make_future().via(executor));
+      futures.emplace_back(promise.make_future().via(executor));
       executor->submit([promise = std::move(promise), i]() mutable {
         std::this_thread::sleep_for(std::chrono::milliseconds(i * 10U));
         promise.set(i);
       });
     }
 
-    constexpr std::size_t                                kQuorum = 4U;
-    dsac::future<std::vector<dsac::result<std::size_t>>> future  = dsac::first_n(std::move(futures), kQuorum);
-    dsac::result<std::vector<dsac::result<std::size_t>>> result  = std::move(future).get();
+    constexpr std::size_t                                        kQuorum = 4U;
+    dsac::future<dsac::dynamic_array<dsac::result<std::size_t>>> future  = dsac::first_n(std::move(futures), kQuorum);
+    dsac::result<dsac::dynamic_array<dsac::result<std::size_t>>> result  = std::move(future).get();
     REQUIRE(result.HasValue());
 
-    std::vector<dsac::result<std::size_t>> sequence = result.ValueOrThrow();
+    dsac::dynamic_array<dsac::result<std::size_t>> sequence = result.ValueOrThrow();
     REQUIRE(sequence.size() == kQuorum);
 
-    std::vector<dsac::result<std::size_t>> expected(kQuorum, dsac::result<std::size_t>(0U));
+    dsac::dynamic_array<dsac::result<std::size_t>> expected(kQuorum, dsac::result<std::size_t>(0U));
     std::generate(expected.begin(), expected.end(), [n = 0U]() mutable { return dsac::result<std::size_t>{n++}; });
     REQUIRE(sequence == expected);
 

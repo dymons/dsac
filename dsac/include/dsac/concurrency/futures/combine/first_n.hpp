@@ -2,6 +2,7 @@
 
 #include <dsac/concurrency/futures/future.hpp>
 #include <dsac/concurrency/futures/promise.hpp>
+#include <dsac/container/dynamic_array.hpp>
 #include <dsac/memory/shared_ptr.hpp>
 
 #include <optional>
@@ -9,8 +10,8 @@
 namespace dsac {
 
 template <typename T>
-auto first_n(std::vector<future<T>>&& futures, std::size_t const n) -> future<std::vector<result<T>>> {
-  using result_type = std::vector<result<T>>;
+future<dynamic_array<result<T>>> first_n(dynamic_array<future<T>>&& futures, std::size_t const n) {
+  using result_type = dynamic_array<result<T>>;
 
   struct context final {
     explicit context(std::size_t num_futures, std::size_t min)
@@ -18,11 +19,11 @@ auto first_n(std::vector<future<T>>&& futures, std::size_t const n) -> future<st
       , min(min) {
     }
 
-    std::vector<std::optional<result<T>>> v;
-    const std::size_t                     min;
-    std::atomic<std::size_t>              completed = {0U};
-    std::atomic<std::size_t>              stored    = {0U};
-    promise<result_type>                  promise_;
+    dynamic_array<std::optional<result<T>>> v;
+    const std::size_t                       min;
+    std::atomic<std::size_t>                completed = {0U};
+    std::atomic<std::size_t>                stored    = {0U};
+    promise<result_type>                    promise_;
   };
 
   if (futures.size() < n) {

@@ -2,12 +2,14 @@
 
 #include <dsac/concurrency/futures/future.hpp>
 #include <dsac/concurrency/futures/promise.hpp>
+#include <dsac/container/dynamic_array.hpp>
 
 #include <atomic>
 
 namespace dsac {
+
 template <typename T>
-future<T> first_of(std::vector<future<T>>&& futures) {
+future<T> first_of(dynamic_array<future<T>>&& futures) {
   struct context {
     promise<T>       promise_;
     std::atomic_bool done_{false};
@@ -24,4 +26,5 @@ future<T> first_of(std::vector<future<T>>&& futures) {
 
   return ctx->promise_.make_future();
 }
+
 }  // namespace dsac
