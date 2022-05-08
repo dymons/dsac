@@ -1,60 +1,61 @@
 import pathlib
 import sys
-
+import json
 import pytest
 
 pytest_plugins = ['testsuite.pytest_plugin']
 
 
 def pytest_addoption(parser):
-    group = parser.getgroup('Example service')
+    group = parser.getgroup('echo server')
     group.addoption(
-        '--example-service-port',
-        help='Bind example services to this port (default is %(default)s)',
+        '--echo-server-port',
+        help='bind echo server to this port (default is %(default)s)',
         default=8080,
         type=int,
     )
 
 
 @pytest.fixture
-async def example_service(
-        ensure_daemon_started,
-        example_service_scope,
-        mockserver,
-):
-    await ensure_daemon_started(example_service_scope)
-
-
-@pytest.fixture
 async def echo_server(
-        create_service_client, example_service_baseurl, example_service,
+        create_service_client,
+        echo_server_service_baseurl,
+        ensure_daemon_started,
+        echo_service_scope,
 ):
-    return create_service_client(example_service_baseurl)
+    await ensure_daemon_started(echo_service_scope)
+    return create_service_client(echo_server_service_baseurl)
 
 
 @pytest.fixture(scope='session')
-def example_service_baseurl(pytestconfig):
-    return f'http://localhost:{pytestconfig.option.example_service_port}/'
+def echo_server_service_baseurl(pytestconfig):
+    return f'http://localhost:{pytestconfig.option.echo_server_port}/'
 
 
 @pytest.fixture(scope='session')
-def example_root():
-    """Path to example service root."""
-    return pathlib.Path(__file__).parent.parent
+def echo_server_dir(pytestconfig):
+    return pathlib.Path(pytestconfig.rootpath).parent
 
 
 @pytest.fixture(scope='session')
-async def example_service_scope(
+def echo_server_binary(echo_server_dir):
+    config_path = echo_server_dir.joinpath('static/config.json')
+    config = json.load(open(config_path))
+    return config['echo_server_binary']
+
+
+@pytest.fixture(scope='session')
+async def echo_service_scope(
         pytestconfig,
         create_daemon_scope,
         mockserver_info,
-        example_root,
-        example_service_baseurl,
+        echo_server_service_baseurl,
+        echo_server_binary,
 ):
     async with create_daemon_scope(
             args=[
-                str(example_root.joinpath('../../../cmake-build-debug/dsac/examples/echo.network.select/echo.network.select')),
+                echo_server_binary,
             ],
-            ping_url=example_service_baseurl + 'ping',
+            ping_url=echo_server_service_baseurl + 'ping',
     ) as scope:
         yield scope
