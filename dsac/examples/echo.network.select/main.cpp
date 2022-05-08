@@ -18,37 +18,37 @@ using message      = std::string;
 using message_view = std::string_view;
 
 enum class status : unsigned char { ok, error };
-[[nodiscard]] status sent_message(descriptor const descriptor, message const& data) {
+[[nodiscard, gnu::always_inline]] inline status sent_message(descriptor const descriptor, message_view const data) {
   long const bytes = write(descriptor, data.data(), data.size());
   return bytes < 0 ? status::error : status::ok;
 }
 
 struct request {
   status  code;
-  message payload;
+  message text;
 };
 [[nodiscard]] request receive_message(descriptor const descriptor) {
-  request    request{.code = status::ok, .payload = message(kBufferSize, '0')};
-  long const bytes = read(descriptor, request.payload.data(), request.payload.size());
+  request    request{.code = status::ok, .text = message(kBufferSize, '0')};
+  long const bytes = read(descriptor, request.text.data(), request.text.size());
   if (bytes <= 0) {
     request.code = status::error;
-    request.payload.clear();
-    request.payload.shrink_to_fit();
+    request.text.clear();
+    request.text.shrink_to_fit();
     return request;
   }
 
-  request.payload.resize(bytes);
+  request.text.resize(bytes);
   return request;
 }
 
-[[nodiscard]] message make_http_response(message_view const payload) {
+[[nodiscard, gnu::always_inline]] inline message make_http_response(message_view const payload) {
   return fmt::format("HTTP/1.1 200 OK\nContent-Length: {}\n\n{}", payload.size(), payload);
 }
 
-[[nodiscard]] message get_payload_from_request(message const& data) {
-  std::size_t const payload_start = data.find_last_of("\n\n", data.find_last_of("\n\n"));
+[[nodiscard]] message_view get_payload_from_text(message_view const& view) {
+  std::size_t const payload_start = view.find_last_of("\n\n", view.find_last_of("\n\n"));
   if (payload_start != message::npos) {
-    return data.substr(payload_start + 1U, data.size() - payload_start);
+    return view.substr(payload_start + 1U, view.size() - payload_start);
   }
 
   return {};
@@ -85,7 +85,7 @@ int start_handling_requests_on_socket(descriptor const listen_socket) {
           close(socket);
           FD_CLR(socket, &active_sockets);
         } else {
-          message const payload = get_payload_from_request(request.payload);
+          message_view const payload = get_payload_from_text(request.text);
           if (sent_message(socket, make_http_response(payload)) == status::error) {
             close(socket);
             FD_CLR(socket, &active_sockets);
