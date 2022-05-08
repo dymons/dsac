@@ -43,22 +43,19 @@ unique_lock::unique_lock(mutex& mutex)
   lock();
 }
 
-unique_lock::unique_lock(unique_lock&& other)
+unique_lock::unique_lock(unique_lock&& other) noexcept
   : mutex_(other.mutex_)
   , owned_(other.owned_) {
   other.mutex_ = nullptr;
   other.owned_ = false;
 }
 
-unique_lock& unique_lock::operator=(unique_lock&& other) {
+unique_lock& unique_lock::operator=(unique_lock&& other) noexcept {
   if (owned_) {
     unlock();
   }
 
   unique_lock(std::move(other)).swap(*this);
-
-  other.mutex_ = nullptr;
-  other.owned_ = false;
 
   return *this;
 }

@@ -26,6 +26,7 @@ include(cmake/Macro.cmake)
 include(cmake/Sanitizers.cmake)
 
 add_subdirectory(dsac)
+add_subdirectory(dsac/examples)
 
 if (BUILD_DOCS)
     add_subdirectory(docs)
