@@ -6,40 +6,55 @@
 #include <string>
 #include <string_view>
 
+#include <fmt/format.h>
+
 namespace {
 
-constexpr const int kPort       = 5555;
-constexpr const int kBufferSize = 512;
+constexpr const int kPort       = 8080;
+constexpr const int kBufferSize = 2048;
 
 using descriptor   = int;
 using message      = std::string;
 using message_view = std::string_view;
 
 enum class status : unsigned char { ok, error };
-status sent_message(descriptor const descriptor, message_view const message) {
-  long const bytes = write(descriptor, message.data(), message.size());
+[[nodiscard]] status sent_message(descriptor const descriptor, message const& data) {
+  long const bytes = write(descriptor, data.data(), data.size());
   return bytes < 0 ? status::error : status::ok;
 }
 
-struct response {
+struct request {
   status  code;
   message payload;
 };
-response receive_message(descriptor const descriptor) {
-  response   response{.code = status::ok, .payload = message(kBufferSize, '0')};
-  long const bytes = read(descriptor, response.payload.data(), response.payload.size());
-  if (bytes < 0) {
-    response.code = status::error;
-    response.payload.clear();
-    response.payload.shrink_to_fit();
-    return response;
+[[nodiscard]] request receive_message(descriptor const descriptor) {
+  request    request{.code = status::ok, .payload = message(kBufferSize, '0')};
+  long const bytes = read(descriptor, request.payload.data(), request.payload.size());
+  if (bytes <= 0) {
+    request.code = status::error;
+    request.payload.clear();
+    request.payload.shrink_to_fit();
+    return request;
   }
 
-  response.payload.resize(bytes);
-  return response;
+  request.payload.resize(bytes);
+  return request;
 }
 
-[[noreturn]] void start_handling_requests_on_socket(descriptor const listen_socket) {
+[[nodiscard]] message make_http_response(message_view const payload) {
+  return fmt::format("HTTP/1.1 200 OK\nContent-Length: {}\n\n{}", payload.size(), payload);
+}
+
+[[nodiscard]] message get_payload_from_request(message const& data) {
+  std::size_t const payload_start = data.find_last_of("\n\n", data.find_last_of("\n\n"));
+  if (payload_start != message::npos) {
+    return data.substr(payload_start + 1U, data.size() - payload_start);
+  }
+
+  return {};
+}
+
+int start_handling_requests_on_socket(descriptor const listen_socket) {
   fd_set active_sockets;
   FD_ZERO(&active_sockets);
   FD_SET(listen_socket, &active_sockets);
@@ -47,8 +62,7 @@ response receive_message(descriptor const descriptor) {
   while (true) {
     fd_set snapshot_sockets = active_sockets;
     if (select(FD_SETSIZE, &snapshot_sockets, nullptr, nullptr, nullptr) < 0) {
-      std::cout << "select failure" << std::endl;
-      continue;
+      break;
     }
 
     for (descriptor socket{}; socket < FD_SETSIZE; ++socket) {
@@ -62,21 +76,28 @@ response receive_message(descriptor const descriptor) {
         descriptor  new_connection_descriptor =
             accept(listen_socket, reinterpret_cast<sockaddr*>(&client_socket_description), &size);
         if (new_connection_descriptor < 0) {
-          std::cout << "socket was not created" << std::endl;
-          continue;
+          break;
         }
 
         FD_SET(new_connection_descriptor, &active_sockets);
       } else {
-        if (response const response = receive_message(socket); response.code == status::error) {
+        if (request const request = receive_message(socket); request.code == status::error) {
           close(socket);
           FD_CLR(socket, &active_sockets);
         } else {
-          sent_message(socket, response.payload);
+          message const payload = get_payload_from_request(request.payload);
+          if (sent_message(socket, make_http_response(payload)) == status::error) {
+            close(socket);
+            FD_CLR(socket, &active_sockets);
+          }
         }
       }
     }
   }
+
+  close(listen_socket);
+
+  return 0;
 }
 }  // namespace
 
@@ -107,5 +128,5 @@ int main() {
     return 1;
   }
 
-  start_handling_requests_on_socket(listen_socket);
+  return start_handling_requests_on_socket(listen_socket);
 }

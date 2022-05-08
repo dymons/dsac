@@ -11,7 +11,8 @@ implementation of the algorithm and data structures.
 How to start?
 -------------
 
-To install `dsac` its dependencies and build this project, you just have to do: 
+To install `dsac` its dependencies and build this project, you just have to do:
+
 ```bash
 conan install . --install-folder cmake-build-release --build=missing
 cmake . -DCMAKE_TOOLCHAIN_FILE=cmake-build-release/conan_toolchain.cmake

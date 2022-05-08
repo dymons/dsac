@@ -12,7 +12,7 @@
 
 namespace {
 
-constexpr const int              kPort       = 5555;
+constexpr const int              kPort       = 8080;
 constexpr const int              kBufferSize = 512;
 constexpr const std::string_view kEndpoint   = "127.0.0.1";
 
@@ -26,12 +26,12 @@ status sent_message(descriptor const descriptor, message_view const view) {
   return bytes < 0 ? status::error : status::ok;
 }
 
-struct response {
+struct request {
   status  code = status::unknown;
   message payload;
 };
-response receive_message(descriptor descriptor) {
-  response   response{.code = status::ok, .payload = message(kBufferSize, '0')};
+request receive_message(descriptor descriptor) {
+  request    response{.code = status::ok, .payload = message(kBufferSize, '0')};
   long const bytes = read(descriptor, response.payload.data(), response.payload.size());
   if (bytes < 0) {
     response.code = status::error;
@@ -78,7 +78,7 @@ int main() {
       break;
     }
 
-    response const res = receive_message(remote_desc);
+    request const res = receive_message(remote_desc);
     if (res.code == status::error) {
       break;
     }
