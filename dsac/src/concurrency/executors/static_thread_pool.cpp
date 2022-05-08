@@ -107,7 +107,7 @@ void static_thread_poll::join() {
 
 namespace dsac {
 
-executor_base_ptr make_static_thread_pool(std::size_t workers) {
+executor_base_ref make_static_thread_pool(std::size_t workers) {
   return make_shared<detail::static_thread_poll>(workers);
 }
 

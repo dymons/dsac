@@ -11,7 +11,7 @@ struct CoroutinePromise {
   promise<T> promise_;
 
   auto get_return_object() {
-    return promise_.MakeFuture();
+    return promise_.make_future();
   }
 
   std::suspend_never initial_suspend() noexcept {
@@ -23,16 +23,16 @@ struct CoroutinePromise {
   }
 
   void set_exception(std::exception_ptr e) {
-    std::move(promise_).Set(std::move(e));
+    std::move(promise_).set(std::move(e));
   }
 
   void unhandled_exception() {
-    std::move(promise_).Set(std::current_exception());
+    std::move(promise_).set(std::current_exception());
   }
 
   template <typename U>
   void return_value(U&& u) {
-    std::move(promise_).Set(result<U>(std::forward<U>(u)));
+    std::move(promise_).set(result<U>(std::forward<U>(u)));
   }
 };
 

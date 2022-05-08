@@ -8,49 +8,50 @@
 #include <variant>
 
 namespace dsac {
+
 template <typename T>
-class SharedState {
+class shared_state {
   template <typename U>
   using MVarRef    = std::shared_ptr<syncing::MVar<U>>;
   using StateValue = std::variant<Try<T>, callback<T>>;
 
   MVarRef<StateValue>              storage_;
   syncing::MVar<void>              has_value_;
-  syncing::MVar<executor_base_ptr> executor_;
+  syncing::MVar<executor_base_ref> executor_;
 
 public:
-  SharedState()
+  shared_state()
     : storage_(std::make_shared<syncing::MVar<StateValue>>()) {
   }
 
   /// Call only from producer thread
-  void SetResult(Try<T>&& result) {
-    if (HasResult()) {
+  void set_result(Try<T>&& result) {
+    if (has_result()) {
       // If we already have the value, what to do? ¯\_(ツ)_/¯
-    } else if (HasCallback()) {
+    } else if (has_callback()) {
       callback<T> handler = std::get<callback<T>>(storage_->Take());
       storage_->Put(std::move(result));
       has_value_.Put();
-      DoCallback(std::move(handler));
+      do_callback(std::move(handler));
     } else {
       storage_->Put(std::move(result));
       has_value_.Put();
     }
   }
 
-  [[nodiscard]] bool HasResult() const {
+  [[nodiscard]] bool has_result() const {
     bool const not_empty = !storage_->IsEmpty();
     bool const has_value = not_empty && storage_->ReadOnly().index() == 0;
     return has_value;
   }
 
-  [[nodiscard]] bool HasCallback() const {
+  [[nodiscard]] bool has_callback() const {
     bool const not_empty    = !storage_->IsEmpty();
     bool const has_callback = not_empty && storage_->ReadOnly().index() == 1;
     return has_callback;
   }
 
-  Try<T> GetResult() {
+  Try<T> get_result() {
     // We are waiting for the user value to be saved in the storage_
     has_value_.ReadOnly();
 
@@ -59,29 +60,29 @@ public:
   }
 
   /// Call only from consumer thread
-  void SetExecutor(executor_base_ptr&& exec) {
+  void set_executor(executor_base_ref&& exec) {
     assert(executor_.IsEmpty());
     executor_.Put(std::move(exec));
   }
 
   /// May call from any thread
-  executor_base_ptr GetExecutor() {
+  executor_base_ref get_executor() {
     return executor_.IsEmpty() ? nullptr : executor_.ReadOnly();
   }
 
-  void SetCallback(callback<T>&& callback) {
-    if (HasCallback()) {
+  void set_callback(callback<T>&& callback) {
+    if (has_callback()) {
       // If we already have the callback, what to do? ¯\_(ツ)_/¯
-    } else if (HasResult()) {
-      DoCallback(std::move(callback));
+    } else if (has_result()) {
+      do_callback(std::move(callback));
     } else {
       storage_->Put(std::move(callback));
     }
   }
 
 private:
-  void DoCallback(callback<T>&& callback) {
-    if (executor_base_ptr executor = GetExecutor(); executor != nullptr) {
+  void do_callback(callback<T>&& callback) {
+    if (executor_base_ref executor = get_executor(); executor != nullptr) {
       executor->submit([callback = std::move(callback), storage = storage_]() mutable {
         callback(std::get<Try<T>>(storage->ReadOnly()));
       });
@@ -92,47 +93,47 @@ private:
 };
 
 template <typename T>
-using StateRef = std::shared_ptr<SharedState<T>>;
+using state_ref = std::shared_ptr<shared_state<T>>;
 
 template <typename T>
-inline StateRef<T> MakeSharedState() {
-  return std::make_shared<SharedState<T>>();
+inline state_ref<T> make_shared_state() {
+  return std::make_shared<shared_state<T>>();
 }
 
-//////////////////////////////////////////////////////////////////////
-
 template <typename T>
-class HoldState {
+class hold_state {
+public:
+  hold_state(hold_state const& that)            = delete;
+  hold_state& operator=(hold_state const& that) = delete;
+
 protected:
-  explicit HoldState(StateRef<T> state)
+  explicit hold_state(state_ref<T> state)
     : state_(std::move(state)) {
   }
 
-  HoldState(HoldState const& that)            = delete;
-  HoldState& operator=(HoldState const& that) = delete;
-  HoldState(HoldState&& that)                 = default;
-  HoldState& operator=(HoldState&& that)      = default;
-  ~HoldState()                                = default;
+  hold_state(hold_state&& that) noexcept            = default;
+  hold_state& operator=(hold_state&& that) noexcept = default;
+  ~hold_state()                                     = default;
 
-  StateRef<T> ReleaseState() {
-    CheckState();
+  state_ref<T> release_state() {
+    check_state();
     return std::move(state_);
   }
 
-  StateRef<T> const& GetState() const {
-    CheckState();
+  state_ref<T> const& get_state() const {
+    check_state();
     return state_;
   }
 
-  bool HasState() const {
-    return (bool)state_;
+  bool has_state() const {
+    return static_cast<bool>(state_);
   }
 
-  void CheckState() const {
-    assert(HasState());
+  void check_state() const {
+    assert(has_state());
   }
 
 protected:
-  StateRef<T> state_;
+  state_ref<T> state_;
 };
 }  // namespace dsac

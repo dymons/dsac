@@ -20,8 +20,8 @@ public:
 template <typename T>
 class deleter : public deleter_base {
 public:
-  void operator()(void* p) override {
-    delete static_cast<T*>(p);
+  void operator()(void* data) override {
+    delete static_cast<T*>(data);
   }
 };
 
@@ -52,8 +52,8 @@ public:
     \brief
         Constructor to wrap raw pointer.
   */
-  explicit shared_ptr(T* p)
-    : ptr_{p}
+  explicit shared_ptr(T* other)
+    : ptr_{other}
     , ref_count_{new std::atomic<long>{1}}
     , deleter_{new detail::deleter<T>()} {
   }
@@ -63,8 +63,8 @@ public:
         Constructor to wrap raw pointer of convertible type.
   */
   template <std::derived_from<T> U>
-  explicit shared_ptr(U* p)
-    : ptr_{p}
+  explicit shared_ptr(U* other)
+    : ptr_{other}
     , ref_count_{new std::atomic<long>{1}}
     , deleter_{new detail::deleter<U>()} {
   }
@@ -73,10 +73,10 @@ public:
     \brief
         Copy constructor.
   */
-  shared_ptr(const shared_ptr& sp) noexcept
-    : ptr_{sp.ptr_}
-    , ref_count_{sp.ref_count_}
-    , deleter_{sp.deleter_} {
+  shared_ptr(const shared_ptr& other) noexcept
+    : ptr_{other.ptr_}
+    , ref_count_{other.ref_count_}
+    , deleter_{other.deleter_} {
     if (ptr_ != nullptr) {
       ++(*ref_count_);
     }
@@ -87,10 +87,10 @@ public:
         Copy conversion constructor.
   */
   template <typename U>
-  shared_ptr(const shared_ptr<U>& sp) noexcept  // NOLINT(google-explicit-constructor)
-    : ptr_{sp.ptr_}
-    , ref_count_{sp.ref_count_}
-    , deleter_{sp.deleter_} {
+  shared_ptr(const shared_ptr<U>& other) noexcept  // NOLINT(google-explicit-constructor)
+    : ptr_{other.ptr_}
+    , ref_count_{other.ref_count_}
+    , deleter_{other.deleter_} {
     if (ptr_ != nullptr) {
       ++(*ref_count_);
     }

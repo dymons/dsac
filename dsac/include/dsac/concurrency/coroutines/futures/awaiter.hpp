@@ -21,7 +21,7 @@ public:
   }
 
   void await_suspend(std::coroutine_handle<> h) {
-    std::move(future_).Subscribe([this, h](result<T> result) mutable {
+    std::move(future_).subscribe([this, h](result<T> result) mutable {
       result_.emplace(std::move(result));
       h.resume();
     });

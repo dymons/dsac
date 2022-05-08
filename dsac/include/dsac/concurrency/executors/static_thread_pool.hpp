@@ -20,6 +20,6 @@ namespace dsac {
         executor->join();
     \endcode
 */
-[[nodiscard]] executor_base_ptr make_static_thread_pool(std::size_t workers);
+[[nodiscard]] executor_base_ref make_static_thread_pool(std::size_t workers);
 
 }  // namespace dsac

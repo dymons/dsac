@@ -37,7 +37,7 @@ RUN add-apt-repository -y ppa:ubuntu-toolchain-r/test && \
     apt-get install -y --no-install-recommends \
         gcc-${GCC_VER} g++-${GCC_VER} gdb
 
-# Set gcc-${GCC_VER} as default gcc
+# set gcc-${GCC_VER} as default gcc
 RUN update-alternatives --install /usr/bin/gcc gcc $(which gcc-${GCC_VER}) 100
 RUN update-alternatives --install /usr/bin/g++ g++ $(which g++-${GCC_VER}) 100
 
@@ -52,9 +52,9 @@ RUN wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | apt-key add - 2>/dev/
         clang-${LLVM_VER} lldb-${LLVM_VER} lld-${LLVM_VER} clangd-${LLVM_VER} \
         llvm-${LLVM_VER}-dev libclang-${LLVM_VER}-dev clang-tidy-${LLVM_VER}
 
-# Set the default clang-tidy, so CMake can find it
+# set the default clang-tidy, so CMake can find it
 RUN update-alternatives --install /usr/bin/clang-tidy clang-tidy $(which clang-tidy-${LLVM_VER}) 1
 
-# Set clang-${LLVM_VER} as default clang
+# set clang-${LLVM_VER} as default clang
 RUN update-alternatives --install /usr/bin/clang clang $(which clang-${LLVM_VER}) 100
 RUN update-alternatives --install /usr/bin/clang++ clang++ $(which clang++-${LLVM_VER}) 100

@@ -2,58 +2,60 @@
 
 #include <dsac/concurrency/futures/future.hpp>
 #include <dsac/concurrency/futures/promise.hpp>
+#include <dsac/memory/shared_ptr.hpp>
 
-#include <atomic>
 #include <optional>
 
 namespace dsac {
-template <typename T>
-auto first_n(std::vector<future<T>>&& futures, std::size_t const n) {
-  using Result = std::vector<Try<T>>;
 
-  struct Context {
-    explicit Context(size_t num_futures, size_t min)
+template <typename T>
+auto first_n(std::vector<future<T>>&& futures, std::size_t const n) -> future<std::vector<result<T>>> {
+  using result_type = std::vector<result<T>>;
+
+  struct context final {
+    explicit context(std::size_t num_futures, std::size_t min)
       : v(num_futures)
       , min(min) {
     }
 
-    std::vector<std::optional<Try<T>>> v;
-    std::size_t                        min;
-    std::atomic<std::size_t>           completed = {0U};
-    std::atomic<std::size_t>           stored    = {0U};
-    promise<Result>                    promise_;
+    std::vector<std::optional<result<T>>> v;
+    const std::size_t                     min;
+    std::atomic<std::size_t>              completed = {0U};
+    std::atomic<std::size_t>              stored    = {0U};
+    promise<result_type>                  promise_;
   };
 
   if (futures.size() < n) {
-    return future<Result>::Fail("Not enough futures");
+    return make_future_on_error<result_type>("not enough futures");
   }
 
-  auto ctx = std::make_shared<Context>(futures.size(), n);
+  auto ctx = make_shared<context>(futures.size(), n);
   for (std::size_t i{}; i < futures.size(); ++i) {
-    std::move(futures[i]).Subscribe([i, ctx](Try<T>&& t) {
+    std::move(futures[i]).subscribe([i, ctx](result<T>&& result_data) {
       auto const c = 1 + ctx->completed.fetch_add(1);
       if (c > ctx->min) {
         return;
       }
-      ctx->v[i] = std::move(t);
+      ctx->v[i] = std::move(result_data);
 
       auto const s = 1 + ctx->stored.fetch_add(1);
       if (s < ctx->min) {
         return;
       }
 
-      Result result;
-      result.reserve(ctx->completed.load());
+      result_type result_computation;
+      result_computation.reserve(ctx->completed.load());
       for (std::size_t j{}; j < ctx->v.size(); ++j) {
         auto& entry = ctx->v[j];
         if (entry.has_value()) {
-          result.emplace_back(std::move(entry).value());
+          result_computation.emplace_back(std::move(entry).value());
         }
       }
-      ctx->promise_.Set(Try<Result>(std::move(result)));
+      ctx->promise_.set(result<result_type>(std::move(result_computation)));
     });
   }
 
-  return ctx->promise_.MakeFuture();
+  return ctx->promise_.make_future();
 }
+
 }  // namespace dsac

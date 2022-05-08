@@ -9,26 +9,26 @@
 TEST_CASE("Проверка корректности Future&Promise", "[future_and_promise]") {
   SECTION("Выполнение Future&Promise в однопоточном исполнении") {
     dsac::promise<int> promise;
-    dsac::future<int>  future = promise.MakeFuture();
+    dsac::future<int>  future = promise.make_future();
 
-    promise.Set(10);
-    dsac::result<int> value = std::move(future).Get();
+    promise.set(10);
+    dsac::result<int> value = std::move(future).get();
     REQUIRE(value.HasValue());
     REQUIRE(value.ValueOrThrow() == 10);
   }
   SECTION("Выполнение Future&Promise в разных потоках исполнения") {
     constexpr std::size_t   kNumberWorkers = 2U;
-    dsac::executor_base_ptr executor       = dsac::make_static_thread_pool(kNumberWorkers);
+    dsac::executor_base_ref executor       = dsac::make_static_thread_pool(kNumberWorkers);
 
     dsac::promise<int> promise;
-    dsac::future<int>  future = promise.MakeFuture();
+    dsac::future<int>  future = promise.make_future();
 
     executor->submit([promise = std::move(promise)]() mutable {
       std::this_thread::sleep_for(std::chrono::milliseconds(100));
-      promise.Set(10);
+      promise.set(10);
     });
 
-    dsac::result<int> value = std::move(future).Get();
+    dsac::result<int> value = std::move(future).get();
     REQUIRE(value.HasValue());
     REQUIRE(value.ValueOrThrow() == 10);
 
@@ -38,37 +38,37 @@ TEST_CASE("Проверка корректности Future&Promise", "[future_a
     std::thread::id const main_thread_id = std::this_thread::get_id();
 
     dsac::promise<int> promise;
-    dsac::future<int>  future = promise.MakeFuture().Subscribe([main_thread_id](const dsac::result<int>& result) {
+    dsac::future<int>  future = promise.make_future().subscribe([main_thread_id](const dsac::result<int>& result) {
       REQUIRE(std::this_thread::get_id() == main_thread_id);
       REQUIRE(result.HasValue());
       REQUIRE(result.ValueOrThrow() == 10);
     });
 
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
-    promise.Set(10);
+    promise.set(10);
 
-    dsac::result<int> result = std::move(future).Get();
+    dsac::result<int> result = std::move(future).get();
     REQUIRE(result.HasValue());
     REQUIRE(result.ValueOrThrow() == 10);
   }
   SECTION("Подписка на результат Future и выполнение Callback в потоке Worker") {
     constexpr std::size_t   kNumberWorkers = 2U;
-    dsac::executor_base_ptr executor       = dsac::make_static_thread_pool(kNumberWorkers);
+    dsac::executor_base_ref executor       = dsac::make_static_thread_pool(kNumberWorkers);
 
     std::thread::id const main_thread_id = std::this_thread::get_id();
 
     dsac::promise<int> promise;
     dsac::future<int>  future =
-        promise.MakeFuture().Via(executor).Subscribe([main_thread_id](const dsac::result<int>& result) {
+        promise.make_future().via(executor).subscribe([main_thread_id](const dsac::result<int>& result) {
           REQUIRE_FALSE(std::this_thread::get_id() == main_thread_id);
           REQUIRE(result.HasValue());
           REQUIRE(result.ValueOrThrow() == 10);
         });
 
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
-    promise.Set(10);
+    promise.set(10);
 
-    dsac::result<int> result = std::move(future).Get();
+    dsac::result<int> result = std::move(future).get();
     REQUIRE(result.HasValue());
     REQUIRE(result.ValueOrThrow() == 10);
 
@@ -91,32 +91,32 @@ TEST_CASE("Проверка корректности Future&Promise", "[future_a
     };
 
     dsac::promise<int> promise;
-    dsac::future<int>  future = promise.MakeFuture().Then(add_10).Then(mul_2).Then(sub_5);
+    dsac::future<int>  future = promise.make_future().then(add_10).then(mul_2).then(sub_5);
 
-    promise.Set(10);
+    promise.set(10);
 
-    dsac::result<int> result = std::move(future).Get();
+    dsac::result<int> result = std::move(future).get();
     REQUIRE(result.HasValue());
     REQUIRE(result.ValueOrThrow() == 35);
   }
   SECTION("Выполнение последовательности цепочек в потоке Worker") {
     constexpr std::size_t   kNumberWorkers = 2U;
-    dsac::executor_base_ptr executor       = dsac::make_static_thread_pool(kNumberWorkers);
+    dsac::executor_base_ref executor       = dsac::make_static_thread_pool(kNumberWorkers);
 
     std::thread::id const main_thread_id = std::this_thread::get_id();
 
     dsac::promise<int> promise;
-    /* dsac::future<int> future = */ promise.MakeFuture()
-        .Via(executor)
-        .Then([main_thread_id](dsac::result<int> result) {
+    /* dsac::future<int> future = */ promise.make_future()
+        .via(executor)
+        .then([main_thread_id](const dsac::result<int>& result) {
           REQUIRE_FALSE(std::this_thread::get_id() == main_thread_id);
           return result.ValueOrThrow() + 10;
         })
-        .Then([main_thread_id](dsac::result<int> result) {
+        .then([main_thread_id](const dsac::result<int>& result) {
           REQUIRE_FALSE(std::this_thread::get_id() == main_thread_id);
           return result.ValueOrThrow() * 10;
         })
-        .Then([main_thread_id](dsac::result<int> result) {
+        .then([main_thread_id](const dsac::result<int>& result) {
           REQUIRE_FALSE(std::this_thread::get_id() == main_thread_id);
           REQUIRE(result.HasValue());
           REQUIRE(result.ValueOrThrow() == 200);
@@ -127,7 +127,7 @@ TEST_CASE("Проверка корректности Future&Promise", "[future_a
       REQUIRE_FALSE(std::this_thread::get_id() == main_thread_id);
 
       std::this_thread::sleep_for(std::chrono::milliseconds(100));
-      promise.Set(10);
+      promise.set(10);
     });
 
     executor->join();

@@ -7,7 +7,6 @@ namespace dsac {
 
 class executor_base {
 public:
-
   // Constructors
 
   /*!
@@ -69,6 +68,6 @@ public:
     \brief
         The main pointer to the base class of executor object.
   */
-using executor_base_ptr = dsac::shared_ptr<executor_base>;
+using executor_base_ref = dsac::shared_ptr<executor_base>;
 
 }  // namespace dsac
