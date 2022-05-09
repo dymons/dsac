@@ -76,9 +76,9 @@ int start_handling_requests_on_socket(descriptor const listen_socket) {
         FD_SET(new_connection_descriptor, &active_sockets);
       } else {
         if (auto const request = receive_message(socket); request.has_value()) {
-          message const payload = get_payload_from_message(request.value());
-          if (!sent_message(socket, make_http_response(payload))) {
-            std::cout << "could not sent to the socket " << socket << std::endl;
+          message const response = make_http_response(get_payload_from_message(request.value()));
+          if (!sent_message(socket, response)) {
+            std::cout << fmt::format("could not sent message '{}' to the socket {}", response, socket) << std::endl;
           }
         }
 
