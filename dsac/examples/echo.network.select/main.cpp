@@ -19,10 +19,9 @@ using descriptor   = int;
 using message      = std::string;
 using message_view = std::string_view;
 
-enum class status : unsigned char { ok, error };
-[[nodiscard, gnu::always_inline]] inline status sent_message(descriptor const descriptor, message_view const data) {
+[[nodiscard, gnu::always_inline]] inline bool sent_message(descriptor const descriptor, message_view const data) {
   long const bytes = write(descriptor, data.data(), data.size());
-  return bytes < 0 ? status::error : status::ok;
+  return bytes >= 0;
 }
 
 [[nodiscard]] std::optional<message> receive_message(descriptor const descriptor) {
@@ -76,16 +75,15 @@ int start_handling_requests_on_socket(descriptor const listen_socket) {
 
         FD_SET(new_connection_descriptor, &active_sockets);
       } else {
-        if (auto const request = receive_message(socket); !request.has_value()) {
-          close(socket);
-          FD_CLR(socket, &active_sockets);
-        } else {
+        if (auto const request = receive_message(socket); request.has_value()) {
           message const payload = get_payload_from_message(request.value());
-          if (sent_message(socket, make_http_response(payload)) == status::error) {
-            close(socket);
-            FD_CLR(socket, &active_sockets);
+          if (!sent_message(socket, make_http_response(payload))) {
+            std::cout << "could not sent to the socket " << socket << std::endl;
           }
         }
+
+        close(socket);
+        FD_CLR(socket, &active_sockets);
       }
     }
   }
