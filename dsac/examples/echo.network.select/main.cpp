@@ -2,7 +2,9 @@
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <unistd.h>
+
 #include <iostream>
+#include <optional>
 #include <string>
 #include <string_view>
 
@@ -23,32 +25,25 @@ enum class status : unsigned char { ok, error };
   return bytes < 0 ? status::error : status::ok;
 }
 
-struct request {
-  status      code;
-  message     text;
-  std::size_t bytes;
-};
-[[nodiscard]] request receive_message(descriptor const descriptor) {
-  request request{.code = status::ok, .text = message(kBufferSize, '0')};
-  request.bytes = read(descriptor, request.text.data(), request.text.size());
-  if (request.bytes <= 0) {
-    request.code = status::error;
-    request.text.clear();
-    request.text.shrink_to_fit();
-    return request;
+[[nodiscard]] std::optional<message> receive_message(descriptor const descriptor) {
+  message    rmessage(kBufferSize, '0');
+  long const bytes = read(descriptor, rmessage.data(), rmessage.size());
+  if (bytes <= 0) {
+    return std::nullopt;
   }
 
-  return request;
+  rmessage.resize(bytes);
+  return {std::move(rmessage)};
 }
 
 [[nodiscard, gnu::always_inline]] inline message make_http_response(message_view const payload) {
   return fmt::format("HTTP/1.1 200 OK\nContent-Length: {}\n\n{}", payload.size(), payload);
 }
 
-[[nodiscard]] message get_payload_from_request(request const& req) {
-  std::size_t const payload_start = req.text.find_last_of("\n\n", req.text.find_last_of("\n\n", req.bytes - 1U));
-  if (payload_start != message::npos) {
-    return req.text.substr(payload_start + 1U, req.bytes - payload_start - 1U);
+[[nodiscard]] message get_payload_from_message(message const& msg) {
+  std::size_t const payload_start = msg.find_last_of("\n\n", msg.find_last_of("\n\n"));
+  if (payload_start != message::npos) [[likely]] {
+    return msg.substr(payload_start + 1U, msg.size() - payload_start);
   }
 
   return {};
@@ -70,7 +65,7 @@ int start_handling_requests_on_socket(descriptor const listen_socket) {
         continue;
       }
 
-      if (socket == listen_socket) {
+      if (socket == listen_socket) [[unlikely]] {
         sockaddr_in client_socket_description{};
         socklen_t   size = sizeof(client_socket_description);
         descriptor  new_connection_descriptor =
@@ -81,11 +76,11 @@ int start_handling_requests_on_socket(descriptor const listen_socket) {
 
         FD_SET(new_connection_descriptor, &active_sockets);
       } else {
-        if (request const request = receive_message(socket); request.code == status::error) {
+        if (auto const request = receive_message(socket); !request.has_value()) {
           close(socket);
           FD_CLR(socket, &active_sockets);
         } else {
-          message const payload = get_payload_from_request(request);
+          message const payload = get_payload_from_message(request.value());
           if (sent_message(socket, make_http_response(payload)) == status::error) {
             close(socket);
             FD_CLR(socket, &active_sockets);
@@ -101,7 +96,7 @@ int start_handling_requests_on_socket(descriptor const listen_socket) {
 }
 }  // namespace
 
-int main() {
+int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) {
   constexpr const int kUseTcp       = 0;
   descriptor const    listen_socket = socket(PF_INET, SOCK_STREAM, kUseTcp);
   if (listen_socket < 0) {
