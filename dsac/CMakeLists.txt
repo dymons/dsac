@@ -1,4 +1,6 @@
-file(GLOB_RECURSE DSAC_LIBRARY_SOURCES "src/*.hpp" "src/*.cpp")
+enable_language(ASM)
+
+file(GLOB_RECURSE DSAC_LIBRARY_SOURCES "src/*.hpp" "src/*.cpp" "src/*.S")
 file(GLOB_RECURSE DSAC_LIBRARY_HEADERS "include/*.hpp")
 
 set(DSAC_LIBRARY_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/include ${CMAKE_CURRENT_SOURCE_DIR}/src)
