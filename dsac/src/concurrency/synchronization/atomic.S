@@ -8,6 +8,8 @@
 
 .globl FUNCTION_NAME(atomic_load_seq_cst)
 
+.globl FUNCTION_NAME(atomic_exchange_seq_cst)
+
 # Load
 
 FUNCTION_NAME(atomic_load_seq_cst):
@@ -18,4 +20,11 @@ FUNCTION_NAME(atomic_load_seq_cst):
 
 FUNCTION_NAME(atomic_store_seq_cst):
     xchg %rsi, (%rdi)
+    retq
+
+# Exchange
+
+FUNCTION_NAME(atomic_exchange_seq_cst):
+    mov  %rsi, %rax
+    xchg %rax, (%rdi)
     retq

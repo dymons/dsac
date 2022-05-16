@@ -24,7 +24,8 @@ public:
   using value_type = std::int64_t;
 
   void store(value_type value, memory_order order = memory_order::memory_order_seq_cst) noexcept;
-  value_type load(memory_order order = memory_order::memory_order_seq_cst) noexcept;
+  value_type load(memory_order order = memory_order::memory_order_seq_cst) const noexcept;
+  value_type exchange(value_type new_value, memory_order order = memory_order::memory_order_seq_cst) noexcept;
 };
 
 }  // namespace dsac

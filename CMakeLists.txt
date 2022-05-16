@@ -15,6 +15,8 @@ option(BUILD_TESTS
 option(BUILD_DOCS
         "Whether doxygen documentation should be installed" OFF)
 option(ENABLE_SANITIZE_ADDRESS
+        "Enable AddressSanitizer for sanitized targets." OFF)
+option(ENABLE_THREAD_ADDRESS
         "Enable AddressSanitizer for sanitized targets." ON)
 
 set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake/modules" ${CMAKE_MODULE_PATH})
