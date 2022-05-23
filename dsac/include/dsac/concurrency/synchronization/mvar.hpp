@@ -25,24 +25,19 @@ public:
   ~MVar()                              = default;
 
   void Put(T data) {
-    {
-      std::unique_lock<std::mutex> lock(mutex_);
-      not_value_storage_.wait(lock, [this] { return !storage_.has_value(); });
+    std::unique_lock<std::mutex> lock(mutex_);
+    not_value_storage_.wait(lock, [this] { return !storage_.has_value(); });
 
-      storage_.emplace(std::move(data));
-    }
-
+    storage_.emplace(std::move(data));
     has_value_storage_.notify_all();
   }
 
   T Take() {
     std::optional<T> result;
 
-    {
-      std::unique_lock<std::mutex> lock(mutex_);
-      has_value_storage_.wait(lock, [this] { return storage_.has_value(); });
-      result.swap(storage_);
-    }
+    std::unique_lock<std::mutex> lock(mutex_);
+    has_value_storage_.wait(lock, [this] { return storage_.has_value(); });
+    result.swap(storage_);
 
     not_value_storage_.notify_all();
     return std::move(*result);
@@ -77,23 +72,17 @@ public:
   ~MVar()                              = default;
 
   void Put() {
-    {
-      std::unique_lock<std::mutex> lock(mutex_);
-      not_value_storage_.wait(lock, [this] { return !contains_; });
+    std::unique_lock<std::mutex> lock(mutex_);
+    not_value_storage_.wait(lock, [this] { return !contains_; });
 
-      contains_ = true;
-    }
-
+    contains_ = true;
     has_value_storage_.notify_all();
   }
 
   void Take() {
-    {
-      std::unique_lock<std::mutex> lock(mutex_);
-      has_value_storage_.wait(lock, [this] { return contains_; });
-      contains_ = false;
-    }
-
+    std::unique_lock<std::mutex> lock(mutex_);
+    has_value_storage_.wait(lock, [this] { return contains_; });
+    contains_ = false;
     not_value_storage_.notify_all();
   }
 
