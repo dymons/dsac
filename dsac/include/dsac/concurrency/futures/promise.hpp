@@ -25,15 +25,15 @@ public:
   }
 
   void set(T value) {
-    release_state()->set_result(result<T>(std::move(value)));
+    std::move(*this).release_state()->set_result(result<T>(std::move(value)));
   }
 
   void set(result<T>&& result) {
-    release_state()->set_result(std::move(result));
+    std::move(*this).release_state()->set_result(std::move(result));
   }
 
   void set(std::exception_ptr&& exception) {
-    release_state()->set_result(result<T>(std::move(exception)));
+    std::move(*this).release_state()->set_result(result<T>(std::move(exception)));
   }
 
 private:

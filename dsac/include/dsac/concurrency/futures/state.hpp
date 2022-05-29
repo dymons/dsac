@@ -177,7 +177,7 @@ protected:
   hold_state& operator=(hold_state&& that) noexcept = default;
   ~hold_state()                                     = default;
 
-  state_ref<T> release_state() {
+  state_ref<T> release_state() && {
     check_state();
     return std::move(state_);
   }

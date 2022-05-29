@@ -40,7 +40,7 @@ class future final : public hold_state<T> {
 
 public:
   result<T> get() && {
-    return release_state()->get_result();
+    return std::move(*this).release_state()->get_result();
   }
 
   future<T> via(executor_base_ref exec) && {
@@ -48,7 +48,7 @@ public:
       throw future_no_executor{};
     }
 
-    auto state = release_state();
+    auto state = std::move(*this).release_state();
     state->set_executor(std::move(exec));
     return future<T>(std::move(state));
   }
@@ -58,7 +58,7 @@ public:
       throw future_no_callback{};
     }
 
-    auto state = release_state();
+    auto state = std::move(*this).release_state();
     state->set_callback(std::move(callback));
     return future<T>(std::move(state));
   }
