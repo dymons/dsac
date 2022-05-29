@@ -38,6 +38,8 @@ Codemap
   <br /> The `examples` directory contains examples with working POSIX API for writing backend apps using concurrency
   primitives from directory [`concurrency`](dsac/include/dsac/concurrency).
 
+The current status of the project can be found at the [whimsical.com/dsac](https://whimsical.com/dsac-JxDytPofZNmQLZdBoeC3jw)
+
 License
 -------
 
