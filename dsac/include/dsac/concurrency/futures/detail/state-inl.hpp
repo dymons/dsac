@@ -31,8 +31,53 @@ result<T> shared_state<T>::get_result() {
 }
 
 template <typename T>
-executor_base_ref shared_state<T>::get_executor() {
-  return executor_.is_empty() ? nullptr : executor_.read_only();
+executor_base_ref shared_state<T>::get_executor() const {
+  return executor_;
+}
+
+template <typename T>
+void shared_state<T>::set_result(result<T>&& result) {
+  throw_if_fulfilled_by_result();
+
+  if (has_callback()) {
+    callback<T> handler = std::get<callback<T>>(storage_->take());
+    storage_->put(std::move(result));
+    has_value_.put();
+    do_callback(std::move(handler));
+  } else {
+    storage_->put(std::move(result));
+    has_value_.put();
+  }
+}
+
+template <typename T>
+void shared_state<T>::set_executor(executor_base_ref exec) {
+  executor_ = std::move(exec);
+}
+
+template <typename T>
+void shared_state<T>::set_callback(callback<T>&& callback) {
+  throw_if_fulfilled_by_callback();
+
+  if (has_result()) {
+    do_callback(std::move(callback));
+  } else {
+    storage_->put(std::move(callback));
+  }
+}
+
+template <typename T>
+void shared_state<T>::do_callback(callback<T>&& callback) {
+  storage_->template try_with_lock([this, &callback](state_value const& state) -> bool {
+    auto data = std::get<result<T>>(state);
+    if (executor_base_ref executor = get_executor(); executor != nullptr) {
+      executor->submit(
+          [callback = std::move(callback), data = std::move(data)]() mutable { callback(std::move(data)); });
+    } else {
+      callback(std::move(data));
+    }
+    return true;
+  });
 }
 
 template <typename T>

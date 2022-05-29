@@ -23,106 +23,108 @@ public:
 
 template <typename T>
 class shared_state final {
-  using state_value = std::variant<result<T>, callback<T>>;
-
 public:
   // Constructors
 
   /*!
-      \brief
-          Default constructor, constructs an empty shared_state.
+    \brief
+        Default constructor, constructs an empty shared_state.
   */
   shared_state();
 
   // Observers
 
   /*!
-      \brief
-          Checking what shared state initialized by dsac::result.
+    \brief
+        Checking what shared state initialized by dsac::result.
   */
   [[nodiscard]] bool has_result() const;
 
   /*!
-      \brief
-          Checking what shared state initialized by dsac::callback.
+    \brief
+        Checking what shared state initialized by dsac::callback.
   */
   [[nodiscard]] bool has_callback() const;
 
   /*!
-      \brief
-          Extract dsac::result from shared state.
+    \brief
+        Extract dsac::result from shared state.
   */
   [[nodiscard]] result<T> get_result();
 
   /*!
-      \brief
-          Get the current execution environment for execution of user subscriptions. May call from any thread.
+    \brief
+        Get the current execution environment for execution of user subscriptions. May call from any thread.
   */
-  [[nodiscard]] executor_base_ref get_executor();
+  [[nodiscard]] executor_base_ref get_executor() const;
 
   // Modifiers
 
   /*!
     \brief
-        Initialize a shared state by value. Call only from producer thread.
+        Initialize a shared state by dsac::result. Call only from producer thread.
 
     \param result
-        User-data for saving withing shared state
+            User-data for saving withing shared state
 
     \throw dsac::shared_state_already_satisfied
         Shared state does not support of initializing more than once by dsac::result value
 
     \ingroup
-          DsacConcurrency
+        DsacConcurrency
 
     \code
           auto state = dsac::make_shared_state<int>{};
           state->set_result(0);
     \endcode
   */
-  void set_result(result<T>&& result) {
-    throw_if_fulfilled_by_result();
+  void set_result(result<T>&& result);
 
-    if (has_callback()) {
-      callback<T> handler = std::get<callback<T>>(storage_->take());
-      storage_->put(std::move(result));
-      has_value_.put();
-      do_callback(std::move(handler));
-    } else {
-      storage_->put(std::move(result));
-      has_value_.put();
-    }
-  }
+  /*!
+    \brief
+        Initialize an execution environment for user-specified callback. Call only from producer thread.
 
-  /// Call only from consumer thread
-  void set_executor(executor_base_ref&& exec) {
-    assert(executor_.is_empty());
-    executor_.put(std::move(exec));
-  }
+    \param exec
+        An execution environment for user-specified callback
 
-  void set_callback(callback<T>&& callback) {
-    throw_if_fulfilled_by_callback();
+    \ingroup
+        DsacConcurrency
 
-    if (has_result()) {
-      do_callback(std::move(callback));
-    } else {
-      storage_->put(std::move(callback));
-    }
-  }
+    \code
+          auto executor = dsac::make_static_thread_pool(4U);
+          auto state = dsac::make_shared_state<int>{};
+          state->set_executor(executor);
+          ...
+    \endcode
+  */
+  void set_executor(executor_base_ref exec);
+
+  /*!
+    \brief
+        Initialize a shared state by dsac::callback. Call only from producer thread.
+
+    \param result
+            User-data for saving withing shared state
+
+    \throw dsac::shared_state_already_satisfied
+        Shared state does not support of initializing more than once by dsac::callback value
+
+    \ingroup
+        DsacConcurrency
+
+    \code
+          auto state = dsac::make_shared_state<int>{};
+          state->set_callback({}(dsac::result<int> result) { do_stuff(result); });
+    \endcode
+  */
+  void set_callback(callback<T>&& callback);
 
 private:
-  void do_callback(callback<T>&& callback) {
-    storage_->template try_with_lock([this, &callback](state_value const& state) -> bool {
-      auto data = std::get<result<T>>(state);
-      if (executor_base_ref executor = get_executor(); executor != nullptr) {
-        executor->submit(
-            [callback = std::move(callback), data = std::move(data)]() mutable { callback(std::move(data)); });
-      } else {
-        callback(std::move(data));
-      }
-      return true;
-    });
-  }
+  /*!
+      \brief
+          Perform dsac::result processing in a user-specified callback.
+  */
+  void do_callback(callback<T>&& callback);
 
   /*!
       \brief
@@ -136,9 +138,20 @@ private:
   */
   void throw_if_fulfilled_by_callback();
 
-  mvar_ref<state_value>   storage_;
-  mvar<void>              has_value_;
-  mvar<executor_base_ref> executor_;
+  /*!
+      \brief
+          Value of shared state.
+  */
+  using state_value = std::variant<result<T>, callback<T>>;
+
+  /// A place to store user data or user-specified callback
+  mvar_ref<state_value> storage_;
+
+  /// A synchronization primitive to provide blocking data waiting in storage_
+  mvar<void> has_value_;
+
+  /// User-specified environment for execution callback<T> from storage_
+  executor_base_ref executor_;
 };
 
 template <typename T>

@@ -38,7 +38,7 @@ TEST_CASE("Execution in various scenarios", "[future][dataflow]") {
     std::thread::id const main_thread_id = std::this_thread::get_id();
 
     dsac::promise<int> promise;
-    dsac::future<bool>  future = promise.make_future().then([main_thread_id](const dsac::result<int>& result) {
+    dsac::future<bool> future = promise.make_future().then([main_thread_id](const dsac::result<int>& result) {
       REQUIRE(std::this_thread::get_id() == main_thread_id);
       REQUIRE(result.has_value());
       REQUIRE(result.value_or_throw() == 10);
@@ -57,13 +57,12 @@ TEST_CASE("Execution in various scenarios", "[future][dataflow]") {
     std::thread::id const main_thread_id = std::this_thread::get_id();
 
     dsac::promise<int> promise;
-    dsac::future<bool>  future =
-        promise.make_future().via(executor).then([main_thread_id](dsac::result<int> result) {
-          REQUIRE_FALSE(std::this_thread::get_id() == main_thread_id);
-          REQUIRE(result.has_value());
-          REQUIRE(result.value_or_throw() == 10);
-          return true;
-        });
+    dsac::future<bool> future = promise.make_future().via(executor).then([main_thread_id](dsac::result<int> result) {
+      REQUIRE_FALSE(std::this_thread::get_id() == main_thread_id);
+      REQUIRE(result.has_value());
+      REQUIRE(result.value_or_throw() == 10);
+      return true;
+    });
 
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
     promise.set(10);
