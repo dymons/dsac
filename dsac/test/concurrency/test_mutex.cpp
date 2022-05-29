@@ -1,32 +1,25 @@
-#include "catch2/catch.hpp"
+#include <catch2/catch.hpp>
 
+#include <dsac/concurrency/executors/static_thread_pool.hpp>
 #include <dsac/concurrency/synchronization/mutex.hpp>
 #include <dsac/concurrency/synchronization/unique_lock.hpp>
-#include <memory>
-#include <thread>
 
-TEST_CASE("Проверка корректности выполнения mutex", "[mutex_work]") {
-  SECTION("Проверка корректности изменения объекта несколькими потоками") {
-    dsac::mutex mutex;
+TEST_CASE("Verification of guarantees safety and liveness for mutex", "[mutex]") {
+  constexpr std::size_t   kNumberWorkers = 2U;
+  constexpr std::size_t   kIterations    = 1000U;
+  dsac::executor_base_ref executor       = dsac::make_static_thread_pool(kNumberWorkers);
 
-    int         counter = 0;
-    std::thread adder([&]() {
-      for (int i{}; i < 1'000'000; ++i) {
+  dsac::mutex mutex;
+  std::size_t counter{};
+  for (std::size_t i{}; i < kNumberWorkers; ++i) {
+    executor->submit([&mutex, &counter]() {
+      for (std::size_t i{}; i < kIterations; ++i) {
         dsac::unique_lock guard(mutex);
         counter += 1;
       }
     });
-
-    std::thread subtractor([&]() {
-      for (int i{}; i < 1'000'000; ++i) {
-        dsac::unique_lock guard(mutex);
-        counter -= 1;
-      }
-    });
-
-    adder.join();
-    subtractor.join();
-
-    REQUIRE(counter == 0);
   }
+
+  executor->join();
+  REQUIRE(counter == (kNumberWorkers * kIterations));
 }

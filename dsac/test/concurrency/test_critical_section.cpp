@@ -13,7 +13,7 @@ TEST_CASE("Verification of guarantees safety and liveness for spin lock", "[crit
   std::size_t            counter{};
   for (std::size_t i{}; i < kNumberWorkers; ++i) {
     executor->submit([&spin_lock, &counter]() {
-      for (int i{}; i < kIterations; ++i) {
+      for (std::size_t i{}; i < kIterations; ++i) {
         dsac::unique_lock guard(spin_lock);
         counter += 1;
       }
