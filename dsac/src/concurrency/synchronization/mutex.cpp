@@ -38,46 +38,4 @@ void mutex::unlock() {
   }
 }
 
-unique_lock::unique_lock(mutex& mutex)
-  : mutex_(std::addressof(mutex)) {
-  lock();
-}
-
-unique_lock::unique_lock(unique_lock&& other) noexcept
-  : mutex_(other.mutex_)
-  , owned_(other.owned_) {
-  other.mutex_ = nullptr;
-  other.owned_ = false;
-}
-
-unique_lock& unique_lock::operator=(unique_lock&& other) noexcept {
-  if (owned_) {
-    unlock();
-  }
-
-  unique_lock(std::move(other)).swap(*this);
-
-  return *this;
-}
-
-unique_lock::~unique_lock() {
-  if (owned_) {
-    unlock();
-  }
-}
-
-void unique_lock::swap(unique_lock& other) {
-  std::swap(mutex_, other.mutex_);
-  std::swap(owned_, other.owned_);
-}
-
-void unique_lock::lock() {
-  mutex_->lock();
-  owned_ = true;
-}
-
-void unique_lock::unlock() {
-  mutex_->unlock();
-  owned_ = false;
-}
 }  // namespace dsac

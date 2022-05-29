@@ -1,6 +1,7 @@
 #include "catch2/catch.hpp"
 
 #include <dsac/concurrency/synchronization/mutex.hpp>
+#include <dsac/concurrency/synchronization/unique_lock.hpp>
 #include <memory>
 #include <thread>
 

@@ -4,26 +4,24 @@
 #include <thread>
 
 TEST_CASE(
-    "Проверка корректности выполнения CriticalSection", "[critical_section]") {
-  using namespace dsac::syncing;
-
-  SECTION("Проверка корректности изменения объекта несколькими потоками") {
-    CriticalSection critical_section;
+    "Проверка корректности выполнения critical_section", "[critical_section]") {
+   SECTION("Проверка корректности изменения объекта несколькими потоками") {
+    dsac::critical_section critical_section;
 
     int         counter = 0;
     std::thread adder([&]() {
       for (int i{}; i < 1'000'000; ++i) {
-        critical_section.Lock();
+        critical_section.lock();
         counter += 1;
-        critical_section.Unlock();
+        critical_section.unlock();
       }
     });
 
     std::thread subtractor([&]() {
       for (int i{}; i < 1'000'000; ++i) {
-        critical_section.Lock();
+        critical_section.lock();
         counter -= 1;
-        critical_section.Unlock();
+        critical_section.unlock();
       }
     });
 

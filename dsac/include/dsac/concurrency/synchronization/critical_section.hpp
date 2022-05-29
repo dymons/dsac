@@ -2,14 +2,14 @@
 
 #include <atomic>
 
-namespace dsac::syncing {
-// an implementation of test-and-set spinlock
-// see: https://en.wikipedia.org/wiki/Test-and-set
-class CriticalSection final {
+namespace dsac {
+
+class critical_section final {
   std::atomic<bool> locked_{false};
 
 public:
-  void Lock();
-  void Unlock();
+  void lock();
+  void unlock();
 };
-}  // namespace dsac::syncing
+
+}  // namespace dsac

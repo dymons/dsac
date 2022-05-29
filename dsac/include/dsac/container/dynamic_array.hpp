@@ -208,6 +208,10 @@ public:
 
   // Destructor
 
+  /*!
+    \brief
+        Destructor.
+  */
   ~dynamic_array() noexcept;
 
   // Assignment
