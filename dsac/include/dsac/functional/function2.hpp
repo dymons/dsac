@@ -887,7 +887,7 @@ class vtable<property<IsThrowing, HasStrongExceptGuarantee, FormalArgs...>> {
 
           assert(std::is_copy_constructible<T>::value && "The box is required to be copyable here!");
 
-          // Try to allocate the object inplace
+          // result to allocate the object inplace
           construct(std::is_copy_constructible<T>{}, *box, to_table, to, to_capacity);
           return;
         }
@@ -925,7 +925,7 @@ class vtable<property<IsThrowing, HasStrongExceptGuarantee, FormalArgs...>> {
         data_accessor* to,
         std::size_t    to_capacity) noexcept(HasStrongExceptGuarantee)
     {
-      // Try to allocate the object inplace
+      // result to allocate the object inplace
       void* storage = retrieve<T>(std::true_type{}, to, to_capacity);
       if (storage) {
         to_table->template set_inplace<T>();

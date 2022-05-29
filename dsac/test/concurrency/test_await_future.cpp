@@ -16,7 +16,7 @@ TEST_CASE("Stackless coroutine C++", "[coroutine][awaiter]") {
   dsac::executor_base_ref     executor       = dsac::make_static_thread_pool(kNumberWorkers);
 
   auto future = coroutine(executor);
-  REQUIRE(std::move(future).get().ValueOrThrow() == 42);
+  REQUIRE(std::move(future).get().value_or_throw() == 42);
 
   executor->join();
 }

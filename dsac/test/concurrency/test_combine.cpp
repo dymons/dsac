@@ -35,8 +35,8 @@ TEST_CASE("Проверка корректности комбинатора на
 
     dsac::future<int> future = dsac::first_of(std::move(futures));
     dsac::result<int> result = std::move(future).get();
-    REQUIRE(result.HasValue());
-    REQUIRE(result.ValueOrThrow() == 2);
+    REQUIRE(result.has_value());
+    REQUIRE(result.value_or_throw() == 2);
 
     executor->join();
   }
@@ -59,9 +59,9 @@ TEST_CASE("Проверка корректности комбинатора на
     constexpr std::size_t                                        kQuorum = 4U;
     dsac::future<dsac::dynamic_array<dsac::result<std::size_t>>> future  = dsac::first_n(std::move(futures), kQuorum);
     dsac::result<dsac::dynamic_array<dsac::result<std::size_t>>> result  = std::move(future).get();
-    REQUIRE(result.HasValue());
+    REQUIRE(result.has_value());
 
-    dsac::dynamic_array<dsac::result<std::size_t>> sequence = result.ValueOrThrow();
+    dsac::dynamic_array<dsac::result<std::size_t>> sequence = result.value_or_throw();
     REQUIRE(sequence.size() == kQuorum);
 
     dsac::dynamic_array<dsac::result<std::size_t>> expected(kQuorum, dsac::result<std::size_t>(0U));

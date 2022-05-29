@@ -40,7 +40,7 @@ class future : public hold_state<T> {
   using hold_state<T>::release_state;
 
 public:
-  Try<T> get() && {
+  result<T> get() && {
     return release_state()->get_result();
   }
 
@@ -66,13 +66,13 @@ public:
 
   template <typename F>
   auto then(F&& continuation) && {
-    using return_type = typename std::result_of<F(const Try<T>&)>::type;
+    using return_type = typename std::result_of<F(const result<T>&)>::type;
 
     promise<return_type> promise;
     future<return_type>  future = promise.make_future();
 
     std::move(*this).subscribe(
-        [continuation = std::forward<F>(continuation), promise = std::move(promise)](Try<T> result) mutable {
+        [continuation = std::forward<F>(continuation), promise = std::move(promise)](result<T> result) mutable {
           try {
             promise.set(continuation(result));
           } catch (...) {

@@ -39,7 +39,7 @@ public:
 
   void set(T value) {
     throw_if_fulfilled();
-    release_state()->set_result(Try<T>(std::move(value)));
+    release_state()->set_result(result<T>(std::move(value)));
   }
 
   void set(result<T>&& result) {
@@ -48,7 +48,7 @@ public:
   }
 
   void set(std::exception_ptr&& exception) {
-    release_state()->set_result(Try<T>(std::move(exception)));
+    release_state()->set_result(result<T>(std::move(exception)));
   }
 
 private:

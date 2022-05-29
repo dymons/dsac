@@ -28,7 +28,7 @@ public:
   }
 
   auto await_resume() {
-    return (*result_).ValueOrThrow();
+    return (*result_).value_or_throw();
   }
 
 private:

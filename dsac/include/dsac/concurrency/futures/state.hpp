@@ -10,10 +10,10 @@
 namespace dsac {
 
 template <typename T>
-class shared_state {
+class shared_state final {
   template <typename U>
   using MVarRef    = std::shared_ptr<syncing::MVar<U>>;
-  using StateValue = std::variant<Try<T>, callback<T>>;
+  using StateValue = std::variant<result<T>, callback<T>>;
 
   MVarRef<StateValue>              storage_;
   syncing::MVar<void>              has_value_;
@@ -25,7 +25,7 @@ public:
   }
 
   /// Call only from producer thread
-  void set_result(Try<T>&& result) {
+  void set_result(result<T>&& result) {
     if (has_result()) {
       // If we already have the value, what to do? ¯\_(ツ)_/¯
     } else if (has_callback()) {
@@ -40,23 +40,21 @@ public:
   }
 
   [[nodiscard]] bool has_result() const {
-    bool const not_empty = !storage_->IsEmpty();
-    bool const has_value = not_empty && storage_->ReadOnly().index() == 0;
-    return has_value;
+    const auto result = storage_->template try_with_lock([](StateValue const& state) { return state.index() == 0; });
+    return result.has_value() && result.value();
   }
 
   [[nodiscard]] bool has_callback() const {
-    bool const not_empty    = !storage_->IsEmpty();
-    bool const has_callback = not_empty && storage_->ReadOnly().index() == 1;
-    return has_callback;
+    const auto result = storage_->template try_with_lock([](StateValue const& state) { return state.index() == 1; });
+    return result.has_value() && result.value();
   }
 
-  Try<T> get_result() {
+  result<T> get_result() {
     // We are waiting for the user value to be saved in the storage_
     has_value_.ReadOnly();
 
     // Then we try to get this value from the storage_
-    return std::get<Try<T>>(storage_->ReadOnly());
+    return std::get<result<T>>(storage_->ReadOnly());
   }
 
   /// Call only from consumer thread
@@ -82,13 +80,16 @@ public:
 
 private:
   void do_callback(callback<T>&& callback) {
-    if (executor_base_ref executor = get_executor(); executor != nullptr) {
-      executor->submit([callback = std::move(callback), storage = storage_]() mutable {
-        callback(std::get<Try<T>>(storage->ReadOnly()));
-      });
-    } else {
-      callback(std::get<Try<T>>(storage_->ReadOnly()));
-    }
+    storage_->template try_with_lock([this, &callback](StateValue const& state) -> bool {
+      auto data = std::get<result<T>>(state);
+      if (executor_base_ref executor = get_executor(); executor != nullptr) {
+        executor->submit(
+            [callback = std::move(callback), data = std::move(data)]() mutable { callback(std::move(data)); });
+      } else {
+        callback(std::move(data));
+      }
+      return true;
+    });
   }
 };
 
@@ -136,4 +137,5 @@ protected:
 protected:
   state_ref<T> state_;
 };
+
 }  // namespace dsac

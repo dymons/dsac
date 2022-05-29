@@ -5,41 +5,38 @@
 
 namespace dsac {
 template <typename T>
-class Try {
+class result {
   std::variant<T, std::exception_ptr> store_;
 
 public:
-  explicit Try(T value)
+  explicit result(T value)
     : store_(std::move(value)) {
   }
 
-  explicit Try(std::exception_ptr&& exception)
+  explicit result(std::exception_ptr&& exception)
     : store_(std::move(exception)) {
   }
 
-  const T& ValueOrThrow() const {
-    if (HasException()) {
+  const T& value_or_throw() const {
+    if (has_exception()) {
       std::rethrow_exception(std::get<std::exception_ptr>(store_));
     }
 
     return std::get<T>(store_);
   }
 
-  [[nodiscard]] bool HasValue() const noexcept {
+  [[nodiscard]] bool has_value() const noexcept {
     return store_.index() == 0;
   }
 
-  [[nodiscard]] bool HasException() const noexcept {
+  [[nodiscard]] bool has_exception() const noexcept {
     return store_.index() == 1;
   }
 };
 
-template<typename T>
-using result = Try<T>;
-
 template <typename T>
-bool operator==(const Try<T>& p, const Try<T>& b) {
-  return (p.HasValue() && b.HasValue()) &&
-         (p.ValueOrThrow() == b.ValueOrThrow());
+bool operator==(const result<T>& p, const result<T>& b) {
+  return (p.has_value() && b.has_value()) &&
+         (p.value_or_throw() == b.value_or_throw());
 }
 }  // namespace dsac
