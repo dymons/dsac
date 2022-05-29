@@ -11,7 +11,7 @@ namespace dsac {
     \param executor
         Executor within which the execution will be performed routine
     \param routine
-        User-handler for execution
+        User-routine for execution
 
     \ingroup
         DsacConcurrency

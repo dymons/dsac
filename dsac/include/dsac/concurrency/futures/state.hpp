@@ -25,28 +25,61 @@ template <typename T>
 class shared_state final {
   using state_value = std::variant<result<T>, callback<T>>;
 
-  mvar_ref<state_value>   storage_;
-  mvar<void>              has_value_;
-  mvar<executor_base_ref> executor_;
-
-  void throw_if_fulfilled_by_result() {
-    if (has_result()) {
-      throw shared_state_already_satisfied{};
-    }
-  }
-
-  void throw_if_fulfilled_by_callback() {
-    if (has_callback()) {
-      throw shared_state_already_satisfied{};
-    }
-  }
-
 public:
-  shared_state()
-    : storage_(dsac::make_shared<mvar<state_value>>()) {
-  }
+  // Constructors
 
-  /// Call only from producer thread
+  /*!
+      \brief
+          Default constructor, constructs an empty shared_state.
+  */
+  shared_state();
+
+  // Observers
+
+  /*!
+      \brief
+          Checking what shared state initialized by dsac::result.
+  */
+  [[nodiscard]] bool has_result() const;
+
+  /*!
+      \brief
+          Checking what shared state initialized by dsac::callback.
+  */
+  [[nodiscard]] bool has_callback() const;
+
+  /*!
+      \brief
+          Extract dsac::result from shared state.
+  */
+  [[nodiscard]] result<T> get_result();
+
+  /*!
+      \brief
+          Get the current execution environment for execution of user subscriptions. May call from any thread.
+  */
+  [[nodiscard]] executor_base_ref get_executor();
+
+  // Modifiers
+
+  /*!
+    \brief
+        Initialize a shared state by value. Call only from producer thread.
+
+    \param result
+        User-data for saving withing shared state
+
+    \throw dsac::shared_state_already_satisfied
+        Shared state does not support of initializing more than once by dsac::result value
+
+    \ingroup
+          DsacConcurrency
+
+    \code
+          auto state = dsac::make_shared_state<int>{};
+          state->set_result(0);
+    \endcode
+  */
   void set_result(result<T>&& result) {
     throw_if_fulfilled_by_result();
 
@@ -61,33 +94,10 @@ public:
     }
   }
 
-  [[nodiscard]] bool has_result() const {
-    const auto result = storage_->template try_with_lock([](state_value const& state) { return state.index() == 0; });
-    return result.has_value() && result.value();
-  }
-
-  [[nodiscard]] bool has_callback() const {
-    const auto result = storage_->template try_with_lock([](state_value const& state) { return state.index() == 1; });
-    return result.has_value() && result.value();
-  }
-
-  result<T> get_result() {
-    // We are waiting for the user value to be saved in the storage_
-    has_value_.read_only();
-
-    // Then we try to get this value from the storage_
-    return std::get<result<T>>(storage_->read_only());
-  }
-
   /// Call only from consumer thread
   void set_executor(executor_base_ref&& exec) {
     assert(executor_.is_empty());
     executor_.put(std::move(exec));
-  }
-
-  /// May call from any thread
-  executor_base_ref get_executor() {
-    return executor_.is_empty() ? nullptr : executor_.read_only();
   }
 
   void set_callback(callback<T>&& callback) {
@@ -113,6 +123,22 @@ private:
       return true;
     });
   }
+
+  /*!
+      \brief
+          Check if shared state already initialized by dsac::result then throw.
+  */
+  void throw_if_fulfilled_by_result();
+
+  /*!
+      \brief
+          Check if shared state already initialized by dsac::callback then throw.
+  */
+  void throw_if_fulfilled_by_callback();
+
+  mvar_ref<state_value>   storage_;
+  mvar<void>              has_value_;
+  mvar<executor_base_ref> executor_;
 };
 
 template <typename T>
@@ -156,3 +182,7 @@ protected:
 };
 
 }  // namespace dsac
+
+#define CONCURRENCY_STATE_HPP
+#include <dsac/concurrency/futures/detail/state-inl.hpp>
+#undef CONCURRENCY_STATE_HPP

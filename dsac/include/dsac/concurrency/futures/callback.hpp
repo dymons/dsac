@@ -5,6 +5,10 @@
 
 namespace dsac {
 
+/*!
+    \brief
+        Callback with support creating move-only lambda for execution in the executor environment.
+*/
 template <typename T>
 using callback = fu2::unique_function<void(result<T>)>;
 
