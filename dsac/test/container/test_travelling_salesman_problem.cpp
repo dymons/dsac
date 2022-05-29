@@ -1,5 +1,5 @@
 #include <utility>
-#include "catch2/catch.hpp"
+#include <catch2/catch.hpp>
 
 #include <dsac/container/graph/travelling_salesman_problem.hpp>
 

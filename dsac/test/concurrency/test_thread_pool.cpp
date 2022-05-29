@@ -5,7 +5,7 @@
 #include <chrono>
 #include <thread>
 
-TEST_CASE("Проверка корректности выполнения Thread Pool", "[static_thread_pool]") {
+TEST_CASE("Execution multiple user tasks in parallel", "[static_thread_pool]") {
   constexpr std::size_t   kNumberWorkers = 4U;
   dsac::executor_base_ref executor       = dsac::make_static_thread_pool(kNumberWorkers);
 
@@ -15,7 +15,5 @@ TEST_CASE("Проверка корректности выполнения Thread
   }
 
   executor->join();
-  auto end = std::chrono::steady_clock::now();
-
-  REQUIRE((end - start) < std::chrono::seconds(1));
+  REQUIRE((std::chrono::steady_clock::now() - start) < std::chrono::seconds(1));
 }

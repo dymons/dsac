@@ -1,5 +1,5 @@
 #include <utility>
-#include "catch2/catch.hpp"
+#include <catch2/catch.hpp>
 
 #include <dsac/container/graph/directed_graph.hpp>
 

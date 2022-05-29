@@ -1,4 +1,4 @@
-#include "catch2/catch.hpp"
+#include <catch2/catch.hpp>
 
 #include <dsac/concurrency/coroutines/futures/awaiter.hpp>
 #include <dsac/concurrency/coroutines/futures/promise.hpp>

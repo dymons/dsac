@@ -1,4 +1,4 @@
-#include "catch2/catch.hpp"
+#include <catch2/catch.hpp>
 
 #include <dsac/container/heap/binary_heap.hpp>
 #include <random>

@@ -1,4 +1,4 @@
-#include "catch2/catch.hpp"
+#include <catch2/catch.hpp>
 
 #include <dsac/container/tree/rb_tree.hpp>
 #include <random>
