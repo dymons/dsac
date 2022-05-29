@@ -102,11 +102,9 @@ public:
         Move constructor.
   */
   shared_ptr(shared_ptr&& other) noexcept
-    : ptr_(other.ptr_)
-    , ref_count_(other.ref_count_)
-    , deleter_(other.deleter_) {
-    other.ptr_       = nullptr;
-    other.ref_count_ = nullptr;
+    : ptr_(std::exchange(other.ptr_, nullptr))
+    , ref_count_(std::exchange(other.ref_count_, nullptr))
+    , deleter_(std::exchange(other.deleter_, nullptr)) {
   }
 
   // Destructor
