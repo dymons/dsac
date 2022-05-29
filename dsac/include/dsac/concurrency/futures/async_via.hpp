@@ -6,7 +6,7 @@ namespace dsac {
 
 /*!
     \brief
-        Create a static thread pool.
+        Execute async user-routine in specified executor environment.
 
     \param executor
         Executor within which the execution will be performed routine
