@@ -167,6 +167,10 @@ class hold_state {
 public:
   // Constructors
 
+  /*!
+    \brief
+        User constructor, constructs a hold_state with predefined shared state.
+  */
   explicit hold_state(state_ref<T> state = make_shared_state<T>());
 
   /*!
