@@ -18,8 +18,8 @@ public:
 
   unique_lock(const unique_lock&)            = delete;
   unique_lock& operator=(const unique_lock&) = delete;
-  unique_lock(unique_lock&&) noexcept ;
-  unique_lock& operator=(unique_lock&&) noexcept ;
+  unique_lock(unique_lock&&) noexcept;
+  unique_lock& operator=(unique_lock&&) noexcept;
 
   void lock();
   void unlock();

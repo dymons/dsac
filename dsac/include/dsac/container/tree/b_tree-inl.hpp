@@ -61,8 +61,7 @@ void BTree<T>::Node::AddKey(T key) {
   } else {
     const auto upper = std::upper_bound(keys_.begin(), keys_.end(), key);
     int        index = std::distance(keys_.begin(), upper);
-    if (Node* const consider_node = GetChild(index);
-        consider_node->IsKeysFull()) {
+    if (Node* const consider_node = GetChild(index); consider_node->IsKeysFull()) {
       SplitChild(index, consider_node);
       if (GetKey(index) < key) {
         index++;

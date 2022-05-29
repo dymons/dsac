@@ -30,8 +30,7 @@ using detail::bubble_sort;
         DsacAlgorithms
 */
 template <std::random_access_iterator RandomIterator>
-[[gnu::always_inline]] inline void bubble_sort(
-    RandomIterator first, RandomIterator last) {
+[[gnu::always_inline]] inline void bubble_sort(RandomIterator first, RandomIterator last) {
   detail::bubble_sort(first, last, std::less<>{});
 }
 
@@ -52,15 +51,11 @@ template <std::random_access_iterator RandomIterator>
         DsacAlgorithms
 */
 template <typename RandomRange, typename Compare>
-[[gnu::always_inline]] inline void bubble_sort(
-    RandomRange&& range, Compare comp) {
+[[gnu::always_inline]] inline void bubble_sort(RandomRange&& range, Compare comp) {
   using std::begin;
   using std::end;
 
-  return detail::bubble_sort(
-      begin(std::forward<RandomRange>(range)),
-      end(std::forward<RandomRange>(range)),
-      comp);
+  return detail::bubble_sort(begin(std::forward<RandomRange>(range)), end(std::forward<RandomRange>(range)), comp);
 }
 
 /*!

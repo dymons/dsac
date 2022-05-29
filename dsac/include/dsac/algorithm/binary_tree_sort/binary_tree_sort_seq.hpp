@@ -32,10 +32,8 @@ using detail::binary_tree_sort;
         DsacAlgorithms
 */
 template <std::forward_iterator ForwardIterator>
-[[gnu::always_inline]] inline void binary_tree_sort(
-    ForwardIterator first, ForwardIterator last) {
-  using value_type =
-      typename dsac::iterator_traits<ForwardIterator>::value_type;
+[[gnu::always_inline]] inline void binary_tree_sort(ForwardIterator first, ForwardIterator last) {
+  using value_type         = typename dsac::iterator_traits<ForwardIterator>::value_type;
   using binary_tree_policy = binary_search_tree<value_type>;
   detail::binary_tree_sort(first, last, binary_tree_policy{});
 }
@@ -58,19 +56,15 @@ template <std::forward_iterator ForwardIterator>
         DsacAlgorithms
 */
 template <typename RandomRange, typename Compare>
-[[gnu::always_inline]] inline void binary_tree_sort(
-    RandomRange&& range, Compare comp) {
+[[gnu::always_inline]] inline void binary_tree_sort(RandomRange&& range, Compare comp) {
   using std::begin;
   using std::end;
-  using iterator_type =
-      typename dsac::container_traits<RandomRange>::iterator_type;
-  using value_type = typename dsac::iterator_traits<iterator_type>::value_type;
+  using iterator_type = typename dsac::container_traits<RandomRange>::iterator_type;
+  using value_type    = typename dsac::iterator_traits<iterator_type>::value_type;
 
   binary_search_tree<value_type, Compare> binary_tree{std::move(comp)};
   return detail::binary_tree_sort(
-      begin(std::forward<RandomRange>(range)),
-      end(std::forward<RandomRange>(range)),
-      std::move(binary_tree));
+      begin(std::forward<RandomRange>(range)), end(std::forward<RandomRange>(range)), std::move(binary_tree));
 }
 
 /*!
@@ -90,8 +84,7 @@ template <typename RandomRange, typename Compare>
 */
 template <typename RandomRange>
 [[gnu::always_inline]] inline void binary_tree_sort(RandomRange&& range) {
-  return ::dsac::binary_tree_sort(
-      std::forward<RandomRange>(range), std::less<>{});
+  return ::dsac::binary_tree_sort(std::forward<RandomRange>(range), std::less<>{});
 }
 
 }  // namespace dsac

@@ -21,11 +21,9 @@ private:
     [[nodiscard]] int                              MinDepth() const;
     [[nodiscard]] bool                             Contains(T search_key) const;
     [[nodiscard, gnu::always_inline]] inline Node* GetParent() const noexcept;
-    [[nodiscard, gnu::always_inline]] inline Node* GetGrandparent()
-        const noexcept;
+    [[nodiscard, gnu::always_inline]] inline Node* GetGrandparent() const noexcept;
     [[nodiscard, gnu::always_inline]] inline Node* GetUncle() const noexcept;
-    [[nodiscard, gnu::always_inline]] inline bool  IsColor(
-         Color color) const noexcept;
+    [[nodiscard, gnu::always_inline]] inline bool  IsColor(Color color) const noexcept;
 
     void Recolor() noexcept;
     void Destroy();

@@ -30,8 +30,7 @@ using detail::selection_sort;
         DsacAlgorithms
 */
 template <std::random_access_iterator RandomIterator>
-[[gnu::always_inline]] inline void selection_sort(
-    RandomIterator first, RandomIterator last) {
+[[gnu::always_inline]] inline void selection_sort(RandomIterator first, RandomIterator last) {
   detail::selection_sort(first, last, std::less<>{});
 }
 
@@ -52,15 +51,11 @@ template <std::random_access_iterator RandomIterator>
         DsacAlgorithms
 */
 template <typename RandomRange, typename Compare>
-[[gnu::always_inline]] inline void selection_sort(
-    RandomRange&& range, Compare comp) {
+[[gnu::always_inline]] inline void selection_sort(RandomRange&& range, Compare comp) {
   using std::begin;
   using std::end;
 
-  return detail::selection_sort(
-      begin(std::forward<RandomRange>(range)),
-      end(std::forward<RandomRange>(range)),
-      comp);
+  return detail::selection_sort(begin(std::forward<RandomRange>(range)), end(std::forward<RandomRange>(range)), comp);
 }
 
 /*!
@@ -79,8 +74,7 @@ template <typename RandomRange, typename Compare>
 */
 template <typename RandomRange>
 [[gnu::always_inline]] inline void selection_sort(RandomRange&& range) {
-  return ::dsac::selection_sort(
-      std::forward<RandomRange>(range), std::less<>{});
+  return ::dsac::selection_sort(std::forward<RandomRange>(range), std::less<>{});
 }
 
 }  // namespace dsac

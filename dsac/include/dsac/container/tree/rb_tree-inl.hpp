@@ -34,9 +34,7 @@ typename RBTree<T>::Node* RBTree<T>::Node::GetGrandparent() const noexcept {
 template <typename T>
 typename RBTree<T>::Node* RBTree<T>::Node::GetUncle() const noexcept {
   Node* const grandparent = GetGrandparent();
-  return grandparent == nullptr        ? nullptr
-         : parent == grandparent->left ? grandparent->right
-                                       : grandparent->left;
+  return grandparent == nullptr ? nullptr : parent == grandparent->left ? grandparent->right : grandparent->left;
 }
 
 template <typename T>
@@ -50,8 +48,7 @@ bool RBTree<T>::Node::Contains(T search_key) const {
     return true;
   }
 
-  return (left && left->Contains(search_key)) ||
-         (right && right->Contains(search_key));
+  return (left && left->Contains(search_key)) || (right && right->Contains(search_key));
 }
 
 template <typename T>
@@ -113,8 +110,7 @@ template <typename T>
 void RBTree<T>::BalancingSubtree(Node* subtree) {
   while (subtree->GetParent()->IsColor(Color::Red)) {
     if (subtree->GetParent() == subtree->GetGrandparent()->right) {
-      if (Node* uncle = subtree->GetUncle();
-          uncle && uncle->IsColor(Color::Red)) {
+      if (Node* uncle = subtree->GetUncle(); uncle && uncle->IsColor(Color::Red)) {
         // case 3.1
         uncle->Recolor();
         subtree->GetParent()->Recolor();
@@ -132,8 +128,7 @@ void RBTree<T>::BalancingSubtree(Node* subtree) {
         SmallLeftRotation(subtree->GetGrandparent());
       }
     } else {
-      if (Node* uncle = subtree->GetUncle();
-          uncle && uncle->IsColor(Color::Red)) {
+      if (Node* uncle = subtree->GetUncle(); uncle && uncle->IsColor(Color::Red)) {
         // mirror case 3.1
         uncle->Recolor();
         subtree->GetParent()->Recolor();

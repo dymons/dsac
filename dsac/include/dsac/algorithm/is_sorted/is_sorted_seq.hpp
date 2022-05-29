@@ -32,10 +32,8 @@ using detail::is_sorted;
         DsacAlgorithms
 */
 template <std::forward_iterator ForwardIterator>
-[[gnu::always_inline]] constexpr inline bool is_sorted(
-    ForwardIterator begin, ForwardIterator end) {
-  using value_type =
-      typename dsac::iterator_traits<ForwardIterator>::value_type;
+[[gnu::always_inline]] constexpr inline bool is_sorted(ForwardIterator begin, ForwardIterator end) {
+  using value_type = typename dsac::iterator_traits<ForwardIterator>::value_type;
   return detail::is_sorted(begin, end, std::less<value_type>{});
 }
 
@@ -60,14 +58,10 @@ template <std::forward_iterator ForwardIterator>
         DsacAlgorithms
 */
 template <typename ForwardRange, typename Compare>
-[[gnu::always_inline]] constexpr inline bool is_sorted(
-    ForwardRange&& range, Compare comp) {
+[[gnu::always_inline]] constexpr inline bool is_sorted(ForwardRange&& range, Compare comp) {
   using std::begin;
   using std::end;
-  return detail::is_sorted(
-      begin(std::forward<ForwardRange>(range)),
-      end(std::forward<ForwardRange>(range)),
-      comp);
+  return detail::is_sorted(begin(std::forward<ForwardRange>(range)), end(std::forward<ForwardRange>(range)), comp);
 }
 
 /*!
@@ -92,14 +86,11 @@ template <typename ForwardRange>
 [[gnu::always_inline]] constexpr inline bool is_sorted(ForwardRange&& range) {
   using std::begin;
   using std::end;
-  using iterator_type =
-      typename dsac::container_traits<ForwardRange>::iterator_type;
-  using value_type = typename dsac::iterator_traits<iterator_type>::value_type;
+  using iterator_type = typename dsac::container_traits<ForwardRange>::iterator_type;
+  using value_type    = typename dsac::iterator_traits<iterator_type>::value_type;
 
   return detail::is_sorted(
-      begin(std::forward<ForwardRange>(range)),
-      end(std::forward<ForwardRange>(range)),
-      std::less<value_type>{});
+      begin(std::forward<ForwardRange>(range)), end(std::forward<ForwardRange>(range)), std::less<value_type>{});
 }
 
 /*!
@@ -121,8 +112,7 @@ template <typename ForwardRange>
         DsacAlgorithms
 */
 template <typename T>
-[[gnu::always_inline]] constexpr inline bool is_sorted(
-    std::initializer_list<T> range) {
+[[gnu::always_inline]] constexpr inline bool is_sorted(std::initializer_list<T> range) {
   using std::begin;
   using std::end;
   return ::dsac::is_sorted(begin(range), end(range));
@@ -149,8 +139,7 @@ template <typename T>
         DsacAlgorithms
 */
 template <typename T, typename Compare>
-[[gnu::always_inline]] constexpr inline bool is_sorted(
-    std::initializer_list<T> range, Compare comp) {
+[[gnu::always_inline]] constexpr inline bool is_sorted(std::initializer_list<T> range, Compare comp) {
   using std::begin;
   using std::end;
   return ::dsac::is_sorted(begin(range), end(range), comp);

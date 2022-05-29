@@ -16,8 +16,7 @@ struct Node final {
 namespace std {
 template <>
 struct hash<dsac::graph::Node> {
-  [[gnu::always_inline]] std::size_t operator()(
-      dsac::graph::Node node) const noexcept {
+  [[gnu::always_inline]] std::size_t operator()(dsac::graph::Node node) const noexcept {
     return node.id;
   }
 };

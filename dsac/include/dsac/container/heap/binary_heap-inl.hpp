@@ -55,8 +55,7 @@ void BinaryHeap<T, Compare>::HeapifyDown() {
   std::size_t index = 0;
   while (ExistLeftChild(index)) {
     std::size_t smaller_child_index = GetIndexLeftChild(index);
-    if (ExistRightChild(index) &&
-        comp_(GetRightChild(index), GetLeftChild(index))) {
+    if (ExistRightChild(index) && comp_(GetRightChild(index), GetLeftChild(index))) {
       smaller_child_index = GetIndexRightChild(index);
     }
 
@@ -72,8 +71,7 @@ void BinaryHeap<T, Compare>::HeapifyDown() {
 template <typename T, template <typename> class Compare>
 void BinaryHeap<T, Compare>::HeapifyUp() {
   std::size_t last_index = storage_.size() - 1;
-  while (ExistParent(last_index) &&
-         comp_(storage_[last_index], GetParent(last_index))) {
+  while (ExistParent(last_index) && comp_(storage_[last_index], GetParent(last_index))) {
     std::size_t const parent_index = GetIndexParent(last_index);
     std::swap(storage_[parent_index], storage_[last_index]);
     last_index = parent_index;

@@ -55,10 +55,7 @@ namespace dsac::detail {
    binary_tree_policy{}); \endcode
 */
 template <std::forward_iterator ForwardIterator, class BinaryTreePolicy>
-void binary_tree_sort(
-    ForwardIterator    first,
-    ForwardIterator    last,
-    BinaryTreePolicy&& binary_tree) {
+void binary_tree_sort(ForwardIterator first, ForwardIterator last, BinaryTreePolicy&& binary_tree) {
   binary_tree.insert(first, last);
   if (binary_tree.size() != std::distance(first, last)) {
     throw DublicateNotSupported{};

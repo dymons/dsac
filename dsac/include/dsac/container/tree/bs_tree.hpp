@@ -5,9 +5,7 @@ namespace dsac {
 
 template <typename BinarySearchTreeNode>
 class BinarySearchTreeIterator final
-  : std::iterator<
-        std::bidirectional_iterator_tag,
-        typename BinarySearchTreeNode::pointer> {
+  : std::iterator<std::bidirectional_iterator_tag, typename BinarySearchTreeNode::pointer> {
   using key_type           = typename BinarySearchTreeNode::key_type;
   using node_pointer       = typename BinarySearchTreeNode::pointer;
   using const_node_pointer = typename BinarySearchTreeNode::const_pointer;
@@ -76,25 +74,20 @@ public:
   BinarySearchTreeIterator operator--()    = delete;
   BinarySearchTreeIterator operator--(int) = delete;
 
-  friend bool operator==(
-      const BinarySearchTreeIterator& lhs,
-      const BinarySearchTreeIterator& rhs) {
+  friend bool operator==(const BinarySearchTreeIterator& lhs, const BinarySearchTreeIterator& rhs) {
     return lhs.current_node_ == rhs.current_node_;
   }
 
-  friend bool operator!=(
-      const BinarySearchTreeIterator& lhs,
-      const BinarySearchTreeIterator& rhs) {
+  friend bool operator!=(const BinarySearchTreeIterator& lhs, const BinarySearchTreeIterator& rhs) {
     return !(lhs == rhs);
   }
 
-  BinarySearchTreeIterator()                                = default;
-  BinarySearchTreeIterator(const BinarySearchTreeIterator&) = default;
-  BinarySearchTreeIterator(BinarySearchTreeIterator&&)      = default;
-  BinarySearchTreeIterator& operator=(const BinarySearchTreeIterator&) =
-      default;
-  BinarySearchTreeIterator& operator=(BinarySearchTreeIterator&&) = default;
-  ~BinarySearchTreeIterator()                                     = default;
+  BinarySearchTreeIterator()                                           = default;
+  BinarySearchTreeIterator(const BinarySearchTreeIterator&)            = default;
+  BinarySearchTreeIterator(BinarySearchTreeIterator&&)                 = default;
+  BinarySearchTreeIterator& operator=(const BinarySearchTreeIterator&) = default;
+  BinarySearchTreeIterator& operator=(BinarySearchTreeIterator&&)      = default;
+  ~BinarySearchTreeIterator()                                          = default;
 
 private:
   explicit BinarySearchTreeIterator(node_pointer node)
@@ -115,11 +108,7 @@ public:
   // clang-format on
 
   template <typename T>
-  explicit BinarySearchTreeNode(
-      T&&     key,
-      pointer left   = nullptr,
-      pointer right  = nullptr,
-      pointer parent = nullptr)
+  explicit BinarySearchTreeNode(T&& key, pointer left = nullptr, pointer right = nullptr, pointer parent = nullptr)
     : key_(std::forward<T>(key))
     , left_(left)
     , right_(right)
@@ -132,10 +121,7 @@ public:
   pointer  parent_{nullptr};
 };
 
-template <
-    typename Key,
-    typename Compare   = std::less<Key>,
-    typename Allocator = std::allocator<Key>>
+template <typename Key, typename Compare = std::less<Key>, typename Allocator = std::allocator<Key>>
 class binary_search_tree final {
   using AllocatorTraits = std::allocator_traits<Allocator>;
 
@@ -169,16 +155,14 @@ public:
   template <typename ForwardIterator>
   binary_search_tree(ForwardIterator begin, ForwardIterator end)
     : binary_search_tree() {
-    using user_value_type =
-        typename dsac::iterator_traits<ForwardIterator>::value_type;
+    using user_value_type = typename dsac::iterator_traits<ForwardIterator>::value_type;
     static_assert(std::is_same_v<user_value_type, value_type>);
     for (auto it = begin; it != end; ++it) {
       InsertUnique(*it);
     }
   }
 
-  explicit binary_search_tree(
-      Compare comp = Compare(), Allocator alloc = Allocator())
+  explicit binary_search_tree(Compare comp = Compare(), Allocator alloc = Allocator())
     : compare_(std::move(comp))
     , allocator_(std::move(alloc))
     , size_(0)
@@ -222,8 +206,7 @@ public:
 
   template <typename ForwardIterator>
   void insert(ForwardIterator begin, ForwardIterator end) {
-    using user_value_type =
-        typename dsac::iterator_traits<ForwardIterator>::value_type;
+    using user_value_type = typename dsac::iterator_traits<ForwardIterator>::value_type;
     static_assert(std::is_same_v<user_value_type, value_type>);
     for (auto it = begin; it != end; ++it) {
       [[maybe_unused]] auto const added = InsertUnique(*it);
@@ -264,8 +247,7 @@ private:
     return iterator(node);
   }
 
-  [[gnu::always_inline]] const_iterator MakeIterator(
-      const_node_pointer node) const noexcept {
+  [[gnu::always_inline]] const_iterator MakeIterator(const_node_pointer node) const noexcept {
     return const_iterator(const_cast<node_pointer>(node));
   }
 
@@ -333,16 +315,14 @@ private:
     return std::make_pair(MakeIterator(inserted_node), true);
   }
 
-  [[gnu::always_inline]] node_pointer GetLeftmostNode(
-      node_pointer leftmost) noexcept {
+  [[gnu::always_inline]] node_pointer GetLeftmostNode(node_pointer leftmost) noexcept {
     while (leftmost && leftmost->left_) {
       leftmost = leftmost->left_;
     }
     return leftmost;
   }
 
-  [[gnu::always_inline]] const_node_pointer GetLeftmostNode(
-      const_node_pointer leftmost) const noexcept {
+  [[gnu::always_inline]] const_node_pointer GetLeftmostNode(const_node_pointer leftmost) const noexcept {
     while (leftmost && leftmost->left_) {
       leftmost = leftmost->left_;
     }
@@ -412,8 +392,7 @@ private:
           DestroyNode(it.current_node_);
         }
       } else if (has_left_node && has_right_node) {
-        node_pointer current_leftmost =
-            GetLeftmostNode(it.current_node_->right_);
+        node_pointer current_leftmost = GetLeftmostNode(it.current_node_->right_);
 
         it.current_node_->key_ = std::move(current_leftmost->key_);
         if (current_leftmost->parent_->left_ == current_leftmost) {
@@ -424,8 +403,7 @@ private:
 
         DestroyNode(current_leftmost);
       } else {
-        node_pointer child_node =
-            has_left_node ? it.current_node_->left_ : it.current_node_->right_;
+        node_pointer child_node = has_left_node ? it.current_node_->left_ : it.current_node_->right_;
         if (it.current_node_ == root_) {
           root_ = child_node;
         } else {
@@ -453,17 +431,11 @@ private:
   size_t            size_;
 };
 
-template <
-    typename Key,
-    typename Compare   = std::less<Key>,
-    typename Allocator = std::allocator<Key>>
+template <typename Key, typename Compare = std::less<Key>, typename Allocator = std::allocator<Key>>
 auto begin(binary_search_tree<Key, Compare, Allocator> const& bst) {  // NOLINT
   return bst.Begin();
 }
-template <
-    typename Key,
-    typename Compare   = std::less<Key>,
-    typename Allocator = std::allocator<Key>>
+template <typename Key, typename Compare = std::less<Key>, typename Allocator = std::allocator<Key>>
 auto end(binary_search_tree<Key, Compare, Allocator> const& bst) {  // NOLINT
   return bst.End();
 }

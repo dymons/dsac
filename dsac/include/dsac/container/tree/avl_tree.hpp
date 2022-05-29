@@ -44,13 +44,12 @@ private:
   void LargeRightRotation(Node*& subtree) const;
 
   template <typename Comp>
-  void BalancingSubtree(
-      Node*& subtree, T destination_key, T source_key, Comp comp) const;
+  void BalancingSubtree(Node*& subtree, T destination_key, T source_key, Comp comp) const;
 
   Node* DeleteMinChild(Node* subtree);
   Node* FindMinChild(Node* subtree) const;
 
-  [[nodiscard]] int GetMaxHeight(Node* left_subtree, Node* right_subtree) const;
+  [[nodiscard]] int   GetMaxHeight(Node* left_subtree, Node* right_subtree) const;
   [[nodiscard]] bool  InsertImpl(Node*& root, Node* added) const;
   [[nodiscard]] Node* DeleteImpl(Node*& root, T deleted_key);
   void                VisitImpl(Node* root, Visitor visitor) const;
