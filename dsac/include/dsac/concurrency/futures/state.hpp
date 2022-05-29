@@ -2,7 +2,7 @@
 
 #include <dsac/concurrency/executors/executor.hpp>
 #include <dsac/concurrency/futures/callback.hpp>
-#include <dsac/concurrency/futures/try.hpp>
+#include <dsac/concurrency/futures/result.hpp>
 #include <dsac/concurrency/synchronization/mvar.hpp>
 
 #include <variant>
@@ -23,17 +23,15 @@ public:
 
 template <typename T>
 class shared_state final {
-  template <typename U>
-  using MVarRef    = std::shared_ptr<syncing::MVar<U>>;
-  using StateValue = std::variant<result<T>, callback<T>>;
+  using state_value = std::variant<result<T>, callback<T>>;
 
-  MVarRef<StateValue>              storage_;
-  syncing::MVar<void>              has_value_;
-  syncing::MVar<executor_base_ref> executor_;
+  mvar_ref<state_value>   storage_;
+  mvar<void>              has_value_;
+  mvar<executor_base_ref> executor_;
 
 public:
   shared_state()
-    : storage_(std::make_shared<syncing::MVar<StateValue>>()) {
+    : storage_(std::make_shared<mvar<state_value>>()) {
   }
 
   /// Call only from producer thread
@@ -43,43 +41,43 @@ public:
     }
 
     if (has_callback()) {
-      callback<T> handler = std::get<callback<T>>(storage_->Take());
-      storage_->Put(std::move(result));
-      has_value_.Put();
+      callback<T> handler = std::get<callback<T>>(storage_->take());
+      storage_->put(std::move(result));
+      has_value_.put();
       do_callback(std::move(handler));
     } else {
-      storage_->Put(std::move(result));
-      has_value_.Put();
+      storage_->put(std::move(result));
+      has_value_.put();
     }
   }
 
   [[nodiscard]] bool has_result() const {
-    const auto result = storage_->template try_with_lock([](StateValue const& state) { return state.index() == 0; });
+    const auto result = storage_->template try_with_lock([](state_value const& state) { return state.index() == 0; });
     return result.has_value() && result.value();
   }
 
   [[nodiscard]] bool has_callback() const {
-    const auto result = storage_->template try_with_lock([](StateValue const& state) { return state.index() == 1; });
+    const auto result = storage_->template try_with_lock([](state_value const& state) { return state.index() == 1; });
     return result.has_value() && result.value();
   }
 
   result<T> get_result() {
     // We are waiting for the user value to be saved in the storage_
-    has_value_.ReadOnly();
+    has_value_.read_only();
 
     // Then we try to get this value from the storage_
-    return std::get<result<T>>(storage_->ReadOnly());
+    return std::get<result<T>>(storage_->read_only());
   }
 
   /// Call only from consumer thread
   void set_executor(executor_base_ref&& exec) {
-    assert(executor_.IsEmpty());
-    executor_.Put(std::move(exec));
+    assert(executor_.is_empty());
+    executor_.put(std::move(exec));
   }
 
   /// May call from any thread
   executor_base_ref get_executor() {
-    return executor_.IsEmpty() ? nullptr : executor_.ReadOnly();
+    return executor_.is_empty() ? nullptr : executor_.read_only();
   }
 
   void set_callback(callback<T>&& callback) {
@@ -88,13 +86,13 @@ public:
     } else if (has_result()) {
       do_callback(std::move(callback));
     } else {
-      storage_->Put(std::move(callback));
+      storage_->put(std::move(callback));
     }
   }
 
 private:
   void do_callback(callback<T>&& callback) {
-    storage_->template try_with_lock([this, &callback](StateValue const& state) -> bool {
+    storage_->template try_with_lock([this, &callback](state_value const& state) -> bool {
       auto data = std::get<result<T>>(state);
       if (executor_base_ref executor = get_executor(); executor != nullptr) {
         executor->submit(

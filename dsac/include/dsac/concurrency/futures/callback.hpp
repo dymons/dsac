@@ -1,6 +1,6 @@
 #pragma once
 
-#include <dsac/concurrency/futures/try.hpp>
+#include <dsac/concurrency/futures/result.hpp>
 #include <dsac/functional/function2.hpp>
 
 namespace dsac {

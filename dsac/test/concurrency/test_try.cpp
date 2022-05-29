@@ -1,6 +1,6 @@
 #include "catch2/catch.hpp"
 
-#include <dsac/concurrency/futures/try.hpp>
+#include <dsac/concurrency/futures/result.hpp>
 
 TEST_CASE("Проверка корректности примитива result", "[try]") {
   SECTION("Проверка корректности хранения значений в примитиве result") {

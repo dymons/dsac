@@ -4,9 +4,9 @@
 #include <mutex>
 #include <optional>
 
-namespace dsac::syncing {
+namespace dsac {
 template <typename T>
-class MVar {
+class mvar final {
   std::optional<T> storage_;
 
   std::mutex              mutex_;
@@ -14,25 +14,25 @@ class MVar {
   std::condition_variable not_value_storage_;
 
 public:
-  MVar() = default;
-  explicit MVar(T value)
+  mvar() = default;
+  explicit mvar(T value)
     : storage_(std::move(value)) {
   }
-  MVar(const MVar&)                    = delete;
-  MVar(MVar&&)                         = delete;
-  auto operator=(const MVar&) -> MVar& = delete;
-  auto operator=(MVar&&) -> MVar&      = delete;
-  ~MVar()                              = default;
+  mvar(const mvar&)                    = delete;
+  mvar(mvar&&)                         = delete;
+  auto operator=(const mvar&) -> mvar& = delete;
+  auto operator=(mvar&&) -> mvar&      = delete;
+  ~mvar()                              = default;
 
-  void Put(T data) {
+  void put(T&& data) {
     std::unique_lock<std::mutex> lock(mutex_);
     not_value_storage_.wait(lock, [this] { return !storage_.has_value(); });
 
-    storage_.emplace(std::move(data));
+    storage_.emplace(std::forward<T>(data));
     has_value_storage_.notify_all();
   }
 
-  T Take() {
+  T take() {
     std::optional<T> result;
 
     std::unique_lock<std::mutex> lock(mutex_);
@@ -43,12 +43,12 @@ public:
     return std::move(*result);
   }
 
-  [[nodiscard]] bool IsEmpty() {
+  [[nodiscard]] bool is_empty() {
     std::unique_lock<std::mutex> lock(mutex_);
     return !storage_.has_value();
   }
 
-  T const& ReadOnly() {
+  T const& read_only() {
     std::unique_lock<std::mutex> lock(mutex_);
     has_value_storage_.wait(lock, [this] { return storage_.has_value(); });
     return storage_.value();
@@ -68,7 +68,7 @@ public:
 };
 
 template <>
-class MVar<void> {
+class mvar<void> {
   bool contains_ = false;
 
   std::mutex              mutex_;
@@ -76,14 +76,14 @@ class MVar<void> {
   std::condition_variable not_value_storage_;
 
 public:
-  MVar()                               = default;
-  MVar(const MVar&)                    = delete;
-  MVar(MVar&&)                         = delete;
-  auto operator=(const MVar&) -> MVar& = delete;
-  auto operator=(MVar&&) -> MVar&      = delete;
-  ~MVar()                              = default;
+  mvar()                               = default;
+  mvar(const mvar&)                    = delete;
+  mvar(mvar&&)                         = delete;
+  auto operator=(const mvar&) -> mvar& = delete;
+  auto operator=(mvar&&) -> mvar&      = delete;
+  ~mvar()                              = default;
 
-  void Put() {
+  void put() {
     std::unique_lock<std::mutex> lock(mutex_);
     not_value_storage_.wait(lock, [this] { return !contains_; });
 
@@ -91,21 +91,25 @@ public:
     has_value_storage_.notify_all();
   }
 
-  void Take() {
+  void take() {
     std::unique_lock<std::mutex> lock(mutex_);
     has_value_storage_.wait(lock, [this] { return contains_; });
     contains_ = false;
     not_value_storage_.notify_all();
   }
 
-  [[nodiscard]] bool IsEmpty() {
+  [[nodiscard]] bool is_empty() {
     std::unique_lock<std::mutex> lock(mutex_);
     return !contains_;
   }
 
-  void ReadOnly() {
+  void read_only() {
     std::unique_lock<std::mutex> lock(mutex_);
     has_value_storage_.wait(lock, [this] { return contains_; });
   }
 };
-}  // namespace dsac::syncing
+
+template <typename T>
+using mvar_ref = std::shared_ptr<mvar<T>>;
+
+}  // namespace dsac
