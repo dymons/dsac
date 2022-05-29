@@ -21,7 +21,6 @@ TEST_CASE("Access to a shared resource with a limited number of threads", "[barr
       arrived[index] = true;
       barrier.arrive_and_wait();
 
-      // TODO (dymons): Figure out why using REQUIRED we get Data Race in the Catch2. Is the Catch2 thread-safe?
       assert(std::all_of(arrived.begin(), arrived.end(), kIsTrue));
       barrier.arrive_and_wait();
 
