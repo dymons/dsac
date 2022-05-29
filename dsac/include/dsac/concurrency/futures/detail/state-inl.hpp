@@ -94,4 +94,15 @@ void shared_state<T>::throw_if_fulfilled_by_callback() {
   }
 }
 
+template <typename T>
+hold_state<T>::hold_state(state_ref<T> state)
+  : state_(std::move(state)) {
+}
+
+template <typename T>
+state_ref<T> hold_state<T>::release_state() && {
+  assert(static_cast<bool>(state_));
+  return std::move(state_);
+}
+
 }  // namespace dsac

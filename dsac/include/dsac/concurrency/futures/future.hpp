@@ -35,7 +35,6 @@ class future final : public hold_state<T> {
   template <typename U>
   friend future<U> make_future_on_error(const char* message);
 
-  using hold_state<T>::check_state;
   using hold_state<T>::release_state;
 
 public:

@@ -165,33 +165,53 @@ inline state_ref<T> make_shared_state() {
 template <typename T>
 class hold_state {
 public:
-  hold_state(hold_state const& that)            = delete;
+  // Constructors
+
+  explicit hold_state(state_ref<T> state = make_shared_state<T>());
+
+  /*!
+    \brief
+        Copy constructor.
+  */
+  hold_state(hold_state const& that) = delete;
+
+  /*!
+    \brief
+        Move constructor.
+  */
+  hold_state(hold_state&& that) noexcept = default;
+
+  // Destructor
+
+  /*!
+    \brief
+        Destructor.
+  */
+  ~hold_state() = default;
+
+  // Assignment
+
+  /*!
+    \brief
+        Copy conversion constructor.
+  */
   hold_state& operator=(hold_state const& that) = delete;
 
-protected:
-  explicit hold_state(state_ref<T> state)
-    : state_(std::move(state)) {
-  }
-
-  hold_state(hold_state&& that) noexcept            = default;
+  /*!
+    \brief
+        Move conversion constructor.
+  */
   hold_state& operator=(hold_state&& that) noexcept = default;
-  ~hold_state()                                     = default;
-
-  state_ref<T> release_state() && {
-    check_state();
-    return std::move(state_);
-  }
-
-  bool has_state() const {
-    return static_cast<bool>(state_);
-  }
-
-  void check_state() const {
-    assert(has_state());
-  }
 
 protected:
-  state_ref<T> state_;
+  /*!
+    \brief
+        Release the current state and transfer ownership to another hold_state<T>.
+  */
+  state_ref<T> release_state() &&;
+
+  /// State of the hold state
+  state_ref<T> state_;  // NOLINT(cppcoreguidelines-non-private-member-variables-in-classes)
 };
 
 }  // namespace dsac

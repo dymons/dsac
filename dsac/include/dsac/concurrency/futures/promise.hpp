@@ -8,13 +8,10 @@ namespace dsac {
 template <typename T>
 class promise final : public hold_state<T> {
   using hold_state<T>::state_;
-  using hold_state<T>::check_state;
   using hold_state<T>::release_state;
 
 public:
-  promise()
-    : hold_state<T>(make_shared_state<T>()) {
-  }
+  using hold_state<T>::hold_state;
 
   promise(promise&& that) noexcept            = default;
   promise& operator=(promise&& that) noexcept = default;
