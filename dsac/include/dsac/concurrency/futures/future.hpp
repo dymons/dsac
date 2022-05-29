@@ -29,13 +29,12 @@ template <typename T>
 class promise;
 
 template <typename T>
-class future : public hold_state<T> {
+class future final : public hold_state<T> {
   friend class promise<T>;
 
   template <typename U>
   friend future<U> make_future_on_error(const char* message);
 
-  using hold_state<T>::get_state;
   using hold_state<T>::check_state;
   using hold_state<T>::release_state;
 
@@ -49,9 +48,9 @@ public:
       throw future_no_executor{};
     }
 
-    future<T> new_future = future<T>(release_state());
-    new_future.set_executor(std::move(exec));
-    return new_future;
+    auto state = release_state();
+    state->set_executor(std::move(exec));
+    return future<T>(std::move(state));
   }
 
   future<T> subscribe(callback<T> callback) && {
@@ -59,9 +58,9 @@ public:
       throw future_no_callback{};
     }
 
-    future<T> new_future = future<T>(release_state());
-    new_future.set_callback(std::move(callback));
-    return new_future;
+    auto state = release_state();
+    state->set_callback(std::move(callback));
+    return future<T>(std::move(state));
   }
 
   template <typename F>
@@ -84,14 +83,6 @@ public:
   }
 
 private:
-  void set_executor(executor_base_ref&& exec) {
-    get_state()->set_executor(std::move(exec));
-  }
-
-  void set_callback(callback<T>&& callback) {
-    get_state()->set_callback(std::move(callback));
-  }
-
   explicit future(state_ref<T> state)
     : hold_state<T>(std::move(state)) {
   }

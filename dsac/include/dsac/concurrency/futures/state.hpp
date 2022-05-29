@@ -9,6 +9,18 @@
 
 namespace dsac {
 
+class shared_state_exception : public std::logic_error {
+public:
+  using std::logic_error::logic_error;
+};
+
+class shared_state_already_satisfied : public shared_state_exception {
+public:
+  shared_state_already_satisfied()
+    : shared_state_exception("Shared state already satisfied") {
+  }
+};
+
 template <typename T>
 class shared_state final {
   template <typename U>
@@ -27,8 +39,10 @@ public:
   /// Call only from producer thread
   void set_result(result<T>&& result) {
     if (has_result()) {
-      // If we already have the value, what to do? ¯\_(ツ)_/¯
-    } else if (has_callback()) {
+      throw shared_state_already_satisfied{};
+    }
+
+    if (has_callback()) {
       callback<T> handler = std::get<callback<T>>(storage_->Take());
       storage_->Put(std::move(result));
       has_value_.Put();
@@ -119,11 +133,6 @@ protected:
   state_ref<T> release_state() {
     check_state();
     return std::move(state_);
-  }
-
-  state_ref<T> const& get_state() const {
-    check_state();
-    return state_;
   }
 
   bool has_state() const {
