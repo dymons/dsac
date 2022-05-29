@@ -204,6 +204,8 @@ public:
   hold_state& operator=(hold_state&& that) noexcept = default;
 
 protected:
+  // Modifiers
+
   /*!
     \brief
         Release the current state and transfer ownership to another hold_state<T>.
