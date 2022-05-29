@@ -3,6 +3,7 @@
 #include <atomic>
 
 namespace dsac {
+
 class mutex final {
   std::atomic_int state_ = 0;
 
@@ -30,4 +31,5 @@ private:
   mutex* mutex_ = nullptr;
   bool   owned_ = false;
 };
+
 }  // namespace dsac

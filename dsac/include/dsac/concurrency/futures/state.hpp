@@ -29,16 +29,26 @@ class shared_state final {
   mvar<void>              has_value_;
   mvar<executor_base_ref> executor_;
 
+  void throw_if_fulfilled_by_result() {
+    if (has_result()) {
+      throw shared_state_already_satisfied{};
+    }
+  }
+
+  void throw_if_fulfilled_by_callback() {
+    if (has_callback()) {
+      throw shared_state_already_satisfied{};
+    }
+  }
+
 public:
   shared_state()
-    : storage_(std::make_shared<mvar<state_value>>()) {
+    : storage_(dsac::make_shared<mvar<state_value>>()) {
   }
 
   /// Call only from producer thread
   void set_result(result<T>&& result) {
-    if (has_result()) {
-      throw shared_state_already_satisfied{};
-    }
+    throw_if_fulfilled_by_result();
 
     if (has_callback()) {
       callback<T> handler = std::get<callback<T>>(storage_->take());
@@ -81,9 +91,9 @@ public:
   }
 
   void set_callback(callback<T>&& callback) {
-    if (has_callback()) {
-      // If we already have the callback, what to do? ¯\_(ツ)_/¯
-    } else if (has_result()) {
+    throw_if_fulfilled_by_callback();
+
+    if (has_result()) {
       do_callback(std::move(callback));
     } else {
       storage_->put(std::move(callback));
@@ -106,11 +116,11 @@ private:
 };
 
 template <typename T>
-using state_ref = std::shared_ptr<shared_state<T>>;
+using state_ref = dsac::shared_ptr<shared_state<T>>;
 
 template <typename T>
 inline state_ref<T> make_shared_state() {
-  return std::make_shared<shared_state<T>>();
+  return dsac::make_shared<shared_state<T>>();
 }
 
 template <typename T>

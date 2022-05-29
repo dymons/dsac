@@ -1,5 +1,7 @@
 #pragma once
 
+#include <dsac/memory/shared_ptr.hpp>
+
 #include <condition_variable>
 #include <mutex>
 #include <optional>
@@ -110,6 +112,6 @@ public:
 };
 
 template <typename T>
-using mvar_ref = std::shared_ptr<mvar<T>>;
+using mvar_ref = dsac::shared_ptr<mvar<T>>;
 
 }  // namespace dsac
