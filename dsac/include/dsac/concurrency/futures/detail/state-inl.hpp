@@ -6,28 +6,27 @@ namespace dsac {
 
 template <typename T>
 shared_state<T>::shared_state()
-  : storage_(dsac::make_shared<mvar<state_value>>()) {
+  : storage_(dsac::make_shared<mvar<state_value>>())
+  , state_(detail::state::start) {
 }
 
 template <typename T>
 bool shared_state<T>::has_result() const {
-  const auto result = storage_->template try_with_lock([](state_value const& state) { return state.index() == 0; });
-  return result.has_value() && result.value();
+  detail::state const current_state = state_.load(std::memory_order_acquire);
+  return detail::state() != (current_state & (detail::state::only_result | detail::state::done));
 }
 
 template <typename T>
 bool shared_state<T>::has_callback() const {
-  const auto result = storage_->template try_with_lock([](state_value const& state) { return state.index() == 1; });
-  return result.has_value() && result.value();
+  detail::state const current_state = state_.load(std::memory_order_acquire);
+  return detail::state() != (current_state & (detail::state::only_callback | detail::state::done));
 }
 
 template <typename T>
 result<T> shared_state<T>::get_result() {
-  // We are waiting for the user value to be saved in the storage_
-  has_value_.read_only();
-
-  // Then we try to get this value from the storage_
-  return std::get<result<T>>(storage_->read_only());
+  while (!has_result()) {
+  }
+  return *result_;
 }
 
 template <typename T>
@@ -37,16 +36,31 @@ executor_base_ref shared_state<T>::get_executor() const {
 
 template <typename T>
 void shared_state<T>::set_result(result<T>&& result) {
-  throw_if_fulfilled_by_result();
+  assert(!has_result());
 
-  if (has_callback()) {
-    callback<T> handler = std::get<callback<T>>(storage_->take());
-    storage_->put(std::move(result));
-    has_value_.put();
-    do_callback(std::move(handler));
-  } else {
-    storage_->put(std::move(result));
-    has_value_.put();
+  result_.emplace(std::move(result));
+
+  detail::state current_state = state_.load(std::memory_order_acquire);
+  switch (current_state) {
+    case detail::state::start: {
+      if (std::atomic_compare_exchange_strong_explicit(
+              &state_,
+              &current_state,
+              detail::state::only_result,
+              std::memory_order_release,
+              std::memory_order_acquire)) {
+        return;
+      }
+      assert(current_state == detail::state::only_callback);
+      [[fallthrough]];
+    }
+    case detail::state::only_callback: {
+      state_.store(detail::state::done, std::memory_order_relaxed);
+      do_callback();
+      return;
+      default:
+        throw shared_state_unexpected_state{};
+    }
   }
 }
 
@@ -57,13 +71,30 @@ void shared_state<T>::set_executor(executor_base_ref exec) {
 
 template <typename T>
 void shared_state<T>::set_callback(callback<T>&& callback) {
-  throw_if_fulfilled_by_callback();
+  assert(!has_callback());
 
-  if (has_result()) {
-    do_callback(std::move(callback));
-  } else {
-    storage_->put(std::move(callback));
+  callback_.emplace(std::move(callback));
+
+  detail::state current_state = state_.load(std::memory_order_acquire);
+  if (current_state == detail::state::start) {
+    if (std::atomic_compare_exchange_strong_explicit(
+            &state_,
+            &current_state,
+            detail::state::only_callback,
+            std::memory_order_release,
+            std::memory_order_acquire)) {
+      return;
+    }
+    assert(current_state == detail::state::only_result);
   }
+
+  if (current_state == detail::state::only_result) {
+    state_.store(detail::state::done, std::memory_order_relaxed);
+    do_callback();
+    return;
+  }
+
+  throw shared_state_unexpected_state{};
 }
 
 template <typename T>
@@ -78,6 +109,19 @@ void shared_state<T>::do_callback(callback<T>&& callback) {
     }
     return true;
   });
+}
+
+template <typename T>
+void shared_state<T>::do_callback() {
+  assert(state_ == detail::state::done);
+
+  auto data = *result_;
+  if (executor_base_ref executor = get_executor(); executor != nullptr) {
+    executor->submit(
+        [callback = std::move(callback_), data = std::move(data)]() mutable { (*callback)(std::move(data)); });
+  } else {
+    (*callback_)(std::move(data));
+  }
 }
 
 template <typename T>

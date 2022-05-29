@@ -9,6 +9,25 @@
 
 namespace dsac {
 
+namespace detail {
+
+enum class state : uint8_t { start = 1 << 0, only_result = 1 << 1, only_callback = 1 << 2, done = 1 << 3 };
+
+constexpr state operator&(state a, state b) noexcept {
+  return static_cast<state>(static_cast<uint8_t>(a) & static_cast<uint8_t>(b));
+}
+constexpr state operator|(state a, state b) noexcept {
+  return static_cast<state>(static_cast<uint8_t>(a) | static_cast<uint8_t>(b));
+}
+constexpr state operator^(state a, state b) noexcept {
+  return static_cast<state>(static_cast<uint8_t>(a) ^ static_cast<uint8_t>(b));
+}
+constexpr state operator~(state a) noexcept {
+  return static_cast<state>(~static_cast<uint8_t>(a));
+}
+
+}  // namespace detail
+
 class shared_state_exception : public std::logic_error {
 public:
   using std::logic_error::logic_error;
@@ -18,6 +37,13 @@ class shared_state_already_satisfied : public shared_state_exception {
 public:
   shared_state_already_satisfied()
     : shared_state_exception("Shared state already satisfied") {
+  }
+};
+
+class shared_state_unexpected_state : public shared_state_exception {
+public:
+  shared_state_unexpected_state()
+    : shared_state_exception("Shared state has unexpected state") {
   }
 };
 
@@ -126,6 +152,8 @@ private:
   */
   void do_callback(callback<T>&& callback);
 
+  void do_callback();
+
   /*!
       \brief
           Check if shared state already initialized by dsac::result then throw.
@@ -152,6 +180,10 @@ private:
 
   /// User-specified environment for execution callback<T> from storage_
   executor_base_ref executor_;
+
+  std::optional<result<T>> result_;
+  std::optional<callback<T>> callback_;
+  std::atomic<detail::state> state_;
 };
 
 template <typename T>
