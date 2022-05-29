@@ -1,20 +1,19 @@
 #pragma once
 
-#include <atomic>
-#include <condition_variable>
-#include <mutex>
+#include <dsac/memory/shared_ptr.hpp>
 
-namespace dsac::syncing {
-class Semaphore final {
+namespace dsac {
+
+class semaphore final {
 public:
-  explicit Semaphore(std::size_t);
+  explicit semaphore(std::size_t );
 
-  void Acquire();
-  void Release();
+  void acquire();
+  void release();
 
 private:
-  std::atomic<std::size_t> tokens_;
-  std::mutex               mutex_;
-  std::condition_variable  not_zero_;
+  class pimpl;
+  dsac::shared_ptr<pimpl> pimpl_;
 };
-}  // namespace dsac::syncing
+
+}  // namespace dsac

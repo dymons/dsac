@@ -1,91 +1,76 @@
-#include "catch2/catch.hpp"
+#include <catch2/catch.hpp>
+
+#include <dsac/concurrency/executors/static_thread_pool.hpp>
+#include <dsac/concurrency/synchronization/semaphore.hpp>
+#include <dsac/concurrency/synchronization/unique_lock.hpp>
 
 #include <chrono>
-#include <dsac/concurrency/synchronization/semaphore.hpp>
 #include <thread>
 
-TEST_CASE("Semaphore как mutex", "[semaphore_like_mutex]") {
-  using namespace dsac::syncing;
+TEST_CASE("Implement Mutex primitive based on semaphore", "[semaphore][mutex]") {
+  class smutex final {
+    dsac::semaphore sema_{1U};
 
-  constexpr std::size_t kNumberConsumers = 1U;
-  Semaphore             sema{kNumberConsumers};
+  public:
+    void lock() {
+      sema_.acquire();
+    }
 
-  auto        start   = std::chrono::steady_clock::now();
-  std::size_t counter = 0U;
-  std::thread consumer1([&]() {
-    sema.Acquire();
-    std::this_thread::sleep_for(std::chrono::milliseconds(100));
-    ++counter;
-    sema.Release();
-  });
+    void unlock() {
+      sema_.release();
+    }
+  };
 
-  std::thread consumer2([&]() {
-    sema.Acquire();
-    std::this_thread::sleep_for(std::chrono::milliseconds(100));
-    ++counter;
-    sema.Release();
-  });
+  constexpr std::size_t   kNumberWorkers = 4U;
+  dsac::executor_base_ref executor       = dsac::make_static_thread_pool(kNumberWorkers);
 
-  std::thread consumer3([&]() {
-    sema.Acquire();
-    std::this_thread::sleep_for(std::chrono::milliseconds(100));
-    ++counter;
-    sema.Release();
-  });
+  smutex                                mutex;
+  std::size_t                           counter = 0;
+  std::chrono::steady_clock::time_point start   = std::chrono::steady_clock::now();
+  for (std::size_t i{}; i < kNumberWorkers; ++i) {
+    executor->submit([&mutex, &counter]() {
+      dsac::unique_lock guard(mutex);
+      std::this_thread::sleep_for(std::chrono::milliseconds(100));
+      ++counter;
+    });
+  }
 
-  std::thread consumer4([&]() {
-    sema.Acquire();
-    std::this_thread::sleep_for(std::chrono::milliseconds(100));
-    ++counter;
-    sema.Release();
-  });
+  executor->join();
 
-  consumer1.join();
-  consumer2.join();
-  consumer3.join();
-  consumer4.join();
-  auto end = std::chrono::steady_clock::now();
-
-  REQUIRE(counter == 4U);
-  REQUIRE((end - start) >= std::chrono::milliseconds(400));
+  REQUIRE(counter == kNumberWorkers);
+  REQUIRE((std::chrono::steady_clock::now() - start) >= std::chrono::milliseconds(400));
 }
 
-TEST_CASE("Ограниченное количество Consumers", "[semaphore_limited]") {
-  using namespace dsac::syncing;
+TEST_CASE("Access to a shared resource of a fixed number of threads", "[semaphore][limited]") {
+  class mmutex final {
+    dsac::semaphore sema_;
 
-  constexpr std::size_t kNumberConsumers = 4U;
-  Semaphore             sema{kNumberConsumers};
+  public:
+    explicit mmutex(std::size_t consumers)
+      : sema_{consumers} {
+    }
 
-  auto        start = std::chrono::steady_clock::now();
-  std::thread consumer1([&]() {
-    sema.Acquire();
-    std::this_thread::sleep_for(std::chrono::milliseconds(100));
-    sema.Release();
-  });
+    void lock() {
+      sema_.acquire();
+    }
 
-  std::thread consumer2([&]() {
-    sema.Acquire();
-    std::this_thread::sleep_for(std::chrono::milliseconds(100));
-    sema.Release();
-  });
+    void unlock() {
+      sema_.release();
+    }
+  };
 
-  std::thread consumer3([&]() {
-    sema.Acquire();
-    std::this_thread::sleep_for(std::chrono::milliseconds(100));
-    sema.Release();
-  });
+  constexpr std::size_t   kNumberConsumers = 4U;
+  mmutex                  mutex{kNumberConsumers};
+  dsac::executor_base_ref executor = dsac::make_static_thread_pool(kNumberConsumers);
 
-  std::thread consumer4([&]() {
-    sema.Acquire();
-    std::this_thread::sleep_for(std::chrono::milliseconds(100));
-    sema.Release();
-  });
+  std::chrono::steady_clock::time_point start = std::chrono::steady_clock::now();
+  for (std::size_t i{}; i < kNumberConsumers; ++i) {
+    executor->submit([&mutex]() {
+      dsac::unique_lock guard(mutex);
+      std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    });
+  }
 
-  consumer1.join();
-  consumer2.join();
-  consumer3.join();
-  consumer4.join();
-  auto end = std::chrono::steady_clock::now();
-
-  REQUIRE((end - start) <= std::chrono::milliseconds(150));
+  executor->join();
+  REQUIRE((std::chrono::steady_clock::now() - start) <= std::chrono::milliseconds(150));
 }

@@ -76,8 +76,7 @@ TEMPLATE_TEST_CASE(
   dsac::dynamic_array<int>                                 testcase(1000);
   std::random_device                                       dev;
   std::mt19937                                             rng(dev());
-  std::uniform_int_distribution<std::mt19937::result_type> dist(
-      1U, testcase.size());
+  std::uniform_int_distribution<std::mt19937::result_type> dist(1U, testcase.size());
 
   for (std::size_t i{}; i < kNumberOfIteration; ++i) {
     std::iota(begin(testcase), end(testcase), dist(rng));

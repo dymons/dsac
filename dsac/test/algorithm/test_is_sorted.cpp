@@ -17,8 +17,7 @@ TEST_CASE("Testcases are checked for the sorting (D)", "[is_sorted][default]") {
     SECTION("Using custom predicate") {
       REQUIRE(dsac::is_sorted(testcase{}, std::greater<int>{}));
       REQUIRE(dsac::is_sorted(empty_testcase, std::greater<int>{}));
-      REQUIRE(dsac::is_sorted(
-          empty_testcase.begin(), empty_testcase.end(), std::greater<int>{}));
+      REQUIRE(dsac::is_sorted(empty_testcase.begin(), empty_testcase.end(), std::greater<int>{}));
     }
   }
 
@@ -57,8 +56,7 @@ TEST_CASE("Testcases are checked for the sorting (D)", "[is_sorted][default]") {
     STATIC_REQUIRE(kEmptyTestcaseSorted);
 
     constexpr auto kSortedTestcase = testcase{1, 2, 3, 4, 5};
-    constexpr auto kTestcaseSorted =
-        dsac::is_sorted(begin(kSortedTestcase), end(kSortedTestcase));
+    constexpr auto kTestcaseSorted = dsac::is_sorted(begin(kSortedTestcase), end(kSortedTestcase));
     STATIC_REQUIRE(kTestcaseSorted);
   }
 }
@@ -69,13 +67,10 @@ TEST_CASE("Testcases are checked for the sorting (S)", "[is_sorted][stress]") {
   dsac::dynamic_array<int>                                 testcase(100);
   std::random_device                                       dev;
   std::mt19937                                             rng(dev());
-  std::uniform_int_distribution<std::mt19937::result_type> dist(
-      1U, testcase.size());
+  std::uniform_int_distribution<std::mt19937::result_type> dist(1U, testcase.size());
 
   for (std::size_t i{}; i < kNumberOfIteration; ++i) {
-    std::generate(begin(testcase), end(testcase), [cnt = dist(rng)]() mutable {
-      return cnt++;
-    });
+    std::generate(begin(testcase), end(testcase), [cnt = dist(rng)]() mutable { return cnt++; });
     REQUIRE(std::is_sorted(begin(testcase), end(testcase)));
     REQUIRE(dsac::is_sorted(begin(testcase), end(testcase)));
   }
