@@ -55,18 +55,6 @@ public:
     has_value_storage_.wait(lock, [this] { return storage_.has_value(); });
     return storage_.value();
   }
-
-  template <class Function>
-  auto try_with_lock(Function&& function) -> std::optional<typename std::result_of<Function(T const&)>::type> {
-    using return_type = typename std::result_of<Function(T const&)>::type;
-
-    std::lock_guard<std::mutex> lock(mutex_);
-    if (!storage_.has_value()) {
-      return std::nullopt;
-    }
-
-    return std::optional<return_type>(function(storage_.value()));
-  }
 };
 
 template <>

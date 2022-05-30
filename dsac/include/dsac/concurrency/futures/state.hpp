@@ -9,15 +9,34 @@
 
 namespace dsac {
 
+namespace detail {
+
+enum class state : uint8_t { start = 1 << 0, only_result = 1 << 1, only_callback = 1 << 2, done = 1 << 3 };
+
+constexpr inline state operator&(state a, state b) noexcept {
+  return static_cast<state>(static_cast<uint8_t>(a) & static_cast<uint8_t>(b));
+}
+constexpr inline state operator|(state a, state b) noexcept {
+  return static_cast<state>(static_cast<uint8_t>(a) | static_cast<uint8_t>(b));
+}
+constexpr inline state operator^(state a, state b) noexcept {
+  return static_cast<state>(static_cast<uint8_t>(a) ^ static_cast<uint8_t>(b));
+}
+constexpr inline state operator~(state a) noexcept {
+  return static_cast<state>(~static_cast<uint8_t>(a));
+}
+
+}  // namespace detail
+
 class shared_state_exception : public std::logic_error {
 public:
   using std::logic_error::logic_error;
 };
 
-class shared_state_already_satisfied : public shared_state_exception {
+class shared_state_unexpected_state : public shared_state_exception {
 public:
-  shared_state_already_satisfied()
-    : shared_state_exception("Shared state already satisfied") {
+  shared_state_unexpected_state()
+    : shared_state_exception("Shared state has unexpected state") {
   }
 };
 
@@ -124,34 +143,19 @@ private:
       \brief
           Perform dsac::result processing in a user-specified callback.
   */
-  void do_callback(callback<T>&& callback);
-
-  /*!
-      \brief
-          Check if shared state already initialized by dsac::result then throw.
-  */
-  void throw_if_fulfilled_by_result();
-
-  /*!
-      \brief
-          Check if shared state already initialized by dsac::callback then throw.
-  */
-  void throw_if_fulfilled_by_callback();
-
-  /*!
-      \brief
-          Value of shared state.
-  */
-  using state_value = std::variant<result<T>, callback<T>>;
-
-  /// A place to store user data or user-specified callback
-  mvar_ref<state_value> storage_;
-
-  /// A synchronization primitive to provide blocking data waiting in storage_
-  mvar<void> has_value_;
+  void do_callback();
 
   /// User-specified environment for execution callback<T> from storage_
   executor_base_ref executor_;
+
+  /// Data storage space
+  std::optional<result<T>> result_;
+
+  /// User-specified callback for executing when result_ will be initialized
+  std::optional<callback<T>> callback_;
+
+  /// A current state of shared state
+  std::atomic<detail::state> state_;
 };
 
 template <typename T>
