@@ -13,6 +13,9 @@ namespace dsac {
     \param routine
         User-routine for execution
 
+    \return
+        Return dsac::future for the future value obtained from routine
+
     \ingroup
         DsacConcurrency
 

@@ -9,7 +9,7 @@ namespace dsac {
 
 template <typename F>
 auto async_via(executor_base_ref executor, F&& routine) {
-  using return_type = typename std::result_of<F()>::type;
+  using return_type = typename std::result_of_t<F()>;
 
   promise<return_type> promise;
   future<return_type>  future = promise.make_future().via(executor);
