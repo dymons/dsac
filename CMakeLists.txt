@@ -17,7 +17,7 @@ option(BUILD_DOCS
 option(ENABLE_SANITIZE_ADDRESS
         "Enable AddressSanitizer for sanitized targets." OFF)
 option(ENABLE_THREAD_ADDRESS
-        "Enable AddressSanitizer for sanitized targets." ON)
+        "Enable ThreadSanitizer for sanitized targets." ON)
 
 set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake/modules" ${CMAKE_MODULE_PATH})
 set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake/sanitizers" ${CMAKE_MODULE_PATH})
