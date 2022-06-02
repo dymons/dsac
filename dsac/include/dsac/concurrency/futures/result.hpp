@@ -10,34 +10,45 @@ class result {
   std::variant<T, std::exception_ptr> store_;
 
 public:
-  explicit result(T value)
-    : store_(std::move(value)) {
-  }
+  // Constructors
 
-  explicit result(std::exception_ptr&& exception)
-    : store_(std::move(exception)) {
-  }
+  /*!
+    \brief
+        User constructor, constructs an result with user-specified value T or std::exception_ptr.
+  */
+  explicit result(T value);
+  explicit result(std::exception_ptr&& exception);
 
-  const T& value_or_throw() const {
-    if (has_exception()) {
-      std::rethrow_exception(std::get<std::exception_ptr>(store_));
-    }
+  // Observers
 
-    return std::get<T>(store_);
-  }
+  /*!
+    \brief
+        Get the value if not then throw.
+  */
+  const T& value_or_throw() const;
 
-  [[nodiscard]] bool has_value() const noexcept {
-    return store_.index() == 0;
-  }
+  /*!
+    \brief
+        Check that the result store a value.
+  */
+  [[nodiscard]] bool has_value() const noexcept;
 
-  [[nodiscard]] bool has_exception() const noexcept {
-    return store_.index() == 1;
-  }
+  /*!
+    \brief
+        Check that the result store an exception.
+  */
+  [[nodiscard]] bool has_exception() const noexcept;
 };
 
+/*!
+  \brief
+      Compare two results for equivalence.
+*/
 template <typename T>
-bool operator==(const result<T>& p, const result<T>& b) {
-  return (p.has_value() && b.has_value()) && (p.value_or_throw() == b.value_or_throw());
-}
+bool operator==(const result<T>& p, const result<T>& b);
 
 }  // namespace dsac
+
+#define CONCURRENCY_RESULT_HPP
+#include <dsac/concurrency/futures/detail/result-inl.hpp>
+#undef CONCURRENCY_RESULT_HPP
