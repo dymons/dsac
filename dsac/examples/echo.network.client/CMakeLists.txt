@@ -1,4 +1,2 @@
-find_package(fmt REQUIRED)
-
 add_executable(echo.network.client main.cpp)
-target_link_libraries(echo.network.client fmt::fmt)
+target_link_libraries(echo.network.client ${CONAN_LIBS})

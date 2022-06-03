@@ -17,7 +17,7 @@ option(BUILD_DOCS
 option(ENABLE_SANITIZE_ADDRESS
         "Enable AddressSanitizer for sanitized targets." OFF)
 option(ENABLE_THREAD_ADDRESS
-        "Enable ThreadSanitizer for sanitized targets." ON)
+        "Enable ThreadSanitizer for sanitized targets." OFF)
 
 set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake/modules" ${CMAKE_MODULE_PATH})
 set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake/sanitizers" ${CMAKE_MODULE_PATH})
@@ -26,6 +26,7 @@ include(cmake/CheckCompiler.cmake)
 include(cmake/CompileOptions.cmake)
 include(cmake/Macro.cmake)
 include(cmake/Sanitizers.cmake)
+include(cmake/Conan.cmake)
 
 add_subdirectory(dsac)
 add_subdirectory(dsac/examples)

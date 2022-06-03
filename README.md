@@ -34,10 +34,20 @@ How to start?
 
 To install `dsac` its dependencies and build this project, you just have to do:
 
+Prepare the environment for the project
+
 ```bash
-conan install . --install-folder cmake-build-release --build=missing
-cmake . -DCMAKE_TOOLCHAIN_FILE=cmake-build-release/conan_toolchain.cmake
-cmake --build .
+pip install conan
+pip install conan --upgrade
+conan profile new conan/dsac --detect --force
+```
+
+Build the project
+
+```bash
+mkdir cmake-build-release && cd cmake-build-release
+conan install .. -pr=../conan/dsac
+cmake -DCMAKE_BUILD_TYPE=Release .. && cmake --build .
 ```
 
 License

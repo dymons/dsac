@@ -1,7 +1,5 @@
-find_package(fmt REQUIRED)
-
 add_executable(echo.network.select main.cpp)
-target_link_libraries(echo.network.select fmt::fmt)
+target_link_libraries(echo.network.select ${CONAN_LIBS})
 
 FILE(WRITE ${CMAKE_CURRENT_SOURCE_DIR}/static/config.json
         "{\n"

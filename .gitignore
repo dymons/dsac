@@ -115,3 +115,8 @@ build
 .vimspector.json
 compile_commands.json
 .vscode
+
+
+### dsac ###
+
+dsac/examples/echo.network.select/static/config.json
