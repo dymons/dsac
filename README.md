@@ -27,7 +27,8 @@ Codemap
   <br /> The `examples` directory contains examples with working POSIX API for writing backend apps using concurrency
   primitives from directory [`concurrency`](dsac/include/dsac/concurrency).
 
-The current status of the project can be found at the [whimsical.com/dsac](https://whimsical.com/dsac-JxDytPofZNmQLZdBoeC3jw)
+The current status of the project can be found at
+the [whimsical.com/dsac](https://whimsical.com/dsac-JxDytPofZNmQLZdBoeC3jw)
 
 How to start?
 -------------
@@ -39,7 +40,6 @@ Prepare the environment for the project
 ```bash
 pip install conan
 pip install conan --upgrade
-conan profile new conan/dsac --detect --force
 ```
 
 Build the project
