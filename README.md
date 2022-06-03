@@ -47,7 +47,7 @@ Build the project
 ```bash
 mkdir cmake-build-release && cd cmake-build-release
 conan install .. -pr=../conan/dsac
-cmake -DCMAKE_BUILD_TYPE=Release .. && cmake --build .
+cmake .. && cmake --build .
 ```
 
 License
