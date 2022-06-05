@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../../../../../../../../../usr/include/c++/11/vector"
+#include <vector>
 
 namespace dsac::tree {
 template <typename T>

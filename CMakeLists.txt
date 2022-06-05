@@ -12,6 +12,8 @@ project(${PACKAGE_NAME} CXX)
 
 option(BUILD_TESTS
         "Whether tests should be built" ON)
+option(BUILD_BENCHMARKS
+        "Whether benchmarks should be built" ON)
 option(BUILD_DOCS
         "Whether doxygen documentation should be installed" OFF)
 option(ENABLE_SANITIZE_ADDRESS
