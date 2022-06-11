@@ -52,13 +52,22 @@ TEST_CASE("Testcases for checking direct graph", "[graph][direct]") {
   GIVEN("An empty directed graph") {
     dsac::directed_graph<node, edge> graph;
     WHEN("Store a default node in the directed graph") {
-      auto const [it, added] = graph.insert_node(node::make_empty());
+      auto const [unique_node, added] = graph.insert_node(node::make_empty());
       THEN("The stored node was successfully added") {
         REQUIRE(added);
       }
       THEN("A node has an empty key and attributes") {
-        REQUIRE((*it).key.empty());
-        REQUIRE((*it).attributes.empty());
+        REQUIRE((*unique_node).key.empty());
+        REQUIRE((*unique_node).attributes.empty());
+      }
+      WHEN("Store a default node in the directed graph again") {
+        auto const [source_node, added_again] = graph.insert_node(node::make_empty());
+        THEN("The stored node was not successfully added") {
+          REQUIRE_FALSE(added_again);
+        }
+        THEN("Was returned the same node") {
+          REQUIRE(source_node == unique_node);
+        }
       }
     }
   }

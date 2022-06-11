@@ -91,7 +91,17 @@ public:
   reference operator*() const {
     return current_->node;
   }
+
+  const Iterator& base() const {
+    return current_;
+  }
 };
+template <typename IteratorL, typename IteratorR, typename DirectedGraph>
+inline bool operator==(
+    const normal_node_iterator<IteratorL, DirectedGraph>& lhs,
+    const normal_node_iterator<IteratorR, DirectedGraph>& rha) {
+  return lhs.base() == rha.base();
+}
 template <typename Iterator>
 class normal_edge_iterator {};
 template <typename N, typename E, typename A = std::allocator<N>, typename B = std::allocator<E>>
