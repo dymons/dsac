@@ -4,7 +4,7 @@
 #include <unordered_map>
 #include <unordered_set>
 
-namespace dsac::graph::dijkstra {
+namespace dsac::legacy_graph::dijkstra {
 namespace detail {
 using Distance = int;
 
@@ -114,4 +114,4 @@ Path ShortestPath(Graph& graph, const Node from, const Node to) {
 
   return path.front() == from ? path : (path.clear(), path);
 }
-}  // namespace dsac::graph::dijkstra
+}  // namespace dsac::legacy_graph::dijkstra

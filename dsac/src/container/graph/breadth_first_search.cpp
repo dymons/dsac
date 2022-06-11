@@ -4,7 +4,7 @@
 #include <unordered_map>
 #include <unordered_set>
 
-namespace dsac::graph::bfs {
+namespace dsac::legacy_graph::bfs {
 bool IsPathExist(Graph& graph, const Node from, const Node to) {
   std::queue<Node> processing;
   processing.push(from);
@@ -64,4 +64,4 @@ Path ShortestPath(Graph& graph, const Node from, const Node to) {
 
   return path.front() == from ? path : (path.clear(), path);
 }
-}  // namespace dsac::graph::bfs
+}  // namespace dsac::legacy_graph::bfs

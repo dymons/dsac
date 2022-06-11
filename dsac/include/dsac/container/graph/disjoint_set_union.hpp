@@ -3,7 +3,7 @@
 #include <stdexcept>
 #include <vector>
 
-namespace dsac::graph {
+namespace dsac::legacy_graph {
 class DisjointSetException : public std::logic_error {
 public:
   using std::logic_error::logic_error;
@@ -52,4 +52,4 @@ public:
   */
   bool IsConnected(std::size_t vertex1, std::size_t vertex2);
 };
-}  // namespace dsac::graph
+}  // namespace dsac::legacy_graph

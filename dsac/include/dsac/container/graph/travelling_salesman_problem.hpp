@@ -2,7 +2,7 @@
 
 #include <vector>
 
-namespace dsac::graph::tsp {
+namespace dsac::legacy_graph::tsp {
 struct Node final {
   int                         id{};
   [[gnu::always_inline]] bool operator==(const Node other) const noexcept {
@@ -41,4 +41,4 @@ struct TravellingSalesmanResult {
 };
 
 [[nodiscard]] TravellingSalesmanResult Solve(CompleteGraph& graph, Node start);
-}  // namespace dsac::graph::tsp
+}  // namespace dsac::legacy_graph::tsp
