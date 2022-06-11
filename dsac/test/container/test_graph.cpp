@@ -49,9 +49,17 @@ struct dsac::directed_graph_semantic<node> {
 };
 
 TEST_CASE("Testcases for checking direct graph", "[graph][direct]") {
-  SECTION("Store a default node in the directed graph") {
+  GIVEN("An empty directed graph") {
     dsac::directed_graph<node, edge> graph;
-    REQUIRE(graph.insert_node(node::make_empty()).second);
-    REQUIRE_FALSE(graph.insert_node(node::make_empty()).second);
+    WHEN("Store a default node in the directed graph") {
+      auto const [it, added] = graph.insert_node(node::make_empty());
+      THEN("The stored node was successfully added") {
+        REQUIRE(added);
+      }
+      THEN("A node has an empty key and attributes") {
+        REQUIRE((*it).key.empty());
+        REQUIRE((*it).attributes.empty());
+      }
+    }
   }
 }
