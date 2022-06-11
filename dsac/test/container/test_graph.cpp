@@ -27,29 +27,31 @@ TEST_CASE("Проверка корректности работы неориен
 }
 
 struct node final {
-  std::string                      key;
-  dsac::dynamic_array<std::string> attributes;
+  std::string                      key{};
+  dsac::dynamic_array<std::string> attributes{};
+
+  [[gnu::always_inline]] inline static node make_empty() {
+    return {};
+  }
 };
 
 struct edge final {
-  std::string                      key;
-  dsac::dynamic_array<std::string> attributes;
+  std::string                      key{};
+  dsac::dynamic_array<std::string> attributes{};
 };
 
 template <>
-struct dsac::detail::nth_key<node> {
-  inline static auto get(node const& node) -> std::string_view {
+struct dsac::directed_graph_semantic<node> {
+  using key_type = std::string_view;
+  [[gnu::always_inline]] inline static auto get_key(node const& node) -> key_type {
     return node.key;
   };
 };
 
-template <>
-struct dsac::detail::nth_key<edge> {
-  inline static auto get(edge const& edge) -> std::string_view {
-    return edge.key;
-  };
-};
-
 TEST_CASE("Testcases for checking direct graph", "[graph][direct]") {
-  dsac::directed_graph<node, edge> graph;
+  SECTION("Store a default node in the directed graph") {
+    dsac::directed_graph<node, edge> graph;
+    REQUIRE(graph.insert_node(node::make_empty()).second);
+    REQUIRE_FALSE(graph.insert_node(node::make_empty()).second);
+  }
 }

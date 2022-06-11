@@ -53,61 +53,101 @@ private:
 
 namespace dsac {
 
-namespace detail {
-
 template <typename T>
-struct nth_key {
-  inline static auto get([[maybe_unused]] T const& entity) {
+struct directed_graph_semantic {
+  inline static auto get_key([[maybe_unused]] T const& entity) {
     return nullptr;
   }
 };
 
-}  // namespace detail
+template <typename N, typename E>
+struct proxy_node {
+  using node_type = N;
+  using edge_type = E;
 
-template <typename Node, typename Edge>
-class proxy_node {
-  using node_type = Node;
-  using edge_type = Edge;
+  explicit proxy_node(node_type const& node)
+    : node(node) {
+  }
+
+  node_type node;
 };
-template <typename Node, typename Edge>
-class proxy_edge {
-  using node_type = Node;
-  using edge_type = Edge;
-};
-template <typename Node, typename Edge>
-class normal_edge_iterator {
-  using node_type = Node;
-  using edge_type = Edge;
-};
-template <typename Node, typename Edge>
+template <typename N, typename E>
+struct proxy_edge {};
+template <typename Iterator, typename DirectedGraph>
 class normal_node_iterator {
-  using node_type = Node;
-  using edge_type = Edge;
-};
+  Iterator current_;
 
+public:
+  using reference = typename DirectedGraph::node_reference;
+
+  normal_node_iterator()
+    : current_(Iterator()) {
+  }
+
+  normal_node_iterator(const Iterator& iterator)  // NOLINT(google-explicit-constructor)
+    : current_(iterator) {
+  }
+
+  reference operator*() const {
+    return current_->node;
+  }
+};
+template <typename Iterator>
+class normal_edge_iterator {};
 template <typename N, typename E, typename A = std::allocator<N>, typename B = std::allocator<E>>
 class directed_graph final {
 public:
   using node_type             = N;
   using edge_type             = E;
-  using node_allocator_type   = A;
+  using node_allocator_type   = typename std::allocator_traits<A>::template rebind_alloc<proxy_node<N, E>>;
   using node_allocator_traits = typename std::allocator_traits<node_allocator_type>;
   using node_size_type        = typename node_allocator_traits::size_type;
   using node_difference_type  = typename node_allocator_traits::difference_type;
-  using node_reference        = proxy_node<node_type, edge_type>&;
-  using node_const_reference  = proxy_node<node_type, edge_type> const&;
+  using node_reference        = node_type&;
+  using node_const_reference  = node_type const&;
   using node_pointer          = typename node_allocator_traits::pointer;
   using node_const_pointer    = typename node_allocator_traits::const_pointer;
-  using edge_allocator_type   = B;
+  using node_iterator         = normal_node_iterator<node_pointer, directed_graph>;
+  using edge_allocator_type   = typename std::allocator_traits<B>::template rebind_alloc<proxy_edge<N, E>>;
   using edge_allocator_traits = typename std::allocator_traits<edge_allocator_type>;
   using edge_size_type        = typename edge_allocator_traits::size_type;
   using edge_difference_type  = typename edge_allocator_traits::difference_type;
-  using edge_reference        = proxy_edge<node_type, edge_type>&;
-  using edge_const_reference  = proxy_edge<node_type, edge_type> const&;
+  using edge_reference        = proxy_edge<N, E>&;
+  using edge_const_reference  = proxy_edge<N, E> const&;
   using edge_pointer          = typename edge_allocator_traits::pointer;
   using edge_const_pointer    = typename edge_allocator_traits::const_pointer;
-  using node_iterator         = normal_node_iterator<node_type, edge_type>;
-  using edge_iterator         = normal_edge_iterator<node_type, edge_type>;
+  using edge_iterator         = normal_edge_iterator<edge_pointer>;
+
+private:
+  using node_key_type = typename directed_graph_semantic<node_type>::key_type;
+
+public:
+  auto insert_node(node_type const& node) -> std::pair<node_iterator, bool> {
+    node_key_type const key = directed_graph_semantic<node_type>::get_key(node);
+    if (nodes_.contains(key)) {
+      return std::make_pair(nodes_[key], false);
+    }
+
+    node_pointer pointer                = make_proxy_node(node, node_allocator_);
+    [[maybe_unused]] auto const [it, _] = nodes_.emplace(key, pointer);
+    return std::make_pair(pointer, true);
+  }
+
+private:
+  static auto make_proxy_node(node_type const& node, node_allocator_type& allocator) -> node_pointer {
+    constexpr node_size_type kEntities = 1U;
+    node_pointer             pointer   = dsac::allocate(kEntities, allocator);
+    try {
+      dsac::construct(pointer, allocator, node);
+    } catch (...) {
+      dsac::deallocate(pointer, kEntities, allocator);
+      throw;
+    }
+    return pointer;
+  }
+
+  std::unordered_map<node_key_type, node_pointer> nodes_;
+  node_allocator_type                             node_allocator_;
 };
 
 }  // namespace dsac
