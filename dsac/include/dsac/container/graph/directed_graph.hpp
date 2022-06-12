@@ -142,7 +142,7 @@ public:
   }
 
   reference operator*() const {
-    return current_->node;
+    return current_->edge;
   }
 
   const pointer& base() const {
@@ -185,6 +185,17 @@ private:
   using edge_key_type = typename directed_graph_semantic<edge_type>::key_type;
 
 public:
+  ~directed_graph() {
+    for (auto& [_, node] : nodes_) {
+      node_allocator_traits::destroy(node_allocator_, node);
+      node_allocator_traits::deallocate(node_allocator_, node, 1U);
+    }
+    for (auto& [_, edge] : edges_) {
+      edge_allocator_traits::destroy(edge_allocator_, edge);
+      edge_allocator_traits::deallocate(edge_allocator_, edge, 1U);
+    }
+  }
+
   auto insert_node(node_type const& node) -> std::pair<node_iterator, bool> {
     node_key_type const key = directed_graph_semantic<node_type>::get_key(node);
     if (nodes_.contains(key)) {
@@ -215,13 +226,11 @@ public:
 private:
   template <typename Entity, typename Allocator>
   static auto make_proxy_entity_for(Entity const& entity, Allocator& allocator) {
-    constexpr node_size_type kEntities = 1U;
-
-    auto pointer = dsac::allocate(kEntities, allocator);
+    auto pointer = dsac::allocate(1U, allocator);
     try {
       dsac::construct(pointer, allocator, entity);
     } catch (...) {
-      dsac::deallocate(pointer, kEntities, allocator);
+      dsac::deallocate(pointer, 1U, allocator);
       throw;
     }
 
