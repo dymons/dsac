@@ -38,6 +38,10 @@ struct node final {
 struct edge final {
   std::string                      key{};
   dsac::dynamic_array<std::string> attributes{};
+
+  [[gnu::always_inline]] inline static edge make_empty() {
+    return {};
+  }
 };
 
 template <>
@@ -48,7 +52,15 @@ struct dsac::directed_graph_semantic<node> {
   };
 };
 
-TEST_CASE("Testcases for checking direct graph", "[graph][direct]") {
+template <>
+struct dsac::directed_graph_semantic<edge> {
+  using key_type = std::string_view;
+  [[gnu::always_inline]] inline static auto get_key(edge const& edge) -> key_type {
+    return edge.key;
+  };
+};
+
+TEST_CASE("Testcases for checking building direct graph", "[graph][direct]") {
   GIVEN("An empty directed graph") {
     dsac::directed_graph<node, edge> graph;
     WHEN("Store a default node in the directed graph") {
@@ -56,7 +68,7 @@ TEST_CASE("Testcases for checking direct graph", "[graph][direct]") {
       THEN("The stored node was successfully added") {
         REQUIRE(added);
       }
-      THEN("A node has an empty key and attributes") {
+      THEN("The node has an empty key and attributes") {
         REQUIRE((*unique_node).key.empty());
         REQUIRE((*unique_node).attributes.empty());
       }
@@ -65,9 +77,17 @@ TEST_CASE("Testcases for checking direct graph", "[graph][direct]") {
         THEN("The stored node was not successfully added") {
           REQUIRE_FALSE(added_again);
         }
-        THEN("Was returned the same node") {
+        THEN("Was returned the same iterator to the default node") {
           REQUIRE(source_node == unique_node);
         }
+      }
+    }
+    WHEN("Store a default edge in the directed graph") {
+      auto spb                        = graph.insert_node(node{.key = "Saint-Petersburg"});
+      auto moscow                     = graph.insert_node(node{.key = "Moscow"});
+      const auto [unique_road, added] = graph.insert_edge(spb.first, moscow.first, edge::make_empty());
+      THEN("The stored edge was successfully added") {
+        REQUIRE(added);
       }
     }
   }

@@ -53,6 +53,18 @@ private:
 
 namespace dsac {
 
+class directed_graph_exception : public std::logic_error {
+public:
+  using std::logic_error::logic_error;
+};
+
+class loops_not_supported_for_single_node : public directed_graph_exception {
+public:
+  loops_not_supported_for_single_node()
+    : directed_graph_exception("at the moment loops are not supported in the directed graph") {
+  }
+};
+
 template <typename T>
 struct directed_graph_semantic {
   inline static auto get_key([[maybe_unused]] T const& entity) {
@@ -60,31 +72,43 @@ struct directed_graph_semantic {
   }
 };
 
-template <typename N, typename E>
+template <typename Container>
 struct proxy_node {
-  using node_type = N;
-  using edge_type = E;
+  using node_type    = typename Container::node_type;
+  using edge_pointer = typename Container::edge_pointer;
 
   explicit proxy_node(node_type const& node)
     : node(node) {
   }
 
-  node_type node;
+  node_type                         node;
+  dsac::dynamic_array<edge_pointer> edges;
 };
-template <typename N, typename E>
-struct proxy_edge {};
-template <typename Iterator, typename DirectedGraph>
-class normal_node_iterator {
-  Iterator current_;
+template <typename Container>
+struct proxy_edge {
+  using edge_type    = typename Container::edge_type;
+  using node_pointer = typename Container::node_pointer;
 
-public:
-  using reference = typename DirectedGraph::node_reference;
-
-  normal_node_iterator()
-    : current_(Iterator()) {
+  explicit proxy_edge(edge_type const& edge)
+    : edge(edge) {
   }
 
-  normal_node_iterator(const Iterator& iterator)  // NOLINT(google-explicit-constructor)
+  edge_type    edge;
+  node_pointer from;
+  node_pointer to;
+};
+
+template <typename Container>
+class normal_node_iterator {
+public:
+  using pointer   = typename Container::node_pointer;
+  using reference = typename Container::node_reference;
+
+  normal_node_iterator()
+    : current_(pointer()) {
+  }
+
+  normal_node_iterator(const pointer& iterator)  // NOLINT(google-explicit-constructor)
     : current_(iterator) {
   }
 
@@ -92,24 +116,52 @@ public:
     return current_->node;
   }
 
-  const Iterator& base() const {
+  const pointer& base() const {
     return current_;
   }
+
+private:
+  pointer current_;
 };
-template <typename IteratorL, typename IteratorR, typename DirectedGraph>
-inline bool operator==(
-    const normal_node_iterator<IteratorL, DirectedGraph>& lhs,
-    const normal_node_iterator<IteratorR, DirectedGraph>& rha) {
+template <typename Container>
+inline bool operator==(const normal_node_iterator<Container>& lhs, const normal_node_iterator<Container>& rha) {
   return lhs.base() == rha.base();
 }
-template <typename Iterator>
-class normal_edge_iterator {};
+template <typename Container>
+class normal_edge_iterator {
+public:
+  using pointer   = typename Container::edge_pointer;
+  using reference = typename Container::edge_reference;
+
+  normal_edge_iterator()
+    : current_(pointer()) {
+  }
+
+  normal_edge_iterator(const pointer& iterator)  // NOLINT(google-explicit-constructor)
+    : current_(iterator) {
+  }
+
+  reference operator*() const {
+    return current_->node;
+  }
+
+  const pointer& base() const {
+    return current_;
+  }
+
+private:
+  pointer current_;
+};
+template <typename Container>
+inline bool operator==(const normal_edge_iterator<Container>& lhs, const normal_edge_iterator<Container>& rha) {
+  return lhs.base() == rha.base();
+}
 template <typename N, typename E, typename A = std::allocator<N>, typename B = std::allocator<E>>
 class directed_graph final {
 public:
   using node_type             = N;
   using edge_type             = E;
-  using node_allocator_type   = typename std::allocator_traits<A>::template rebind_alloc<proxy_node<N, E>>;
+  using node_allocator_type   = typename std::allocator_traits<A>::template rebind_alloc<proxy_node<directed_graph>>;
   using node_allocator_traits = typename std::allocator_traits<node_allocator_type>;
   using node_size_type        = typename node_allocator_traits::size_type;
   using node_difference_type  = typename node_allocator_traits::difference_type;
@@ -117,19 +169,20 @@ public:
   using node_const_reference  = node_type const&;
   using node_pointer          = typename node_allocator_traits::pointer;
   using node_const_pointer    = typename node_allocator_traits::const_pointer;
-  using node_iterator         = normal_node_iterator<node_pointer, directed_graph>;
-  using edge_allocator_type   = typename std::allocator_traits<B>::template rebind_alloc<proxy_edge<N, E>>;
+  using node_iterator         = normal_node_iterator<directed_graph>;
+  using edge_allocator_type   = typename std::allocator_traits<B>::template rebind_alloc<proxy_edge<directed_graph>>;
   using edge_allocator_traits = typename std::allocator_traits<edge_allocator_type>;
   using edge_size_type        = typename edge_allocator_traits::size_type;
   using edge_difference_type  = typename edge_allocator_traits::difference_type;
-  using edge_reference        = proxy_edge<N, E>&;
-  using edge_const_reference  = proxy_edge<N, E> const&;
+  using edge_reference        = edge_type&;
+  using edge_const_reference  = edge_type const&;
   using edge_pointer          = typename edge_allocator_traits::pointer;
   using edge_const_pointer    = typename edge_allocator_traits::const_pointer;
-  using edge_iterator         = normal_edge_iterator<edge_pointer>;
+  using edge_iterator         = normal_edge_iterator<directed_graph>;
 
 private:
   using node_key_type = typename directed_graph_semantic<node_type>::key_type;
+  using edge_key_type = typename directed_graph_semantic<edge_type>::key_type;
 
 public:
   auto insert_node(node_type const& node) -> std::pair<node_iterator, bool> {
@@ -138,26 +191,47 @@ public:
       return std::make_pair(nodes_[key], false);
     }
 
-    node_pointer pointer                = make_proxy_node(node, node_allocator_);
-    [[maybe_unused]] auto const [it, _] = nodes_.emplace(key, pointer);
-    return std::make_pair(pointer, true);
+    node_pointer pointer     = make_proxy_entity_for(node, node_allocator_);
+    auto const [it, success] = nodes_.emplace(key, pointer);
+    return std::make_pair(it->second, success);
+  }
+
+  auto insert_edge(node_iterator from, node_iterator to, edge_type const& edge) -> std::pair<edge_iterator, bool> {
+    if (from == to) {
+      throw loops_not_supported_for_single_node{};
+    }
+
+    edge_pointer pointer = make_proxy_entity_for(edge, edge_allocator_);
+    pointer->from        = from.base();
+    pointer->to          = to.base();
+    pointer->from->edges.push_back(pointer);
+    pointer->to->edges.push_back(pointer);
+
+    edge_key_type const key  = directed_graph_semantic<edge_type>::get_key(edge);
+    auto const [it, success] = edges_.emplace(key, pointer);
+    return std::make_pair(it->second, success);
   }
 
 private:
-  static auto make_proxy_node(node_type const& node, node_allocator_type& allocator) -> node_pointer {
+  template <typename Entity, typename Allocator>
+  static auto make_proxy_entity_for(Entity const& entity, Allocator& allocator) {
     constexpr node_size_type kEntities = 1U;
-    node_pointer             pointer   = dsac::allocate(kEntities, allocator);
+
+    auto pointer = dsac::allocate(kEntities, allocator);
     try {
-      dsac::construct(pointer, allocator, node);
+      dsac::construct(pointer, allocator, entity);
     } catch (...) {
       dsac::deallocate(pointer, kEntities, allocator);
       throw;
     }
+
     return pointer;
   }
 
   std::unordered_map<node_key_type, node_pointer> nodes_;
   node_allocator_type                             node_allocator_;
+  std::unordered_map<edge_key_type, edge_pointer> edges_;
+  edge_allocator_type                             edge_allocator_;
 };
 
 }  // namespace dsac
