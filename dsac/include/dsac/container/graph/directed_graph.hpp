@@ -58,9 +58,9 @@ public:
   using std::logic_error::logic_error;
 };
 
-class loops_not_supported_for_single_node : public directed_graph_exception {
+class loops_not_supported : public directed_graph_exception {
 public:
-  loops_not_supported_for_single_node()
+  loops_not_supported()
     : directed_graph_exception("at the moment loops are not supported in the directed graph") {
   }
 };
@@ -209,7 +209,12 @@ public:
 
   auto insert_edge(node_iterator from, node_iterator to, edge_type const& edge) -> std::pair<edge_iterator, bool> {
     if (from == to) {
-      throw loops_not_supported_for_single_node{};
+      throw loops_not_supported{};
+    }
+
+    edge_key_type const key  = directed_graph_semantic<edge_type>::get_key(edge);
+    if (edges_.contains(key)) {
+      return std::make_pair(edges_[key], false);
     }
 
     edge_pointer pointer = make_proxy_entity_for(edge, edge_allocator_);
@@ -218,7 +223,7 @@ public:
     pointer->from->edges.push_back(pointer);
     pointer->to->edges.push_back(pointer);
 
-    edge_key_type const key  = directed_graph_semantic<edge_type>::get_key(edge);
+
     auto const [it, success] = edges_.emplace(key, pointer);
     return std::make_pair(it->second, success);
   }

@@ -93,6 +93,19 @@ TEST_CASE("Testcases for checking building direct graph", "[graph][direct]") {
         REQUIRE((*unique_edge).key.empty());
         REQUIRE((*unique_edge).attributes.empty());
       }
+      WHEN("Store a default node in the directed graph again") {
+        const auto [source_edge, added_again] = graph.insert_edge(spb.first, moscow.first, edge::make_empty());
+        THEN("The stored node was not successfully added") {
+          REQUIRE_FALSE(added_again);
+        }
+        THEN("Was returned the same iterator to the default node") {
+          REQUIRE(source_edge == unique_edge);
+        }
+      }
+    }
+    WHEN("Create a cycle for one node") {
+      auto const node = graph.insert_node(node::make_empty());
+      REQUIRE_THROWS_AS(graph.insert_edge(node.first, node.first, edge::make_empty()), dsac::loops_not_supported);
     }
   }
 }
