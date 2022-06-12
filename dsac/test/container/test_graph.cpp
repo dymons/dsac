@@ -65,34 +65,34 @@ TEST_CASE("Testcases for checking building direct graph", "[graph][direct]") {
     dsac::directed_graph<node, edge> graph;
     WHEN("Store a default node in the directed graph") {
       auto const [unique_node, added] = graph.insert_node(node::make_empty());
-//      THEN("The stored node was successfully added") {
-//        REQUIRE(added);
-//      }
-//      THEN("The node has an empty key and attributes") {
-//        REQUIRE((*unique_node).key.empty());
-//        REQUIRE((*unique_node).attributes.empty());
-//      }
-//      WHEN("Store a default node in the directed graph again") {
-//        auto const [source_node, added_again] = graph.insert_node(node::make_empty());
-//        THEN("The stored node was not successfully added") {
-//          REQUIRE_FALSE(added_again);
-//        }
-//        THEN("Was returned the same iterator to the default node") {
-//          REQUIRE(source_node == unique_node);
-//        }
-//      }
+      THEN("The stored node was successfully added") {
+        REQUIRE(added);
+      }
+      THEN("The node has an empty key and attributes") {
+        REQUIRE((*unique_node).key.empty());
+        REQUIRE((*unique_node).attributes.empty());
+      }
+      WHEN("Store a default node in the directed graph again") {
+        auto const [source_node, added_again] = graph.insert_node(node::make_empty());
+        THEN("The stored node was not successfully added") {
+          REQUIRE_FALSE(added_again);
+        }
+        THEN("Was returned the same iterator to the default node") {
+          REQUIRE(source_node == unique_node);
+        }
+      }
     }
-//    WHEN("Store a default edge in the directed graph") {
-//      auto spb                        = graph.insert_node(node{.key = "Saint-Petersburg"});
-//      auto moscow                     = graph.insert_node(node{.key = "Moscow"});
-//      const auto [unique_edge, added] = graph.insert_edge(spb.first, moscow.first, edge::make_empty());
-//      THEN("The stored edge was successfully added") {
-//        REQUIRE(added);
-//      }
-//      THEN("The node has an empty key and attributes") {
-//        REQUIRE((*unique_edge).key.empty());
-//        REQUIRE((*unique_edge).attributes.empty());
-//      }
-//    }
+    WHEN("Store a default edge in the directed graph") {
+      auto spb                        = graph.insert_node(node{.key = "Saint-Petersburg"});
+      auto moscow                     = graph.insert_node(node{.key = "Moscow"});
+      const auto [unique_edge, added] = graph.insert_edge(spb.first, moscow.first, edge::make_empty());
+      THEN("The stored edge was successfully added") {
+        REQUIRE(added);
+      }
+      THEN("The node has an empty key and attributes") {
+        REQUIRE((*unique_edge).key.empty());
+        REQUIRE((*unique_edge).attributes.empty());
+      }
+    }
   }
 }
