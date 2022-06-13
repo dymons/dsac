@@ -40,9 +40,8 @@ std::optional<std::pair<token, std::string_view>> graphviz_lexical_analyzer::try
 
   const auto entity = entities.find(graphviz_[current_symbol_]);
   if (entity != entities.end()) {
-    const auto max_combination = std::max_element(entity->second.begin(), entity->second.end());
-    auto       max_size =
-        std::clamp<decltype(current_symbol_)>(max_combination->size(), 0, graphviz_.size() - current_symbol_);
+    const auto  max_combination = std::max_element(entity->second.begin(), entity->second.end());
+    std::size_t max_size = std::clamp<std::size_t>(max_combination->size(), 0U, graphviz_.size() - current_symbol_);
     do {
       if (auto data = entity->second.find(graphviz_.substr(current_symbol_, max_size)); data != entity->second.end()) {
         current_symbol_ += max_size;
@@ -56,20 +55,14 @@ std::optional<std::pair<token, std::string_view>> graphviz_lexical_analyzer::try
 template <>
 std::optional<std::pair<token, std::string_view>> graphviz_lexical_analyzer::try_parse<token::keyword>() {
   if (std::isalpha(graphviz_[current_symbol_]) != 0) {
-    const auto        current_symbol = static_cast<std::string_view::difference_type>(current_symbol_);
-    const char* const not_isalnum =
-        std::find_if_not(std::next(graphviz_.begin(), current_symbol), graphviz_.end(), [](char ch) {
-          return std::isalnum(ch, kClassicLocale) || (ch == kUnderlineSymbol);
-        });
-    const std::size_t      end_of_word = std::distance(graphviz_.begin(), not_isalnum);
-    const std::string_view word =
-        graphviz_.substr(current_symbol_, static_cast<std::string_view::size_type>(end_of_word) - current_symbol_);
-    current_symbol_ = static_cast<decltype(current_symbol_)>(std::distance(graphviz_.begin(), not_isalnum));
+    const auto isalnum     = [](char ch) { return std::isalnum(ch, kClassicLocale) || (ch == kUnderlineSymbol); };
+    const auto not_isalnum = std::find_if_not(std::next(graphviz_.begin(), current_symbol_), graphviz_.end(), isalnum);
 
-    if (kKeywords.contains(word)) {
-      return std::make_pair(token::keyword, word);
-    }
-    return std::make_pair(token::identifier, word);
+    const std::size_t      end_of_word = std::distance(graphviz_.begin(), not_isalnum);
+    const std::string_view word        = graphviz_.substr(current_symbol_, end_of_word - current_symbol_);
+    current_symbol_                    = end_of_word;
+
+    return kKeywords.contains(word) ? std::make_pair(token::keyword, word) : std::make_pair(token::identifier, word);
   }
 
   return std::nullopt;
