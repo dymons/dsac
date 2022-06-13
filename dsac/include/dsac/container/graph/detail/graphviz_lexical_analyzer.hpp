@@ -10,7 +10,7 @@ namespace dsac {
 
 class graphviz_lexical_analyzer final {
   const std::string_view graphviz_;
-  std::size_t            current_symbol_;
+  std::size_t            sp_;
 
   template <token>
   tl::expected<std::pair<token, std::string_view>, std::string> get_next();
