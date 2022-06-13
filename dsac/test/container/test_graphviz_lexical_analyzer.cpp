@@ -69,4 +69,41 @@ TEST_CASE("Checking the analytical analysis of the graphviz for recognition of t
     REQUIRE(tokenizer.get_next_token() == std::make_pair(dsac::token::punctuator, "}"sv));
     REQUIRE(tokenizer.get_next_token() == std::make_pair(dsac::token::eof, ""sv));
   }
+  SECTION("Check digraph with multiple statements") {
+    constexpr char const* kDigraph = R"graph(
+      digraph abc {
+        a -> b -> c;
+        d -> f -> g;
+        b -> g;
+        g -> a;
+      }
+    )graph";
+
+    dsac::graphviz_lexical_analyzer tokenizer(kDigraph);
+    REQUIRE(tokenizer.get_next_token() == std::make_pair(dsac::token::keyword, "digraph"sv));
+    REQUIRE(tokenizer.get_next_token() == std::make_pair(dsac::token::identifier, "abc"sv));
+    REQUIRE(tokenizer.get_next_token() == std::make_pair(dsac::token::punctuator, "{"sv));
+    REQUIRE(tokenizer.get_next_token() == std::make_pair(dsac::token::identifier, "a"sv));
+    REQUIRE(tokenizer.get_next_token() == std::make_pair(dsac::token::operator_, "->"sv));
+    REQUIRE(tokenizer.get_next_token() == std::make_pair(dsac::token::identifier, "b"sv));
+    REQUIRE(tokenizer.get_next_token() == std::make_pair(dsac::token::operator_, "->"sv));
+    REQUIRE(tokenizer.get_next_token() == std::make_pair(dsac::token::identifier, "c"sv));
+    REQUIRE(tokenizer.get_next_token() == std::make_pair(dsac::token::punctuator, ";"sv));
+    REQUIRE(tokenizer.get_next_token() == std::make_pair(dsac::token::identifier, "d"sv));
+    REQUIRE(tokenizer.get_next_token() == std::make_pair(dsac::token::operator_, "->"sv));
+    REQUIRE(tokenizer.get_next_token() == std::make_pair(dsac::token::identifier, "f"sv));
+    REQUIRE(tokenizer.get_next_token() == std::make_pair(dsac::token::operator_, "->"sv));
+    REQUIRE(tokenizer.get_next_token() == std::make_pair(dsac::token::identifier, "g"sv));
+    REQUIRE(tokenizer.get_next_token() == std::make_pair(dsac::token::punctuator, ";"sv));
+    REQUIRE(tokenizer.get_next_token() == std::make_pair(dsac::token::identifier, "b"sv));
+    REQUIRE(tokenizer.get_next_token() == std::make_pair(dsac::token::operator_, "->"sv));
+    REQUIRE(tokenizer.get_next_token() == std::make_pair(dsac::token::identifier, "g"sv));
+    REQUIRE(tokenizer.get_next_token() == std::make_pair(dsac::token::punctuator, ";"sv));
+    REQUIRE(tokenizer.get_next_token() == std::make_pair(dsac::token::identifier, "g"sv));
+    REQUIRE(tokenizer.get_next_token() == std::make_pair(dsac::token::operator_, "->"sv));
+    REQUIRE(tokenizer.get_next_token() == std::make_pair(dsac::token::identifier, "a"sv));
+    REQUIRE(tokenizer.get_next_token() == std::make_pair(dsac::token::punctuator, ";"sv));
+    REQUIRE(tokenizer.get_next_token() == std::make_pair(dsac::token::punctuator, "}"sv));
+    REQUIRE(tokenizer.get_next_token() == std::make_pair(dsac::token::eof, ""sv));
+  }
 }
