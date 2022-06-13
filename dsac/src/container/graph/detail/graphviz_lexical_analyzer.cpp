@@ -27,9 +27,13 @@ graphviz_lexical_analyzer::graphviz_lexical_analyzer(std::string_view graphviz)
 
 template <token token_type>
 tl::expected<std::pair<token, std::string_view>, std::string> graphviz_lexical_analyzer::get_next() {
+  static_assert(token_type == token::operator_ || token_type == token::punctuator);
+  if (sp_ >= graphviz_.size()) {
+    return kTokenFallback;
+  }
   const auto& entities = token_type == token::operator_ ? kOperators : kPunctuations;
   const auto  entity   = entities.find(graphviz_[sp_]);
-  if (sp_ < graphviz_.size() && entity != entities.end()) {
+  if (entity != entities.end()) {
     const auto  max_combination = std::max_element(entity->second.begin(), entity->second.end());
     std::size_t max_size        = std::clamp<std::size_t>(max_combination->size(), 0U, graphviz_.size() - sp_);
     do {
@@ -44,10 +48,13 @@ tl::expected<std::pair<token, std::string_view>, std::string> graphviz_lexical_a
 
 template <>
 tl::expected<std::pair<token, std::string_view>, std::string> graphviz_lexical_analyzer::get_next<token::keyword>() {
+  if (sp_ >= graphviz_.size()) {
+    return kTokenFallback;
+  }
   static const auto kIsIdentifier = [](char ch) {
     return std::isalnum(ch, kClassicLocale) || (ch == kUnderlineSymbol);
   };
-  if (sp_ < graphviz_.size() && std::isalpha(graphviz_[sp_]) != 0) {
+  if (std::isalpha(graphviz_[sp_]) != 0) {
     const auto* const      it            = std::find_if_not(graphviz_.begin() + sp_, graphviz_.end(), kIsIdentifier);
     const std::size_t      start_of_word = std::exchange(sp_, std::distance(graphviz_.begin(), it));
     const std::string_view word          = graphviz_.substr(start_of_word, sp_ - start_of_word);
