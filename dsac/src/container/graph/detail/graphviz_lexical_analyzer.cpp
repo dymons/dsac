@@ -29,7 +29,7 @@ template <token token_type>
 tl::expected<std::pair<token, std::string_view>, std::string> graphviz_lexical_analyzer::get_next() {
   const auto& entities = token_type == token::operator_ ? kOperators : kPunctuations;
   const auto  entity   = entities.find(graphviz_[sp_]);
-  if (entity != entities.end()) {
+  if (sp_ < graphviz_.size() && entity != entities.end()) {
     const auto  max_combination = std::max_element(entity->second.begin(), entity->second.end());
     std::size_t max_size        = std::clamp<std::size_t>(max_combination->size(), 0U, graphviz_.size() - sp_);
     do {
@@ -47,7 +47,7 @@ tl::expected<std::pair<token, std::string_view>, std::string> graphviz_lexical_a
   static const auto kIsIdentifier = [](char ch) {
     return std::isalnum(ch, kClassicLocale) || (ch == kUnderlineSymbol);
   };
-  if (std::isalpha(graphviz_[sp_]) != 0) {
+  if (sp_ < graphviz_.size() && std::isalpha(graphviz_[sp_]) != 0) {
     const auto* const      it            = std::find_if_not(graphviz_.begin() + sp_, graphviz_.end(), kIsIdentifier);
     const std::size_t      start_of_word = std::exchange(sp_, std::distance(graphviz_.begin(), it));
     const std::string_view word          = graphviz_.substr(start_of_word, sp_ - start_of_word);
@@ -57,17 +57,13 @@ tl::expected<std::pair<token, std::string_view>, std::string> graphviz_lexical_a
 }
 
 std::pair<token, std::string_view> graphviz_lexical_analyzer::get_next_token() {
-  while (graphviz_.size() != sp_) {
-    if (std::isspace(graphviz_[sp_]) != 0) {
-      sp_++;
-      continue;
-    }
-    return get_next<token::keyword>()
-        .or_else([this]([[maybe_unused]] auto&& error) { return get_next<token::punctuator>(); })
-        .or_else([this]([[maybe_unused]] auto&& error) { return get_next<token::operator_>(); })
-        .value_or(kTokenFallback);
+  while (graphviz_.size() != sp_ && (std::isspace(graphviz_[sp_]) != 0)) {
+    sp_++;
   }
-  return kTokenFallback;
+  return get_next<token::keyword>()
+      .or_else([this]([[maybe_unused]] auto&& error) { return get_next<token::punctuator>(); })
+      .or_else([this]([[maybe_unused]] auto&& error) { return get_next<token::operator_>(); })
+      .value_or(kTokenFallback);
 }
 
 }  // namespace dsac
