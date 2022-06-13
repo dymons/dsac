@@ -17,7 +17,6 @@ const std::unordered_map<char, std::unordered_set<std::string_view>> kPunctuatio
 const std::locale                        kClassicLocale{"C"};
 constexpr const char                     kUnderlineSymbol{'_'};
 const std::pair<token, std::string_view> kTokenFallback{token::eof, ""};
-const auto kIsIdentifier = [](char ch) { return std::isalnum(ch, kClassicLocale) || (ch == kUnderlineSymbol); };
 
 }  // namespace
 
@@ -45,6 +44,9 @@ tl::expected<std::pair<token, std::string_view>, std::string> graphviz_lexical_a
 
 template <>
 tl::expected<std::pair<token, std::string_view>, std::string> graphviz_lexical_analyzer::get_next<token::keyword>() {
+  static const auto kIsIdentifier = [](char ch) {
+    return std::isalnum(ch, kClassicLocale) || (ch == kUnderlineSymbol);
+  };
   if (std::isalpha(graphviz_[sp_]) != 0) {
     const auto* const      it            = std::find_if_not(graphviz_.begin() + sp_, graphviz_.end(), kIsIdentifier);
     const std::size_t      start_of_word = std::exchange(sp_, std::distance(graphviz_.begin(), it));
