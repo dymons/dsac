@@ -16,8 +16,9 @@ const std::unordered_map<char, std::unordered_set<std::string_view>> kOperators{
 const std::unordered_map<char, std::unordered_set<std::string_view>> kPunctuations{
     {';', {";"}}, {'{', {"{"}}, {'}', {"}"}}};
 
-const std::locale    kClassicLocale{"C"};
-constexpr const char kUnderlineSymbol{'_'};
+const std::locale                        kClassicLocale{"C"};
+constexpr const char                     kUnderlineSymbol{'_'};
+const std::pair<token, std::string_view> kTokenFallback{token::eof, ""};
 
 }  // namespace
 
@@ -26,16 +27,8 @@ graphviz_lexical_analyzer::graphviz_lexical_analyzer(std::string_view graphviz)
   , current_symbol_(0U) {
 }
 
-bool graphviz_lexical_analyzer::is_space_then_skip() {
-  if (std::isspace(graphviz_[current_symbol_]) != 0) {
-    current_symbol_++;
-    return true;
-  }
-  return false;
-}
-
 template <token token_type>
-std::optional<std::pair<token, std::string_view>> graphviz_lexical_analyzer::try_parse() {
+tl::expected<std::pair<token, std::string_view>, std::string> graphviz_lexical_analyzer::get_next() {
   const auto& entities = token_type == token::operator_ ? kOperators : kPunctuations;
 
   const auto entity = entities.find(graphviz_[current_symbol_]);
@@ -49,11 +42,11 @@ std::optional<std::pair<token, std::string_view>> graphviz_lexical_analyzer::try
       }
     } while (--max_size != 0);
   }
-  return std::nullopt;
+  return tl::make_unexpected<std::string>("");
 }
 
 template <>
-std::optional<std::pair<token, std::string_view>> graphviz_lexical_analyzer::try_parse<token::keyword>() {
+tl::expected<std::pair<token, std::string_view>, std::string> graphviz_lexical_analyzer::get_next<token::keyword>() {
   if (std::isalpha(graphviz_[current_symbol_]) != 0) {
     const auto isalnum     = [](char ch) { return std::isalnum(ch, kClassicLocale) || (ch == kUnderlineSymbol); };
     const auto not_isalnum = std::find_if_not(std::next(graphviz_.begin(), current_symbol_), graphviz_.end(), isalnum);
@@ -64,29 +57,22 @@ std::optional<std::pair<token, std::string_view>> graphviz_lexical_analyzer::try
 
     return kKeywords.contains(word) ? std::make_pair(token::keyword, word) : std::make_pair(token::identifier, word);
   }
-
-  return std::nullopt;
+  return tl::make_unexpected<std::string>("");
 }
 
 std::pair<token, std::string_view> graphviz_lexical_analyzer::get_next_token() {
-  while (!empty()) {
-    if (is_space_then_skip()) {
+  while (graphviz_.size() != current_symbol_) {
+    if (std::isspace(graphviz_[current_symbol_]) != 0) {
+      current_symbol_++;
       continue;
     }
 
-    if (auto const keyword = try_parse<token::keyword>(); keyword) {
-      return keyword.value();
-    } else if (auto const punctuation = try_parse<token::punctuator>(); punctuation) {
-      return punctuation.value();
-    } else if (auto const operator_ = try_parse<token::operator_>(); operator_) {
-      return operator_.value();
-    }
+    return get_next<token::keyword>()
+        .or_else([this]([[maybe_unused]] auto&& error) { return get_next<token::punctuator>(); })
+        .or_else([this]([[maybe_unused]] auto&& error) { return get_next<token::operator_>(); })
+        .value_or(kTokenFallback);
   }
-  return std::make_pair(token::eof, "");
-}
-
-bool graphviz_lexical_analyzer::empty() const noexcept {
-  return graphviz_.size() == current_symbol_;
+  return kTokenFallback;
 }
 
 }  // namespace dsac
