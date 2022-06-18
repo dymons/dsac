@@ -106,7 +106,7 @@ TEST_CASE("Checking the analytical analysis of the graphviz for recognition of t
     REQUIRE(tokenizer.get_next_token() == std::make_pair(dsac::token::punctuator, "}"sv));
     REQUIRE(tokenizer.get_next_token() == std::make_pair(dsac::token::eof, ""sv));
   }
-  SECTION("Check digraph with attributes") {
+  SECTION("Check graph with attributes") {
     constexpr char const* kGraph = R"graph(
       graph orders {
         a [latitude=59.95671 longitude=30.30876];
