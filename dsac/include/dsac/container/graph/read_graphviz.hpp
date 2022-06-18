@@ -15,7 +15,9 @@ template <typename N, typename E, typename A = std::allocator<N>, typename B = s
    *  graph          : (graph | digraph) ID LPARAM statement_list RPARAM
    *  statement_list : statement SEMI | statement SEMI statement_list
    *  statement      : factor ((--,->)factor)*
-   *  factor         : node
+   *  factor         : node (LPARAM attr_list RPARAM| empty)
+   *  attr_list      : attr*
+   *  attr           : ID ASSIGN ID
    *
    * */
 

@@ -10,9 +10,9 @@ namespace dsac {
 namespace {
 
 const std::unordered_set<std::string_view>                           kKeywords{"graph", "digraph"};
-const std::unordered_map<char, std::unordered_set<std::string_view>> kOperators{{'-', {"--", "->"}}};
+const std::unordered_map<char, std::unordered_set<std::string_view>> kOperators{{'-', {"--", "->"}}, {'=', {"="}}};
 const std::unordered_map<char, std::unordered_set<std::string_view>> kPunctuations{
-    {';', {";"}}, {'{', {"{"}}, {'}', {"}"}}};
+    {';', {";"}}, {'{', {"{"}}, {'}', {"}"}}, {'[', {"["}}, {']', {"]"}}};
 
 const std::locale                        kClassicLocale{"C"};
 constexpr const char                     kUnderlineSymbol{'_'};
@@ -63,11 +63,27 @@ tl::expected<std::pair<token, std::string_view>, std::string> graphviz_lexical_a
   return tl::make_unexpected<std::string>("");
 }
 
+template <>
+tl::expected<std::pair<token, std::string_view>, std::string> graphviz_lexical_analyzer::get_next<token::literal>() {
+  if (sp_ >= graphviz_.size()) {
+    return kTokenFallback;
+  }
+  const auto is_literal = [](auto ch) { return (std::isdigit(ch, kClassicLocale) || (ch == '.')); };
+  if (std::isdigit(graphviz_[sp_], kClassicLocale)) {
+    const auto             it = std::find_if_not(std::next(graphviz_.begin(), sp_), graphviz_.end(), is_literal);
+    const std::size_t      start_of_literal = std::exchange(sp_, std::distance(graphviz_.begin(), it));
+    const std::string_view literal          = graphviz_.substr(start_of_literal, sp_ - start_of_literal);
+    return std::make_pair(token::literal, literal);
+  }
+  return tl::make_unexpected<std::string>("");
+}
+
 std::pair<token, std::string_view> graphviz_lexical_analyzer::get_next_token() {
   while (graphviz_.size() != sp_ && (std::isspace(graphviz_[sp_]) != 0)) {
     sp_++;
   }
   return get_next<token::keyword>()
+      .or_else([this]([[maybe_unused]] auto&& error) { return get_next<token::literal>(); })
       .or_else([this]([[maybe_unused]] auto&& error) { return get_next<token::punctuator>(); })
       .or_else([this]([[maybe_unused]] auto&& error) { return get_next<token::operator_>(); })
       .value_or(kTokenFallback);

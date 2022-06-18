@@ -106,4 +106,39 @@ TEST_CASE("Checking the analytical analysis of the graphviz for recognition of t
     REQUIRE(tokenizer.get_next_token() == std::make_pair(dsac::token::punctuator, "}"sv));
     REQUIRE(tokenizer.get_next_token() == std::make_pair(dsac::token::eof, ""sv));
   }
+  SECTION("Check digraph with attributes") {
+    constexpr char const* kGraph = R"graph(
+      graph orders {
+        a [latitude=59.95671 longitude=30.30876];
+        b [latitude=59.92969 longitude=30.31515];
+      }
+    )graph";
+
+    dsac::graphviz_lexical_analyzer tokenizer(kGraph);
+    REQUIRE(tokenizer.get_next_token() == std::make_pair(dsac::token::keyword, "graph"sv));
+    REQUIRE(tokenizer.get_next_token() == std::make_pair(dsac::token::identifier, "orders"sv));
+    REQUIRE(tokenizer.get_next_token() == std::make_pair(dsac::token::punctuator, "{"sv));
+    REQUIRE(tokenizer.get_next_token() == std::make_pair(dsac::token::identifier, "a"sv));
+    REQUIRE(tokenizer.get_next_token() == std::make_pair(dsac::token::punctuator, "["sv));
+    REQUIRE(tokenizer.get_next_token() == std::make_pair(dsac::token::identifier, "latitude"sv));
+    REQUIRE(tokenizer.get_next_token() == std::make_pair(dsac::token::operator_, "="sv));
+    REQUIRE(tokenizer.get_next_token() == std::make_pair(dsac::token::literal, "59.95671"sv));
+    REQUIRE(tokenizer.get_next_token() == std::make_pair(dsac::token::identifier, "longitude"sv));
+    REQUIRE(tokenizer.get_next_token() == std::make_pair(dsac::token::operator_, "="sv));
+    REQUIRE(tokenizer.get_next_token() == std::make_pair(dsac::token::literal, "30.30876"sv));
+    REQUIRE(tokenizer.get_next_token() == std::make_pair(dsac::token::punctuator, "]"sv));
+    REQUIRE(tokenizer.get_next_token() == std::make_pair(dsac::token::punctuator, ";"sv));
+    REQUIRE(tokenizer.get_next_token() == std::make_pair(dsac::token::identifier, "b"sv));
+    REQUIRE(tokenizer.get_next_token() == std::make_pair(dsac::token::punctuator, "["sv));
+    REQUIRE(tokenizer.get_next_token() == std::make_pair(dsac::token::identifier, "latitude"sv));
+    REQUIRE(tokenizer.get_next_token() == std::make_pair(dsac::token::operator_, "="sv));
+    REQUIRE(tokenizer.get_next_token() == std::make_pair(dsac::token::literal, "59.92969"sv));
+    REQUIRE(tokenizer.get_next_token() == std::make_pair(dsac::token::identifier, "longitude"sv));
+    REQUIRE(tokenizer.get_next_token() == std::make_pair(dsac::token::operator_, "="sv));
+    REQUIRE(tokenizer.get_next_token() == std::make_pair(dsac::token::literal, "30.31515"sv));
+    REQUIRE(tokenizer.get_next_token() == std::make_pair(dsac::token::punctuator, "]"sv));
+    REQUIRE(tokenizer.get_next_token() == std::make_pair(dsac::token::punctuator, ";"sv));
+    REQUIRE(tokenizer.get_next_token() == std::make_pair(dsac::token::punctuator, "}"sv));
+    REQUIRE(tokenizer.get_next_token() == std::make_pair(dsac::token::eof, ""sv));
+  }
 }
