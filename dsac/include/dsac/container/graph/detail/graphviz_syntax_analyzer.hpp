@@ -3,6 +3,8 @@
 #include <dsac/container/graph/detail/graphviz_abstract_syntax_tree.hpp>
 #include <dsac/container/graph/detail/graphviz_lexical_analyzer.hpp>
 
+#include <optional>
+
 namespace dsac {
 
 class graphviz_syntax_analyzer_exception : public std::logic_error {
@@ -23,6 +25,27 @@ class graphviz_syntax_analyzer final {
 
   template <token expected_token>
   std::string_view get_token();
+
+  template <token expected_token>
+  std::optional<std::string_view> get_token_maybe();
+
+  /*!
+    \brief
+        LPARAM attr (( )attr)* RPARAM | empty
+  */
+  ast_base_ref attributes_list();
+
+  /*!
+    \brief
+        IDENTIFIER attr_list
+  */
+  ast_base_ref node_statement();
+
+  /*!
+    \brief
+        node_stmt | edge_stmt
+  */
+  ast_base_ref statement();
 
   /*!
     \brief
@@ -46,6 +69,14 @@ template <token expected_token>
 std::string_view graphviz_syntax_analyzer::get_token() {
   if (current_token_.first != expected_token) {
     throw unexpected_syntax{};
+  }
+  return std::exchange(current_token_, tokenizer_.get_next_token()).second;
+}
+
+template <token expected_token>
+std::optional<std::string_view> graphviz_syntax_analyzer::get_token_maybe() {
+  if (current_token_.first != expected_token) {
+    return std::nullopt;
   }
   return std::exchange(current_token_, tokenizer_.get_next_token()).second;
 }

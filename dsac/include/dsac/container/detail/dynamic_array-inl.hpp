@@ -150,6 +150,16 @@ void dynamic_array<T, Allocator>::push_back(value_type const& value) {
 }
 
 template <typename T, typename Allocator>
+void dynamic_array<T, Allocator>::push_back(value_type&& value) {
+  if (storage_.finish != storage_.end_of_storage) {
+    dsac::construct(storage_.finish, allocator_, std::move(value));
+    ++storage_.finish;
+  } else {
+    realloc_and_insert(std::move(value));
+  }
+}
+
+template <typename T, typename Allocator>
 template <typename... Args>
 void dynamic_array<T, Allocator>::emplace_back(Args&&... args) {
   if (storage_.finish != storage_.end_of_storage) [[likely]] {

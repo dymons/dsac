@@ -27,4 +27,24 @@ TEST_CASE("Checking the syntax analysis of the graphviz", "[graphviz][syntax]") 
     dsac::graphviz_syntax_analyzer graphviz_syntax(kEmptyDigraph);
     REQUIRE_THROWS(graphviz_syntax.parse(), dsac::unexpected_syntax{});
   }
+  SECTION("Parse an empty digraph with node definition") {
+    constexpr char const* kEmptyDigraph = R"graph(
+      digraph abc {
+        a;
+      }
+    )graph";
+
+    dsac::graphviz_syntax_analyzer graphviz_syntax(kEmptyDigraph);
+    REQUIRE_NOTHROW(graphviz_syntax.parse());
+  }
+  SECTION("Parse an empty digraph with multiple node definition") {
+    constexpr char const* kEmptyDigraph = R"graph(
+      digraph abc {
+        a; b; c;
+      }
+    )graph";
+
+    dsac::graphviz_syntax_analyzer graphviz_syntax(kEmptyDigraph);
+    REQUIRE_NOTHROW(graphviz_syntax.parse());
+  }
 }
