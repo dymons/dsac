@@ -44,4 +44,19 @@ public:
   explicit ast_edge_node(std::string_view operator_, ast_base_ref left_child, ast_base_ref right_child);
 };
 
+class ast_attributes_node : public ast_base {
+  dynamic_array<ast_base_ref> attributes_;
+
+public:
+  void insert_attribute(ast_base_ref attribute);
+};
+
+class ast_attribute_node : public ast_base {
+  const std::string_view key_;
+  const std::string_view value_;
+
+public:
+  explicit ast_attribute_node(std::string_view key, std::string_view value);
+};
+
 }  // namespace dsac

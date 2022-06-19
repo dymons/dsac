@@ -24,4 +24,13 @@ ast_edge_node::ast_edge_node(std::string_view operator_, ast_base_ref left_child
   , right_child_(std::move(right_child)) {
 }
 
+void ast_attributes_node::insert_attribute(ast_base_ref attribute) {
+  attributes_.push_back(std::move(attribute));
+}
+
+ast_attribute_node::ast_attribute_node(std::string_view key, std::string_view value)
+  : key_(key)
+  , value_(value) {
+}
+
 }  // namespace dsac

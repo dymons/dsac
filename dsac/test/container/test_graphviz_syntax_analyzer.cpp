@@ -80,4 +80,15 @@ TEST_CASE("Checking the syntax analysis of the graphviz", "[graphviz][syntax]") 
     dsac::graphviz_syntax_analyzer graphviz_syntax(kEmptyDigraph);
     REQUIRE_NOTHROW(graphviz_syntax.parse());
   }
+  SECTION("Parse a digraph with one node definition and attributes") {
+    constexpr char const* kEmptyDigraph = R"graph(
+      digraph abc {
+        a [latitude=59.940583223694446 longitude=30.314237045788026 city=saint-petersburg];
+        b [latitude=55.7532891830182 longitude=37.62042002899189 city=moscow];
+      }
+    )graph";
+
+    dsac::graphviz_syntax_analyzer graphviz_syntax(kEmptyDigraph);
+    REQUIRE_NOTHROW(graphviz_syntax.parse());
+  }
 }
