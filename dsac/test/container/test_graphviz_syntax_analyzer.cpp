@@ -2,8 +2,6 @@
 
 #include <dsac/container/graph/detail/graphviz_syntax_analyzer.hpp>
 
-using namespace std::literals;
-
 TEST_CASE("Checking the syntax analysis of the graphviz", "[graphviz][syntax]") {
   SECTION("Parse an empty digraph with correct syntax") {
     constexpr char const* kEmptyDigraph = R"graph(
