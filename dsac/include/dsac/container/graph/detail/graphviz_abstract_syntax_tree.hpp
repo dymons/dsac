@@ -35,4 +35,13 @@ public:
   explicit ast_node_node(std::string_view node_name, ast_base_ref attributes);
 };
 
+class ast_edge_node : public ast_base {
+  const std::string_view operator_;
+  ast_base_ref           left_child_;
+  ast_base_ref           right_child_;
+
+public:
+  explicit ast_edge_node(std::string_view operator_, ast_base_ref left_child, ast_base_ref right_child);
+};
+
 }  // namespace dsac

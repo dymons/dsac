@@ -18,4 +18,10 @@ ast_node_node::ast_node_node(std::string_view node_name, ast_base_ref attributes
   , attributes_(std::move(attributes)) {
 }
 
+ast_edge_node::ast_edge_node(std::string_view operator_, ast_base_ref left_child, ast_base_ref right_child)
+  : operator_(operator_)
+  , left_child_(std::move(left_child))
+  , right_child_(std::move(right_child)) {
+}
+
 }  // namespace dsac

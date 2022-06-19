@@ -34,7 +34,11 @@ ast_base_ref graphviz_syntax_analyzer::node_statement() {
 }
 
 ast_base_ref graphviz_syntax_analyzer::statement() {
-  return node_statement();
+  ast_base_ref left_node = node_statement();
+  if (auto operator_ = get_token_maybe<token::operator_>(); operator_.has_value()) {
+    return dsac::make_shared<ast_edge_node>(operator_.value(), left_node, statement());
+  }
+  return left_node;
 }
 
 ast_base_ref graphviz_syntax_analyzer::statement_list() {
