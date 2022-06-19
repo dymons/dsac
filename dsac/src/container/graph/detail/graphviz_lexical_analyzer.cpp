@@ -27,7 +27,7 @@ graphviz_lexical_analyzer::graphviz_lexical_analyzer(std::string_view graphviz)
 }
 
 template <token token_type>
-tl::expected<std::pair<token, std::string_view>, std::string> graphviz_lexical_analyzer::get_next() {
+expected<std::pair<token, std::string_view>, std::string> graphviz_lexical_analyzer::get_next() {
   static_assert(token_type == token::operator_ || token_type == token::punctuator);
   if (sp_ >= graphviz_.size()) {
     return kTokenFallback;
@@ -44,11 +44,11 @@ tl::expected<std::pair<token, std::string_view>, std::string> graphviz_lexical_a
       }
     } while (--max_size != 0);
   }
-  return tl::make_unexpected<std::string>("");
+  return make_unexpected<std::string>("");
 }
 
 template <>
-tl::expected<std::pair<token, std::string_view>, std::string> graphviz_lexical_analyzer::get_next<token::keyword>() {
+expected<std::pair<token, std::string_view>, std::string> graphviz_lexical_analyzer::get_next<token::keyword>() {
   if (sp_ >= graphviz_.size()) {
     return kTokenFallback;
   }
@@ -61,11 +61,11 @@ tl::expected<std::pair<token, std::string_view>, std::string> graphviz_lexical_a
     const std::string_view word          = graphviz_.substr(start_of_word, sp_ - start_of_word);
     return kKeywords.contains(word) ? std::make_pair(token::keyword, word) : std::make_pair(token::identifier, word);
   }
-  return tl::make_unexpected<std::string>("");
+  return make_unexpected<std::string>("");
 }
 
 template <>
-tl::expected<std::pair<token, std::string_view>, std::string> graphviz_lexical_analyzer::get_next<token::literal>() {
+expected<std::pair<token, std::string_view>, std::string> graphviz_lexical_analyzer::get_next<token::literal>() {
   if (sp_ >= graphviz_.size()) {
     return kTokenFallback;
   }
@@ -76,7 +76,7 @@ tl::expected<std::pair<token, std::string_view>, std::string> graphviz_lexical_a
     const std::string_view literal          = graphviz_.substr(start_of_literal, sp_ - start_of_literal);
     return std::make_pair(token::literal, literal);
   }
-  return tl::make_unexpected<std::string>("");
+  return make_unexpected<std::string>("");
 }
 
 std::pair<token, std::string_view> graphviz_lexical_analyzer::get_next_token() {

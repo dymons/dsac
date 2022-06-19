@@ -2,8 +2,7 @@
 
 #include <dsac/container/graph/detail/graphviz_abstract_syntax_tree.hpp>
 #include <dsac/container/graph/detail/graphviz_lexical_analyzer.hpp>
-
-#include <tl/expected.hpp>
+#include <dsac/functional/expected.hpp>
 
 namespace dsac {
 
@@ -27,7 +26,7 @@ class graphviz_syntax_analyzer final {
   std::string_view get_token();
 
   template <token expected_token>
-  tl::expected<std::string_view, std::string> get_token_maybe();
+  expected<std::string_view, std::string> get_token_maybe();
 
   /*!
     \brief
@@ -80,9 +79,9 @@ std::string_view graphviz_syntax_analyzer::get_token() {
 }
 
 template <token expected_token>
-tl::expected<std::string_view, std::string> graphviz_syntax_analyzer::get_token_maybe() {
+expected<std::string_view, std::string> graphviz_syntax_analyzer::get_token_maybe() {
   if (current_token_.first != expected_token) {
-    return tl::make_unexpected("");
+    return make_unexpected("");
   }
   return std::exchange(current_token_, tokenizer_.get_next_token()).second;
 }
