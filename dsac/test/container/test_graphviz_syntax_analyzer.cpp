@@ -28,23 +28,23 @@ TEST_CASE("Checking the syntax analysis of the graphviz", "[graphviz][syntax]") 
     REQUIRE_THROWS(graphviz_syntax.parse(), dsac::unexpected_syntax{});
   }
   SECTION("Parse a digraph with one node definition") {
-    constexpr char const* kEmptyDigraph = R"graph(
+    constexpr char const* kDigraph = R"graph(
       digraph abc {
         a;
       }
     )graph";
 
-    dsac::graphviz_syntax_analyzer graphviz_syntax(kEmptyDigraph);
+    dsac::graphviz_syntax_analyzer graphviz_syntax(kDigraph);
     REQUIRE_NOTHROW(graphviz_syntax.parse());
   }
   SECTION("Parse a digraph with multiple node definition") {
-    constexpr char const* kEmptyDigraph = R"graph(
+    constexpr char const* kDigraph = R"graph(
       digraph abc {
         a; b; c;
       }
     )graph";
 
-    dsac::graphviz_syntax_analyzer graphviz_syntax(kEmptyDigraph);
+    dsac::graphviz_syntax_analyzer graphviz_syntax(kDigraph);
     REQUIRE_NOTHROW(graphviz_syntax.parse());
   }
   SECTION("Parse a digraph with one edge") {
@@ -58,17 +58,17 @@ TEST_CASE("Checking the syntax analysis of the graphviz", "[graphviz][syntax]") 
     REQUIRE_NOTHROW(graphviz_syntax.parse());
   }
   SECTION("Parse a digraph with multiple edges") {
-    constexpr char const* kEmptyDigraph = R"graph(
+    constexpr char const* kDigraph = R"graph(
       digraph abc {
         a -> b -> c;
       }
     )graph";
 
-    dsac::graphviz_syntax_analyzer graphviz_syntax(kEmptyDigraph);
+    dsac::graphviz_syntax_analyzer graphviz_syntax(kDigraph);
     REQUIRE_NOTHROW(graphviz_syntax.parse());
   }
   SECTION("Parse a digraph with node definitions and edge definitions without attributes") {
-    constexpr char const* kEmptyDigraph = R"graph(
+    constexpr char const* kDigraph = R"graph(
       digraph abc {
         a; b; c; d; e; f; g;
         a -> b -> c;
@@ -77,18 +77,18 @@ TEST_CASE("Checking the syntax analysis of the graphviz", "[graphviz][syntax]") 
       }
     )graph";
 
-    dsac::graphviz_syntax_analyzer graphviz_syntax(kEmptyDigraph);
+    dsac::graphviz_syntax_analyzer graphviz_syntax(kDigraph);
     REQUIRE_NOTHROW(graphviz_syntax.parse());
   }
   SECTION("Parse a digraph with one node definition and attributes") {
-    constexpr char const* kEmptyDigraph = R"graph(
+    constexpr char const* kDigraph = R"graph(
       digraph abc {
         a [latitude=59.940583223694446 longitude=30.314237045788026 city=saint-petersburg];
         b [latitude=55.7532891830182 longitude=37.62042002899189 city=moscow];
       }
     )graph";
 
-    dsac::graphviz_syntax_analyzer graphviz_syntax(kEmptyDigraph);
+    dsac::graphviz_syntax_analyzer graphviz_syntax(kDigraph);
     REQUIRE_NOTHROW(graphviz_syntax.parse());
   }
 }
