@@ -126,10 +126,10 @@ MAKE_AST_TRAITS(ast_undirect_edge_node, kind::edge_undirect_connection)
 MAKE_AST_TRAITS(ast_attributes_node, kind::attributes)
 MAKE_AST_TRAITS(ast_attribute_node, kind::attribute)
 
-template <typename ReturnType, class F, kind kind_>
+template <typename ReturnType, class F, std::size_t Kind>
 struct function_value {
   static constexpr ReturnType (*kValue)(F&&, ast_base*) = [](F&& f, ast_base* base) -> ReturnType {
-    using ast_node_type = typename ast_node_from_kind<kind_>::type;
+    using ast_node_type = typename ast_node_from_kind<static_cast<kind>(Kind)>::type;
     if constexpr (requires { f(dynamic_cast<ast_node_type*>(base)); }) {
       return f(dynamic_cast<ast_node_type*>(base));
     }
@@ -138,11 +138,10 @@ struct function_value {
 };
 
 template <typename F, std::size_t... Idx>
-auto visit(F&& f, ast_base* base, std::index_sequence<0, Idx...> /*unused*/) {
+auto visit(F&& f, ast_base* base, [[maybe_unused]] std::index_sequence<0, Idx...> sequence) {
   using return_type = ast_base*;
 
-  static constexpr return_type (*kVtable[])(
-      F&&, ast_base*){(function_value<return_type, F, static_cast<kind>(Idx - 1U)>::kValue)...};
+  static constexpr return_type (*kVtable[])(F&&, ast_base*){(function_value<return_type, F, Idx - 1U>::kValue)...};
   return kVtable[static_cast<std::size_t>(base->what())](std::forward<F>(f), base);
 }
 
