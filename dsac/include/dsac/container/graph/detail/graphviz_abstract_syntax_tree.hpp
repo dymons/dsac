@@ -42,20 +42,22 @@ using ast_base_ref = dsac::shared_ptr<ast_base>;
 
 class ast_direct_graph_node : public ast_base {
   const std::string_view graph_name_;
-  ast_base_ref           child_;
+  ast_base_ref           statements_;
 
 public:
-  explicit ast_direct_graph_node(std::string_view graph_name, ast_base_ref child);
+  explicit ast_direct_graph_node(std::string_view graph_name, ast_base_ref statements);
 
   std::string_view get_graph_name() const noexcept;
+
+  ast_base_ref get_statements() const noexcept;
 };
 
 class ast_undirect_graph_node : public ast_base {
   const std::string_view graph_name_;
-  ast_base_ref           child_;
+  ast_base_ref           statements_;
 
 public:
-  explicit ast_undirect_graph_node(std::string_view graph_name, ast_base_ref child);
+  explicit ast_undirect_graph_node(std::string_view graph_name, ast_base_ref statements);
 };
 
 class ast_statements_node : public ast_base {
@@ -63,7 +65,11 @@ class ast_statements_node : public ast_base {
 
 public:
   using ast_base::ast_base;
+
   void insert_statement(ast_base_ref statement);
+
+  dynamic_array<ast_base_ref>::const_iterator begin() const;
+  dynamic_array<ast_base_ref>::const_iterator end() const;
 };
 
 class ast_node_node : public ast_base {
@@ -130,8 +136,8 @@ template <typename ReturnType, class F, std::size_t Kind>
 struct function_value {
   static constexpr ReturnType (*kValue)(F&&, ast_base*) = [](F&& f, ast_base* base) -> ReturnType {
     using ast_node_type = typename ast_node_from_kind<static_cast<kind>(Kind)>::type;
-    if constexpr (requires { f(dynamic_cast<ast_node_type*>(base)); }) {
-      return f(dynamic_cast<ast_node_type*>(base));
+    if constexpr (requires { f(*dynamic_cast<ast_node_type*>(base)); }) {
+      return f(*dynamic_cast<ast_node_type*>(base));
     }
     return nullptr;
   };
@@ -139,7 +145,7 @@ struct function_value {
 
 template <typename F, std::size_t... Idx>
 auto visit(F&& f, ast_base* base, [[maybe_unused]] std::index_sequence<0, Idx...> sequence) {
-  using return_type = ast_base*;
+  using return_type = ast_base_ref;
 
   static constexpr return_type (*kVtable[])(F&&, ast_base*){(function_value<return_type, F, Idx - 1U>::kValue)...};
   return kVtable[static_cast<std::size_t>(base->what())](std::forward<F>(f), base);
@@ -148,8 +154,8 @@ auto visit(F&& f, ast_base* base, [[maybe_unused]] std::index_sequence<0, Idx...
 }  // namespace detail
 
 template <typename F, typename Indices = std::make_index_sequence<static_cast<std::size_t>(kind::max_kind_names_id)>>
-auto visit(F&& f, ast_base* base) {
-  return detail::visit(std::forward<F>(f), base, Indices{});
+auto visit(F&& f, ast_base_ref const& base) {
+  return detail::visit(std::forward<F>(f), base.get(), Indices{});
 }
 
 }  // namespace dsac

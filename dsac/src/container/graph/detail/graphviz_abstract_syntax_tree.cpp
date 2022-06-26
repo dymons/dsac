@@ -11,24 +11,36 @@ kind ast_base::what() noexcept {
   return kind_;
 }
 
-ast_direct_graph_node::ast_direct_graph_node(std::string_view graph_name, ast_base_ref child)
+ast_direct_graph_node::ast_direct_graph_node(std::string_view graph_name, ast_base_ref statements)
   : ast_base(kind::direct_graph)
   , graph_name_(graph_name)
-  , child_(std::move(child)) {
+  , statements_(std::move(statements)) {
 }
 
 std::string_view ast_direct_graph_node::get_graph_name() const noexcept {
   return graph_name_;
 }
 
-ast_undirect_graph_node::ast_undirect_graph_node(std::string_view graph_name, ast_base_ref child)
+ast_base_ref ast_direct_graph_node::get_statements() const noexcept {
+  return statements_;
+}
+
+ast_undirect_graph_node::ast_undirect_graph_node(std::string_view graph_name, ast_base_ref statements)
   : ast_base(kind::undirect_graph)
   , graph_name_(graph_name)
-  , child_(std::move(child)) {
+  , statements_(std::move(statements)) {
 }
 
 void ast_statements_node::insert_statement(ast_base_ref statement) {
   statements_.push_back(std::move(statement));
+}
+
+dynamic_array<ast_base_ref>::const_iterator ast_statements_node::begin() const {
+  return statements_.begin();
+}
+
+dynamic_array<ast_base_ref>::const_iterator ast_statements_node::end() const {
+  return statements_.end();
 }
 
 ast_node_node::ast_node_node(kind kind, std::string_view node_name, ast_base_ref attributes)
