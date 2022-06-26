@@ -78,6 +78,10 @@ class ast_node_node : public ast_base {
 
 public:
   explicit ast_node_node(kind kind, std::string_view node_name, ast_base_ref attributes);
+
+  std::string_view get_name() const noexcept;
+
+  ast_base_ref get_attributes() const noexcept;
 };
 
 class ast_direct_edge_node : public ast_base {
@@ -86,6 +90,9 @@ class ast_direct_edge_node : public ast_base {
 
 public:
   explicit ast_direct_edge_node(ast_base_ref left_child, ast_base_ref right_child);
+
+  ast_base_ref get_from_node() const noexcept;
+  ast_base_ref get_to_node() const noexcept;
 };
 
 class ast_undirect_edge_node : public ast_base {

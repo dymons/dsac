@@ -6,6 +6,15 @@
 
 using namespace std::literals;
 
+namespace {
+
+template <std::derived_from<dsac::ast_base> Derived>
+inline Derived* unsafe_to(dsac::ast_base_ref const& base) {
+  return dynamic_cast<Derived*>(base.get());
+}
+
+}  // namespace
+
 TEST_CASE("Checking visit of abstract syntax tree", "[graphviz][ast]") {
   SECTION("Visit an empty digraph") {
     constexpr std::string_view kGraphName       = "abc"sv;
@@ -44,14 +53,24 @@ TEST_CASE("Checking visit of abstract syntax tree", "[graphviz][ast]") {
 
     REQUIRE(statements);
 
-    // clang-format off
-    dsac::visit([](dsac::ast_statements_node const& statements) {
-      REQUIRE(std::distance(statements.begin(), statements.end()) == 1);
-      for (dsac::ast_base_ref const& statement : statements) {
+    dsac::visit(
+        [](dsac::ast_statements_node const& statements) {
+          REQUIRE(std::distance(statements.begin(), statements.end()) == 1);
+          for (dsac::ast_base_ref const& statement : statements) {
+            dsac::visit(
+                [](dsac::ast_direct_edge_node const& edge) {
+                  auto* from_cast = unsafe_to<dsac::ast_node_node>(edge.get_from_node());
+                  auto* to_cast   = unsafe_to<dsac::ast_node_node>(edge.get_to_node());
 
-      }
-      return nullptr;
-    }, statements);
-    // clang-format on
+                  REQUIRE(from_cast->get_name() == "a"sv);
+                  REQUIRE(to_cast->get_name() == "b"sv);
+
+                  return nullptr;
+                },
+                statement);
+          }
+          return nullptr;
+        },
+        statements);
   }
 }

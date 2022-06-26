@@ -49,10 +49,26 @@ ast_node_node::ast_node_node(kind kind, std::string_view node_name, ast_base_ref
   , attributes_(std::move(attributes)) {
 }
 
+std::string_view ast_node_node::get_name() const noexcept {
+  return node_name_;
+}
+
+ast_base_ref ast_node_node::get_attributes() const noexcept {
+  return attributes_;
+}
+
 ast_direct_edge_node::ast_direct_edge_node(ast_base_ref left_child, ast_base_ref right_child)
   : ast_base(kind::edge_direct_connection)
   , left_child_(std::move(left_child))
   , right_child_(std::move(right_child)) {
+}
+
+ast_base_ref ast_direct_edge_node::get_from_node() const noexcept {
+  return left_child_;
+}
+
+ast_base_ref ast_direct_edge_node::get_to_node() const noexcept {
+  return right_child_;
 }
 
 ast_undirect_edge_node::ast_undirect_edge_node(ast_base_ref left_child, ast_base_ref right_child)
