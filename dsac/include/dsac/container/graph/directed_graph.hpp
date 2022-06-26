@@ -207,12 +207,19 @@ public:
     return std::make_pair(it->second, success);
   }
 
+  node_iterator get_node(node_key_type key) {
+    if (nodes_.contains(key)) {
+      return nodes_[key];
+    }
+    return nullptr;
+  }
+
   auto insert_edge(node_iterator from, node_iterator to, edge_type const& edge) -> std::pair<edge_iterator, bool> {
     if (from == to) {
       throw loops_not_supported{};
     }
 
-    edge_key_type const key  = directed_graph_semantic<edge_type>::get_key(edge);
+    edge_key_type const key = directed_graph_semantic<edge_type>::get_key(edge);
     if (edges_.contains(key)) {
       return std::make_pair(edges_[key], false);
     }
@@ -223,9 +230,15 @@ public:
     pointer->from->edges.push_back(pointer);
     pointer->to->edges.push_back(pointer);
 
-
     auto const [it, success] = edges_.emplace(key, pointer);
     return std::make_pair(it->second, success);
+  }
+
+  edge_iterator get_edge(edge_key_type key) {
+    if (edges_.contains(key)) {
+      return edges_[key];
+    }
+    return nullptr;
   }
 
 private:

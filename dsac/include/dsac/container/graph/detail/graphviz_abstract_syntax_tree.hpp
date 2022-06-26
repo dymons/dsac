@@ -165,4 +165,9 @@ auto visit(F&& f, ast_base_ref const& base) {
   return detail::visit(std::forward<F>(f), base.get(), Indices{});
 }
 
+template <std::derived_from<dsac::ast_base> Derived>
+inline Derived* unsafe_to(dsac::ast_base_ref const& base) {
+  return dynamic_cast<Derived*>(base.get());
+}
+
 }  // namespace dsac
