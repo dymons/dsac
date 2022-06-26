@@ -214,7 +214,8 @@ public:
     return nullptr;
   }
 
-  auto insert_edge(node_iterator from, node_iterator to, edge_type const& edge) -> std::pair<edge_iterator, bool> {
+  auto insert_direct_edge(node_iterator from, node_iterator to, edge_type const& edge)
+      -> std::pair<edge_iterator, bool> {
     if (from == to) {
       throw loops_not_supported{};
     }
@@ -228,7 +229,6 @@ public:
     pointer->from        = from.base();
     pointer->to          = to.base();
     pointer->from->edges.push_back(pointer);
-    pointer->to->edges.push_back(pointer);
 
     auto const [it, success] = edges_.emplace(key, pointer);
     return std::make_pair(it->second, success);

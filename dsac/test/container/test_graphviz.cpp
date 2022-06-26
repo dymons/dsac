@@ -42,13 +42,25 @@ struct dsac::directed_graph_semantic<edge> {
 TEST_CASE("Building directed graph from DOT format", "[graph][graphviz]") {
   constexpr char const* kDigraph = R"graph(
     digraph abc {
-      a -> b;
-      b -> c;
+      a -> b -> c;
     }
   )graph";
 
   dsac::directed_graph<node, edge> graph = dsac::read_graphviz<node, edge>(kDigraph);
-  REQUIRE(graph.get_node("a").base() != nullptr);
-  REQUIRE(graph.get_node("b").base() != nullptr);
-  REQUIRE(graph.get_node("c").base() != nullptr);
+
+  auto* node_a = graph.get_node("a").base();
+  auto* node_b = graph.get_node("b").base();
+  auto* node_c = graph.get_node("c").base();
+
+  REQUIRE(node_a != nullptr);
+  REQUIRE(node_b != nullptr);
+  REQUIRE(node_c != nullptr);
+
+  REQUIRE(node_a->edges.size() == 1);
+  REQUIRE(node_a->edges[0]->from == node_a);
+  REQUIRE(node_a->edges[0]->to == node_b);
+  REQUIRE(node_b->edges.size() == 1);
+  REQUIRE(node_b->edges[0]->from == node_b);
+  REQUIRE(node_b->edges[0]->to == node_c);
+  REQUIRE(node_c->edges.empty());
 }

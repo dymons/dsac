@@ -85,7 +85,7 @@ TEST_CASE("Testcases for checking building direct graph", "[graph][direct]") {
     WHEN("Store a default edge in the directed graph") {
       auto spb                        = graph.insert_node(node{.key = "Saint-Petersburg"});
       auto moscow                     = graph.insert_node(node{.key = "Moscow"});
-      const auto [unique_edge, added] = graph.insert_edge(spb.first, moscow.first, edge::make_empty());
+      const auto [unique_edge, added] = graph.insert_direct_edge(spb.first, moscow.first, edge::make_empty());
       THEN("The stored edge was successfully added") {
         REQUIRE(added);
       }
@@ -94,7 +94,7 @@ TEST_CASE("Testcases for checking building direct graph", "[graph][direct]") {
         REQUIRE((*unique_edge).attributes.empty());
       }
       WHEN("Store a default node in the directed graph again") {
-        const auto [source_edge, added_again] = graph.insert_edge(spb.first, moscow.first, edge::make_empty());
+        const auto [source_edge, added_again] = graph.insert_direct_edge(spb.first, moscow.first, edge::make_empty());
         THEN("The stored node was not successfully added") {
           REQUIRE_FALSE(added_again);
         }
@@ -105,7 +105,7 @@ TEST_CASE("Testcases for checking building direct graph", "[graph][direct]") {
     }
     WHEN("Create a cycle for one node") {
       auto const node = graph.insert_node(node::make_empty());
-      REQUIRE_THROWS_AS(graph.insert_edge(node.first, node.first, edge::make_empty()), dsac::loops_not_supported);
+      REQUIRE_THROWS_AS(graph.insert_direct_edge(node.first, node.first, edge::make_empty()), dsac::loops_not_supported);
     }
   }
 }
