@@ -48,9 +48,9 @@ TEST_CASE("Building directed graph from DOT format", "[graph][graphviz]") {
 
   dsac::directed_graph<node, edge> graph = dsac::read_graphviz<node, edge>(kDigraph);
 
-  auto* node_a = graph.get_node("a").base();
-  auto* node_b = graph.get_node("b").base();
-  auto* node_c = graph.get_node("c").base();
+  auto node_a = graph.get_node("a");
+  auto node_b = graph.get_node("b");
+  auto node_c = graph.get_node("c");
 
   REQUIRE(node_a != nullptr);
   REQUIRE(node_b != nullptr);

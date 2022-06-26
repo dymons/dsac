@@ -116,6 +116,10 @@ public:
     return current_->node;
   }
 
+  const pointer& operator->() const {
+    return current_;
+  }
+
   const pointer& base() const {
     return current_;
   }
@@ -126,6 +130,28 @@ private:
 template <typename Container>
 inline bool operator==(const normal_node_iterator<Container>& lhs, const normal_node_iterator<Container>& rha) {
   return lhs.base() == rha.base();
+}
+template <typename Container>
+inline bool operator==(
+    const normal_node_iterator<Container>& lhs, const typename normal_node_iterator<Container>::pointer& rha) {
+  return lhs.base() == rha;
+}
+template <typename Container>
+inline bool operator!=(
+    const normal_node_iterator<Container>& lhs, const typename normal_node_iterator<Container>::pointer& rha) {
+  return !(lhs.base() == rha);
+}
+template <typename Container>
+inline bool operator!=(const normal_node_iterator<Container>& lhs, const normal_node_iterator<Container>& rha) {
+  return !(lhs.base() == rha.base());
+}
+template <typename Container>
+inline bool operator==(const normal_node_iterator<Container>& lhs, std::nullptr_t) {
+  return lhs.base() == nullptr;
+}
+template <typename Container>
+inline bool operator!=(const normal_node_iterator<Container>& lhs, std::nullptr_t) {
+  return lhs.base() != nullptr;
 }
 template <typename Container>
 class normal_edge_iterator {
@@ -214,8 +240,7 @@ public:
     return nullptr;
   }
 
-  auto insert_direct_edge(node_iterator from, node_iterator to, edge_type const& edge)
-      -> std::pair<edge_iterator, bool> {
+  std::pair<edge_iterator, bool> insert_direct_edge(node_iterator from, node_iterator to, edge_type const& edge) {
     if (from == to) {
       throw loops_not_supported{};
     }
