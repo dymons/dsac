@@ -106,6 +106,8 @@ public:
   explicit ast_attribute_node(kind kind, std::string_view key, std::string_view value);
 };
 
+namespace detail {
+
 template <kind k>
 struct ast_node_from_kind;
 
@@ -124,37 +126,31 @@ MAKE_AST_TRAITS(ast_undirect_edge_node, kind::edge_undirect_connection)
 MAKE_AST_TRAITS(ast_attributes_node, kind::attributes)
 MAKE_AST_TRAITS(ast_attribute_node, kind::attribute)
 
-namespace detail {
-
-static auto* unsafe_to(ast_base* base) {
-  switch (base->what()) {
-    case kind::direct_graph: {
-      return static_cast<ast_direct_graph_node*>(base);
-    }
-  }
-  throw unexpected_kind{};
-}
-
-template <typename ReturnType, class F, class N, std::size_t Kind, typename = std::bool_constant<true>>
+template <typename ReturnType, class F, kind kind_>
 struct function_value {
-  static constexpr ReturnType (*value)(F&&, N) = [](F&& f, N n) -> ReturnType {
-    return f(unsafe_to(n));
+  static constexpr ReturnType (*kValue)(F&&, ast_base*) = [](F&& f, ast_base* base) -> ReturnType {
+    using ast_node_type = typename ast_node_from_kind<kind_>::type;
+    if constexpr (requires { f(dynamic_cast<ast_node_type*>(base)); }) {
+      return f(dynamic_cast<ast_node_type*>(base));
+    }
+    return nullptr;
   };
 };
 
-template <typename F, class N, std::size_t... Idx>
-auto visit(F&& f, N n, std::index_sequence<0, Idx...>) {
+template <typename F, std::size_t... Idx>
+auto visit(F&& f, ast_base* base, std::index_sequence<0, Idx...> /*unused*/) {
   using return_type = ast_base*;
 
-  static constexpr return_type (*kVtable[])(F&&, N){(function_value<return_type, F, N, Idx>::value)...};
-  return kVtable[(std::size_t)n->what()](std::forward<F>(f), n);
+  static constexpr return_type (*kVtable[])(
+      F&&, ast_base*){(function_value<return_type, F, static_cast<kind>(Idx - 1U)>::kValue)...};
+  return kVtable[static_cast<std::size_t>(base->what())](std::forward<F>(f), base);
 }
 
 }  // namespace detail
 
-template <typename F, class N>
-auto visit(F&& f, N n) {
-  return detail::visit(std::forward<F>(f), n, std::make_index_sequence<(std::size_t)kind::max_kind_names_id>{});
+template <typename F, typename Indices = std::make_index_sequence<static_cast<std::size_t>(kind::max_kind_names_id)>>
+auto visit(F&& f, ast_base* base) {
+  return detail::visit(std::forward<F>(f), base, Indices{});
 }
 
 }  // namespace dsac
