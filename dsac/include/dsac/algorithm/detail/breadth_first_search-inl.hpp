@@ -8,10 +8,12 @@
 
 namespace dsac {
 
-template <class Graph>
-std::vector<typename Graph::node_iterator> bfs(
-    Graph const& graph, typename Graph::node_key_type const& source, typename Graph::node_key_type const& destination) {
-  using node_iterator = typename Graph::node_iterator;
+template <typename... Args>
+std::vector<typename directed_graph<Args...>::node_iterator> bfs(
+    directed_graph<Args...> const&                         graph,
+    typename directed_graph<Args...>::node_key_type const& source,
+    typename directed_graph<Args...>::node_key_type const& destination) {
+  using node_iterator = typename directed_graph<Args...>::node_iterator;
 
   auto const source_node      = graph.get_node(source);
   auto const destination_node = graph.get_node(destination);

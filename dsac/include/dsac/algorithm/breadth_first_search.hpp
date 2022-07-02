@@ -1,14 +1,14 @@
 #pragma once
 
+#include <dsac/container/graph/directed_graph.hpp>
+
 namespace dsac {
 
-// clang-format off
-template <class Graph>
-std::vector<typename Graph::node_iterator> bfs(
-    Graph const&                         graph,
-    typename Graph::node_key_type const& source,
-    typename Graph::node_key_type const& destination);
-// clang-format on
+template <typename... Args>
+std::vector<typename directed_graph<Args...>::node_iterator> bfs(
+    directed_graph<Args...> const&                         graph,
+    typename directed_graph<Args...>::node_key_type const& source,
+    typename directed_graph<Args...>::node_key_type const& destination);
 
 }  // namespace dsac
 
