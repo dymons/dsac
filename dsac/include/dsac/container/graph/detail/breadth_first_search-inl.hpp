@@ -8,12 +8,10 @@
 
 namespace dsac {
 
-template <typename N, typename E, typename A, typename B>
-std::optional<std::vector<typename directed_graph<N, E, A, B>::node_iterator>> bfs(
-    directed_graph<N, E, A, B> const&                         graph,
-    typename directed_graph<N, E, A, B>::node_key_type const& source,
-    typename directed_graph<N, E, A, B>::node_key_type const& destination) {
-  using node_iterator = typename directed_graph<N, E, A, B>::node_iterator;
+template <class Graph>
+std::vector<typename Graph::node_iterator> bfs(
+    Graph const& graph, typename Graph::node_key_type const& source, typename Graph::node_key_type const& destination) {
+  using node_iterator = typename Graph::node_iterator;
 
   auto const source_node      = graph.get_node(source);
   auto const destination_node = graph.get_node(destination);
@@ -44,11 +42,12 @@ std::optional<std::vector<typename directed_graph<N, E, A, B>::node_iterator>> b
     }
   }
 
+  std::vector<node_iterator> path;
   if (!found) {
-    return std::nullopt;
+    return path;
   }
 
-  std::vector<node_iterator> path{destination_node};
+  path.push_back(destination_node);
   for (node_iterator latest = path.front(); latest != source_node; latest = path.front()) {
     if (!possible_actions.contains(latest)) {
       break;
@@ -56,7 +55,7 @@ std::optional<std::vector<typename directed_graph<N, E, A, B>::node_iterator>> b
     path.insert(path.begin(), possible_actions[latest]);
   }
 
-  return std::move(path);
+  return path;
 }
 
 }  // namespace dsac
