@@ -1,8 +1,8 @@
 #include <benchmark/benchmark.h>
 
-#include <dsac/container/graph/breadth_first_search.hpp>
 #include <dsac/container/graph/directed_graph.hpp>
 #include <dsac/container/graph/read_graphviz.hpp>
+#include "dsac/algorithm/breadth_first_search.hpp"
 
 #include <fmt/format.h>
 

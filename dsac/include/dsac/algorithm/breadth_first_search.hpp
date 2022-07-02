@@ -12,6 +12,6 @@ std::vector<typename Graph::node_iterator> bfs(
 
 }  // namespace dsac
 
-#define CONTAINER_BREADTH_FIRST_SEARCH_HPP
-#include <dsac/container/graph/detail/breadth_first_search-inl.hpp>
-#undef CONTAINER_BREADTH_FIRST_SEARCH_HPP
+#define ALGORITHM_BREADTH_FIRST_SEARCH_HPP
+#include <dsac/algorithm/detail/breadth_first_search-inl.hpp>
+#undef ALGORITHM_BREADTH_FIRST_SEARCH_HPP

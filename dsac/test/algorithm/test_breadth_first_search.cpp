@@ -1,6 +1,6 @@
 #include <catch2/catch.hpp>
 
-#include <dsac/container/graph/breadth_first_search.hpp>
+#include <dsac/algorithm/breadth_first_search.hpp>
 #include <dsac/container/graph/directed_graph.hpp>
 #include <dsac/container/graph/read_graphviz.hpp>
 
@@ -8,7 +8,6 @@ namespace {
 
 struct node final {
   std::string key{};
-
   static node make(std::string key) {
     return {.key = std::move(key)};
   }
@@ -16,7 +15,6 @@ struct node final {
 
 struct edge final {
   std::string key{};
-
   static edge make(std::string key) {
     return {.key = std::move(key)};
   }

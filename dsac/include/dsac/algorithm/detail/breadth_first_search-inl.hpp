@@ -1,4 +1,4 @@
-#ifndef CONTAINER_BREADTH_FIRST_SEARCH_HPP
+#ifndef ALGORITHM_BREADTH_FIRST_SEARCH_HPP
 #error This file may only be included from breadth_first_search.hpp
 #endif
 
