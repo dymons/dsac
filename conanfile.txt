@@ -2,6 +2,7 @@
 catch2/2.2.2@bincrafters/stable
 fmt/8.1.1
 benchmark/1.6.1
+tl-expected/20190710
 
 [generators]
 cmake

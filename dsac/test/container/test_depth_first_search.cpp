@@ -3,7 +3,7 @@
 #include <dsac/container/graph/depth_first_search.hpp>
 
 TEST_CASE("Поиск в глубину на графе", "[depth_first_search]") {
-  using namespace dsac::graph;
+  using namespace dsac::legacy_graph;
   using Edge  = std::pair<int, int>;
   using Edges = std::vector<Edge>;
   // clang-format off

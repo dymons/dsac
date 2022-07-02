@@ -3,7 +3,7 @@
 #include <deque>
 #include "directed_graph.hpp"
 
-namespace dsac::graph::dfs {
+namespace dsac::legacy_graph::dfs {
 /// \brief      Алгоритм поиска реализован для ориентированного-невзвешенного
 ///             графа
 using Graph = Digraph;
@@ -14,4 +14,4 @@ using Path  = std::deque<Node>;
 
 /// \brief      Поиск короткого маршрута движения
 [[nodiscard]] Path ShortestPath(Graph& graph, const Node from, const Node to);
-}  // namespace dsac::graph::dfs
+}  // namespace dsac::legacy_graph::dfs

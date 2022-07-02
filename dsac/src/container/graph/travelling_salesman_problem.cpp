@@ -3,7 +3,7 @@
 #include <cmath>
 #include <string>
 
-namespace dsac::graph::tsp {
+namespace dsac::legacy_graph::tsp {
 /// Вспомогательная функция для преобразования числа из двоичной системы в
 /// десятичную
 [[nodiscard]] static int ConvertBinary(int n) {
@@ -163,4 +163,4 @@ TravellingSalesmanResult Solve(CompleteGraph& graph, Node start) {
   result.min_cost = detail::FindMinCost(graph, memo, start, N);
   return result;
 }
-}  // namespace dsac::graph::tsp
+}  // namespace dsac::legacy_graph::tsp

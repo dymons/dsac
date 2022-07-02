@@ -304,6 +304,7 @@ public:
     \endcode
   */
   void push_back(value_type const& value);
+  void push_back(value_type&& value);
 
   /*!
     \brief
