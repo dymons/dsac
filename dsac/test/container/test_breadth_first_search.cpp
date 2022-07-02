@@ -48,14 +48,35 @@ struct dsac::directed_graph_semantic<edge> {
 };
 
 TEST_CASE("Testcases for checking finding shortest path using Breadth-first search", "[graph][bfs]") {
-  constexpr char const* kDigraph = R"graph(
-    digraph abc {
-      a -> b -> c;
-    }
-  )graph";
+  SECTION("Testcase with one possible shortest path") {
+    constexpr char const* kDigraph = R"graph(
+      digraph abc {
+        a -> b -> c;
+      }
+    )graph";
 
-  const auto graph                  = dsac::read_graphviz<node, edge>(kDigraph);
-  const auto shortest_path          = dsac::bfs(graph, "a", "c");
-  const auto expected_shortest_path = make_expected_shortest_path(graph, "a", "b", "c");
-  REQUIRE(shortest_path == expected_shortest_path);
+    const auto graph                  = dsac::read_graphviz<node, edge>(kDigraph);
+    const auto shortest_path          = dsac::bfs(graph, "a", "c");
+    const auto expected_shortest_path = make_expected_shortest_path(graph, "a", "b", "c");
+    REQUIRE(shortest_path == expected_shortest_path);
+  }
+  SECTION("Testcase with different possible shortest paths") {
+    constexpr char const* kDigraph = R"graph(
+      digraph abc {
+        a -> b -> e;
+        a -> c -> d -> e;
+        e -> f -> g;
+        f -> h -> g;
+        g -> i -> k -> l;
+        i -> j -> l;
+        e -> o -> n -> m -> l;
+        o -> p -> q -> m;
+      }
+    )graph";
+
+    const auto graph                  = dsac::read_graphviz<node, edge>(kDigraph);
+    const auto shortest_path          = dsac::bfs(graph, "a", "l");
+    const auto expected_shortest_path = make_expected_shortest_path(graph, "a", "b", "e", "o", "n", "m", "l");
+    REQUIRE(shortest_path == expected_shortest_path);
+  }
 }
