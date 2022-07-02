@@ -81,8 +81,8 @@ struct proxy_node {
     : node(node) {
   }
 
-  node_type                         node;
-  dsac::dynamic_array<edge_pointer> edges;
+  node_type                   node;
+  dynamic_array<edge_pointer> edges;
 };
 template <typename Container>
 struct proxy_edge {
@@ -205,10 +205,8 @@ public:
   using edge_pointer          = typename edge_allocator_traits::pointer;
   using edge_const_pointer    = typename edge_allocator_traits::const_pointer;
   using edge_iterator         = normal_edge_iterator<directed_graph>;
-
-private:
-  using node_key_type = typename directed_graph_semantic<node_type>::key_type;
-  using edge_key_type = typename directed_graph_semantic<edge_type>::key_type;
+  using node_key_type         = typename directed_graph_semantic<node_type>::key_type;
+  using edge_key_type         = typename directed_graph_semantic<edge_type>::key_type;
 
 public:
   ~directed_graph() {
@@ -233,9 +231,9 @@ public:
     return std::make_pair(it->second, success);
   }
 
-  node_iterator get_node(node_key_type key) {
+  node_iterator get_node(node_key_type key) const {
     if (nodes_.contains(key)) {
-      return nodes_[key];
+      return nodes_.at(key);
     }
     return nullptr;
   }
@@ -287,3 +285,14 @@ private:
 };
 
 }  // namespace dsac
+
+namespace std {
+
+template <typename Container>
+struct hash<dsac::normal_node_iterator<Container>> {
+  inline std::size_t operator()(dsac::normal_node_iterator<Container> it) const noexcept {
+    return std::hash<std::string>()(dsac::directed_graph_semantic<typename Container::node_type>::get_key(*it));
+  }
+};
+
+}  // namespace std

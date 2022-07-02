@@ -1,46 +1,61 @@
 #include <catch2/catch.hpp>
 
 #include <dsac/container/graph/breadth_first_search.hpp>
+#include <dsac/container/graph/directed_graph.hpp>
+#include <dsac/container/graph/read_graphviz.hpp>
 
-TEST_CASE("Поиск в ширину на графе", "[breadth_first_search]") {
-  using namespace dsac::legacy_graph;
-  using Edge  = std::pair<int, int>;
-  using Edges = std::vector<Edge>;
-  // clang-format off
-  const Edges edges {
-    {0, 1},
-    {0, 2},
-    {1, 3},
-    {2, 3},
-    {3, 4},
-    {4, 5},
-    {5, 6},
-    {6, 4},
-    {4, 9},
-    {9, 8},
-    {8, 7},
-    {7, 4},
-    {9, 10},
+namespace {
+
+struct node final {
+  std::string                      key{};
+  dsac::dynamic_array<std::string> attributes{};
+
+  static node make(std::string key) {
+    return {.key = std::move(key)};
+  }
+};
+
+struct edge final {
+  std::string                      key{};
+  dsac::dynamic_array<std::string> attributes{};
+
+  static edge make(std::string key) {
+    return {.key = std::move(key)};
+  }
+};
+
+template <typename G, typename... Args>
+auto make_expected_shortest_path(G const& g, Args&&... args) {
+  return std::make_optional(std::vector{(g.get_node(std::forward<Args>(args)))...});
+}
+
+}  // namespace
+
+template <>
+struct dsac::directed_graph_semantic<node> {
+  using key_type = std::string;
+  [[gnu::always_inline]] inline static auto get_key(node const& node) -> key_type {
+    return node.key;
   };
-  // clang-format on
+};
 
-  Digraph graph;
-  for (const Edge& edge : edges) {
-    graph.AddEdge({edge.first}, {edge.second});
-  }
+template <>
+struct dsac::directed_graph_semantic<edge> {
+  using key_type = std::string;
+  [[gnu::always_inline]] inline static auto get_key(edge const& edge) -> key_type {
+    return edge.key;
+  };
+};
 
-  SECTION("Проверка существования маршрута в графе между узлами") {
-    REQUIRE(bfs::IsPathExist(graph, {0}, {8}));
-    REQUIRE(bfs::IsPathExist(graph, {3}, {6}));
-    REQUIRE(bfs::IsPathExist(graph, {7}, {8}));
-    REQUIRE(bfs::IsPathExist(graph, {8}, {7}));
-    REQUIRE_FALSE(bfs::IsPathExist(graph, {10}, {1}));
-    REQUIRE_FALSE(bfs::IsPathExist(graph, {8}, {3}));
-  }
-  SECTION("Поиск маршрута между двумя узлами в графе") {
-    const bfs::Path expected{{3}, {4}, {9}, {8}, {7}};
-    REQUIRE(bfs::ShortestPath(graph, {3}, {7}) == expected);
-    REQUIRE(bfs::ShortestPath(graph, {7}, {1}).empty());
-    REQUIRE(bfs::ShortestPath(graph, {4}, {0}).empty());
-  }
+TEST_CASE("Testcases for checking finding shortest path using Breadth-first search", "[graph][bfs]") {
+  constexpr char const* kDigraph = R"graph(
+    digraph abc {
+      a -> b -> c;
+    }
+  )graph";
+
+  const auto graph                  = dsac::read_graphviz<node, edge>(kDigraph);
+  const auto shortest_path          = dsac::bfs(graph, "a", "c");
+  const auto expected_shortest_path = make_expected_shortest_path(graph, "a", "b", "c");
+  REQUIRE(shortest_path == expected_shortest_path);
 }
