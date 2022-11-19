@@ -24,7 +24,6 @@ option(ENABLE_THREAD_ADDRESS
 set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake/modules" ${CMAKE_MODULE_PATH})
 set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake/sanitizers" ${CMAKE_MODULE_PATH})
 
-include(cmake/Conan.cmake)
 include(cmake/CompileOptions.cmake)
 include(cmake/Macro.cmake)
 include(cmake/Sanitizers.cmake)

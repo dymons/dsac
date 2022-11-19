@@ -1,5 +1,5 @@
 add_executable(echo.network.select main.cpp)
-conan_target_link_libraries(echo.network.select)
+target_link_libraries(echo.network.select fmt::fmt)
 
 FILE(WRITE ${CMAKE_CURRENT_SOURCE_DIR}/static/config.json
         "{\n"
