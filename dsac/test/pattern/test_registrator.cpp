@@ -279,7 +279,7 @@ class TFactoryObjectCreator<TBaseProduct, TDerivedProduct, void> : public IFacto
 };
 
 template <class P, class K, class... TArgs>
-class IObjectFactory {
+class factory_base {
 public:
   typedef P TProduct;
   typedef K TKey;
@@ -327,14 +327,14 @@ private:
 };
 
 template <class TProduct, class TKey, class... TArgs>
-class factory : public IObjectFactory<TProduct, TKey, TArgs...> {
+class factory : public factory_base<TProduct, TKey, TArgs...> {
 public:
   TProduct* Create(const TKey& key, TArgs... args) const {
-    IFactoryObjectCreator<TProduct, TArgs...>* creator = IObjectFactory<TProduct, TKey, TArgs...>::GetCreator(key);
+    IFactoryObjectCreator<TProduct, TArgs...>* creator = factory_base<TProduct, TKey, TArgs...>::GetCreator(key);
     return creator == nullptr ? nullptr : creator->Create(std::forward<TArgs>(args)...);
   }
 
-  static bool Has(const TKey& key) {
+  static bool contains(const TKey& key) {
     return Singleton<factory<TProduct, TKey, TArgs...>>()->HasImpl(key);
   }
 
@@ -368,15 +368,15 @@ public:
     return fileredKeys;
   }
 
-  template <class Product>
+  template <class Component>
   class registractor {
   public:
     explicit registractor(const TKey& key) {
-      Singleton<factory<TProduct, TKey, TArgs...>>()->template Register<Product>(key);
+      Singleton<factory<TProduct, TKey, TArgs...>>()->template Register<Component>(key);
     }
 
     registractor()
-      : registractor(Product::get_type_name()) {
+      : registractor(Component::get_type_name()) {
     }
   };
 };
@@ -405,6 +405,11 @@ public:
 };
 
 TEST_CASE("", "") {
+  REQUIRE(executor::factory::contains(static_thread_pool::get_type_name()));
+
   auto static_thread_pool = executor::factory::construct(static_thread_pool::get_type_name());
   REQUIRE(static_thread_pool != nullptr);
+
+  std::set<std::string> const keys = executor::factory::GetRegisteredKeys();
+  REQUIRE(keys == std::set<std::string>{static_thread_pool::get_type_name()});
 }
