@@ -289,8 +289,8 @@ public:
   void Register(const TKey& key, IFactoryObjectCreator<TProduct, TArgs...>* creator) {
     if (!creator) throw std::logic_error{"Please specify non-null creator for "};  //  << key
 
-    std::unique_lock guard(CreatorsLock);
-    if (!Creators.insert(typename ICreators::value_type(key, creator)).second)
+    std::unique_lock guard(creators_lock_);
+    if (!creators_.emplace(key, creator).second)
       throw std::logic_error{"Product with key "};  // << key << " already registered";
   }
 
@@ -300,9 +300,9 @@ public:
   }
 
   [[nodiscard]] std::set<TKey> get_keys() const {
-    std::shared_lock guard(CreatorsLock);
+    std::shared_lock guard(creators_lock_);
     std::set<TKey>   keys;
-    for (const auto& [key, _] : Creators) {
+    for (const auto& [key, _] : creators_) {
       keys.insert(key);
     }
     return keys;
@@ -310,53 +310,52 @@ public:
 
 protected:
   IFactoryObjectCreator<TProduct, TArgs...>* GetCreator(const TKey& key) const {
-    std::shared_lock                   guard(CreatorsLock);
-    typename ICreators::const_iterator i = Creators.find(key);
-    return i == Creators.end() ? nullptr : i->second.get();
+    std::shared_lock guard(creators_lock_);
+    auto             i = creators_.find(key);
+    return i == creators_.end() ? nullptr : i->second.get();
   }
 
   bool HasImpl(const TKey& key) const {
-    std::shared_lock guard(CreatorsLock);
-    return Creators.find(key) != Creators.end();
+    std::shared_lock guard(creators_lock_);
+    return creators_.find(key) != creators_.end();
   }
 
 private:
-  typedef std::shared_ptr<IFactoryObjectCreator<TProduct, TArgs...>> ICreatorPtr;
-  typedef std::map<TKey, ICreatorPtr>                                ICreators;
-  ICreators                                                          Creators;
-  mutable std::shared_mutex                                          CreatorsLock;
+  std::map<TKey, std::shared_ptr<IFactoryObjectCreator<TProduct, TArgs...>>> creators_;
+  mutable std::shared_mutex                                                  creators_lock_;
 };
 
-template <class TProduct, class TKey, class... TArgs>
-class factory : public factory_base<TProduct, TKey, TArgs...> {
+template <class BaseComponent, class TKey, class... TArgs>
+class factory : public factory_base<BaseComponent, TKey, TArgs...> {
 public:
-  TProduct* Create(const TKey& key, TArgs... args) const {
-    IFactoryObjectCreator<TProduct, TArgs...>* creator = factory_base<TProduct, TKey, TArgs...>::GetCreator(key);
+  BaseComponent* create(const TKey& key, TArgs... args) const {
+    IFactoryObjectCreator<BaseComponent, TArgs...>* creator =
+        factory_base<BaseComponent, TKey, TArgs...>::GetCreator(key);
     return creator == nullptr ? nullptr : creator->Create(std::forward<TArgs>(args)...);
   }
 
   static bool contains(const TKey& key) {
-    return Singleton<factory<TProduct, TKey, TArgs...>>()->HasImpl(key);
+    return Singleton<factory<BaseComponent, TKey, TArgs...>>()->HasImpl(key);
   }
 
-  static std::unique_ptr<TProduct> construct(const TKey& key, TArgs... args) {
-    return std::unique_ptr<TProduct>{
-        Singleton<factory<TProduct, TKey, TArgs...>>()->Create(key, std::forward<TArgs>(args)...)};
+  static std::unique_ptr<BaseComponent> construct(const TKey& key, TArgs... args) {
+    return std::unique_ptr<BaseComponent>{
+        Singleton<factory<BaseComponent, TKey, TArgs...>>()->create(key, std::forward<TArgs>(args)...)};
   }
 
-  static std::set<TKey> GetRegisteredKeys() {
-    return Singleton<factory<TProduct, TKey, TArgs...>>()->get_keys();
+  [[nodiscard]] static std::set<TKey> get_registered_keys() {
+    return Singleton<factory<BaseComponent, TKey, TArgs...>>()->get_keys();
   }
 
-  template <class Component>
+  template <class DerivedComponent>
   class registractor {
   public:
     explicit registractor(const TKey& key) {
-      Singleton<factory<TProduct, TKey, TArgs...>>()->template Register<Component>(key);
+      Singleton<factory<BaseComponent, TKey, TArgs...>>()->template Register<DerivedComponent>(key);
     }
 
     registractor()
-      : registractor(Component::get_type_name()) {
+      : registractor(DerivedComponent::get_type_name()) {
     }
   };
 };
@@ -390,6 +389,6 @@ TEST_CASE("", "") {
   auto static_thread_pool = executor::factory::construct(static_thread_pool::get_type_name());
   REQUIRE(static_thread_pool != nullptr);
 
-  std::set<std::string> const keys = executor::factory::GetRegisteredKeys();
+  std::set<std::string> const keys = executor::factory::get_registered_keys();
   REQUIRE(keys == std::set<std::string>{static_thread_pool::get_type_name()});
 }
