@@ -12,15 +12,18 @@ std::unique_ptr<BaseComponent> factory_constructor<BaseComponent, DerivedCompone
 
 template <typename ComponentBase, typename... Args>
 template <typename DerivedComponent>
-void factory_base<ComponentBase, Args...>::component_register(const std::string& name) {
+void factory_base<ComponentBase, Args...>::factory_register(const std::string& component_name) {
   std::unique_lock guard(mutex_);
-  if (!constructors_.emplace(name, new factory_constructor<ComponentBase, DerivedComponent, Args...>).second) {
-    throw factory_component_duplicate{name};
+
+  if (constructors_.contains(component_name)) [[unlikely]] {
+    throw factory_component_duplicate{component_name};
   }
+
+  constructors_.emplace(component_name, new factory_constructor<ComponentBase, DerivedComponent, Args...>{});
 }
 
 template <typename ComponentBase, typename... Args>
-std::set<std::string> factory_base<ComponentBase, Args...>::component_keys() const {
+std::set<std::string> factory_base<ComponentBase, Args...>::get_factory_keys() const {
   std::shared_lock guard(mutex_);
 
   std::set<std::string> keys;
@@ -30,47 +33,49 @@ std::set<std::string> factory_base<ComponentBase, Args...>::component_keys() con
 }
 
 template <typename ComponentBase, typename... Args>
-factory_constructor_base<ComponentBase, Args...>* factory_base<ComponentBase, Args...>::component_constructor(
-    const std::string& key) const {
+factory_constructor_base<ComponentBase, Args...>* factory_base<ComponentBase, Args...>::get_factory_constructor_unsafe(
+    const std::string& component_name) const {
   std::shared_lock guard(mutex_);
-  if (auto constructor = constructors_.find(key); constructor != constructors_.end()) {
+  if (auto constructor = constructors_.find(component_name); constructor != constructors_.end()) {
     return constructor->second.get();
   }
   return nullptr;
 }
 
 template <typename ComponentBase, typename... Args>
-bool factory_base<ComponentBase, Args...>::component_contains(const std::string& key) const {
+bool factory_base<ComponentBase, Args...>::factory_contains(const std::string& component_name) const {
   std::shared_lock guard(mutex_);
-  return constructors_.find(key) != constructors_.end();
+  return constructors_.find(component_name) != constructors_.end();
 }
 
 template <typename ComponentBase, typename... Args>
 std::unique_ptr<ComponentBase> factory<ComponentBase, Args...>::construct_impl(
-    const std::string& name, Args&&... args) const {
-  factory_constructor_base<ComponentBase, Args...>* constructor = this->component_constructor(name);
+    const std::string& component_name, Args&&... args) const {
+  factory_constructor_base<ComponentBase, Args...>* constructor = this->get_factory_constructor_unsafe(component_name);
   return constructor == nullptr ? nullptr : constructor->construct(std::forward<Args>(args)...);
 }
 
 template <typename ComponentBase, typename... Args>
-bool factory<ComponentBase, Args...>::contains(const std::string& key) {
-  return singleton<factory<ComponentBase, Args...>>()->factory_base<ComponentBase, Args...>::component_contains(key);
+bool factory<ComponentBase, Args...>::contains(const std::string& component_name) {
+  return singleton<factory<ComponentBase, Args...>>()->factory_base<ComponentBase, Args...>::factory_contains(
+      component_name);
 }
 
 template <typename ComponentBase, typename... Args>
-std::unique_ptr<ComponentBase> factory<ComponentBase, Args...>::construct(const std::string& key, Args... args) {
-  return singleton<factory<ComponentBase, Args...>>()->construct_impl(key, std::forward<Args>(args)...);
+std::unique_ptr<ComponentBase> factory<ComponentBase, Args...>::construct(
+    const std::string& component_name, Args... args) {
+  return singleton<factory<ComponentBase, Args...>>()->construct_impl(component_name, std::forward<Args>(args)...);
 }
 
 template <typename ComponentBase, typename... Args>
 std::set<std::string> factory<ComponentBase, Args...>::get_registered_keys() {
-  return singleton<factory<ComponentBase, Args...>>()->component_keys();
+  return singleton<factory<ComponentBase, Args...>>()->get_factory_keys();
 }
 
 template <typename ComponentBase, typename... Args>
 template <typename DerivedComponent>
 factory<ComponentBase, Args...>::registractor<DerivedComponent>::registractor(const std::string& key) {
-  singleton<factory<ComponentBase, Args...>>()->template component_register<DerivedComponent>(key);
+  singleton<factory<ComponentBase, Args...>>()->template factory_register<DerivedComponent>(key);
 }
 
 template <typename ComponentBase, typename... Args>

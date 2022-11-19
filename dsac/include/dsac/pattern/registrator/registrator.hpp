@@ -25,14 +25,61 @@ public:
 template <typename BaseComponent, typename... Args>
 class factory_constructor_base {
 public:
-  virtual std::unique_ptr<BaseComponent> construct(Args&&... args) const = 0;
+  // Constructors
 
-  factory_constructor_base()                                               = default;
-  factory_constructor_base(const factory_constructor_base&)                = default;
-  factory_constructor_base(factory_constructor_base&&) noexcept            = default;
-  factory_constructor_base& operator=(const factory_constructor_base&)     = default;
+  /*!
+    \brief
+        Constructor.
+  */
+  factory_constructor_base() = default;
+
+  /*!
+    \brief
+        Copy constructor.
+  */
+  factory_constructor_base(const factory_constructor_base&) = default;
+
+  /*!
+    \brief
+        Move constructor.
+  */
+  factory_constructor_base(factory_constructor_base&&) noexcept = default;
+
+  // Destructor
+
+  /*!
+    \brief
+        Destructor.
+  */
+  virtual ~factory_constructor_base() = default;
+
+  // Assignment
+
+  /*!
+    \brief
+        Copy conversion constructor.
+  */
+  factory_constructor_base& operator=(const factory_constructor_base&) = default;
+
+  /*!
+    \brief
+        Move conversion constructor.
+  */
   factory_constructor_base& operator=(factory_constructor_base&&) noexcept = default;
-  virtual ~factory_constructor_base()                                      = default;
+
+  // Modifiers
+
+  /*!
+    \brief
+        Creating a custom component in a factory
+
+    \param args
+        Arguments for creating a component
+
+    \ingroup
+        DsacPattern
+  */
+  virtual auto construct(Args&&... args) const -> std::unique_ptr<BaseComponent> = 0;
 };
 
 template <typename BaseComponent, typename DerivedComponent, typename... Args>
@@ -43,31 +90,79 @@ class factory_constructor final : public factory_constructor_base<BaseComponent,
 template <typename ComponentBase, typename... Args>
 class factory_base {
 protected:
+  // Observers
+
+  /*!
+    \brief
+        Get a factory to create a component
+
+    \param component_name
+        Name of the user component
+
+    \ingroup
+        DsacPattern
+  */
+  // clang-format off
+  auto get_factory_constructor_unsafe(const std::string& component_name) const -> factory_constructor_base<ComponentBase, Args...>*;
+  // clang-format on
+
+  /*!
+    \brief
+        Get all the names of user components that have been added
+
+    \ingroup
+        DsacPattern
+  */
+  auto get_factory_keys() const -> std::set<std::string>;
+
+  /*!
+    \brief
+        Check that the user component is contained in the component factory
+
+    \ingroup
+        DsacPattern
+  */
+  auto factory_contains(const std::string& component_name) const -> bool;
+
+  // Modifiers
+
+  /*!
+    \brief
+        Register a new user component in the factory
+
+    \param component_name
+        Name of the user component
+
+    \throw dsac::factory_component_duplicate
+        Attempt to create a duplicate user component in the factory
+
+    \ingroup
+        DsacPattern
+  */
   template <typename DerivedComponent>
-  auto component_register(const std::string& name) -> void;
-
-  auto component_constructor(const std::string& key) const -> factory_constructor_base<ComponentBase, Args...>*;
-
-  auto component_keys() const -> std::set<std::string>;
-
-  auto component_contains(const std::string& key) const -> bool;
+  auto factory_register(const std::string& component_name) -> void;
 
 private:
+  /// A list of factories for creating custom components
   std::map<std::string, std::unique_ptr<factory_constructor_base<ComponentBase, Args...>>> constructors_;
-  mutable std::shared_mutex                                                                mutex_;
+
+  /// Does work with a list of factories thread-safe
+  mutable std::shared_mutex mutex_;
 };
 
 template <typename ComponentBase, typename... Args>
 class factory final : public factory_base<ComponentBase, Args...> {
-  std::unique_ptr<ComponentBase> construct_impl(const std::string& name, Args&&... args) const;
+  std::unique_ptr<ComponentBase> construct_impl(const std::string& component_name, Args&&... args) const;
 
 public:
   template <typename DerivedComponent>
   class [[nodiscard]] registractor;
 
-  [[nodiscard]] static auto contains(const std::string& key) -> bool;
+  [[nodiscard]] static auto contains(const std::string& component_name) -> bool;
 
-  [[nodiscard]] static auto construct(const std::string& key, Args... args) -> std::unique_ptr<ComponentBase>;
+  // clang-format off
+  [[nodiscard]] static auto construct(const std::string& component_name, Args... args) -> std::unique_ptr<ComponentBase>;
+  // clang-format on
 
   [[nodiscard]] static auto get_registered_keys() -> std::set<std::string>;
 };
