@@ -317,7 +317,7 @@ protected:
   }
 
 private:
-  std::map<std::string, std::shared_ptr<factory_constructor_base<ComponentBase, Args...>>> constructors_;
+  std::map<std::string, std::unique_ptr<factory_constructor_base<ComponentBase, Args...>>> constructors_;
   mutable std::shared_mutex                                                                mutex_;
 };
 
