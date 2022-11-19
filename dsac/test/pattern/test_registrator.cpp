@@ -280,40 +280,40 @@ public:
 };
 
 template <class TBaseProduct, class TDerivedProduct, class... Args>
-class TFactoryObjectCreator : public IFactoryObjectCreator<TBaseProduct, Args...> {
+class factory_constructor : public IFactoryObjectCreator<TBaseProduct, Args...> {
   TDerivedProduct* Create(Args... args) const override {
     return new TDerivedProduct(std::forward<Args>(args)...);
   }
 };
 
 template <class TBaseProduct, class TDerivedProduct>
-class TFactoryObjectCreator<TBaseProduct, TDerivedProduct, void> : public IFactoryObjectCreator<TBaseProduct, void> {
+class factory_constructor<TBaseProduct, TDerivedProduct, void> : public IFactoryObjectCreator<TBaseProduct, void> {
   TDerivedProduct* Create() const override {
     return new TDerivedProduct();
   }
 };
 
-template <typename ComponentBase, typename ComponentName, typename... Args>
+template <typename ComponentBase, typename... Args>
 class factory_base {
 protected:
   template <typename DerivedComponent>
-  void register_component(const ComponentName& key) {
+  void register_component(const std::string& name) {
     std::unique_lock guard(mutex_);
-    if (!constructors_.emplace(key, new TFactoryObjectCreator<ComponentBase, DerivedComponent, Args...>).second) {
-      throw factory_component_duplicate{key};
+    if (!constructors_.emplace(name, new factory_constructor<ComponentBase, DerivedComponent, Args...>).second) {
+      throw factory_component_duplicate{name};
     }
   }
 
-  std::set<ComponentName> get_keys_impl() const {
-    std::shared_lock        guard(mutex_);
-    std::set<ComponentName> keys;
+  std::set<std::string> get_keys_impl() const {
+    std::shared_lock      guard(mutex_);
+    std::set<std::string> keys;
     for (const auto& [key, _] : constructors_) {
       keys.insert(key);
     }
     return keys;
   }
 
-  IFactoryObjectCreator<ComponentBase, Args...>* get_constructor(const ComponentName& key) const {
+  IFactoryObjectCreator<ComponentBase, Args...>* get_constructor(const std::string& key) const {
     std::shared_lock guard(mutex_);
     if (auto constructor = constructors_.find(key); constructor != constructors_.end()) {
       return constructor->second.get();
@@ -321,42 +321,41 @@ protected:
     return nullptr;
   }
 
-  bool contains_impl(const ComponentName& key) const {
+  bool contains_impl(const std::string& key) const {
     std::shared_lock guard(mutex_);
     return constructors_.find(key) != constructors_.end();
   }
 
 private:
-  std::map<ComponentName, std::shared_ptr<IFactoryObjectCreator<ComponentBase, Args...>>> constructors_;
-  mutable std::shared_mutex                                                               mutex_;
+  std::map<std::string, std::shared_ptr<IFactoryObjectCreator<ComponentBase, Args...>>> constructors_;
+  mutable std::shared_mutex                                                             mutex_;
 };
 
-template <typename ComponentBase, typename Key, typename... Args>
-class factory : public factory_base<ComponentBase, Key, Args...> {
-  std::unique_ptr<ComponentBase> construct_impl(const Key& key, Args&&... args) const {
-    IFactoryObjectCreator<ComponentBase, Args...>* creator =
-        factory_base<ComponentBase, Key, Args...>::get_constructor(key);
+template <typename ComponentBase, typename... Args>
+class factory : public factory_base<ComponentBase, Args...> {
+  std::unique_ptr<ComponentBase> construct_impl(const std::string& key, Args&&... args) const {
+    IFactoryObjectCreator<ComponentBase, Args...>* creator = factory_base<ComponentBase, Args...>::get_constructor(key);
     return creator == nullptr ? nullptr : std::unique_ptr<ComponentBase>{creator->Create(std::forward<Args>(args)...)};
   }
 
 public:
-  static bool contains(const Key& key) {
-    return singleton<factory<ComponentBase, Key, Args...>>()->contains_impl(key);
+  static bool contains(const std::string& key) {
+    return singleton<factory<ComponentBase, Args...>>()->contains_impl(key);
   }
 
-  static std::unique_ptr<ComponentBase> construct(const Key& key, Args... args) {
-    return singleton<factory<ComponentBase, Key, Args...>>()->construct_impl(key, std::forward<Args>(args)...);
+  static std::unique_ptr<ComponentBase> construct(const std::string& key, Args... args) {
+    return singleton<factory<ComponentBase, Args...>>()->construct_impl(key, std::forward<Args>(args)...);
   }
 
-  [[nodiscard]] static std::set<Key> get_registered_keys() {
-    return singleton<factory<ComponentBase, Key, Args...>>()->get_keys_impl();
+  [[nodiscard]] static std::set<std::string> get_registered_keys() {
+    return singleton<factory<ComponentBase, Args...>>()->get_keys_impl();
   }
 
   template <typename DerivedComponent>
   class registractor {
   public:
-    explicit registractor(const Key& key) {
-      singleton<factory<ComponentBase, Key, Args...>>()->template register_component<DerivedComponent>(key);
+    explicit registractor(const std::string& key) {
+      singleton<factory<ComponentBase, Args...>>()->template register_component<DerivedComponent>(key);
     }
 
     registractor()
@@ -369,7 +368,7 @@ public:
 
 class executor {
 public:
-  using factory = dsac::factory<executor, std::string>;
+  using factory = dsac::factory<executor>;
 
   executor()                           = default;
   executor(const executor&)            = default;
