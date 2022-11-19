@@ -34,6 +34,8 @@ public:
   template <typename U>
   friend class shared_ptr;
 
+  using element_type = std::remove_extent_t<T>;
+
   // Constructors
 
   /*!

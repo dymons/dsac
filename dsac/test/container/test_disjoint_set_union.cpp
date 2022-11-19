@@ -3,7 +3,7 @@
 #include <dsac/container/graph/disjoint_set_union.hpp>
 
 TEST_CASE("Структура данных Disjoint set Union", "[disjoint]") {
-  using namespace dsac::graph;
+  using namespace dsac::legacy_graph;
 
   constexpr std::size_t kSizeDisjointSet = 10U;
   DisjointSet           disjoint_set(kSizeDisjointSet);

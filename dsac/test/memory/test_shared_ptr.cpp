@@ -170,5 +170,6 @@ TEST_CASE("Resource management", "[shared_ptr][memory]") {
 
   bool is_destroyed = false;
   { dsac::shared_ptr<base> base_data = dsac::make_shared<derived>(is_destroyed); }
+
   REQUIRE(is_destroyed);
 }
