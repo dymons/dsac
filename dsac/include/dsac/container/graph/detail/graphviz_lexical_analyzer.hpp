@@ -12,7 +12,7 @@ class graphviz_lexical_analyzer final {
   std::size_t            sp_;
 
   template <token>
-  expected<std::pair<token, std::string_view>, std::string> get_next();
+  tl::expected<std::pair<token, std::string_view>, std::string> get_next();
 
 public:
   explicit graphviz_lexical_analyzer(std::string_view graphviz);

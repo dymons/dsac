@@ -26,7 +26,7 @@ class graphviz_syntax_analyzer final {
   std::string_view get_token();
 
   template <token expected_token>
-  expected<std::string_view, std::string> get_token_maybe();
+  tl::expected<std::string_view, std::string> get_token_maybe();
 
   /*!
     \brief
@@ -79,9 +79,9 @@ std::string_view graphviz_syntax_analyzer::get_token() {
 }
 
 template <token expected_token>
-expected<std::string_view, std::string> graphviz_syntax_analyzer::get_token_maybe() {
+tl::expected<std::string_view, std::string> graphviz_syntax_analyzer::get_token_maybe() {
   if (current_token_.first != expected_token) {
-    return make_unexpected("");
+    return tl::make_unexpected("");
   }
   return std::exchange(current_token_, tokenizer_.get_next_token()).second;
 }
