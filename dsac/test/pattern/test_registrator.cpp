@@ -191,14 +191,12 @@ template <class T, size_t P, class... TArgs>
 
 template <class T, size_t P, class... TArgs>
 T* SingletonInt(TArgs&&... args) {
-  static_assert(sizeof(T) < 32000, "use HugeSingleton instead");
-
   static std::atomic<T*> ptr;
   auto                   ret = ptr.load();
 
   if (!ret) [[unlikely]] {
-    ret = SingletonBase<T, P>(ptr, std::forward<TArgs>(args)...);
-  }
+      ret = SingletonBase<T, P>(ptr, std::forward<TArgs>(args)...);
+    }
 
   return ret;
 }
@@ -239,19 +237,9 @@ T* Singleton(TArgs&&... args) {
   return ::NPrivate::SingletonInt<T, TSingletonTraits<T>::Priority>(std::forward<TArgs>(args)...);
 }
 
-template <class T, class... TArgs>
-T* HugeSingleton(TArgs&&... args) {
-  return Singleton<::NPrivate::THeapStore<T>>(std::forward<TArgs>(args)...)->D;
-}
-
 template <class T, size_t P, class... TArgs>
 T* SingletonWithPriority(TArgs&&... args) {
   return ::NPrivate::SingletonInt<T, P>(std::forward<TArgs>(args)...);
-}
-
-template <class T, size_t P, class... TArgs>
-T* HugeSingletonWithPriority(TArgs&&... args) {
-  return SingletonWithPriority<::NPrivate::THeapStore<T>, P>(std::forward<TArgs>(args)...)->D;
 }
 
 template <class T>
@@ -259,7 +247,7 @@ const T& Default() {
   return *(::NPrivate::SingletonInt<typename ::NPrivate::TDefault<T>, TSingletonTraits<T>::Priority>()->Get());
 }
 
-namespace NObjectFactory {
+namespace dsac {
 template <class TProduct, class... TArgs>
 class IFactoryObjectCreator {
 public:
@@ -350,18 +338,9 @@ public:
     return Singleton<TParametrizedObjectFactory<TProduct, TKey, TArgs...>>()->HasImpl(key);
   }
 
-  static TProduct* Construct(const TKey& key, const TKey& defKey, TArgs... args) {
-    TProduct* result =
-        Singleton<TParametrizedObjectFactory<TProduct, TKey, TArgs...>>()->Create(key, std::forward<TArgs>(args)...);
-    if (!result && !!defKey) {
-      result = Singleton<TParametrizedObjectFactory<TProduct, TKey, TArgs...>>()->Create(
-          defKey, std::forward<TArgs>(args)...);
-    }
-    return result;
-  }
-
-  static TProduct* Construct(const TKey& key, TArgs... args) {
-    return Singleton<TParametrizedObjectFactory<TProduct, TKey, TArgs...>>()->Create(key, std::forward<TArgs>(args)...);
+  static std::unique_ptr<TProduct> construct(const TKey& key, TArgs... args) {
+    return std::unique_ptr<TProduct>{
+        Singleton<TParametrizedObjectFactory<TProduct, TKey, TArgs...>>()->Create(key, std::forward<TArgs>(args)...)};
   }
 
   static void GetRegisteredKeys(std::set<TKey>& keys) {
@@ -383,25 +362,25 @@ public:
         registeredKeys.end(),
         std::inserter(fileredKeys, fileredKeys.end()),
         [](const TKey& key) {
-          std::unique_ptr<TProduct> objectHolder(Construct(key));
+          std::unique_ptr<TProduct> objectHolder(construct(key));
           return !!dynamic_cast<const TDerivedProduct*>(objectHolder.Get());
         });
     return fileredKeys;
   }
 
   template <class Product>
-  class TRegistrator {
+  class registractor {
   public:
-    TRegistrator(const TKey& key, IFactoryObjectCreator<TProduct, TArgs...>* creator) {
+    registractor(const TKey& key, IFactoryObjectCreator<TProduct, TArgs...>* creator) {
       Singleton<TParametrizedObjectFactory<TProduct, TKey, TArgs...>>()->template Register<Product>(key, creator);
     }
 
-    TRegistrator(const TKey& key) {
+    registractor(const TKey& key) {
       Singleton<TParametrizedObjectFactory<TProduct, TKey, TArgs...>>()->template Register<Product>(key);
     }
 
-    TRegistrator()
-      : TRegistrator(Product::GetTypeName()) {
+    registractor()
+      : registractor(Product::GetTypeName()) {
     }
 
     std::string GetName() const {
@@ -411,25 +390,23 @@ public:
 };
 
 template <class TProduct, class TKey, class... TArgs>
-using TObjectFactory = TParametrizedObjectFactory<TProduct, TKey, TArgs...>;
-}  // namespace NObjectFactory
+using factory = TParametrizedObjectFactory<TProduct, TKey, TArgs...>;
+}  // namespace dsac
 
-class ILogBackendCreator {
+class executor_base {
 public:
-  using TFactory = NObjectFactory::TObjectFactory<ILogBackendCreator, std::string>;
+  using factory            = dsac::factory<executor_base, std::string>;
+  virtual ~executor_base() = default;
 };
 
-class TSysLogBackendCreator : public ILogBackendCreator {
+class static_thread_pool : public executor_base {
 public:
-  static TFactory::TRegistrator<TSysLogBackendCreator> Registrar;
-
-  void foo() {}
+  static factory::registractor<static_thread_pool> Registrar;
 };
 
-ILogBackendCreator::TFactory::TRegistrator<TSysLogBackendCreator> TSysLogBackendCreator::Registrar("system");
+executor_base::factory::registractor<static_thread_pool> static_thread_pool::Registrar("static_thread_pool");
 
 TEST_CASE("", "") {
-  const std::string kModule = "system";
-  auto a = TSysLogBackendCreator::TFactory::Construct(kModule);
-  delete a;
+  const std::string kStaticThreadPoolModule = "static_thread_pool";
+  auto              static_thread_pool      = executor_base::factory::construct(kStaticThreadPoolModule);
 }
