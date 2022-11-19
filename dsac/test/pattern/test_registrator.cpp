@@ -383,19 +383,19 @@ public:
 
 }  // namespace dsac
 
-class executor_base {
+class executor {
 public:
-  using factory = dsac::factory<executor_base, std::string>;
+  using factory = dsac::factory<executor, std::string>;
 
-  executor_base()                                = default;
-  executor_base(const executor_base&)            = default;
-  executor_base(executor_base&&)                 = default;
-  executor_base& operator=(const executor_base&) = default;
-  executor_base& operator=(executor_base&&)      = default;
-  virtual ~executor_base()                       = default;
+  executor()                           = default;
+  executor(const executor&)            = default;
+  executor(executor&&)                 = default;
+  executor& operator=(const executor&) = default;
+  executor& operator=(executor&&)      = default;
+  virtual ~executor()                  = default;
 };
 
-class static_thread_pool final : public executor_base {
+class static_thread_pool final : public executor {
   static const inline factory::registractor<static_thread_pool> kRegistractor;
 
 public:
@@ -405,6 +405,6 @@ public:
 };
 
 TEST_CASE("", "") {
-  auto static_thread_pool = executor_base::factory::construct(static_thread_pool::get_type_name());
+  auto static_thread_pool = executor::factory::construct(static_thread_pool::get_type_name());
   REQUIRE(static_thread_pool != nullptr);
 }
