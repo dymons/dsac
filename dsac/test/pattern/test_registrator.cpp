@@ -376,7 +376,7 @@ public:
     }
 
     registractor()
-      : registractor(Product::GetTypeName()) {
+      : registractor(Product::get_type_name()) {
     }
   };
 };
@@ -396,13 +396,15 @@ public:
 };
 
 class static_thread_pool final : public executor_base {
+  static const inline factory::registractor<static_thread_pool> kRegistractor;
+
 public:
-  static const factory::registractor<static_thread_pool> kRegistractor;
+  static std::string get_type_name() {
+    return "static_thread_pool";
+  }
 };
 
-const executor_base::factory::registractor<static_thread_pool> static_thread_pool::kRegistractor("static_thread_pool");
-
 TEST_CASE("", "") {
-  const std::string static_thread_pool_module = "static_thread_pool";
-  auto              static_thread_pool        = executor_base::factory::construct(static_thread_pool_module);
+  auto static_thread_pool = executor_base::factory::construct(static_thread_pool::get_type_name());
+  REQUIRE(static_thread_pool != nullptr);
 }
