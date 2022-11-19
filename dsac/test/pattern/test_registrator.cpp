@@ -323,17 +323,17 @@ private:
 
 template <typename ComponentBase, typename... Args>
 class factory final : public factory_base<ComponentBase, Args...> {
-  std::unique_ptr<ComponentBase> construct_impl(const std::string& key, Args&&... args) const {
-    factory_constructor_base<ComponentBase, Args...>* constructor = this->get_constructor_unsafe(key);
+  std::unique_ptr<ComponentBase> construct_impl(const std::string& name, Args&&... args) const {
+    factory_constructor_base<ComponentBase, Args...>* constructor = this->get_constructor_unsafe(name);
     return constructor == nullptr ? nullptr : constructor->construct(std::forward<Args>(args)...);
   }
 
 public:
-  static bool contains(const std::string& key) {
+  [[nodiscard]] static bool contains(const std::string& key) {
     return singleton<factory<ComponentBase, Args...>>()->factory_base<ComponentBase, Args...>::contains(key);
   }
 
-  static std::unique_ptr<ComponentBase> construct(const std::string& key, Args... args) {
+  [[nodiscard]] static std::unique_ptr<ComponentBase> construct(const std::string& key, Args... args) {
     return singleton<factory<ComponentBase, Args...>>()->construct_impl(key, std::forward<Args>(args)...);
   }
 
@@ -342,7 +342,7 @@ public:
   }
 
   template <typename DerivedComponent>
-  class registractor {
+  class [[nodiscard]] registractor {
   public:
     explicit registractor(const std::string& key) {
       singleton<factory<ComponentBase, Args...>>()->template register_component<DerivedComponent>(key);
