@@ -1,14 +1,10 @@
 #pragma once
 
-#include <dsac/pattern/singleton/singleton.hpp>
-
-#include <algorithm>
 #include <map>
-#include <memory>
-#include <mutex>
 #include <set>
-#include <shared_mutex>
+#include <memory>
 #include <string>
+#include <shared_mutex>
 
 namespace dsac {
 
@@ -19,7 +15,7 @@ public:
 
 class factory_component_duplicate final : public factory_exception {
 public:
-  explicit factory_component_duplicate(const std::string& component);
+  explicit factory_component_duplicate(const std::string& component_name);
 };
 
 template <typename BaseComponent, typename... Args>

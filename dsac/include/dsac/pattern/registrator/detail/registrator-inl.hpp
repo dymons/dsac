@@ -2,6 +2,11 @@
 #error This file may only be included from registrator.hpp
 #endif
 
+#include <dsac/pattern/singleton/singleton.hpp>
+
+#include <algorithm>
+#include <mutex>
+
 namespace dsac {
 
 template <typename BaseComponent, typename DerivedComponent, typename... Args>

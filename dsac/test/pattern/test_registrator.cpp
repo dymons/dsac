@@ -2,33 +2,62 @@
 
 #include <dsac/pattern/registrator/registrator.hpp>
 
-class executor {
-public:
-  using factory = dsac::factory<executor>;
+namespace {
 
-  executor()                               = default;
-  executor(const executor&)                = default;
-  executor(executor&&) noexcept            = default;
-  executor& operator=(const executor&)     = default;
-  executor& operator=(executor&&) noexcept = default;
-  virtual ~executor()                      = default;
+class consensus {
+public:
+  using factory = dsac::factory<consensus>;
+
+  consensus()                                = default;
+  consensus(const consensus&)                = default;
+  consensus(consensus&&) noexcept            = default;
+  consensus& operator=(const consensus&)     = default;
+  consensus& operator=(consensus&&) noexcept = default;
+  virtual ~consensus()                       = default;
 };
 
-class static_thread_pool final : public executor {
-  static const inline factory::registractor<static_thread_pool> kRegistractor;
+class paxos final : public consensus {
+  static const inline factory::registractor<paxos> kRegistractor;
 
 public:
   static std::string get_type_name() {
-    return "static_thread_pool";
+    return "consensus/paxos";
   }
 };
 
-TEST_CASE("", "") {
-  REQUIRE(executor::factory::contains(static_thread_pool::get_type_name()));
+class raft final : public consensus {
+  static const inline factory::registractor<raft> kRegistractor;
 
-  auto static_thread_pool = executor::factory::construct(static_thread_pool::get_type_name());
-  REQUIRE(static_thread_pool != nullptr);
+public:
+  static std::string get_type_name() {
+    return "consensus/raft";
+  }
+};
 
-  std::set<std::string> const keys = executor::factory::get_registered_keys();
-  REQUIRE(keys == std::set<std::string>{static_thread_pool::get_type_name()});
+class pbft final : public consensus {
+  static const inline factory::registractor<pbft> kRegistractor;
+
+public:
+  static std::string get_type_name() {
+    return "consensus/pbft";
+  }
+};
+
+}  // namespace
+
+TEST_CASE("", "[registrator][contains]") {
+  REQUIRE(consensus::factory::contains(paxos::get_type_name()));
+  REQUIRE(consensus::factory::contains(raft::get_type_name()));
+  REQUIRE(consensus::factory::contains(pbft::get_type_name()));
+}
+
+TEST_CASE("", "[registrator][construct]") {
+  REQUIRE(consensus::factory::construct(paxos::get_type_name()) != nullptr);
+  REQUIRE(consensus::factory::construct(raft::get_type_name()) != nullptr);
+  REQUIRE(consensus::factory::construct(pbft::get_type_name()) != nullptr);
+}
+
+TEST_CASE("", "[registrator][keys]") {
+  std::set<std::string> const keys = consensus::factory::get_registered_keys();
+  REQUIRE(keys == std::set<std::string>{paxos::get_type_name(), raft::get_type_name(), pbft::get_type_name()});
 }
