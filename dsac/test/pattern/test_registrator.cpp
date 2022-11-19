@@ -195,8 +195,8 @@ T* SingletonInt(TArgs&&... args) {
   auto                   ret = ptr.load();
 
   if (!ret) [[unlikely]] {
-      ret = SingletonBase<T, P>(ptr, std::forward<TArgs>(args)...);
-    }
+    ret = SingletonBase<T, P>(ptr, std::forward<TArgs>(args)...);
+  }
 
   return ret;
 }
@@ -385,11 +385,17 @@ public:
 
 class executor_base {
 public:
-  using factory            = dsac::factory<executor_base, std::string>;
-  virtual ~executor_base() = default;
+  using factory = dsac::factory<executor_base, std::string>;
+
+  executor_base()                                = default;
+  executor_base(const executor_base&)            = default;
+  executor_base(executor_base&&)                 = default;
+  executor_base& operator=(const executor_base&) = default;
+  executor_base& operator=(executor_base&&)      = default;
+  virtual ~executor_base()                       = default;
 };
 
-class static_thread_pool : public executor_base {
+class static_thread_pool final : public executor_base {
 public:
   static factory::registractor<static_thread_pool> registractor;
 };
