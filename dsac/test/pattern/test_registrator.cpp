@@ -155,8 +155,8 @@ void Destroyer(void* ptr) {
   ((T*)ptr)->~T();
 }
 
-template <class T, size_t P, class... TArgs>
-[[gnu::noinline]] T* SingletonBase(std::atomic<T*>& ptr, TArgs&&... args) {
+template <class T, size_t P, class... Args>
+[[gnu::noinline]] T* SingletonBase(std::atomic<T*>& ptr, Args&&... args) {
   alignas(T) static char              buf[sizeof(T)];
   static std::atomic<std::thread::id> lock;
 
@@ -166,7 +166,7 @@ template <class T, size_t P, class... TArgs>
 
   try {
     if (!ret) {
-      ret = ::new (buf) T(std::forward<TArgs>(args)...);
+      ret = ::new (buf) T(std::forward<Args>(args)...);
 
       try {
         AtExit(Destroyer<T>, ret, P);
@@ -189,13 +189,13 @@ template <class T, size_t P, class... TArgs>
   return ret;
 }
 
-template <class T, size_t P, class... TArgs>
-T* SingletonInt(TArgs&&... args) {
+template <class T, size_t P, class... Args>
+T* SingletonInt(Args&&... args) {
   static std::atomic<T*> ptr;
   auto                   ret = ptr.load();
 
   if (!ret) [[unlikely]] {
-    ret = SingletonBase<T, P>(ptr, std::forward<TArgs>(args)...);
+    ret = SingletonBase<T, P>(ptr, std::forward<Args>(args)...);
   }
 
   return ret;
@@ -204,9 +204,9 @@ T* SingletonInt(TArgs&&... args) {
 template <class T>
 class TDefault {
 public:
-  template <class... TArgs>
-  inline TDefault(TArgs&&... args)
-    : T_(std::forward<TArgs>(args)...) {
+  template <class... Args>
+  inline TDefault(Args&&... args)
+    : T_(std::forward<Args>(args)...) {
   }
 
   inline const T* Get() const noexcept {
@@ -219,9 +219,9 @@ private:
 
 template <class T>
 struct THeapStore {
-  template <class... TArgs>
-  inline THeapStore(TArgs&&... args)
-    : D(new T(std::forward<TArgs>(args)...)) {
+  template <class... Args>
+  inline THeapStore(Args&&... args)
+    : D(new T(std::forward<Args>(args)...)) {
   }
 
   inline ~THeapStore() {
@@ -232,14 +232,14 @@ struct THeapStore {
 };
 }  // namespace NPrivate
 
-template <class T, class... TArgs>
-T* Singleton(TArgs&&... args) {
-  return ::NPrivate::SingletonInt<T, TSingletonTraits<T>::Priority>(std::forward<TArgs>(args)...);
+template <class T, class... Args>
+T* Singleton(Args&&... args) {
+  return ::NPrivate::SingletonInt<T, TSingletonTraits<T>::Priority>(std::forward<Args>(args)...);
 }
 
-template <class T, size_t P, class... TArgs>
-T* SingletonWithPriority(TArgs&&... args) {
-  return ::NPrivate::SingletonInt<T, P>(std::forward<TArgs>(args)...);
+template <class T, size_t P, class... Args>
+T* SingletonWithPriority(Args&&... args) {
+  return ::NPrivate::SingletonInt<T, P>(std::forward<Args>(args)...);
 }
 
 template <class T>
@@ -248,10 +248,10 @@ const T& Default() {
 }
 
 namespace dsac {
-template <class TProduct, class... TArgs>
+template <class TProduct, class... Args>
 class IFactoryObjectCreator {
 public:
-  virtual TProduct* Create(TArgs... args) const = 0;
+  virtual TProduct* Create(Args... args) const = 0;
   virtual ~IFactoryObjectCreator() {
   }
 };
@@ -264,10 +264,10 @@ public:
   }
 };
 
-template <class TBaseProduct, class TDerivedProduct, class... TArgs>
-class TFactoryObjectCreator : public IFactoryObjectCreator<TBaseProduct, TArgs...> {
-  TDerivedProduct* Create(TArgs... args) const override {
-    return new TDerivedProduct(std::forward<TArgs>(args)...);
+template <class TBaseProduct, class TDerivedProduct, class... Args>
+class TFactoryObjectCreator : public IFactoryObjectCreator<TBaseProduct, Args...> {
+  TDerivedProduct* Create(Args... args) const override {
+    return new TDerivedProduct(std::forward<Args>(args)...);
   }
 };
 
@@ -278,15 +278,15 @@ class TFactoryObjectCreator<TBaseProduct, TDerivedProduct, void> : public IFacto
   }
 };
 
-template <class P, class K, class... TArgs>
+template <class P, class K, class... Args>
 class factory_base {
 public:
   typedef P TProduct;
-  typedef K TKey;
+  typedef K Key;
 
 public:
   template <class TDerivedProduct>
-  void Register(const TKey& key, IFactoryObjectCreator<TProduct, TArgs...>* creator) {
+  void Register(const Key& key, IFactoryObjectCreator<TProduct, Args...>* creator) {
     if (!creator) throw std::logic_error{"Please specify non-null creator for "};  //  << key
 
     std::unique_lock guard(creators_lock_);
@@ -295,13 +295,13 @@ public:
   }
 
   template <class TDerivedProduct>
-  void Register(const TKey& key) {
-    Register<TDerivedProduct>(key, new TFactoryObjectCreator<TProduct, TDerivedProduct, TArgs...>);
+  void Register(const Key& key) {
+    Register<TDerivedProduct>(key, new TFactoryObjectCreator<TProduct, TDerivedProduct, Args...>);
   }
 
-  [[nodiscard]] std::set<TKey> get_keys() const {
+  [[nodiscard]] std::set<Key> get_keys() const {
     std::shared_lock guard(creators_lock_);
-    std::set<TKey>   keys;
+    std::set<Key>    keys;
     for (const auto& [key, _] : creators_) {
       keys.insert(key);
     }
@@ -309,49 +309,48 @@ public:
   }
 
 protected:
-  IFactoryObjectCreator<TProduct, TArgs...>* GetCreator(const TKey& key) const {
+  IFactoryObjectCreator<TProduct, Args...>* GetCreator(const Key& key) const {
     std::shared_lock guard(creators_lock_);
     auto             i = creators_.find(key);
     return i == creators_.end() ? nullptr : i->second.get();
   }
 
-  bool HasImpl(const TKey& key) const {
+  bool HasImpl(const Key& key) const {
     std::shared_lock guard(creators_lock_);
     return creators_.find(key) != creators_.end();
   }
 
 private:
-  std::map<TKey, std::shared_ptr<IFactoryObjectCreator<TProduct, TArgs...>>> creators_;
-  mutable std::shared_mutex                                                  creators_lock_;
+  std::map<Key, std::shared_ptr<IFactoryObjectCreator<TProduct, Args...>>> creators_;
+  mutable std::shared_mutex                                                creators_lock_;
 };
 
-template <class BaseComponent, class TKey, class... TArgs>
-class factory : public factory_base<BaseComponent, TKey, TArgs...> {
+template <class BaseComponent, class Key, class... Args>
+class factory : public factory_base<BaseComponent, Key, Args...> {
 public:
-  BaseComponent* create(const TKey& key, TArgs... args) const {
-    IFactoryObjectCreator<BaseComponent, TArgs...>* creator =
-        factory_base<BaseComponent, TKey, TArgs...>::GetCreator(key);
-    return creator == nullptr ? nullptr : creator->Create(std::forward<TArgs>(args)...);
+  BaseComponent* create(const Key& key, Args... args) const {
+    IFactoryObjectCreator<BaseComponent, Args...>* creator = factory_base<BaseComponent, Key, Args...>::GetCreator(key);
+    return creator == nullptr ? nullptr : creator->Create(std::forward<Args>(args)...);
   }
 
-  static bool contains(const TKey& key) {
-    return Singleton<factory<BaseComponent, TKey, TArgs...>>()->HasImpl(key);
+  static bool contains(const Key& key) {
+    return Singleton<factory<BaseComponent, Key, Args...>>()->HasImpl(key);
   }
 
-  static std::unique_ptr<BaseComponent> construct(const TKey& key, TArgs... args) {
+  static std::unique_ptr<BaseComponent> construct(const Key& key, Args... args) {
     return std::unique_ptr<BaseComponent>{
-        Singleton<factory<BaseComponent, TKey, TArgs...>>()->create(key, std::forward<TArgs>(args)...)};
+        Singleton<factory<BaseComponent, Key, Args...>>()->create(key, std::forward<Args>(args)...)};
   }
 
-  [[nodiscard]] static std::set<TKey> get_registered_keys() {
-    return Singleton<factory<BaseComponent, TKey, TArgs...>>()->get_keys();
+  [[nodiscard]] static std::set<Key> get_registered_keys() {
+    return Singleton<factory<BaseComponent, Key, Args...>>()->get_keys();
   }
 
   template <class DerivedComponent>
   class registractor {
   public:
-    explicit registractor(const TKey& key) {
-      Singleton<factory<BaseComponent, TKey, TArgs...>>()->template Register<DerivedComponent>(key);
+    explicit registractor(const Key& key) {
+      Singleton<factory<BaseComponent, Key, Args...>>()->template Register<DerivedComponent>(key);
     }
 
     registractor()
