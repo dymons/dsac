@@ -6,6 +6,7 @@ include_directories(${DSAC_LIBRARY_INCLUDE_DIRS})
 
 add_library(${PROJECT_NAME} ${DSAC_LIBRARY_HEADERS} ${DSAC_LIBRARY_SOURCES})
 target_include_directories(${PROJECT_NAME} PUBLIC .)
+target_link_libraries(${PROJECT_NAME} fmt::fmt)
 
 include(FetchContent)
 
