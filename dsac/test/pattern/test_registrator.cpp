@@ -397,10 +397,10 @@ public:
 
 class static_thread_pool final : public executor_base {
 public:
-  static factory::registractor<static_thread_pool> registractor;
+  [[maybe_unused]] static const factory::registractor<static_thread_pool> kRegistractor;
 };
 
-executor_base::factory::registractor<static_thread_pool> static_thread_pool::registractor("static_thread_pool");
+[[maybe_unused]] const executor_base::factory::registractor<static_thread_pool> static_thread_pool::kRegistractor("static_thread_pool");
 
 TEST_CASE("", "") {
   const std::string static_thread_pool_module = "static_thread_pool";
