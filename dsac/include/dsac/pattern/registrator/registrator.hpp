@@ -2,13 +2,13 @@
 
 #include <dsac/pattern/singleton/singleton.hpp>
 
+#include <algorithm>
 #include <map>
 #include <memory>
 #include <mutex>
 #include <set>
 #include <shared_mutex>
 #include <string>
-#include <algorithm>
 
 namespace dsac {
 
@@ -37,43 +37,20 @@ public:
 
 template <typename BaseComponent, typename DerivedComponent, typename... Args>
 class factory_constructor final : public factory_constructor_base<BaseComponent, Args...> {
-  std::unique_ptr<BaseComponent> construct(Args&&... args) const override {
-    return std::make_unique<DerivedComponent>(std::forward<Args>(args)...);
-  }
+  std::unique_ptr<BaseComponent> construct(Args&&... args) const override;
 };
 
 template <typename ComponentBase, typename... Args>
 class factory_base {
 protected:
   template <typename DerivedComponent>
-  void register_component(const std::string& name) {
-    std::unique_lock guard(mutex_);
-    if (!constructors_.emplace(name, new factory_constructor<ComponentBase, DerivedComponent, Args...>).second) {
-      throw factory_component_duplicate{name};
-    }
-  }
+  auto component_register(const std::string& name) -> void;
 
-  std::set<std::string> get_keys() const {
-    std::shared_lock guard(mutex_);
+  auto component_constructor(const std::string& key) const -> factory_constructor_base<ComponentBase, Args...>*;
 
-    std::set<std::string> keys;
-    std::ranges::transform(constructors_, std::inserter(keys, keys.begin()), [](auto&& ctr) { return ctr.first; });
+  auto component_keys() const -> std::set<std::string>;
 
-    return keys;
-  }
-
-  factory_constructor_base<ComponentBase, Args...>* get_constructor_unsafe(const std::string& key) const {
-    std::shared_lock guard(mutex_);
-    if (auto constructor = constructors_.find(key); constructor != constructors_.end()) {
-      return constructor->second.get();
-    }
-    return nullptr;
-  }
-
-  bool contains(const std::string& key) const {
-    std::shared_lock guard(mutex_);
-    return constructors_.find(key) != constructors_.end();
-  }
+  auto component_contains(const std::string& key) const -> bool;
 
 private:
   std::map<std::string, std::unique_ptr<factory_constructor_base<ComponentBase, Args...>>> constructors_;
@@ -82,35 +59,30 @@ private:
 
 template <typename ComponentBase, typename... Args>
 class factory final : public factory_base<ComponentBase, Args...> {
-  std::unique_ptr<ComponentBase> construct_impl(const std::string& name, Args&&... args) const {
-    factory_constructor_base<ComponentBase, Args...>* constructor = this->get_constructor_unsafe(name);
-    return constructor == nullptr ? nullptr : constructor->construct(std::forward<Args>(args)...);
-  }
+  std::unique_ptr<ComponentBase> construct_impl(const std::string& name, Args&&... args) const;
 
 public:
-  [[nodiscard]] static bool contains(const std::string& key) {
-    return singleton<factory<ComponentBase, Args...>>()->factory_base<ComponentBase, Args...>::contains(key);
-  }
-
-  [[nodiscard]] static std::unique_ptr<ComponentBase> construct(const std::string& key, Args... args) {
-    return singleton<factory<ComponentBase, Args...>>()->construct_impl(key, std::forward<Args>(args)...);
-  }
-
-  [[nodiscard]] static std::set<std::string> get_registered_keys() {
-    return singleton<factory<ComponentBase, Args...>>()->get_keys();
-  }
-
   template <typename DerivedComponent>
-  class [[nodiscard]] registractor {
-  public:
-    explicit registractor(const std::string& key) {
-      singleton<factory<ComponentBase, Args...>>()->template register_component<DerivedComponent>(key);
-    }
+  class [[nodiscard]] registractor;
 
-    registractor()
-      : registractor(DerivedComponent::get_type_name()) {
-    }
-  };
+  [[nodiscard]] static auto contains(const std::string& key) -> bool;
+
+  [[nodiscard]] static auto construct(const std::string& key, Args... args) -> std::unique_ptr<ComponentBase>;
+
+  [[nodiscard]] static auto get_registered_keys() -> std::set<std::string>;
+};
+
+template <typename ComponentBase, typename... Args>
+template <typename DerivedComponent>
+class [[nodiscard]] factory<ComponentBase, Args...>::registractor {
+public:
+  explicit registractor(const std::string& key);
+
+  registractor();
 };
 
 }  // namespace dsac
+
+#define PATTERN_REGISTRATOR_HPP
+#include <dsac/pattern/registrator/detail/registrator-inl.hpp>
+#undef PATTERN_REGISTRATOR_HPP
