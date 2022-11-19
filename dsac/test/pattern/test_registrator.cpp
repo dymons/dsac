@@ -327,7 +327,7 @@ private:
 };
 
 template <class TProduct, class TKey, class... TArgs>
-class TParametrizedObjectFactory : public IObjectFactory<TProduct, TKey, TArgs...> {
+class factory : public IObjectFactory<TProduct, TKey, TArgs...> {
 public:
   TProduct* Create(const TKey& key, TArgs... args) const {
     IFactoryObjectCreator<TProduct, TArgs...>* creator = IObjectFactory<TProduct, TKey, TArgs...>::GetCreator(key);
@@ -335,21 +335,21 @@ public:
   }
 
   static bool Has(const TKey& key) {
-    return Singleton<TParametrizedObjectFactory<TProduct, TKey, TArgs...>>()->HasImpl(key);
+    return Singleton<factory<TProduct, TKey, TArgs...>>()->HasImpl(key);
   }
 
   static std::unique_ptr<TProduct> construct(const TKey& key, TArgs... args) {
     return std::unique_ptr<TProduct>{
-        Singleton<TParametrizedObjectFactory<TProduct, TKey, TArgs...>>()->Create(key, std::forward<TArgs>(args)...)};
+        Singleton<factory<TProduct, TKey, TArgs...>>()->Create(key, std::forward<TArgs>(args)...)};
   }
 
   static void GetRegisteredKeys(std::set<TKey>& keys) {
-    return Singleton<TParametrizedObjectFactory<TProduct, TKey, TArgs...>>()->GetKeys(keys);
+    return Singleton<factory<TProduct, TKey, TArgs...>>()->GetKeys(keys);
   }
 
   static std::set<TKey> GetRegisteredKeys() {
     std::set<TKey> keys;
-    Singleton<TParametrizedObjectFactory<TProduct, TKey, TArgs...>>()->GetKeys(keys);
+    Singleton<factory<TProduct, TKey, TArgs...>>()->GetKeys(keys);
     return keys;
   }
 
@@ -371,26 +371,16 @@ public:
   template <class Product>
   class registractor {
   public:
-    registractor(const TKey& key, IFactoryObjectCreator<TProduct, TArgs...>* creator) {
-      Singleton<TParametrizedObjectFactory<TProduct, TKey, TArgs...>>()->template Register<Product>(key, creator);
-    }
-
-    registractor(const TKey& key) {
-      Singleton<TParametrizedObjectFactory<TProduct, TKey, TArgs...>>()->template Register<Product>(key);
+    explicit registractor(const TKey& key) {
+      Singleton<factory<TProduct, TKey, TArgs...>>()->template Register<Product>(key);
     }
 
     registractor()
       : registractor(Product::GetTypeName()) {
     }
-
-    std::string GetName() const {
-      return Product::GetTypeName();
-    }
   };
 };
 
-template <class TProduct, class TKey, class... TArgs>
-using factory = TParametrizedObjectFactory<TProduct, TKey, TArgs...>;
 }  // namespace dsac
 
 class executor_base {
@@ -401,12 +391,12 @@ public:
 
 class static_thread_pool : public executor_base {
 public:
-  static factory::registractor<static_thread_pool> Registrar;
+  static factory::registractor<static_thread_pool> registractor;
 };
 
-executor_base::factory::registractor<static_thread_pool> static_thread_pool::Registrar("static_thread_pool");
+executor_base::factory::registractor<static_thread_pool> static_thread_pool::registractor("static_thread_pool");
 
 TEST_CASE("", "") {
-  const std::string kStaticThreadPoolModule = "static_thread_pool";
-  auto              static_thread_pool      = executor_base::factory::construct(kStaticThreadPoolModule);
+  const std::string static_thread_pool_module = "static_thread_pool";
+  auto              static_thread_pool        = executor_base::factory::construct(static_thread_pool_module);
 }
