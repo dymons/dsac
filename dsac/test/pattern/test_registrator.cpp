@@ -263,33 +263,23 @@ public:
   }
 };
 
-template <class TProduct, class... Args>
-class IFactoryObjectCreator {
+template <typename BaseComponent, typename... Args>
+class factory_constructor_base {
 public:
-  virtual TProduct* Create(Args... args) const = 0;
-  virtual ~IFactoryObjectCreator() {
-  }
+  virtual BaseComponent* construct(Args&&... args) const = 0;
+
+  factory_constructor_base()                                               = default;
+  factory_constructor_base(const factory_constructor_base&)                = default;
+  factory_constructor_base(factory_constructor_base&&) noexcept            = default;
+  factory_constructor_base& operator=(const factory_constructor_base&)     = default;
+  factory_constructor_base& operator=(factory_constructor_base&&) noexcept = default;
+  virtual ~factory_constructor_base()                                      = default;
 };
 
-template <class TProduct>
-class IFactoryObjectCreator<TProduct, void> {
-public:
-  virtual TProduct* Create(void) const = 0;
-  virtual ~IFactoryObjectCreator() {
-  }
-};
-
-template <class TBaseProduct, class TDerivedProduct, class... Args>
-class factory_constructor : public IFactoryObjectCreator<TBaseProduct, Args...> {
-  TDerivedProduct* Create(Args... args) const override {
-    return new TDerivedProduct(std::forward<Args>(args)...);
-  }
-};
-
-template <class TBaseProduct, class TDerivedProduct>
-class factory_constructor<TBaseProduct, TDerivedProduct, void> : public IFactoryObjectCreator<TBaseProduct, void> {
-  TDerivedProduct* Create() const override {
-    return new TDerivedProduct();
+template <typename BaseComponent, typename DerivedComponent, typename... Args>
+class factory_constructor final : public factory_constructor_base<BaseComponent, Args...> {
+  DerivedComponent* construct(Args&&... args) const override {
+    return new DerivedComponent(std::forward<Args>(args)...);
   }
 };
 
@@ -313,7 +303,7 @@ protected:
     return keys;
   }
 
-  IFactoryObjectCreator<ComponentBase, Args...>* get_constructor(const std::string& key) const {
+  factory_constructor_base<ComponentBase, Args...>* get_constructor(const std::string& key) const {
     std::shared_lock guard(mutex_);
     if (auto constructor = constructors_.find(key); constructor != constructors_.end()) {
       return constructor->second.get();
@@ -327,15 +317,17 @@ protected:
   }
 
 private:
-  std::map<std::string, std::shared_ptr<IFactoryObjectCreator<ComponentBase, Args...>>> constructors_;
-  mutable std::shared_mutex                                                             mutex_;
+  std::map<std::string, std::shared_ptr<factory_constructor_base<ComponentBase, Args...>>> constructors_;
+  mutable std::shared_mutex                                                                mutex_;
 };
 
 template <typename ComponentBase, typename... Args>
 class factory : public factory_base<ComponentBase, Args...> {
   std::unique_ptr<ComponentBase> construct_impl(const std::string& key, Args&&... args) const {
-    IFactoryObjectCreator<ComponentBase, Args...>* creator = factory_base<ComponentBase, Args...>::get_constructor(key);
-    return creator == nullptr ? nullptr : std::unique_ptr<ComponentBase>{creator->Create(std::forward<Args>(args)...)};
+    factory_constructor_base<ComponentBase, Args...>* creator =
+        factory_base<ComponentBase, Args...>::get_constructor(key);
+    return creator == nullptr ? nullptr
+                              : std::unique_ptr<ComponentBase>{creator->construct(std::forward<Args>(args)...)};
   }
 
 public:
@@ -370,12 +362,12 @@ class executor {
 public:
   using factory = dsac::factory<executor>;
 
-  executor()                           = default;
-  executor(const executor&)            = default;
-  executor(executor&&)                 = default;
-  executor& operator=(const executor&) = default;
-  executor& operator=(executor&&)      = default;
-  virtual ~executor()                  = default;
+  executor()                               = default;
+  executor(const executor&)                = default;
+  executor(executor&&) noexcept            = default;
+  executor& operator=(const executor&)     = default;
+  executor& operator=(executor&&) noexcept = default;
+  virtual ~executor()                      = default;
 };
 
 class static_thread_pool final : public executor {
