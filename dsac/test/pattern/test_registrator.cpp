@@ -19,7 +19,7 @@
 #include <utility>
 
 template <class T>
-struct TSingletonTraits {
+struct TsingletonTraits {
   static constexpr size_t Priority = 65536;
 };
 
@@ -156,7 +156,7 @@ void Destroyer(void* ptr) {
 }
 
 template <class T, size_t P, class... Args>
-[[gnu::noinline]] T* SingletonBase(std::atomic<T*>& ptr, Args&&... args) {
+[[gnu::noinline]] T* singletonBase(std::atomic<T*>& ptr, Args&&... args) {
   alignas(T) static char              buf[sizeof(T)];
   static std::atomic<std::thread::id> lock;
 
@@ -190,12 +190,12 @@ template <class T, size_t P, class... Args>
 }
 
 template <class T, size_t P, class... Args>
-T* SingletonInt(Args&&... args) {
+T* singletonInt(Args&&... args) {
   static std::atomic<T*> ptr;
   auto                   ret = ptr.load();
 
   if (!ret) [[unlikely]] {
-    ret = SingletonBase<T, P>(ptr, std::forward<Args>(args)...);
+    ret = singletonBase<T, P>(ptr, std::forward<Args>(args)...);
   }
 
   return ret;
@@ -233,18 +233,18 @@ struct THeapStore {
 }  // namespace NPrivate
 
 template <class T, class... Args>
-T* Singleton(Args&&... args) {
-  return ::NPrivate::SingletonInt<T, TSingletonTraits<T>::Priority>(std::forward<Args>(args)...);
+T* singleton(Args&&... args) {
+  return ::NPrivate::singletonInt<T, TsingletonTraits<T>::Priority>(std::forward<Args>(args)...);
 }
 
 template <class T, size_t P, class... Args>
-T* SingletonWithPriority(Args&&... args) {
-  return ::NPrivate::SingletonInt<T, P>(std::forward<Args>(args)...);
+T* singletonWithPriority(Args&&... args) {
+  return ::NPrivate::singletonInt<T, P>(std::forward<Args>(args)...);
 }
 
 template <class T>
 const T& Default() {
-  return *(::NPrivate::SingletonInt<typename ::NPrivate::TDefault<T>, TSingletonTraits<T>::Priority>()->Get());
+  return *(::NPrivate::singletonInt<typename ::NPrivate::TDefault<T>, TsingletonTraits<T>::Priority>()->Get());
 }
 
 namespace dsac {
@@ -315,7 +315,7 @@ protected:
     return i == creators_.end() ? nullptr : i->second.get();
   }
 
-  bool HasImpl(const Key& key) const {
+  bool contains_impl(const Key& key) const {
     std::shared_lock guard(creators_lock_);
     return creators_.find(key) != creators_.end();
   }
@@ -327,30 +327,29 @@ private:
 
 template <class BaseComponent, class Key, class... Args>
 class factory : public factory_base<BaseComponent, Key, Args...> {
-public:
-  BaseComponent* create(const Key& key, Args... args) const {
+  std::unique_ptr<BaseComponent> construct_impl(const Key& key, Args&&... args) const {
     IFactoryObjectCreator<BaseComponent, Args...>* creator = factory_base<BaseComponent, Key, Args...>::GetCreator(key);
-    return creator == nullptr ? nullptr : creator->Create(std::forward<Args>(args)...);
+    return creator == nullptr ? nullptr : std::unique_ptr<BaseComponent>{creator->Create(std::forward<Args>(args)...)};
   }
 
+public:
   static bool contains(const Key& key) {
-    return Singleton<factory<BaseComponent, Key, Args...>>()->HasImpl(key);
+    return singleton<factory<BaseComponent, Key, Args...>>()->contains_impl(key);
   }
 
   static std::unique_ptr<BaseComponent> construct(const Key& key, Args... args) {
-    return std::unique_ptr<BaseComponent>{
-        Singleton<factory<BaseComponent, Key, Args...>>()->create(key, std::forward<Args>(args)...)};
+    return singleton<factory<BaseComponent, Key, Args...>>()->construct_impl(key, std::forward<Args>(args)...);
   }
 
   [[nodiscard]] static std::set<Key> get_registered_keys() {
-    return Singleton<factory<BaseComponent, Key, Args...>>()->get_keys();
+    return singleton<factory<BaseComponent, Key, Args...>>()->get_keys();
   }
 
   template <class DerivedComponent>
   class registractor {
   public:
     explicit registractor(const Key& key) {
-      Singleton<factory<BaseComponent, Key, Args...>>()->template Register<DerivedComponent>(key);
+      singleton<factory<BaseComponent, Key, Args...>>()->template Register<DerivedComponent>(key);
     }
 
     registractor()
