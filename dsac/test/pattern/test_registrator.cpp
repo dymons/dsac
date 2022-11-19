@@ -294,7 +294,7 @@ protected:
     }
   }
 
-  std::set<std::string> get_keys_impl() const {
+  std::set<std::string> get_keys() const {
     std::shared_lock guard(mutex_);
 
     std::set<std::string> keys;
@@ -303,7 +303,7 @@ protected:
     return keys;
   }
 
-  factory_constructor_base<ComponentBase, Args...>* get_constructor_impl(const std::string& key) const {
+  factory_constructor_base<ComponentBase, Args...>* get_constructor_unsafe(const std::string& key) const {
     std::shared_lock guard(mutex_);
     if (auto constructor = constructors_.find(key); constructor != constructors_.end()) {
       return constructor->second.get();
@@ -311,7 +311,7 @@ protected:
     return nullptr;
   }
 
-  bool contains_impl(const std::string& key) const {
+  bool contains(const std::string& key) const {
     std::shared_lock guard(mutex_);
     return constructors_.find(key) != constructors_.end();
   }
@@ -324,14 +324,13 @@ private:
 template <typename ComponentBase, typename... Args>
 class factory final : public factory_base<ComponentBase, Args...> {
   std::unique_ptr<ComponentBase> construct_impl(const std::string& key, Args&&... args) const {
-    factory_constructor_base<ComponentBase, Args...>* creator =
-        factory_base<ComponentBase, Args...>::get_constructor_impl(key);
-    return creator == nullptr ? nullptr : creator->construct(std::forward<Args>(args)...);
+    factory_constructor_base<ComponentBase, Args...>* constructor = this->get_constructor_unsafe(key);
+    return constructor == nullptr ? nullptr : constructor->construct(std::forward<Args>(args)...);
   }
 
 public:
   static bool contains(const std::string& key) {
-    return singleton<factory<ComponentBase, Args...>>()->contains_impl(key);
+    return singleton<factory<ComponentBase, Args...>>()->factory_base<ComponentBase, Args...>::contains(key);
   }
 
   static std::unique_ptr<ComponentBase> construct(const std::string& key, Args... args) {
@@ -339,7 +338,7 @@ public:
   }
 
   [[nodiscard]] static std::set<std::string> get_registered_keys() {
-    return singleton<factory<ComponentBase, Args...>>()->get_keys_impl();
+    return singleton<factory<ComponentBase, Args...>>()->get_keys();
   }
 
   template <typename DerivedComponent>
