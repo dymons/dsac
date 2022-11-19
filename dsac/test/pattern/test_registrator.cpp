@@ -2,6 +2,8 @@
 
 #include <dsac/pattern/registrator/registrator.hpp>
 
+#include <fmt/format.h>
+
 #include <cassert>
 #include <deque>
 #include <map>
@@ -248,6 +250,19 @@ const T& Default() {
 }
 
 namespace dsac {
+
+class factory_exception : public std::logic_error {
+public:
+  using std::logic_error::logic_error;
+};
+
+class factory_component_duplicate : public factory_exception {
+public:
+  explicit factory_component_duplicate(const std::string& component)
+    : factory_exception(fmt::format("Component '{}' already exist", component)) {
+  }
+};
+
 template <class TProduct, class... Args>
 class IFactoryObjectCreator {
 public:
@@ -278,78 +293,70 @@ class TFactoryObjectCreator<TBaseProduct, TDerivedProduct, void> : public IFacto
   }
 };
 
-template <class P, class K, class... Args>
+template <typename ComponentBase, typename ComponentName, typename... Args>
 class factory_base {
-public:
-  typedef P TProduct;
-  typedef K Key;
-
-public:
-  template <class TDerivedProduct>
-  void Register(const Key& key, IFactoryObjectCreator<TProduct, Args...>* creator) {
-    if (!creator) throw std::logic_error{"Please specify non-null creator for "};  //  << key
-
-    std::unique_lock guard(creators_lock_);
-    if (!creators_.emplace(key, creator).second)
-      throw std::logic_error{"Product with key "};  // << key << " already registered";
+protected:
+  template <typename DerivedComponent>
+  void register_component(const ComponentName& key) {
+    std::unique_lock guard(mutex_);
+    if (!constructors_.emplace(key, new TFactoryObjectCreator<ComponentBase, DerivedComponent, Args...>).second) {
+      throw factory_component_duplicate{key};
+    }
   }
 
-  template <class TDerivedProduct>
-  void Register(const Key& key) {
-    Register<TDerivedProduct>(key, new TFactoryObjectCreator<TProduct, TDerivedProduct, Args...>);
-  }
-
-  [[nodiscard]] std::set<Key> get_keys() const {
-    std::shared_lock guard(creators_lock_);
-    std::set<Key>    keys;
-    for (const auto& [key, _] : creators_) {
+  std::set<ComponentName> get_keys_impl() const {
+    std::shared_lock        guard(mutex_);
+    std::set<ComponentName> keys;
+    for (const auto& [key, _] : constructors_) {
       keys.insert(key);
     }
     return keys;
   }
 
-protected:
-  IFactoryObjectCreator<TProduct, Args...>* GetCreator(const Key& key) const {
-    std::shared_lock guard(creators_lock_);
-    auto             i = creators_.find(key);
-    return i == creators_.end() ? nullptr : i->second.get();
+  IFactoryObjectCreator<ComponentBase, Args...>* get_constructor(const ComponentName& key) const {
+    std::shared_lock guard(mutex_);
+    if (auto constructor = constructors_.find(key); constructor != constructors_.end()) {
+      return constructor->second.get();
+    }
+    return nullptr;
   }
 
-  bool contains_impl(const Key& key) const {
-    std::shared_lock guard(creators_lock_);
-    return creators_.find(key) != creators_.end();
+  bool contains_impl(const ComponentName& key) const {
+    std::shared_lock guard(mutex_);
+    return constructors_.find(key) != constructors_.end();
   }
 
 private:
-  std::map<Key, std::shared_ptr<IFactoryObjectCreator<TProduct, Args...>>> creators_;
-  mutable std::shared_mutex                                                creators_lock_;
+  std::map<ComponentName, std::shared_ptr<IFactoryObjectCreator<ComponentBase, Args...>>> constructors_;
+  mutable std::shared_mutex                                                               mutex_;
 };
 
-template <class BaseComponent, class Key, class... Args>
-class factory : public factory_base<BaseComponent, Key, Args...> {
-  std::unique_ptr<BaseComponent> construct_impl(const Key& key, Args&&... args) const {
-    IFactoryObjectCreator<BaseComponent, Args...>* creator = factory_base<BaseComponent, Key, Args...>::GetCreator(key);
-    return creator == nullptr ? nullptr : std::unique_ptr<BaseComponent>{creator->Create(std::forward<Args>(args)...)};
+template <typename ComponentBase, typename Key, typename... Args>
+class factory : public factory_base<ComponentBase, Key, Args...> {
+  std::unique_ptr<ComponentBase> construct_impl(const Key& key, Args&&... args) const {
+    IFactoryObjectCreator<ComponentBase, Args...>* creator =
+        factory_base<ComponentBase, Key, Args...>::get_constructor(key);
+    return creator == nullptr ? nullptr : std::unique_ptr<ComponentBase>{creator->Create(std::forward<Args>(args)...)};
   }
 
 public:
   static bool contains(const Key& key) {
-    return singleton<factory<BaseComponent, Key, Args...>>()->contains_impl(key);
+    return singleton<factory<ComponentBase, Key, Args...>>()->contains_impl(key);
   }
 
-  static std::unique_ptr<BaseComponent> construct(const Key& key, Args... args) {
-    return singleton<factory<BaseComponent, Key, Args...>>()->construct_impl(key, std::forward<Args>(args)...);
+  static std::unique_ptr<ComponentBase> construct(const Key& key, Args... args) {
+    return singleton<factory<ComponentBase, Key, Args...>>()->construct_impl(key, std::forward<Args>(args)...);
   }
 
   [[nodiscard]] static std::set<Key> get_registered_keys() {
-    return singleton<factory<BaseComponent, Key, Args...>>()->get_keys();
+    return singleton<factory<ComponentBase, Key, Args...>>()->get_keys_impl();
   }
 
-  template <class DerivedComponent>
+  template <typename DerivedComponent>
   class registractor {
   public:
     explicit registractor(const Key& key) {
-      singleton<factory<BaseComponent, Key, Args...>>()->template Register<DerivedComponent>(key);
+      singleton<factory<ComponentBase, Key, Args...>>()->template register_component<DerivedComponent>(key);
     }
 
     registractor()
