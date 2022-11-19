@@ -299,12 +299,13 @@ public:
     Register<TDerivedProduct>(key, new TFactoryObjectCreator<TProduct, TDerivedProduct, TArgs...>);
   }
 
-  void GetKeys(std::set<TKey>& keys) const {
+  [[nodiscard]] std::set<TKey> get_keys() const {
     std::shared_lock guard(CreatorsLock);
-    keys.clear();
-    for (typename ICreators::const_iterator i = Creators.begin(), e = Creators.end(); i != e; ++i) {
-      keys.insert(i->first);
+    std::set<TKey>   keys;
+    for (const auto& [key, _] : Creators) {
+      keys.insert(key);
     }
+    return keys;
   }
 
 protected:
@@ -343,29 +344,8 @@ public:
         Singleton<factory<TProduct, TKey, TArgs...>>()->Create(key, std::forward<TArgs>(args)...)};
   }
 
-  static void GetRegisteredKeys(std::set<TKey>& keys) {
-    return Singleton<factory<TProduct, TKey, TArgs...>>()->GetKeys(keys);
-  }
-
   static std::set<TKey> GetRegisteredKeys() {
-    std::set<TKey> keys;
-    Singleton<factory<TProduct, TKey, TArgs...>>()->GetKeys(keys);
-    return keys;
-  }
-
-  template <class TDerivedProduct>
-  static std::set<TKey> GetRegisteredKeys() {
-    std::set<TKey> registeredKeys(GetRegisteredKeys());
-    std::set<TKey> fileredKeys;
-    std::copy_if(
-        registeredKeys.begin(),
-        registeredKeys.end(),
-        std::inserter(fileredKeys, fileredKeys.end()),
-        [](const TKey& key) {
-          std::unique_ptr<TProduct> objectHolder(construct(key));
-          return !!dynamic_cast<const TDerivedProduct*>(objectHolder.Get());
-        });
-    return fileredKeys;
+    return Singleton<factory<TProduct, TKey, TArgs...>>()->get_keys();
   }
 
   template <class Component>
