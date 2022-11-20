@@ -120,3 +120,6 @@ compile_commands.json
 ### dsac ###
 
 dsac/examples/echo.network.select/static/config.json
+dsac/examples/dist.consensus.abd/static/config.json
+
+__pycache__

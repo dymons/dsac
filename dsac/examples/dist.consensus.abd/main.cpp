@@ -3,6 +3,8 @@
 
 #include <nlohmann/json.hpp>
 
+#include "transport/detail/httplib.hpp"
+
 namespace dsac {
 
 using nlohmann::json;
@@ -80,4 +82,11 @@ public:
 }  // namespace
 
 int main() {
+  httplib::Server svr;
+
+  svr.Post("/echo", [](const httplib::Request&, httplib::Response& res) { res.set_content("Hello World!", "text/plain"); });
+
+  svr.Get("/ping", [](const httplib::Request&, httplib::Response& res) {});
+
+  svr.listen("0.0.0.0", 8080);
 }
