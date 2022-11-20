@@ -2392,3 +2392,10 @@ void swap(expected<T, E> &lhs, expected<T, E> &rhs) noexcept(noexcept(lhs.swap(r
 }  // namespace tl
 
 #endif
+
+namespace dsac {
+
+using tl::expected;
+using tl::make_unexpected;
+
+} // namespace dsac

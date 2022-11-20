@@ -37,3 +37,5 @@ if (BUILD_BENCHMARKS)
         target_link_libraries(${PROJECT_NAME}-${subdir}-benchmark ${PROJECT_NAME} ${CMAKE_THREAD_LIBS_INIT} fmt::fmt benchmark::benchmark)
     endforeach ()
 endif (BUILD_BENCHMARKS)
+
+add_subdirectory(examples)
