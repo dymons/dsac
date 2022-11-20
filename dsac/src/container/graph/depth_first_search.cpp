@@ -13,8 +13,7 @@ bool IsPathExist(Graph& graph, const Node from, const Node to) {
   visited.emplace(from);
 
   while (!processing.empty()) {
-    if (const Node considered = processing.top(); considered == to)
-        [[unlikely]] {
+    if (const Node considered = processing.top(); considered == to) [[unlikely]] {
       return true;
     } else {
       processing.pop();
@@ -40,8 +39,7 @@ Path ShortestPath(Graph& graph, const Node from, const Node to) {
   visited.emplace(from);
 
   while (!processing.empty()) {
-    if (const Node considered = processing.top(); considered == to)
-        [[unlikely]] {
+    if (const Node considered = processing.top(); considered == to) [[unlikely]] {
       break;
     } else {
       processing.pop();

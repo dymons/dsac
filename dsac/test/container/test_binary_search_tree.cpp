@@ -2,8 +2,7 @@
 
 #include <dsac/container/tree/bs_tree.hpp>
 
-TEST_CASE(
-    "Создание бинарного дерева поиска", "[binary_search_tree][construct]") {
+TEST_CASE("Создание бинарного дерева поиска", "[binary_search_tree][construct]") {
   using namespace dsac;
 
   SECTION("Проверка метода size для пустого дерева") {
@@ -16,9 +15,7 @@ TEST_CASE(
   }
 }
 
-TEST_CASE(
-    "Создание итератора для бинарного дерева поиска",
-    "[binary_search_tree][iterator]") {
+TEST_CASE("Создание итератора для бинарного дерева поиска", "[binary_search_tree][iterator]") {
   using namespace dsac;
 
   SECTION("Проверка итераторов пустого дерева на равенство") {
@@ -44,9 +41,7 @@ TEST_CASE(
   }
 }
 
-TEST_CASE(
-    "Добавление элеметнов в бинарное дерево поиска",
-    "[binary_search_tree][insert]") {
+TEST_CASE("Добавление элементов в бинарное дерево поиска", "[binary_search_tree][insert]") {
   using namespace dsac;
 
   SECTION("Добавление элементов в дерево") {
@@ -115,7 +110,7 @@ TEST_CASE(
     REQUIRE(*counter == 1);
   }
 
-  SECTION("Вставка rvalue значения с помощью метода Empalce") {
+  SECTION("Вставка rvalue значения с помощью метода Emplace") {
     struct CopyObject {
       std::shared_ptr<int> counter_copy;
       CopyObject(std::shared_ptr<int> counter_copy)
@@ -144,9 +139,7 @@ TEST_CASE(
   }
 }
 
-TEST_CASE(
-    "Удаление всух элеметнов из бинарного дерева поиска",
-    "[binary_search_tree][clear]") {
+TEST_CASE("Удаление всех элементов из бинарного дерева поиска", "[binary_search_tree][clear]") {
   using namespace dsac;
 
   binary_search_tree<int> tree;
@@ -161,8 +154,7 @@ TEST_CASE(
   REQUIRE(tree.IsEmpty());
 }
 
-TEST_CASE(
-    "Поиск элементов в бинарном дереве поиска", "[binary_search_tree][find]") {
+TEST_CASE("Поиск элементов в бинарном дереве поиска", "[binary_search_tree][find]") {
   using namespace dsac;
 
   SECTION("Проверка добавленного элемента в дерево") {
@@ -192,9 +184,7 @@ TEST_CASE(
   }
 }
 
-TEST_CASE(
-    "Удаление элементов из бинарного дерева поиска",
-    "[binary_search_tree][erase]") {
+TEST_CASE("Удаление элементов из бинарного дерева поиска", "[binary_search_tree][erase]") {
   using namespace dsac;
 
   SECTION("Удаление вершины дерева без наличия левой и правой вершины") {

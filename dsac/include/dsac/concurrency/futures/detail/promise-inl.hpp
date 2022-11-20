@@ -27,4 +27,4 @@ void promise<T>::set(std::exception_ptr&& exception) {
   std::move(*this).release_state()->set_result(result<T>(std::move(exception)));
 }
 
-} // namespace dsac
+}  // namespace dsac

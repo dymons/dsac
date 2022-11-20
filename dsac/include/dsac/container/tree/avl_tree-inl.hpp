@@ -59,9 +59,8 @@ bool AVLTree<T>::Node::Contains(T key) const {
 
 template <typename T>
 void AVLTree<T>::Node::Destroy() {
-  // TODO (Dmitry Emelyanov) Вынести удаление объекта в PostOrder на уровень
-  // дерева
-  // TODO (Dmitry Emelyanov) Использовать аллокаторы памяти
+  // TODO (dymons) Вынести удаление объекта в PostOrder на уровень дерева
+  // TODO (dymons) Использовать аллокаторы памяти
   if (left_ != nullptr) {
     left_->Destroy();
     delete left_;

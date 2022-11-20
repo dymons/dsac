@@ -63,4 +63,4 @@ future<T> make_future_on_error(const char* message) {
   return future<T>(std::move(state));
 }
 
-} // namespace dsac
+}  // namespace dsac

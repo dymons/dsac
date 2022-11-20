@@ -42,8 +42,8 @@ TEST_CASE("Testcases are checked for the sorting (D)", "[is_sorted][default]") {
     using testcase               = std::vector<int>;
     auto const max_value         = std::numeric_limits<int>::max();
     auto const min_value         = std::numeric_limits<int>::min();
-    auto const zuro_value        = 0;
-    auto const boundary_testcase = testcase{min_value, zuro_value, max_value};
+    auto const zero_value        = 0;
+    auto const boundary_testcase = testcase{min_value, zero_value, max_value};
     REQUIRE(dsac::is_sorted(boundary_testcase));
   }
 

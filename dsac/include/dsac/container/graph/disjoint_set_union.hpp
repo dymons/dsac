@@ -24,7 +24,7 @@ class DisjointSet final {
 public:
   //! Конструктор DisjointSet
   /*!
-    \param size_set Размер системы непересекающихся множест
+    \param size_set Размер системы непересекающихся множеств
     \sa    Time Complexity O(N), Space Complexity O(N)
   */
   explicit DisjointSet(std::size_t size_set);

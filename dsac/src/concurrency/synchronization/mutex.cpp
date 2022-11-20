@@ -25,13 +25,13 @@ long int sys_call(int* address, int futex_op, int val) noexcept {
 namespace dsac {
 
 void mutex::lock() {
-  if (int c = compare_and_set(&state_, 0, 1); c != 0) {
+  if (int c = compare_and_set(/*atom*/ &state_, /*expected*/ 0, /*desired*/ 1); c != 0) {
     do {
-      if (c == 2 || compare_and_set(&state_, 1, 2) != 0) {
+      if (c == 2 || compare_and_set(/*atom*/ &state_, /*expected*/ 1, /*desired*/ 2) != 0) {
         sys_call(
             reinterpret_cast<int*>(&state_), FUTEX_WAIT, 2);  // NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)
       }
-    } while ((c = compare_and_set(&state_, 0, 2)) != 0);
+    } while ((c = compare_and_set(/*atom*/ &state_, /*expected*/ 0, /*desired*/ 2)) != 0);
   }
 }
 

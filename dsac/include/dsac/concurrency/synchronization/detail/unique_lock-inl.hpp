@@ -14,7 +14,7 @@ template <typename Mutex>
 unique_lock<Mutex>::unique_lock(unique_lock&& other) noexcept
   : mutex_(other.mutex_)
   , is_locked_(other.is_locked_) {
-  other.mutex_ = nullptr;
+  other.mutex_     = nullptr;
   other.is_locked_ = false;
 }
 
