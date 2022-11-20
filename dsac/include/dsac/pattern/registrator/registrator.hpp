@@ -146,9 +146,9 @@ private:
   mutable std::shared_mutex mutex_;
 };
 
-template <typename ComponentBase, typename... Args>
-class factory final : public factory_base<ComponentBase, Args...> {
-  std::unique_ptr<ComponentBase> construct_impl(const std::string& component_name, Args&&... args) const;
+template <typename BaseComponent, typename... Args>
+class factory final : public factory_base<BaseComponent, Args...> {
+  std::unique_ptr<BaseComponent> construct_impl(const std::string& component_name, Args&&... args) const;
 
 public:
   template <typename DerivedComponent>
@@ -193,7 +193,7 @@ public:
         DsacPattern
   */
   // clang-format off
-  [[nodiscard]] static auto construct(const std::string& component_name, Args... args) -> std::unique_ptr<ComponentBase>;
+  [[nodiscard]] static auto construct(const std::string& component_name, Args... args) -> std::unique_ptr<BaseComponent>;
   // clang-format on
 };
 
