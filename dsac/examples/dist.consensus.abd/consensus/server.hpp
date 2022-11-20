@@ -193,10 +193,10 @@ public:
     , sb_(*this) {
   }
 
-  DataSink(const DataSink &)            = delete;
+  DataSink(const DataSink &) = delete;
   DataSink &operator=(const DataSink &) = delete;
   DataSink(DataSink &&)                 = delete;
-  DataSink &operator=(DataSink &&)      = delete;
+  DataSink &operator=(DataSink &&) = delete;
 
   std::function<bool(const char *data, size_t data_len)> write;
   std::function<void()>                                  done;
@@ -342,11 +342,11 @@ struct Response {
       ContentProviderWithoutLength    provider,
       ContentProviderResourceReleaser resource_releaser = nullptr);
 
-  Response()                            = default;
-  Response(const Response &)            = default;
+  Response()                 = default;
+  Response(const Response &) = default;
   Response &operator=(const Response &) = default;
   Response(Response &&)                 = default;
-  Response &operator=(Response &&)      = default;
+  Response &operator=(Response &&) = default;
   ~Response() {
     if (content_provider_resource_releaser_) {
       content_provider_resource_releaser_(content_provider_success_);
@@ -628,9 +628,6 @@ enum class Error {
   Write,
   ExceedRedirectCount,
   Canceled,
-  SSLConnection,
-  SSLLoadingCerts,
-  SSLServerVerification,
   UnsupportedMultipartBoundaryChars,
   Compression,
   ConnectionTimeout,
@@ -767,16 +764,8 @@ protected:
 
   virtual bool create_and_connect_socket(Socket &socket, Error &error);
 
-  // All of:
-  //   shutdown_ssl
-  //   shutdown_socket
-  //   close_socket
-  // should ONLY be called when socket_mutex_ is locked.
-  // Also, shutdown_ssl and close_socket should also NOT be called concurrently
-  // with a DIFFERENT thread sending requests using that socket.
-  virtual void shutdown_ssl(Socket &socket, bool shutdown_gracefully);
-  void         shutdown_socket(Socket &socket);
-  void         close_socket(Socket &socket);
+  void shutdown_socket(Socket &socket);
+  void close_socket(Socket &socket);
 
   bool process_request(Stream &strm, Request &req, Response &res, bool close_connection, Error &error);
 
@@ -868,7 +857,6 @@ private:
   std::string adjust_host_string(const std::string &host) const;
 
   virtual bool process_socket(const Socket &socket, std::function<bool(Stream &strm)> callback);
-  virtual bool is_ssl() const;
 };
 
 class Client {
@@ -1051,12 +1039,6 @@ inline std::string to_string(const Error error) {
       return "ExceedRedirectCount";
     case Error::Canceled:
       return "Canceled";
-    case Error::SSLConnection:
-      return "SSLConnection";
-    case Error::SSLLoadingCerts:
-      return "SSLLoadingCerts";
-    case Error::SSLServerVerification:
-      return "SSLServerVerification";
     case Error::UnsupportedMultipartBoundaryChars:
       return "UnsupportedMultipartBoundaryChars";
     case Error::Compression:
@@ -4792,10 +4774,6 @@ inline bool ClientImpl::create_and_connect_socket(Socket &socket, Error &error) 
   return true;
 }
 
-inline void ClientImpl::shutdown_ssl(Socket & /*socket*/, bool /*shutdown_gracefully*/) {
-  assert(socket_requests_in_flight_ == 0 || socket_requests_are_from_thread_ == std::this_thread::get_id());
-}
-
 inline void ClientImpl::shutdown_socket(Socket &socket) {
   if (socket.sock == INVALID_SOCKET) {
     return;
@@ -4865,7 +4843,6 @@ inline bool ClientImpl::send(Request &req, Response &res, Error &error) {
       is_alive = detail::is_socket_alive(socket_.sock);
       if (!is_alive) {
         const bool shutdown_gracefully = false;
-        shutdown_ssl(socket_, shutdown_gracefully);
         shutdown_socket(socket_);
         close_socket(socket_);
       }
@@ -4903,7 +4880,6 @@ inline bool ClientImpl::send(Request &req, Response &res, Error &error) {
     }
 
     if (socket_should_be_closed_when_request_is_done_ || close_connection || !ret) {
-      shutdown_ssl(socket_, true);
       shutdown_socket(socket_);
       close_socket(socket_);
     }
@@ -4940,7 +4916,7 @@ inline bool ClientImpl::handle_request(Stream &strm, Request &req, Response &res
 
   bool ret;
 
-  if (!is_ssl() && !proxy_host_.empty() && proxy_port_ != -1) {
+  if (!proxy_host_.empty() && proxy_port_ != -1) {
     auto req2 = req;
     req2.path = "http://" + host_and_port_ + req.path;
     ret       = process_request(strm, req2, res, close_connection, error);
@@ -4981,7 +4957,7 @@ inline bool ClientImpl::redirect(Request &req, Response &res, Error &error) {
     return false;
   }
 
-  auto scheme = is_ssl() ? "https" : "http";
+  auto scheme = "http";
 
   auto next_scheme = m[1].str();
   auto next_host   = m[2].str();
@@ -5043,18 +5019,10 @@ inline bool ClientImpl::write_request(Stream &strm, Request &req, bool close_con
   }
 
   if (!req.has_header("Host")) {
-    if (is_ssl()) {
-      if (port_ == 443) {
-        req.headers.emplace("Host", host_);
-      } else {
-        req.headers.emplace("Host", host_and_port_);
-      }
+    if (port_ == 80) {
+      req.headers.emplace("Host", host_);
     } else {
-      if (port_ == 80) {
-        req.headers.emplace("Host", host_);
-      } else {
-        req.headers.emplace("Host", host_and_port_);
-      }
+      req.headers.emplace("Host", host_and_port_);
     }
   }
 
@@ -5287,18 +5255,7 @@ inline bool ClientImpl::process_request(
 
   if (res.get_header_value("Connection") == "close" ||
       (res.version == "HTTP/1.0" && res.reason != "Connection established")) {
-    // TODO this requires a not-entirely-obvious chain of calls to be correct
-    // for this to be safe. Maybe a code refactor (such as moving this out to
-    // the send function and getting rid of the recursiveness of the mutex)
-    // could make this more obvious.
-
-    // This is safe to call because process_request is only called by
-    // handle_request which is only called by send, which locks the request
-    // mutex during the process. It would be a bug to call it from a different
-    // thread since it's a thread-safety issue to do these things to the socket
-    // if another thread is using the socket.
     std::lock_guard<std::mutex> guard(socket_mutex_);
-    shutdown_ssl(socket_, true);
     shutdown_socket(socket_);
     close_socket(socket_);
   }
@@ -5309,10 +5266,6 @@ inline bool ClientImpl::process_request(
 inline bool ClientImpl::process_socket(const Socket &socket, std::function<bool(Stream &strm)> callback) {
   return detail::process_client_socket(
       socket.sock, read_timeout_sec_, read_timeout_usec_, write_timeout_sec_, write_timeout_usec_, std::move(callback));
-}
-
-inline bool ClientImpl::is_ssl() const {
-  return false;
 }
 
 inline size_t ClientImpl::is_socket_open() const {
@@ -5330,7 +5283,7 @@ inline void ClientImpl::stop() {
   // If there is anything ongoing right now, the ONLY thread-safe thing we can
   // do is to shutdown_socket, so that threads using this socket suddenly
   // discover they can't read/write any more and error out. Everything else
-  // (closing the socket, shutting ssl down) is unsafe because these actions are
+  // (closing the socket, shutting down) is unsafe because these actions are
   // not thread-safe.
   if (socket_requests_in_flight_ > 0) {
     shutdown_socket(socket_);
@@ -5341,8 +5294,6 @@ inline void ClientImpl::stop() {
     return;
   }
 
-  // Otherwise, sitll holding the mutex, we can shut everything down ourselves
-  shutdown_ssl(socket_, true);
   shutdown_socket(socket_);
   close_socket(socket_);
 }
@@ -5447,20 +5398,15 @@ inline Client::Client(
       throw std::invalid_argument(msg);
     }
 
-    auto is_ssl = scheme == "https";
-
     auto host = m[2].str();
     if (host.empty()) {
       host = m[3].str();
     }
 
     auto port_str = m[4].str();
-    auto port     = !port_str.empty() ? std::stoi(port_str) : (is_ssl ? 443 : 80);
+    auto port     = !port_str.empty() ? std::stoi(port_str) : 80;
 
-    if (is_ssl) {
-    } else {
-      cli_ = detail::make_unique<ClientImpl>(host, port, client_cert_path, client_key_path);
-    }
+    cli_ = detail::make_unique<ClientImpl>(host, port, client_cert_path, client_key_path);
   } else {
     cli_ = detail::make_unique<ClientImpl>(scheme_host_port, 80, client_cert_path, client_key_path);
   }
