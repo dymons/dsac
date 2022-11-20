@@ -324,9 +324,6 @@ struct Request {
   ResponseHandler response_handler;
   ContentReceiverWithProgress content_receiver;
   Progress progress;
-#ifdef CPPHTTPLIB_OPENSSL_SUPPORT
-  const SSL *ssl = nullptr;
-#endif
 
   bool has_header(const std::string &key) const;
   std::string get_header_value(const std::string &key, size_t id = 0) const;
@@ -779,10 +776,6 @@ public:
 
   void set_basic_auth(const std::string &username, const std::string &password);
   void set_bearer_token_auth(const std::string &token);
-#ifdef CPPHTTPLIB_OPENSSL_SUPPORT
-  void set_digest_auth(const std::string &username,
-                       const std::string &password);
-#endif
 
   void set_keep_alive(bool on);
   void set_follow_location(bool on);
@@ -799,29 +792,12 @@ public:
   void set_proxy_basic_auth(const std::string &username,
                             const std::string &password);
   void set_proxy_bearer_token_auth(const std::string &token);
-#ifdef CPPHTTPLIB_OPENSSL_SUPPORT
-  void set_proxy_digest_auth(const std::string &username,
-                             const std::string &password);
-#endif
-
-#ifdef CPPHTTPLIB_OPENSSL_SUPPORT
-  void set_ca_cert_path(const std::string &ca_cert_file_path,
-                        const std::string &ca_cert_dir_path = std::string());
-  void set_ca_cert_store(X509_STORE *ca_cert_store);
-#endif
-
-#ifdef CPPHTTPLIB_OPENSSL_SUPPORT
-  void enable_server_certificate_verification(bool enabled);
-#endif
 
   void set_logger(Logger logger);
 
 protected:
   struct Socket {
     socket_t sock = INVALID_SOCKET;
-#ifdef CPPHTTPLIB_OPENSSL_SUPPORT
-    SSL *ssl = nullptr;
-#endif
 
     bool is_open() const { return sock != INVALID_SOCKET; }
   };
@@ -884,10 +860,6 @@ protected:
   std::string basic_auth_username_;
   std::string basic_auth_password_;
   std::string bearer_token_auth_token_;
-#ifdef CPPHTTPLIB_OPENSSL_SUPPORT
-  std::string digest_auth_username_;
-  std::string digest_auth_password_;
-#endif
 
   bool keep_alive_ = false;
   bool follow_location_ = false;
@@ -909,21 +881,6 @@ protected:
   std::string proxy_basic_auth_username_;
   std::string proxy_basic_auth_password_;
   std::string proxy_bearer_token_auth_token_;
-#ifdef CPPHTTPLIB_OPENSSL_SUPPORT
-  std::string proxy_digest_auth_username_;
-  std::string proxy_digest_auth_password_;
-#endif
-
-#ifdef CPPHTTPLIB_OPENSSL_SUPPORT
-  std::string ca_cert_file_path_;
-  std::string ca_cert_dir_path_;
-
-  X509_STORE *ca_cert_store_ = nullptr;
-#endif
-
-#ifdef CPPHTTPLIB_OPENSSL_SUPPORT
-  bool server_certificate_verification_ = true;
-#endif
 
   Logger logger_;
 
@@ -1008,10 +965,6 @@ public:
 
   void set_basic_auth(const std::string &username, const std::string &password);
   void set_bearer_token_auth(const std::string &token);
-#ifdef CPPHTTPLIB_OPENSSL_SUPPORT
-  void set_digest_auth(const std::string &username,
-                       const std::string &password);
-#endif
 
   void set_keep_alive(bool on);
   void set_follow_location(bool on);
@@ -1028,118 +981,12 @@ public:
   void set_proxy_basic_auth(const std::string &username,
                             const std::string &password);
   void set_proxy_bearer_token_auth(const std::string &token);
-#ifdef CPPHTTPLIB_OPENSSL_SUPPORT
-  void set_proxy_digest_auth(const std::string &username,
-                             const std::string &password);
-#endif
-
-#ifdef CPPHTTPLIB_OPENSSL_SUPPORT
-  void enable_server_certificate_verification(bool enabled);
-#endif
 
   void set_logger(Logger logger);
 
-  // SSL
-#ifdef CPPHTTPLIB_OPENSSL_SUPPORT
-  void set_ca_cert_path(const std::string &ca_cert_file_path,
-                        const std::string &ca_cert_dir_path = std::string());
-
-  void set_ca_cert_store(X509_STORE *ca_cert_store);
-
-  long get_openssl_verify_result() const;
-
-  SSL_CTX *ssl_context() const;
-#endif
-
 private:
   std::unique_ptr<ClientImpl> cli_;
-
-#ifdef CPPHTTPLIB_OPENSSL_SUPPORT
-  bool is_ssl_ = false;
-#endif
 };
-
-#ifdef CPPHTTPLIB_OPENSSL_SUPPORT
-class SSLServer : public Server {
-public:
-  SSLServer(const char *cert_path, const char *private_key_path,
-            const char *client_ca_cert_file_path = nullptr,
-            const char *client_ca_cert_dir_path = nullptr,
-            const char *private_key_password = nullptr);
-
-  SSLServer(X509 *cert, EVP_PKEY *private_key,
-            X509_STORE *client_ca_cert_store = nullptr);
-
-  SSLServer(
-      const std::function<bool(SSL_CTX &ssl_ctx)> &setup_ssl_ctx_callback);
-
-  ~SSLServer() override;
-
-  bool is_valid() const override;
-
-  SSL_CTX *ssl_context() const;
-
-private:
-  bool process_and_close_socket(socket_t sock) override;
-
-  SSL_CTX *ctx_;
-  std::mutex ctx_mutex_;
-};
-
-class SSLClient : public ClientImpl {
-public:
-  explicit SSLClient(const std::string &host);
-
-  explicit SSLClient(const std::string &host, int port);
-
-  explicit SSLClient(const std::string &host, int port,
-                     const std::string &client_cert_path,
-                     const std::string &client_key_path);
-
-  explicit SSLClient(const std::string &host, int port, X509 *client_cert,
-                     EVP_PKEY *client_key);
-
-  ~SSLClient() override;
-
-  bool is_valid() const override;
-
-  void set_ca_cert_store(X509_STORE *ca_cert_store);
-
-  long get_openssl_verify_result() const;
-
-  SSL_CTX *ssl_context() const;
-
-private:
-  bool create_and_connect_socket(Socket &socket, Error &error) override;
-  void shutdown_ssl(Socket &socket, bool shutdown_gracefully) override;
-  void shutdown_ssl_impl(Socket &socket, bool shutdown_socket);
-
-  bool process_socket(const Socket &socket,
-                      std::function<bool(Stream &strm)> callback) override;
-  bool is_ssl() const override;
-
-  bool connect_with_proxy(Socket &sock, Response &res, bool &success,
-                          Error &error);
-  bool initialize_ssl(Socket &socket, Error &error);
-
-  bool load_certs();
-
-  bool verify_host(X509 *server_cert) const;
-  bool verify_host_with_subject_alt_name(X509 *server_cert) const;
-  bool verify_host_with_common_name(X509 *server_cert) const;
-  bool check_host_name(const char *pattern, size_t pattern_len) const;
-
-  SSL_CTX *ctx_;
-  std::mutex ctx_mutex_;
-  std::once_flag initialize_cert_;
-
-  std::vector<std::string> host_components_;
-
-  long verify_result_ = 0;
-
-  friend class ClientImpl;
-};
-#endif
 
 /*
  * Implementation of template methods.
@@ -2082,31 +1929,6 @@ private:
 
   static const size_t read_buff_size_ = 1024 * 4;
 };
-
-#ifdef CPPHTTPLIB_OPENSSL_SUPPORT
-class SSLSocketStream : public Stream {
-public:
-  SSLSocketStream(socket_t sock, SSL *ssl, time_t read_timeout_sec,
-                  time_t read_timeout_usec, time_t write_timeout_sec,
-                  time_t write_timeout_usec);
-  ~SSLSocketStream() override;
-
-  bool is_readable() const override;
-  bool is_writable() const override;
-  ssize_t read(char *ptr, size_t size) override;
-  ssize_t write(const char *ptr, size_t size) override;
-  void get_remote_ip_and_port(std::string &ip, int &port) const override;
-  socket_t socket() const override;
-
-private:
-  socket_t sock_;
-  SSL *ssl_;
-  time_t read_timeout_sec_;
-  time_t read_timeout_usec_;
-  time_t write_timeout_sec_;
-  time_t write_timeout_usec_;
-};
-#endif
 
 inline bool keep_alive(socket_t sock, time_t keep_alive_timeout_sec) {
   using namespace std::chrono;
@@ -3890,7 +3712,6 @@ inline bool expect_content(const Request &req) {
       req.method == "PRI" || req.method == "DELETE") {
     return true;
   }
-  // TODO: check if Content-Length is set
   return false;
 }
 
@@ -3902,148 +3723,6 @@ inline bool has_crlf(const std::string &s) {
   }
   return false;
 }
-
-#ifdef CPPHTTPLIB_OPENSSL_SUPPORT
-inline std::string message_digest(const std::string &s, const EVP_MD *algo) {
-  auto context = std::unique_ptr<EVP_MD_CTX, decltype(&EVP_MD_CTX_free)>(
-      EVP_MD_CTX_new(), EVP_MD_CTX_free);
-
-  unsigned int hash_length = 0;
-  unsigned char hash[EVP_MAX_MD_SIZE];
-
-  EVP_DigestInit_ex(context.get(), algo, nullptr);
-  EVP_DigestUpdate(context.get(), s.c_str(), s.size());
-  EVP_DigestFinal_ex(context.get(), hash, &hash_length);
-
-  std::stringstream ss;
-  for (auto i = 0u; i < hash_length; ++i) {
-    ss << std::hex << std::setw(2) << std::setfill('0')
-       << (unsigned int)hash[i];
-  }
-
-  return ss.str();
-}
-
-inline std::string MD5(const std::string &s) {
-  return message_digest(s, EVP_md5());
-}
-
-inline std::string SHA_256(const std::string &s) {
-  return message_digest(s, EVP_sha256());
-}
-
-inline std::string SHA_512(const std::string &s) {
-  return message_digest(s, EVP_sha512());
-}
-#endif
-
-#ifdef _WIN32
-#ifdef CPPHTTPLIB_OPENSSL_SUPPORT
-// NOTE: This code came up with the following stackoverflow post:
-// https://stackoverflow.com/questions/9507184/can-openssl-on-windows-use-the-system-certificate-store
-inline bool load_system_certs_on_windows(X509_STORE *store) {
-  auto hStore = CertOpenSystemStoreW((HCRYPTPROV_LEGACY)NULL, L"ROOT");
-
-  if (!hStore) { return false; }
-
-  PCCERT_CONTEXT pContext = NULL;
-  while ((pContext = CertEnumCertificatesInStore(hStore, pContext)) !=
-         nullptr) {
-    auto encoded_cert =
-        static_cast<const unsigned char *>(pContext->pbCertEncoded);
-
-    auto x509 = d2i_X509(NULL, &encoded_cert, pContext->cbCertEncoded);
-    if (x509) {
-      X509_STORE_add_cert(store, x509);
-      X509_free(x509);
-    }
-  }
-
-  CertFreeCertificateContext(pContext);
-  CertCloseStore(hStore, 0);
-
-  return true;
-}
-#endif
-
-class WSInit {
-public:
-  WSInit() {
-    WSADATA wsaData;
-    if (WSAStartup(0x0002, &wsaData) == 0) is_valid_ = true;
-  }
-
-  ~WSInit() {
-    if (is_valid_) WSACleanup();
-  }
-
-  bool is_valid_ = false;
-};
-
-static WSInit wsinit_;
-#endif
-
-#ifdef CPPHTTPLIB_OPENSSL_SUPPORT
-inline std::pair<std::string, std::string> make_digest_authentication_header(
-    const Request &req, const std::map<std::string, std::string> &auth,
-    size_t cnonce_count, const std::string &cnonce, const std::string &username,
-    const std::string &password, bool is_proxy = false) {
-  std::string nc;
-  {
-    std::stringstream ss;
-    ss << std::setfill('0') << std::setw(8) << std::hex << cnonce_count;
-    nc = ss.str();
-  }
-
-  std::string qop;
-  if (auth.find("qop") != auth.end()) {
-    qop = auth.at("qop");
-    if (qop.find("auth-int") != std::string::npos) {
-      qop = "auth-int";
-    } else if (qop.find("auth") != std::string::npos) {
-      qop = "auth";
-    } else {
-      qop.clear();
-    }
-  }
-
-  std::string algo = "MD5";
-  if (auth.find("algorithm") != auth.end()) { algo = auth.at("algorithm"); }
-
-  std::string response;
-  {
-    auto H = algo == "SHA-256"   ? detail::SHA_256
-             : algo == "SHA-512" ? detail::SHA_512
-                                 : detail::MD5;
-
-    auto A1 = username + ":" + auth.at("realm") + ":" + password;
-
-    auto A2 = req.method + ":" + req.path;
-    if (qop == "auth-int") { A2 += ":" + H(req.body); }
-
-    if (qop.empty()) {
-      response = H(H(A1) + ":" + auth.at("nonce") + ":" + H(A2));
-    } else {
-      response = H(H(A1) + ":" + auth.at("nonce") + ":" + nc + ":" + cnonce +
-                   ":" + qop + ":" + H(A2));
-    }
-  }
-
-  auto opaque = (auth.find("opaque") != auth.end()) ? auth.at("opaque") : "";
-
-  auto field = "Digest username=\"" + username + "\", realm=\"" +
-               auth.at("realm") + "\", nonce=\"" + auth.at("nonce") +
-               "\", uri=\"" + req.path + "\", algorithm=" + algo +
-               (qop.empty() ? ", response=\""
-                            : ", qop=" + qop + ", nc=" + nc + ", cnonce=\"" +
-                                  cnonce + "\", response=\"") +
-               response + "\"" +
-               (opaque.empty() ? "" : ", opaque=\"" + opaque + "\"");
-
-  auto key = is_proxy ? "Proxy-Authorization" : "Authorization";
-  return std::make_pair(key, field);
-}
-#endif
 
 inline bool parse_www_authenticate(const Response &res,
                                    std::map<std::string, std::string> &auth,
@@ -5417,10 +5096,6 @@ inline void ClientImpl::copy_settings(const ClientImpl &rhs) {
   basic_auth_username_ = rhs.basic_auth_username_;
   basic_auth_password_ = rhs.basic_auth_password_;
   bearer_token_auth_token_ = rhs.bearer_token_auth_token_;
-#ifdef CPPHTTPLIB_OPENSSL_SUPPORT
-  digest_auth_username_ = rhs.digest_auth_username_;
-  digest_auth_password_ = rhs.digest_auth_password_;
-#endif
   keep_alive_ = rhs.keep_alive_;
   follow_location_ = rhs.follow_location_;
   url_encode_ = rhs.url_encode_;
@@ -5435,18 +5110,6 @@ inline void ClientImpl::copy_settings(const ClientImpl &rhs) {
   proxy_basic_auth_username_ = rhs.proxy_basic_auth_username_;
   proxy_basic_auth_password_ = rhs.proxy_basic_auth_password_;
   proxy_bearer_token_auth_token_ = rhs.proxy_bearer_token_auth_token_;
-#ifdef CPPHTTPLIB_OPENSSL_SUPPORT
-  proxy_digest_auth_username_ = rhs.proxy_digest_auth_username_;
-  proxy_digest_auth_password_ = rhs.proxy_digest_auth_password_;
-#endif
-#ifdef CPPHTTPLIB_OPENSSL_SUPPORT
-  ca_cert_file_path_ = rhs.ca_cert_file_path_;
-  ca_cert_dir_path_ = rhs.ca_cert_dir_path_;
-  ca_cert_store_ = rhs.ca_cert_store_;
-#endif
-#ifdef CPPHTTPLIB_OPENSSL_SUPPORT
-  server_certificate_verification_ = rhs.server_certificate_verification_;
-#endif
   logger_ = rhs.logger_;
 }
 
@@ -5502,10 +5165,6 @@ inline void ClientImpl::close_socket(Socket &socket) {
   assert(socket_requests_in_flight_ == 0 ||
          socket_requests_are_from_thread_ == std::this_thread::get_id());
 
-  // It is also a bug if this happens while SSL is still active
-#ifdef CPPHTTPLIB_OPENSSL_SUPPORT
-  assert(socket.ssl == nullptr);
-#endif
   if (socket.sock == INVALID_SOCKET) { return; }
   detail::close_socket(socket.sock);
   socket.sock = INVALID_SOCKET;
@@ -5574,21 +5233,6 @@ inline bool ClientImpl::send(Request &req, Response &res, Error &error) {
 
     if (!is_alive) {
       if (!create_and_connect_socket(socket_, error)) { return false; }
-
-#ifdef CPPHTTPLIB_OPENSSL_SUPPORT
-      // TODO: refactoring
-      if (is_ssl()) {
-        auto &scli = static_cast<SSLClient &>(*this);
-        if (!proxy_host_.empty() && proxy_port_ != -1) {
-          bool success = false;
-          if (!scli.connect_with_proxy(socket_, res, success, error)) {
-            return success;
-          }
-        }
-
-        if (!scli.initialize_ssl(socket_, error)) { return false; }
-      }
-#endif
     }
 
     // Mark the current socket as being in use so that it cannot be closed by
@@ -5677,35 +5321,6 @@ inline bool ClientImpl::handle_request(Stream &strm, Request &req,
     ret = redirect(req, res, error);
   }
 
-#ifdef CPPHTTPLIB_OPENSSL_SUPPORT
-  if ((res.status == 401 || res.status == 407) &&
-      req.authorization_count_ < 5) {
-    auto is_proxy = res.status == 407;
-    const auto &username =
-        is_proxy ? proxy_digest_auth_username_ : digest_auth_username_;
-    const auto &password =
-        is_proxy ? proxy_digest_auth_password_ : digest_auth_password_;
-
-    if (!username.empty() && !password.empty()) {
-      std::map<std::string, std::string> auth;
-      if (detail::parse_www_authenticate(res, auth, is_proxy)) {
-        Request new_req = req;
-        new_req.authorization_count_ += 1;
-        new_req.headers.erase(is_proxy ? "Proxy-Authorization"
-                                       : "Authorization");
-        new_req.headers.insert(detail::make_digest_authentication_header(
-            req, auth, new_req.authorization_count_, detail::random_string(10),
-            username, password, is_proxy));
-
-        Response new_res;
-
-        ret = send(new_req, new_res, error);
-        if (ret) { res = new_res; }
-      }
-    }
-  }
-#endif
-
   return ret;
 }
 
@@ -5747,14 +5362,7 @@ inline bool ClientImpl::redirect(Request &req, Response &res, Error &error) {
     return detail::redirect(*this, req, res, next_path, location, error);
   } else {
     if (next_scheme == "https") {
-#ifdef CPPHTTPLIB_OPENSSL_SUPPORT
-      SSLClient cli(next_host.c_str(), next_port);
-      cli.copy_settings(*this);
-      if (ca_cert_store_) { cli.set_ca_cert_store(ca_cert_store_); }
-      return detail::redirect(cli, req, res, next_path, location, error);
-#else
       return false;
-#endif
     } else {
       ClientImpl cli(next_host.c_str(), next_port);
       cli.copy_settings(*this);
@@ -6163,14 +5771,6 @@ inline void ClientImpl::set_bearer_token_auth(const std::string &token) {
   bearer_token_auth_token_ = token;
 }
 
-#ifdef CPPHTTPLIB_OPENSSL_SUPPORT
-inline void ClientImpl::set_digest_auth(const std::string &username,
-                                        const std::string &password) {
-  digest_auth_username_ = username;
-  digest_auth_password_ = password;
-}
-#endif
-
 inline void ClientImpl::set_keep_alive(bool on) { keep_alive_ = on; }
 
 inline void ClientImpl::set_follow_location(bool on) { follow_location_ = on; }
@@ -6219,771 +5819,9 @@ inline void ClientImpl::set_proxy_bearer_token_auth(const std::string &token) {
   proxy_bearer_token_auth_token_ = token;
 }
 
-#ifdef CPPHTTPLIB_OPENSSL_SUPPORT
-inline void ClientImpl::set_proxy_digest_auth(const std::string &username,
-                                              const std::string &password) {
-  proxy_digest_auth_username_ = username;
-  proxy_digest_auth_password_ = password;
-}
-#endif
-
-#ifdef CPPHTTPLIB_OPENSSL_SUPPORT
-inline void ClientImpl::set_ca_cert_path(const std::string &ca_cert_file_path,
-                                         const std::string &ca_cert_dir_path) {
-  ca_cert_file_path_ = ca_cert_file_path;
-  ca_cert_dir_path_ = ca_cert_dir_path;
-}
-
-inline void ClientImpl::set_ca_cert_store(X509_STORE *ca_cert_store) {
-  if (ca_cert_store && ca_cert_store != ca_cert_store_) {
-    ca_cert_store_ = ca_cert_store;
-  }
-}
-#endif
-
-#ifdef CPPHTTPLIB_OPENSSL_SUPPORT
-inline void ClientImpl::enable_server_certificate_verification(bool enabled) {
-  server_certificate_verification_ = enabled;
-}
-#endif
-
 inline void ClientImpl::set_logger(Logger logger) {
   logger_ = std::move(logger);
 }
-
-/*
- * SSL Implementation
- */
-#ifdef CPPHTTPLIB_OPENSSL_SUPPORT
-namespace detail {
-
-template <typename U, typename V>
-inline SSL *ssl_new(socket_t sock, SSL_CTX *ctx, std::mutex &ctx_mutex,
-                    U SSL_connect_or_accept, V setup) {
-  SSL *ssl = nullptr;
-  {
-    std::lock_guard<std::mutex> guard(ctx_mutex);
-    ssl = SSL_new(ctx);
-  }
-
-  if (ssl) {
-    set_nonblocking(sock, true);
-    auto bio = BIO_new_socket(static_cast<int>(sock), BIO_NOCLOSE);
-    BIO_set_nbio(bio, 1);
-    SSL_set_bio(ssl, bio, bio);
-
-    if (!setup(ssl) || SSL_connect_or_accept(ssl) != 1) {
-      SSL_shutdown(ssl);
-      {
-        std::lock_guard<std::mutex> guard(ctx_mutex);
-        SSL_free(ssl);
-      }
-      set_nonblocking(sock, false);
-      return nullptr;
-    }
-    BIO_set_nbio(bio, 0);
-    set_nonblocking(sock, false);
-  }
-
-  return ssl;
-}
-
-inline void ssl_delete(std::mutex &ctx_mutex, SSL *ssl,
-                       bool shutdown_gracefully) {
-  // sometimes we may want to skip this to try to avoid SIGPIPE if we know
-  // the remote has closed the network connection
-  // Note that it is not always possible to avoid SIGPIPE, this is merely a
-  // best-efforts.
-  if (shutdown_gracefully) { SSL_shutdown(ssl); }
-
-  std::lock_guard<std::mutex> guard(ctx_mutex);
-  SSL_free(ssl);
-}
-
-template <typename U>
-bool ssl_connect_or_accept_nonblocking(socket_t sock, SSL *ssl,
-                                       U ssl_connect_or_accept,
-                                       time_t timeout_sec,
-                                       time_t timeout_usec) {
-  int res = 0;
-  while ((res = ssl_connect_or_accept(ssl)) != 1) {
-    auto err = SSL_get_error(ssl, res);
-    switch (err) {
-      case SSL_ERROR_WANT_READ:
-        if (select_read(sock, timeout_sec, timeout_usec) > 0) { continue; }
-        break;
-      case SSL_ERROR_WANT_WRITE:
-        if (select_write(sock, timeout_sec, timeout_usec) > 0) { continue; }
-        break;
-      default: break;
-    }
-    return false;
-  }
-  return true;
-}
-
-template <typename T>
-inline bool process_server_socket_ssl(
-    const std::atomic<socket_t> &svr_sock, SSL *ssl, socket_t sock,
-    size_t keep_alive_max_count, time_t keep_alive_timeout_sec,
-    time_t read_timeout_sec, time_t read_timeout_usec, time_t write_timeout_sec,
-    time_t write_timeout_usec, T callback) {
-  return process_server_socket_core(
-      svr_sock, sock, keep_alive_max_count, keep_alive_timeout_sec,
-      [&](bool close_connection, bool &connection_closed) {
-        SSLSocketStream strm(sock, ssl, read_timeout_sec, read_timeout_usec,
-                             write_timeout_sec, write_timeout_usec);
-        return callback(strm, close_connection, connection_closed);
-      });
-}
-
-template <typename T>
-inline bool
-process_client_socket_ssl(SSL *ssl, socket_t sock, time_t read_timeout_sec,
-                          time_t read_timeout_usec, time_t write_timeout_sec,
-                          time_t write_timeout_usec, T callback) {
-  SSLSocketStream strm(sock, ssl, read_timeout_sec, read_timeout_usec,
-                       write_timeout_sec, write_timeout_usec);
-  return callback(strm);
-}
-
-#if OPENSSL_VERSION_NUMBER < 0x10100000L
-static std::shared_ptr<std::vector<std::mutex>> openSSL_locks_;
-
-class SSLThreadLocks {
-public:
-  SSLThreadLocks() {
-    openSSL_locks_ =
-        std::make_shared<std::vector<std::mutex>>(CRYPTO_num_locks());
-    CRYPTO_set_locking_callback(locking_callback);
-  }
-
-  ~SSLThreadLocks() { CRYPTO_set_locking_callback(nullptr); }
-
-private:
-  static void locking_callback(int mode, int type, const char * /*file*/,
-                               int /*line*/) {
-    auto &lk = (*openSSL_locks_)[static_cast<size_t>(type)];
-    if (mode & CRYPTO_LOCK) {
-      lk.lock();
-    } else {
-      lk.unlock();
-    }
-  }
-};
-
-#endif
-
-class SSLInit {
-public:
-  SSLInit() {
-#if OPENSSL_VERSION_NUMBER < 0x1010001fL
-    SSL_load_error_strings();
-    SSL_library_init();
-#else
-    OPENSSL_init_ssl(
-        OPENSSL_INIT_LOAD_SSL_STRINGS | OPENSSL_INIT_LOAD_CRYPTO_STRINGS, NULL);
-#endif
-  }
-
-  ~SSLInit() {
-#if OPENSSL_VERSION_NUMBER < 0x1010001fL
-    ERR_free_strings();
-#endif
-  }
-
-private:
-#if OPENSSL_VERSION_NUMBER < 0x10100000L
-  SSLThreadLocks thread_init_;
-#endif
-};
-
-// SSL socket stream implementation
-inline SSLSocketStream::SSLSocketStream(socket_t sock, SSL *ssl,
-                                        time_t read_timeout_sec,
-                                        time_t read_timeout_usec,
-                                        time_t write_timeout_sec,
-                                        time_t write_timeout_usec)
-  : sock_(sock), ssl_(ssl), read_timeout_sec_(read_timeout_sec),
-  read_timeout_usec_(read_timeout_usec),
-  write_timeout_sec_(write_timeout_sec),
-  write_timeout_usec_(write_timeout_usec) {
-  SSL_clear_mode(ssl, SSL_MODE_AUTO_RETRY);
-}
-
-inline SSLSocketStream::~SSLSocketStream() {}
-
-inline bool SSLSocketStream::is_readable() const {
-  return detail::select_read(sock_, read_timeout_sec_, read_timeout_usec_) > 0;
-}
-
-inline bool SSLSocketStream::is_writable() const {
-  return select_write(sock_, write_timeout_sec_, write_timeout_usec_) > 0 &&
-         is_socket_alive(sock_);
-}
-
-inline ssize_t SSLSocketStream::read(char *ptr, size_t size) {
-  if (SSL_pending(ssl_) > 0) {
-    return SSL_read(ssl_, ptr, static_cast<int>(size));
-  } else if (is_readable()) {
-    auto ret = SSL_read(ssl_, ptr, static_cast<int>(size));
-    if (ret < 0) {
-      auto err = SSL_get_error(ssl_, ret);
-      int n = 1000;
-#ifdef _WIN32
-      while (--n >= 0 && (err == SSL_ERROR_WANT_READ ||
-                          (err == SSL_ERROR_SYSCALL &&
-                           WSAGetLastError() == WSAETIMEDOUT))) {
-#else
-      while (--n >= 0 && err == SSL_ERROR_WANT_READ) {
-#endif
-        if (SSL_pending(ssl_) > 0) {
-          return SSL_read(ssl_, ptr, static_cast<int>(size));
-        } else if (is_readable()) {
-          std::this_thread::sleep_for(std::chrono::milliseconds(1));
-          ret = SSL_read(ssl_, ptr, static_cast<int>(size));
-          if (ret >= 0) { return ret; }
-          err = SSL_get_error(ssl_, ret);
-        } else {
-          return -1;
-        }
-      }
-    }
-    return ret;
-  }
-  return -1;
-}
-
-inline ssize_t SSLSocketStream::write(const char *ptr, size_t size) {
-  if (is_writable()) {
-    auto handle_size = static_cast<int>(
-        std::min<size_t>(size, (std::numeric_limits<int>::max)()));
-
-    auto ret = SSL_write(ssl_, ptr, static_cast<int>(handle_size));
-    if (ret < 0) {
-      auto err = SSL_get_error(ssl_, ret);
-      int n = 1000;
-#ifdef _WIN32
-      while (--n >= 0 && (err == SSL_ERROR_WANT_WRITE ||
-                          (err == SSL_ERROR_SYSCALL &&
-                           WSAGetLastError() == WSAETIMEDOUT))) {
-#else
-      while (--n >= 0 && err == SSL_ERROR_WANT_WRITE) {
-#endif
-        if (is_writable()) {
-          std::this_thread::sleep_for(std::chrono::milliseconds(1));
-          ret = SSL_write(ssl_, ptr, static_cast<int>(handle_size));
-          if (ret >= 0) { return ret; }
-          err = SSL_get_error(ssl_, ret);
-        } else {
-          return -1;
-        }
-      }
-    }
-    return ret;
-  }
-  return -1;
-}
-
-inline void SSLSocketStream::get_remote_ip_and_port(std::string &ip,
-                                                    int &port) const {
-  detail::get_remote_ip_and_port(sock_, ip, port);
-}
-
-inline socket_t SSLSocketStream::socket() const { return sock_; }
-
-static SSLInit sslinit_;
-
-} // namespace detail
-
-// SSL HTTP server implementation
-inline SSLServer::SSLServer(const char *cert_path, const char *private_key_path,
-                            const char *client_ca_cert_file_path,
-                            const char *client_ca_cert_dir_path,
-                            const char *private_key_password) {
-  ctx_ = SSL_CTX_new(TLS_server_method());
-
-  if (ctx_) {
-    SSL_CTX_set_options(ctx_,
-                        SSL_OP_NO_COMPRESSION |
-                            SSL_OP_NO_SESSION_RESUMPTION_ON_RENEGOTIATION);
-
-    SSL_CTX_set_min_proto_version(ctx_, TLS1_1_VERSION);
-
-    // add default password callback before opening encrypted private key
-    if (private_key_password != nullptr && (private_key_password[0] != '\0')) {
-      SSL_CTX_set_default_passwd_cb_userdata(ctx_,
-                                             (char *)private_key_password);
-    }
-
-    if (SSL_CTX_use_certificate_chain_file(ctx_, cert_path) != 1 ||
-        SSL_CTX_use_PrivateKey_file(ctx_, private_key_path, SSL_FILETYPE_PEM) !=
-            1) {
-      SSL_CTX_free(ctx_);
-      ctx_ = nullptr;
-    } else if (client_ca_cert_file_path || client_ca_cert_dir_path) {
-      SSL_CTX_load_verify_locations(ctx_, client_ca_cert_file_path,
-                                    client_ca_cert_dir_path);
-
-      SSL_CTX_set_verify(
-          ctx_, SSL_VERIFY_PEER | SSL_VERIFY_FAIL_IF_NO_PEER_CERT, nullptr);
-    }
-  }
-}
-
-inline SSLServer::SSLServer(X509 *cert, EVP_PKEY *private_key,
-                            X509_STORE *client_ca_cert_store) {
-  ctx_ = SSL_CTX_new(TLS_server_method());
-
-  if (ctx_) {
-    SSL_CTX_set_options(ctx_,
-                        SSL_OP_NO_COMPRESSION |
-                            SSL_OP_NO_SESSION_RESUMPTION_ON_RENEGOTIATION);
-
-    SSL_CTX_set_min_proto_version(ctx_, TLS1_1_VERSION);
-
-    if (SSL_CTX_use_certificate(ctx_, cert) != 1 ||
-        SSL_CTX_use_PrivateKey(ctx_, private_key) != 1) {
-      SSL_CTX_free(ctx_);
-      ctx_ = nullptr;
-    } else if (client_ca_cert_store) {
-      SSL_CTX_set_cert_store(ctx_, client_ca_cert_store);
-
-      SSL_CTX_set_verify(
-          ctx_, SSL_VERIFY_PEER | SSL_VERIFY_FAIL_IF_NO_PEER_CERT, nullptr);
-    }
-  }
-}
-
-inline SSLServer::SSLServer(
-    const std::function<bool(SSL_CTX &ssl_ctx)> &setup_ssl_ctx_callback) {
-  ctx_ = SSL_CTX_new(TLS_method());
-  if (ctx_) {
-    if (!setup_ssl_ctx_callback(*ctx_)) {
-      SSL_CTX_free(ctx_);
-      ctx_ = nullptr;
-    }
-  }
-}
-
-inline SSLServer::~SSLServer() {
-  if (ctx_) { SSL_CTX_free(ctx_); }
-}
-
-inline bool SSLServer::is_valid() const { return ctx_; }
-
-inline SSL_CTX *SSLServer::ssl_context() const { return ctx_; }
-
-inline bool SSLServer::process_and_close_socket(socket_t sock) {
-  auto ssl = detail::ssl_new(
-      sock, ctx_, ctx_mutex_,
-      [&](SSL *ssl2) {
-        return detail::ssl_connect_or_accept_nonblocking(
-            sock, ssl2, SSL_accept, read_timeout_sec_, read_timeout_usec_);
-      },
-      [](SSL * /*ssl2*/) { return true; });
-
-  bool ret = false;
-  if (ssl) {
-    ret = detail::process_server_socket_ssl(
-        svr_sock_, ssl, sock, keep_alive_max_count_, keep_alive_timeout_sec_,
-        read_timeout_sec_, read_timeout_usec_, write_timeout_sec_,
-        write_timeout_usec_,
-        [this, ssl](Stream &strm, bool close_connection,
-                    bool &connection_closed) {
-          return process_request(strm, close_connection, connection_closed,
-                                 [&](Request &req) { req.ssl = ssl; });
-        });
-
-    // Shutdown gracefully if the result seemed successful, non-gracefully if
-    // the connection appeared to be closed.
-    const bool shutdown_gracefully = ret;
-    detail::ssl_delete(ctx_mutex_, ssl, shutdown_gracefully);
-  }
-
-  detail::shutdown_socket(sock);
-  detail::close_socket(sock);
-  return ret;
-}
-
-// SSL HTTP client implementation
-inline SSLClient::SSLClient(const std::string &host)
-  : SSLClient(host, 443, std::string(), std::string()) {}
-
-inline SSLClient::SSLClient(const std::string &host, int port)
-  : SSLClient(host, port, std::string(), std::string()) {}
-
-inline SSLClient::SSLClient(const std::string &host, int port,
-                            const std::string &client_cert_path,
-                            const std::string &client_key_path)
-  : ClientImpl(host, port, client_cert_path, client_key_path) {
-  ctx_ = SSL_CTX_new(TLS_client_method());
-
-  detail::split(&host_[0], &host_[host_.size()], '.',
-                [&](const char *b, const char *e) {
-                  host_components_.emplace_back(std::string(b, e));
-                });
-
-  if (!client_cert_path.empty() && !client_key_path.empty()) {
-    if (SSL_CTX_use_certificate_file(ctx_, client_cert_path.c_str(),
-                                     SSL_FILETYPE_PEM) != 1 ||
-        SSL_CTX_use_PrivateKey_file(ctx_, client_key_path.c_str(),
-                                    SSL_FILETYPE_PEM) != 1) {
-      SSL_CTX_free(ctx_);
-      ctx_ = nullptr;
-    }
-  }
-}
-
-inline SSLClient::SSLClient(const std::string &host, int port,
-                            X509 *client_cert, EVP_PKEY *client_key)
-  : ClientImpl(host, port) {
-  ctx_ = SSL_CTX_new(TLS_client_method());
-
-  detail::split(&host_[0], &host_[host_.size()], '.',
-                [&](const char *b, const char *e) {
-                  host_components_.emplace_back(std::string(b, e));
-                });
-
-  if (client_cert != nullptr && client_key != nullptr) {
-    if (SSL_CTX_use_certificate(ctx_, client_cert) != 1 ||
-        SSL_CTX_use_PrivateKey(ctx_, client_key) != 1) {
-      SSL_CTX_free(ctx_);
-      ctx_ = nullptr;
-    }
-  }
-}
-
-inline SSLClient::~SSLClient() {
-  if (ctx_) { SSL_CTX_free(ctx_); }
-  // Make sure to shut down SSL since shutdown_ssl will resolve to the
-  // base function rather than the derived function once we get to the
-  // base class destructor, and won't free the SSL (causing a leak).
-  shutdown_ssl_impl(socket_, true);
-}
-
-inline bool SSLClient::is_valid() const { return ctx_; }
-
-inline void SSLClient::set_ca_cert_store(X509_STORE *ca_cert_store) {
-  if (ca_cert_store) {
-    if (ctx_) {
-      if (SSL_CTX_get_cert_store(ctx_) != ca_cert_store) {
-        // Free memory allocated for old cert and use new store `ca_cert_store`
-        SSL_CTX_set_cert_store(ctx_, ca_cert_store);
-      }
-    } else {
-      X509_STORE_free(ca_cert_store);
-    }
-  }
-}
-
-inline long SSLClient::get_openssl_verify_result() const {
-  return verify_result_;
-}
-
-inline SSL_CTX *SSLClient::ssl_context() const { return ctx_; }
-
-inline bool SSLClient::create_and_connect_socket(Socket &socket, Error &error) {
-  return is_valid() && ClientImpl::create_and_connect_socket(socket, error);
-}
-
-// Assumes that socket_mutex_ is locked and that there are no requests in flight
-inline bool SSLClient::connect_with_proxy(Socket &socket, Response &res,
-                                          bool &success, Error &error) {
-  success = true;
-  Response res2;
-  if (!detail::process_client_socket(
-          socket.sock, read_timeout_sec_, read_timeout_usec_,
-          write_timeout_sec_, write_timeout_usec_, [&](Stream &strm) {
-            Request req2;
-            req2.method = "CONNECT";
-            req2.path = host_and_port_;
-            return process_request(strm, req2, res2, false, error);
-          })) {
-    // Thread-safe to close everything because we are assuming there are no
-    // requests in flight
-    shutdown_ssl(socket, true);
-    shutdown_socket(socket);
-    close_socket(socket);
-    success = false;
-    return false;
-  }
-
-  if (res2.status == 407) {
-    if (!proxy_digest_auth_username_.empty() &&
-        !proxy_digest_auth_password_.empty()) {
-      std::map<std::string, std::string> auth;
-      if (detail::parse_www_authenticate(res2, auth, true)) {
-        Response res3;
-        if (!detail::process_client_socket(
-                socket.sock, read_timeout_sec_, read_timeout_usec_,
-                write_timeout_sec_, write_timeout_usec_, [&](Stream &strm) {
-                  Request req3;
-                  req3.method = "CONNECT";
-                  req3.path = host_and_port_;
-                  req3.headers.insert(detail::make_digest_authentication_header(
-                      req3, auth, 1, detail::random_string(10),
-                      proxy_digest_auth_username_, proxy_digest_auth_password_,
-                      true));
-                  return process_request(strm, req3, res3, false, error);
-                })) {
-          // Thread-safe to close everything because we are assuming there are
-          // no requests in flight
-          shutdown_ssl(socket, true);
-          shutdown_socket(socket);
-          close_socket(socket);
-          success = false;
-          return false;
-        }
-      }
-    } else {
-      res = res2;
-      return false;
-    }
-  }
-
-  return true;
-}
-
-inline bool SSLClient::load_certs() {
-  bool ret = true;
-
-  std::call_once(initialize_cert_, [&]() {
-    std::lock_guard<std::mutex> guard(ctx_mutex_);
-    if (!ca_cert_file_path_.empty()) {
-      if (!SSL_CTX_load_verify_locations(ctx_, ca_cert_file_path_.c_str(),
-                                         nullptr)) {
-        ret = false;
-      }
-    } else if (!ca_cert_dir_path_.empty()) {
-      if (!SSL_CTX_load_verify_locations(ctx_, nullptr,
-                                         ca_cert_dir_path_.c_str())) {
-        ret = false;
-      }
-    } else {
-#ifdef _WIN32
-      detail::load_system_certs_on_windows(SSL_CTX_get_cert_store(ctx_));
-#else
-          SSL_CTX_set_default_verify_paths(ctx_);
-#endif
-    }
-  });
-
-  return ret;
-}
-
-inline bool SSLClient::initialize_ssl(Socket &socket, Error &error) {
-  auto ssl = detail::ssl_new(
-      socket.sock, ctx_, ctx_mutex_,
-      [&](SSL *ssl2) {
-        if (server_certificate_verification_) {
-          if (!load_certs()) {
-            error = Error::SSLLoadingCerts;
-            return false;
-          }
-          SSL_set_verify(ssl2, SSL_VERIFY_NONE, nullptr);
-        }
-
-        if (!detail::ssl_connect_or_accept_nonblocking(
-                socket.sock, ssl2, SSL_connect, connection_timeout_sec_,
-                connection_timeout_usec_)) {
-          error = Error::SSLConnection;
-          return false;
-        }
-
-        if (server_certificate_verification_) {
-          verify_result_ = SSL_get_verify_result(ssl2);
-
-          if (verify_result_ != X509_V_OK) {
-            error = Error::SSLServerVerification;
-            return false;
-          }
-
-          auto server_cert = SSL_get_peer_certificate(ssl2);
-
-          if (server_cert == nullptr) {
-            error = Error::SSLServerVerification;
-            return false;
-          }
-
-          if (!verify_host(server_cert)) {
-            X509_free(server_cert);
-            error = Error::SSLServerVerification;
-            return false;
-          }
-          X509_free(server_cert);
-        }
-
-        return true;
-      },
-      [&](SSL *ssl2) {
-        SSL_set_tlsext_host_name(ssl2, host_.c_str());
-        return true;
-      });
-
-  if (ssl) {
-    socket.ssl = ssl;
-    return true;
-  }
-
-  shutdown_socket(socket);
-  close_socket(socket);
-  return false;
-}
-
-inline void SSLClient::shutdown_ssl(Socket &socket, bool shutdown_gracefully) {
-  shutdown_ssl_impl(socket, shutdown_gracefully);
-}
-
-inline void SSLClient::shutdown_ssl_impl(Socket &socket,
-                                         bool shutdown_gracefully) {
-  if (socket.sock == INVALID_SOCKET) {
-    assert(socket.ssl == nullptr);
-    return;
-  }
-  if (socket.ssl) {
-    detail::ssl_delete(ctx_mutex_, socket.ssl, shutdown_gracefully);
-    socket.ssl = nullptr;
-  }
-  assert(socket.ssl == nullptr);
-}
-
-inline bool
-SSLClient::process_socket(const Socket &socket,
-                          std::function<bool(Stream &strm)> callback) {
-  assert(socket.ssl);
-  return detail::process_client_socket_ssl(
-      socket.ssl, socket.sock, read_timeout_sec_, read_timeout_usec_,
-      write_timeout_sec_, write_timeout_usec_, std::move(callback));
-}
-
-inline bool SSLClient::is_ssl() const { return true; }
-
-inline bool SSLClient::verify_host(X509 *server_cert) const {
-  /* Quote from RFC2818 section 3.1 "Server Identity"
-
-     If a subjectAltName extension of type dNSName is present, that MUST
-     be used as the identity. Otherwise, the (most specific) Common Name
-     field in the Subject field of the certificate MUST be used. Although
-     the use of the Common Name is existing practice, it is deprecated and
-     Certification Authorities are encouraged to use the dNSName instead.
-
-     Matching is performed using the matching rules specified by
-     [RFC2459].  If more than one identity of a given type is present in
-     the certificate (e.g., more than one dNSName name, a match in any one
-     of the set is considered acceptable.) Names may contain the wildcard
-     character * which is considered to match any single domain name
-     component or component fragment. E.g., *.a.com matches foo.a.com but
-     not bar.foo.a.com. f*.com matches foo.com but not bar.com.
-
-     In some cases, the URI is specified as an IP address rather than a
-     hostname. In this case, the iPAddress subjectAltName must be present
-     in the certificate and must exactly match the IP in the URI.
-
-  */
-  return verify_host_with_subject_alt_name(server_cert) ||
-         verify_host_with_common_name(server_cert);
-}
-
-inline bool
-SSLClient::verify_host_with_subject_alt_name(X509 *server_cert) const {
-  auto ret = false;
-
-  auto type = GEN_DNS;
-
-  struct in6_addr addr6;
-  struct in_addr addr;
-  size_t addr_len = 0;
-
-#ifndef __MINGW32__
-  if (inet_pton(AF_INET6, host_.c_str(), &addr6)) {
-    type = GEN_IPADD;
-    addr_len = sizeof(struct in6_addr);
-  } else if (inet_pton(AF_INET, host_.c_str(), &addr)) {
-    type = GEN_IPADD;
-    addr_len = sizeof(struct in_addr);
-  }
-#endif
-
-  auto alt_names = static_cast<const struct stack_st_GENERAL_NAME *>(
-      X509_get_ext_d2i(server_cert, NID_subject_alt_name, nullptr, nullptr));
-
-  if (alt_names) {
-    auto dsn_matched = false;
-    auto ip_mached = false;
-
-    auto count = sk_GENERAL_NAME_num(alt_names);
-
-    for (decltype(count) i = 0; i < count && !dsn_matched; i++) {
-      auto val = sk_GENERAL_NAME_value(alt_names, i);
-      if (val->type == type) {
-        auto name = (const char *)ASN1_STRING_get0_data(val->d.ia5);
-        auto name_len = (size_t)ASN1_STRING_length(val->d.ia5);
-
-        switch (type) {
-          case GEN_DNS: dsn_matched = check_host_name(name, name_len); break;
-
-          case GEN_IPADD:
-            if (!memcmp(&addr6, name, addr_len) ||
-                !memcmp(&addr, name, addr_len)) {
-              ip_mached = true;
-            }
-            break;
-        }
-      }
-    }
-
-    if (dsn_matched || ip_mached) { ret = true; }
-  }
-
-  GENERAL_NAMES_free((STACK_OF(GENERAL_NAME) *)alt_names);
-  return ret;
-}
-
-inline bool SSLClient::verify_host_with_common_name(X509 *server_cert) const {
-  const auto subject_name = X509_get_subject_name(server_cert);
-
-  if (subject_name != nullptr) {
-    char name[BUFSIZ];
-    auto name_len = X509_NAME_get_text_by_NID(subject_name, NID_commonName,
-                                              name, sizeof(name));
-
-    if (name_len != -1) {
-      return check_host_name(name, static_cast<size_t>(name_len));
-    }
-  }
-
-  return false;
-}
-
-inline bool SSLClient::check_host_name(const char *pattern,
-                                       size_t pattern_len) const {
-  if (host_.size() == pattern_len && host_ == pattern) { return true; }
-
-  // Wildcard match
-  // https://bugs.launchpad.net/ubuntu/+source/firefox-3.0/+bug/376484
-  std::vector<std::string> pattern_components;
-  detail::split(&pattern[0], &pattern[pattern_len], '.',
-                [&](const char *b, const char *e) {
-                  pattern_components.emplace_back(std::string(b, e));
-                });
-
-  if (host_components_.size() != pattern_components.size()) { return false; }
-
-  auto itr = pattern_components.begin();
-  for (const auto &h : host_components_) {
-    auto &p = *itr;
-    if (p != h && p != "*") {
-      auto partial_match = (p.size() > 0 && p[p.size() - 1] == '*' &&
-                            !p.compare(0, p.size() - 1, h));
-      if (!partial_match) { return false; }
-    }
-    ++itr;
-  }
-
-  return true;
-}
-#endif
 
 // Universal client implementation
 inline Client::Client(const std::string &scheme_host_port)
@@ -6999,11 +5837,7 @@ inline Client::Client(const std::string &scheme_host_port,
   if (std::regex_match(scheme_host_port, m, re)) {
     auto scheme = m[1].str();
 
-#ifdef CPPHTTPLIB_OPENSSL_SUPPORT
-    if (!scheme.empty() && (scheme != "http" && scheme != "https")) {
-#else
     if (!scheme.empty() && scheme != "http") {
-#endif
 #ifndef CPPHTTPLIB_NO_EXCEPTIONS
       std::string msg = "'" + scheme + "' scheme is not supported.";
       throw std::invalid_argument(msg);
@@ -7020,11 +5854,6 @@ inline Client::Client(const std::string &scheme_host_port,
     auto port = !port_str.empty() ? std::stoi(port_str) : (is_ssl ? 443 : 80);
 
     if (is_ssl) {
-#ifdef CPPHTTPLIB_OPENSSL_SUPPORT
-      cli_ = detail::make_unique<SSLClient>(host, port, client_cert_path,
-                                            client_key_path);
-      is_ssl_ = is_ssl;
-#endif
     } else {
       cli_ = detail::make_unique<ClientImpl>(host, port, client_cert_path,
                                              client_key_path);
@@ -7100,12 +5929,6 @@ inline void Client::set_basic_auth(const std::string &username,
 inline void Client::set_bearer_token_auth(const std::string &token) {
   cli_->set_bearer_token_auth(token);
 }
-#ifdef CPPHTTPLIB_OPENSSL_SUPPORT
-inline void Client::set_digest_auth(const std::string &username,
-                                    const std::string &password) {
-  cli_->set_digest_auth(username, password);
-}
-#endif
 
 inline void Client::set_keep_alive(bool on) { cli_->set_keep_alive(on); }
 inline void Client::set_follow_location(bool on) {
@@ -7132,47 +5955,8 @@ inline void Client::set_proxy_basic_auth(const std::string &username,
 inline void Client::set_proxy_bearer_token_auth(const std::string &token) {
   cli_->set_proxy_bearer_token_auth(token);
 }
-#ifdef CPPHTTPLIB_OPENSSL_SUPPORT
-inline void Client::set_proxy_digest_auth(const std::string &username,
-                                          const std::string &password) {
-  cli_->set_proxy_digest_auth(username, password);
-}
-#endif
-
-#ifdef CPPHTTPLIB_OPENSSL_SUPPORT
-inline void Client::enable_server_certificate_verification(bool enabled) {
-  cli_->enable_server_certificate_verification(enabled);
-}
-#endif
 
 inline void Client::set_logger(Logger logger) { cli_->set_logger(logger); }
-
-#ifdef CPPHTTPLIB_OPENSSL_SUPPORT
-inline void Client::set_ca_cert_path(const std::string &ca_cert_file_path,
-                                     const std::string &ca_cert_dir_path) {
-  cli_->set_ca_cert_path(ca_cert_file_path, ca_cert_dir_path);
-}
-
-inline void Client::set_ca_cert_store(X509_STORE *ca_cert_store) {
-  if (is_ssl_) {
-    static_cast<SSLClient &>(*cli_).set_ca_cert_store(ca_cert_store);
-  } else {
-    cli_->set_ca_cert_store(ca_cert_store);
-  }
-}
-
-inline long Client::get_openssl_verify_result() const {
-  if (is_ssl_) {
-    return static_cast<SSLClient &>(*cli_).get_openssl_verify_result();
-  }
-  return -1; // NOTE: -1 doesn't match any of X509_V_ERR_???
-}
-
-inline SSL_CTX *Client::ssl_context() const {
-  if (is_ssl_) { return static_cast<SSLClient &>(*cli_).ssl_context(); }
-  return nullptr;
-}
-#endif
 
 // ----------------------------------------------------------------------------
 
