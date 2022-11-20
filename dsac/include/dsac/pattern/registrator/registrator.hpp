@@ -83,7 +83,7 @@ class factory_constructor final : public factory_constructor_base<BaseComponent,
   auto construct(Args&&... args) const -> std::unique_ptr<BaseComponent> override;
 };
 
-template <typename ComponentBase, typename... Args>
+template <typename BaseComponent, typename... Args>
 class factory_base {
 protected:
   // Observers
@@ -99,7 +99,7 @@ protected:
         DsacPattern
   */
   // clang-format off
-  auto get_factory_constructor_unsafe(const std::string& component_name) const -> factory_constructor_base<ComponentBase, Args...>*;
+  auto get_factory_constructor_unsafe(const std::string& component_name) const -> factory_constructor_base<BaseComponent, Args...>*;
   // clang-format on
 
   /*!
@@ -140,7 +140,7 @@ protected:
 
 private:
   /// A list of factories for creating custom components
-  std::map<std::string, std::unique_ptr<factory_constructor_base<ComponentBase, Args...>>> constructors_;
+  std::map<std::string, std::unique_ptr<factory_constructor_base<BaseComponent, Args...>>> constructors_;
 
   /// Does work with a list of factories thread-safe
   mutable std::shared_mutex mutex_;
@@ -197,9 +197,9 @@ public:
   // clang-format on
 };
 
-template <typename ComponentBase, typename... Args>
+template <typename BaseComponent, typename... Args>
 template <typename DerivedComponent>
-class [[nodiscard]] factory<ComponentBase, Args...>::registractor {
+class [[nodiscard]] factory<BaseComponent, Args...>::registractor {
 public:
   // Constructors
 
