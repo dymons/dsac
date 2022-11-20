@@ -154,22 +154,60 @@ public:
   template <typename DerivedComponent>
   class [[nodiscard]] registractor;
 
+  // Observers
+
+  /*!
+    \brief
+        Check that the user component is contained in the component factory
+
+    \ingroup
+        DsacPattern
+  */
   [[nodiscard]] static auto contains(const std::string& component_name) -> bool;
 
+  /*!
+    \brief
+        Get all the names of user components that have been added
+
+    \ingroup
+        DsacPattern
+  */
+  [[nodiscard]] static auto get_registered_keys() -> std::set<std::string>;
+
+  // Modifiers
+
+  /*!
+    \brief
+        Creating a user component using a factory
+
+    \param args
+        Arguments for creating a component
+
+    \ingroup
+        DsacPattern
+  */
   // clang-format off
   [[nodiscard]] static auto construct(const std::string& component_name, Args... args) -> std::unique_ptr<ComponentBase>;
   // clang-format on
-
-  [[nodiscard]] static auto get_registered_keys() -> std::set<std::string>;
 };
 
 template <typename ComponentBase, typename... Args>
 template <typename DerivedComponent>
 class [[nodiscard]] factory<ComponentBase, Args...>::registractor {
 public:
-  explicit registractor(const std::string& key);
+  // Constructors
 
+  /*!
+    \brief
+        Default constructor, registers a user component in the factory by DerivedComponent::get_type_name
+  */
   registractor();
+
+  /*!
+    \brief
+        User constructor, registers a user component in the factory by component_name
+  */
+  explicit registractor(const std::string& component_name);
 };
 
 }  // namespace dsac

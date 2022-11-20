@@ -79,8 +79,8 @@ std::set<std::string> factory<ComponentBase, Args...>::get_registered_keys() {
 
 template <typename ComponentBase, typename... Args>
 template <typename DerivedComponent>
-factory<ComponentBase, Args...>::registractor<DerivedComponent>::registractor(const std::string& key) {
-  singleton<factory<ComponentBase, Args...>>()->template factory_register<DerivedComponent>(key);
+factory<ComponentBase, Args...>::registractor<DerivedComponent>::registractor(const std::string& component_name) {
+  singleton<factory<ComponentBase, Args...>>()->template factory_register<DerivedComponent>(component_name);
 }
 
 template <typename ComponentBase, typename... Args>
