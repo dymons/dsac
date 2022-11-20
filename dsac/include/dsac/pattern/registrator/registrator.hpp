@@ -193,7 +193,7 @@ public:
         DsacPattern
   */
   // clang-format off
-  [[nodiscard]] static auto construct(const std::string& component_name, Args... args) -> std::unique_ptr<BaseComponent>;
+  [[nodiscard]] static auto construct(const std::string& component_name, Args&&... args) -> std::unique_ptr<BaseComponent>;
   // clang-format on
 };
 
