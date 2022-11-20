@@ -113,9 +113,7 @@
 #include <csignal>
 
 using socket_t = int;
-#ifndef INVALID_SOCKET
 #define INVALID_SOCKET (-1)
-#endif
 
 #include <errno.h>
 #include <fcntl.h>
@@ -195,10 +193,10 @@ public:
     , sb_(*this) {
   }
 
-  DataSink(const DataSink &) = delete;
+  DataSink(const DataSink &)            = delete;
   DataSink &operator=(const DataSink &) = delete;
   DataSink(DataSink &&)                 = delete;
-  DataSink &operator=(DataSink &&) = delete;
+  DataSink &operator=(DataSink &&)      = delete;
 
   std::function<bool(const char *data, size_t data_len)> write;
   std::function<void()>                                  done;
@@ -344,11 +342,11 @@ struct Response {
       ContentProviderWithoutLength    provider,
       ContentProviderResourceReleaser resource_releaser = nullptr);
 
-  Response()                 = default;
-  Response(const Response &) = default;
+  Response()                            = default;
+  Response(const Response &)            = default;
   Response &operator=(const Response &) = default;
   Response(Response &&)                 = default;
-  Response &operator=(Response &&) = default;
+  Response &operator=(Response &&)      = default;
   ~Response() {
     if (content_provider_resource_releaser_) {
       content_provider_resource_releaser_(content_provider_success_);
@@ -557,7 +555,7 @@ protected:
   size_t                payload_max_length_     = CPPHTTPLIB_PAYLOAD_MAX_LENGTH;
 
 private:
-  using Handlers                 = std::vector<std::pair<std::regex, Handler>>;
+  using Handlers = std::vector<std::pair<std::regex, Handler>>;
 
   socket_t create_server_socket(
       const std::string &host, int port, int socket_flags, SocketOptions socket_options) const;
@@ -4516,11 +4514,7 @@ inline bool Server::listen_internal() {
         setsockopt(sock, SOL_SOCKET, SO_SNDTIMEO, (char *)&tv, sizeof(tv));
       }
 
-#if __cplusplus > 201703L
       task_queue->enqueue([=, this]() { process_and_close_socket(sock); });
-#else
-      task_queue->enqueue([=]() { process_and_close_socket(sock); });
-#endif
     }
 
     task_queue->shutdown();
@@ -4634,9 +4628,7 @@ inline bool Server::process_request(
 
   // Rounting
   bool routed = false;
-#ifdef CPPHTTPLIB_NO_EXCEPTIONS
-  routed = routing(req, res, strm);
-#else
+
   try {
     routed = routing(req, res, strm);
   } catch (std::exception &e) {
@@ -4658,7 +4650,6 @@ inline bool Server::process_request(
       res.set_header("EXCEPTION_WHAT", "UNKNOWN");
     }
   }
-#endif
 
   if (routed) {
     if (res.status == -1) {
@@ -4802,8 +4793,6 @@ inline bool ClientImpl::create_and_connect_socket(Socket &socket, Error &error) 
 }
 
 inline void ClientImpl::shutdown_ssl(Socket & /*socket*/, bool /*shutdown_gracefully*/) {
-  // If there are any requests in flight from threads other than us, then it's
-  // a thread-unsafe race because individual ssl* objects are not thread-safe.
   assert(socket_requests_in_flight_ == 0 || socket_requests_are_from_thread_ == std::this_thread::get_id());
 }
 
@@ -4815,12 +4804,6 @@ inline void ClientImpl::shutdown_socket(Socket &socket) {
 }
 
 inline void ClientImpl::close_socket(Socket &socket) {
-  // If there are requests in flight in another thread, usually closing
-  // the socket will be fine and they will simply receive an error when
-  // using the closed socket, but it is still a bug since rarely the OS
-  // may reassign the socket id to be used for a new socket, and then
-  // suddenly they will be operating on a live socket that is different
-  // than the one they intended!
   assert(socket_requests_in_flight_ == 0 || socket_requests_are_from_thread_ == std::this_thread::get_id());
 
   if (socket.sock == INVALID_SOCKET) {
@@ -4839,11 +4822,7 @@ inline bool ClientImpl::read_response_line(Stream &strm, const Request &req, Res
     return false;
   }
 
-#ifdef CPPHTTPLIB_ALLOW_LF_AS_LINE_TERMINATOR
-  const static std::regex re("(HTTP/1\\.[01]) (\\d{3})(?: (.*?))?\r\n");
-#else
   const static std::regex re("(HTTP/1\\.[01]) (\\d{3})(?: (.*?))?\r?\n");
-#endif
 
   std::cmatch m;
   if (!std::regex_match(line_reader.ptr(), m, re)) {
@@ -4879,18 +4858,12 @@ inline bool ClientImpl::send(Request &req, Response &res, Error &error) {
   {
     std::lock_guard<std::mutex> guard(socket_mutex_);
 
-    // Set this to false immediately - if it ever gets set to true by the end of
-    // the request, we know another thread instructed us to close the socket.
     socket_should_be_closed_when_request_is_done_ = false;
 
     auto is_alive = false;
     if (socket_.is_open()) {
       is_alive = detail::is_socket_alive(socket_.sock);
       if (!is_alive) {
-        // Attempt to avoid sigpipe by shutting down nongracefully if it seems
-        // like the other side has already closed the connection Also, there
-        // cannot be any requests in flight from other threads since we locked
-        // request_mutex_, so safe to close everything immediately
         const bool shutdown_gracefully = false;
         shutdown_ssl(socket_, shutdown_gracefully);
         shutdown_socket(socket_);
@@ -4904,9 +4877,6 @@ inline bool ClientImpl::send(Request &req, Response &res, Error &error) {
       }
     }
 
-    // Mark the current socket as being in use so that it cannot be closed by
-    // anyone else while this request is ongoing, even though we will be
-    // releasing the mutex.
     if (socket_requests_in_flight_ > 1) {
       assert(socket_requests_are_from_thread_ == std::this_thread::get_id());
     }
@@ -4924,7 +4894,6 @@ inline bool ClientImpl::send(Request &req, Response &res, Error &error) {
   auto ret =
       process_socket(socket_, [&](Stream &strm) { return handle_request(strm, req, res, close_connection, error); });
 
-  // Briefly lock mutex in order to mark that a request is no longer ongoing
   {
     std::lock_guard<std::mutex> guard(socket_mutex_);
     socket_requests_in_flight_ -= 1;
@@ -5093,12 +5062,10 @@ inline bool ClientImpl::write_request(Stream &strm, Request &req, bool close_con
     req.headers.emplace("Accept", "*/*");
   }
 
-#ifndef CPPHTTPLIB_NO_DEFAULT_USER_AGENT
   if (!req.has_header("User-Agent")) {
     auto agent = std::string("cpp-httplib/") + CPPHTTPLIB_VERSION;
     req.headers.emplace("User-Agent", agent);
   }
-#endif
 
   if (req.body.empty()) {
     if (req.content_provider_) {
@@ -5476,11 +5443,8 @@ inline Client::Client(
     auto scheme = m[1].str();
 
     if (!scheme.empty() && scheme != "http") {
-#ifndef CPPHTTPLIB_NO_EXCEPTIONS
       std::string msg = "'" + scheme + "' scheme is not supported.";
       throw std::invalid_argument(msg);
-#endif
-      return;
     }
 
     auto is_ssl = scheme == "https";
