@@ -143,25 +143,9 @@ using socket_t = int;
 #include <string>
 #include <thread>
 
-#ifdef CPPHTTPLIB_BROTLI_SUPPORT
-#include <brotli/decode.h>
-#include <brotli/encode.h>
-#endif
-
-/*
- * Declaration
- */
 namespace httplib {
 
 namespace detail {
-
-/*
- * Backport std::make_unique from C++14.
- *
- * NOTE: This code came up with the following stackoverflow post:
- * https://stackoverflow.com/questions/10149840/c-arrays-and-make-unique
- *
- */
 
 template <class T, class... Args>
 typename std::enable_if<!std::is_array<T>::value, std::unique_ptr<T>>::type make_unique(Args &&...args) {
@@ -1245,35 +1229,6 @@ public:
   bool compress(const char *data, size_t data_length, bool /*last*/, Callback callback) override;
 };
 
-#ifdef CPPHTTPLIB_BROTLI_SUPPORT
-class brotli_compressor : public compressor {
-public:
-  brotli_compressor();
-  ~brotli_compressor();
-
-  bool compress(const char *data, size_t data_length, bool last, Callback callback) override;
-
-private:
-  BrotliEncoderState *state_ = nullptr;
-};
-
-class brotli_decompressor : public decompressor {
-public:
-  brotli_decompressor();
-  ~brotli_decompressor();
-
-  bool is_valid() const override;
-
-  bool decompress(const char *data, size_t data_length, Callback callback) override;
-
-private:
-  BrotliDecoderResult decoder_r;
-  BrotliDecoderState *decoder_s = nullptr;
-};
-#endif
-
-// NOTE: until the read size reaches `fixed_buffer_size`, use `fixed_buffer`
-// to store data. The call can set memory on stack for performance.
 class stream_line_reader {
 public:
   stream_line_reader(Stream &strm, char *fixed_buffer, size_t fixed_buffer_size);
@@ -2476,14 +2431,6 @@ inline EncodingType encoding_type(const Request &req, const Response &res) {
   const auto &s = req.get_header_value("Accept-Encoding");
   (void)(s);
 
-#ifdef CPPHTTPLIB_BROTLI_SUPPORT
-  // TODO: 'Accept-Encoding' has br, not br;q=0
-  ret = s.find("br") != std::string::npos;
-  if (ret) {
-    return EncodingType::Brotli;
-  }
-#endif
-
   return EncodingType::None;
 }
 
@@ -2493,96 +2440,6 @@ inline bool nocompressor::compress(const char *data, size_t data_length, bool /*
   }
   return callback(data, data_length);
 }
-
-#ifdef CPPHTTPLIB_BROTLI_SUPPORT
-inline brotli_compressor::brotli_compressor() {
-  state_ = BrotliEncoderCreateInstance(nullptr, nullptr, nullptr);
-}
-
-inline brotli_compressor::~brotli_compressor() {
-  BrotliEncoderDestroyInstance(state_);
-}
-
-inline bool brotli_compressor::compress(const char *data, size_t data_length, bool last, Callback callback) {
-  std::array<uint8_t, CPPHTTPLIB_COMPRESSION_BUFSIZ> buff{};
-
-  auto operation    = last ? BROTLI_OPERATION_FINISH : BROTLI_OPERATION_PROCESS;
-  auto available_in = data_length;
-  auto next_in      = reinterpret_cast<const uint8_t *>(data);
-
-  for (;;) {
-    if (last) {
-      if (BrotliEncoderIsFinished(state_)) {
-        break;
-      }
-    } else {
-      if (!available_in) {
-        break;
-      }
-    }
-
-    auto available_out = buff.size();
-    auto next_out      = buff.data();
-
-    if (!BrotliEncoderCompressStream(state_, operation, &available_in, &next_in, &available_out, &next_out, nullptr)) {
-      return false;
-    }
-
-    auto output_bytes = buff.size() - available_out;
-    if (output_bytes) {
-      callback(reinterpret_cast<const char *>(buff.data()), output_bytes);
-    }
-  }
-
-  return true;
-}
-
-inline brotli_decompressor::brotli_decompressor() {
-  decoder_s = BrotliDecoderCreateInstance(0, 0, 0);
-  decoder_r = decoder_s ? BROTLI_DECODER_RESULT_NEEDS_MORE_INPUT : BROTLI_DECODER_RESULT_ERROR;
-}
-
-inline brotli_decompressor::~brotli_decompressor() {
-  if (decoder_s) {
-    BrotliDecoderDestroyInstance(decoder_s);
-  }
-}
-
-inline bool brotli_decompressor::is_valid() const {
-  return decoder_s;
-}
-
-inline bool brotli_decompressor::decompress(const char *data, size_t data_length, Callback callback) {
-  if (decoder_r == BROTLI_DECODER_RESULT_SUCCESS || decoder_r == BROTLI_DECODER_RESULT_ERROR) {
-    return 0;
-  }
-
-  const uint8_t *next_in  = (const uint8_t *)data;
-  size_t         avail_in = data_length;
-  size_t         total_out;
-
-  decoder_r = BROTLI_DECODER_RESULT_NEEDS_MORE_OUTPUT;
-
-  std::array<char, CPPHTTPLIB_COMPRESSION_BUFSIZ> buff{};
-  while (decoder_r == BROTLI_DECODER_RESULT_NEEDS_MORE_OUTPUT) {
-    char  *next_out  = buff.data();
-    size_t avail_out = buff.size();
-
-    decoder_r = BrotliDecoderDecompressStream(
-        decoder_s, &avail_in, &next_in, &avail_out, reinterpret_cast<uint8_t **>(&next_out), &total_out);
-
-    if (decoder_r == BROTLI_DECODER_RESULT_ERROR) {
-      return false;
-    }
-
-    if (!callback(buff.data(), buff.size() - avail_out)) {
-      return false;
-    }
-  }
-
-  return decoder_r == BROTLI_DECODER_RESULT_SUCCESS || decoder_r == BROTLI_DECODER_RESULT_NEEDS_MORE_INPUT;
-}
-#endif
 
 inline bool has_header(const Headers &headers, const std::string &key) {
   return headers.find(key) != headers.end();
@@ -2803,12 +2660,8 @@ bool prepare_content_receiver(T &x, int &status, ContentReceiverWithProgress rec
       status = 415;
       return false;
     } else if (encoding.find("br") != std::string::npos) {
-#ifdef CPPHTTPLIB_BROTLI_SUPPORT
-      decompressor = detail::make_unique<brotli_decompressor>();
-#else
       status = 415;
       return false;
-#endif
     }
 
     if (decompressor) {
@@ -4416,13 +4269,7 @@ inline bool Server::write_content_with_provider(
       auto type = detail::encoding_type(req, res);
 
       std::unique_ptr<detail::compressor> compressor;
-      if (type == detail::EncodingType::Brotli) {
-#ifdef CPPHTTPLIB_BROTLI_SUPPORT
-        compressor = detail::make_unique<detail::brotli_compressor>();
-#endif
-      } else {
-        compressor = detail::make_unique<detail::nocompressor>();
-      }
+      compressor = detail::make_unique<detail::nocompressor>();
       assert(compressor != nullptr);
 
       return detail::write_content_chunked(strm, res.content_provider_, is_shutting_down, *compressor);
