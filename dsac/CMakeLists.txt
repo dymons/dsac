@@ -19,7 +19,7 @@ FetchContent_Declare(fmt
 FetchContent_MakeAvailable(fmt)
 
 if (BUILD_TESTS)
-    find_package (Threads)
+    find_package(Threads)
     extract_subdirs(test_subdirs ${CMAKE_CURRENT_SOURCE_DIR}/test)
     foreach (subdir ${test_subdirs})
         file(GLOB DSAC_TEST_SRC "test/${subdir}/*.cpp")
@@ -29,7 +29,7 @@ if (BUILD_TESTS)
 endif (BUILD_TESTS)
 
 if (BUILD_BENCHMARKS)
-    find_package (Threads)
+    find_package(Threads)
     extract_subdirs(benchmark_subdirs ${CMAKE_CURRENT_SOURCE_DIR}/benchmark)
     foreach (subdir ${benchmark_subdirs})
         file(GLOB DSAC_TEST_SRC "benchmark/${subdir}/*.cpp")

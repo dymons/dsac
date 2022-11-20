@@ -129,10 +129,12 @@ public:
     \brief
         Copy conversion constructor.
   */
-  shared_ptr& operator=(const shared_ptr& sp) noexcept {
+  shared_ptr& operator=(const shared_ptr& other) noexcept {
     /// copy and swap idiom
-    shared_ptr tmp{sp};
-    tmp.swap(*this);
+    if (&other != this) {
+      shared_ptr tmp{other};
+      tmp.swap(*this);
+    }
     return *this;
   }
 

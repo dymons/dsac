@@ -4,9 +4,7 @@
 #include <random>
 #include <vector>
 
-TEST_CASE(
-    "Проверка выполнения корректности поворотов для AVL дерева",
-    "[avl_tree_rotate]") {
+TEST_CASE("Проверка выполнения корректности поворотов для AVL дерева", "[avl_tree_rotate]") {
   using namespace dsac::tree;
 
   SECTION("Проверка корректности выполнения малого правого вращения") {
@@ -166,8 +164,7 @@ TEST_CASE("Корректность построения AVL дерева", "[av
   }
 }
 
-TEST_CASE(
-    "Корректность удаления элементов из AVL дерева", "[avl_tree_delete]") {
+TEST_CASE("Корректность удаления элементов из AVL дерева", "[avl_tree_delete]") {
   using namespace dsac::tree;
 
   SECTION("Удаление элементов из пустого дерева") {
