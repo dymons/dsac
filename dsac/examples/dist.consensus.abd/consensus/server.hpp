@@ -143,10 +143,6 @@ using socket_t = int;
 #include <string>
 #include <thread>
 
-#ifdef CPPHTTPLIB_ZLIB_SUPPORT
-#include <zlib.h>
-#endif
-
 #ifdef CPPHTTPLIB_BROTLI_SUPPORT
 #include <brotli/decode.h>
 #include <brotli/encode.h>
@@ -215,10 +211,10 @@ public:
     , sb_(*this) {
   }
 
-  DataSink(const DataSink &)            = delete;
+  DataSink(const DataSink &) = delete;
   DataSink &operator=(const DataSink &) = delete;
   DataSink(DataSink &&)                 = delete;
-  DataSink &operator=(DataSink &&)      = delete;
+  DataSink &operator=(DataSink &&) = delete;
 
   std::function<bool(const char *data, size_t data_len)> write;
   std::function<void()>                                  done;
@@ -364,11 +360,11 @@ struct Response {
       ContentProviderWithoutLength    provider,
       ContentProviderResourceReleaser resource_releaser = nullptr);
 
-  Response()                            = default;
-  Response(const Response &)            = default;
+  Response()                 = default;
+  Response(const Response &) = default;
   Response &operator=(const Response &) = default;
   Response(Response &&)                 = default;
-  Response &operator=(Response &&)      = default;
+  Response &operator=(Response &&) = default;
   ~Response() {
     if (content_provider_resource_releaser_) {
       content_provider_resource_releaser_(content_provider_success_);
@@ -502,9 +498,6 @@ public:
   };
   using HandlerWithResponse = std::function<HandlerResponse(const Request &, Response &)>;
 
-  using HandlerWithContentReader =
-      std::function<void(const Request &, Response &, const ContentReader &content_reader)>;
-
   using Expect100ContinueHandler = std::function<int(const Request &, Response &)>;
 
   Server();
@@ -581,7 +574,6 @@ protected:
 
 private:
   using Handlers                 = std::vector<std::pair<std::regex, Handler>>;
-  using HandlersForContentReader = std::vector<std::pair<std::regex, HandlerWithContentReader>>;
 
   socket_t create_server_socket(
       const std::string &host, int port, int socket_flags, SocketOptions socket_options) const;
@@ -591,11 +583,8 @@ private:
   bool routing(Request &req, Response &res, Stream &strm);
   bool handle_file_request(const Request &req, Response &res, bool head = false);
   bool dispatch_request(Request &req, Response &res);
-  bool dispatch_request_for_content_reader(
-      Request &req, Response &res, ContentReader content_reader, const HandlersForContentReader &handlers);
 
   bool parse_request_line(const char *s, Request &req);
-  void apply_ranges(const Request &req, Response &res, std::string &content_type, std::string &boundary);
   bool write_response(Stream &strm, bool close_connection, const Request &req, Response &res);
   bool write_response_with_content(Stream &strm, bool close_connection, const Request &req, Response &res);
   bool write_response_core(
@@ -632,11 +621,8 @@ private:
   Handler                            file_request_handler_;
   Handlers                           get_handlers_;
   Handlers                           put_handlers_;
-  HandlersForContentReader           put_handlers_for_content_reader_;
   Handlers                           patch_handlers_;
-  HandlersForContentReader           patch_handlers_for_content_reader_;
   Handlers                           delete_handlers_;
-  HandlersForContentReader           delete_handlers_for_content_reader_;
   Handlers                           options_handlers_;
   HandlerWithResponse                error_handler_;
   ExceptionHandler                   exception_handler_;
@@ -1258,34 +1244,6 @@ public:
 
   bool compress(const char *data, size_t data_length, bool /*last*/, Callback callback) override;
 };
-
-#ifdef CPPHTTPLIB_ZLIB_SUPPORT
-class gzip_compressor : public compressor {
-public:
-  gzip_compressor();
-  ~gzip_compressor();
-
-  bool compress(const char *data, size_t data_length, bool last, Callback callback) override;
-
-private:
-  bool     is_valid_ = false;
-  z_stream strm_;
-};
-
-class gzip_decompressor : public decompressor {
-public:
-  gzip_decompressor();
-  ~gzip_decompressor();
-
-  bool is_valid() const override;
-
-  bool decompress(const char *data, size_t data_length, Callback callback) override;
-
-private:
-  bool     is_valid_ = false;
-  z_stream strm_;
-};
-#endif
 
 #ifdef CPPHTTPLIB_BROTLI_SUPPORT
 class brotli_compressor : public compressor {
@@ -2526,14 +2484,6 @@ inline EncodingType encoding_type(const Request &req, const Response &res) {
   }
 #endif
 
-#ifdef CPPHTTPLIB_ZLIB_SUPPORT
-  // TODO: 'Accept-Encoding' has gzip, not gzip;q=0
-  ret = s.find("gzip") != std::string::npos;
-  if (ret) {
-    return EncodingType::Gzip;
-  }
-#endif
-
   return EncodingType::None;
 }
 
@@ -2543,127 +2493,6 @@ inline bool nocompressor::compress(const char *data, size_t data_length, bool /*
   }
   return callback(data, data_length);
 }
-
-#ifdef CPPHTTPLIB_ZLIB_SUPPORT
-inline gzip_compressor::gzip_compressor() {
-  std::memset(&strm_, 0, sizeof(strm_));
-  strm_.zalloc = Z_NULL;
-  strm_.zfree  = Z_NULL;
-  strm_.opaque = Z_NULL;
-
-  is_valid_ = deflateInit2(&strm_, Z_DEFAULT_COMPRESSION, Z_DEFLATED, 31, 8, Z_DEFAULT_STRATEGY) == Z_OK;
-}
-
-inline gzip_compressor::~gzip_compressor() {
-  deflateEnd(&strm_);
-}
-
-inline bool gzip_compressor::compress(const char *data, size_t data_length, bool last, Callback callback) {
-  assert(is_valid_);
-
-  do {
-    constexpr size_t max_avail_in = (std::numeric_limits<decltype(strm_.avail_in)>::max)();
-
-    strm_.avail_in = static_cast<decltype(strm_.avail_in)>((std::min)(data_length, max_avail_in));
-    strm_.next_in  = const_cast<Bytef *>(reinterpret_cast<const Bytef *>(data));
-
-    data_length -= strm_.avail_in;
-    data += strm_.avail_in;
-
-    auto flush = (last && data_length == 0) ? Z_FINISH : Z_NO_FLUSH;
-    int  ret   = Z_OK;
-
-    std::array<char, CPPHTTPLIB_COMPRESSION_BUFSIZ> buff{};
-    do {
-      strm_.avail_out = static_cast<uInt>(buff.size());
-      strm_.next_out  = reinterpret_cast<Bytef *>(buff.data());
-
-      ret = deflate(&strm_, flush);
-      if (ret == Z_STREAM_ERROR) {
-        return false;
-      }
-
-      if (!callback(buff.data(), buff.size() - strm_.avail_out)) {
-        return false;
-      }
-    } while (strm_.avail_out == 0);
-
-    assert((flush == Z_FINISH && ret == Z_STREAM_END) || (flush == Z_NO_FLUSH && ret == Z_OK));
-    assert(strm_.avail_in == 0);
-  } while (data_length > 0);
-
-  return true;
-}
-
-inline gzip_decompressor::gzip_decompressor() {
-  std::memset(&strm_, 0, sizeof(strm_));
-  strm_.zalloc = Z_NULL;
-  strm_.zfree  = Z_NULL;
-  strm_.opaque = Z_NULL;
-
-  // 15 is the value of wbits, which should be at the maximum possible value
-  // to ensure that any gzip stream can be decoded. The offset of 32 specifies
-  // that the stream type should be automatically detected either gzip or
-  // deflate.
-  is_valid_ = inflateInit2(&strm_, 32 + 15) == Z_OK;
-}
-
-inline gzip_decompressor::~gzip_decompressor() {
-  inflateEnd(&strm_);
-}
-
-inline bool gzip_decompressor::is_valid() const {
-  return is_valid_;
-}
-
-inline bool gzip_decompressor::decompress(const char *data, size_t data_length, Callback callback) {
-  assert(is_valid_);
-
-  int ret = Z_OK;
-
-  do {
-    constexpr size_t max_avail_in = (std::numeric_limits<decltype(strm_.avail_in)>::max)();
-
-    strm_.avail_in = static_cast<decltype(strm_.avail_in)>((std::min)(data_length, max_avail_in));
-    strm_.next_in  = const_cast<Bytef *>(reinterpret_cast<const Bytef *>(data));
-
-    data_length -= strm_.avail_in;
-    data += strm_.avail_in;
-
-    std::array<char, CPPHTTPLIB_COMPRESSION_BUFSIZ> buff{};
-    while (strm_.avail_in > 0) {
-      strm_.avail_out = static_cast<uInt>(buff.size());
-      strm_.next_out  = reinterpret_cast<Bytef *>(buff.data());
-
-      auto prev_avail_in = strm_.avail_in;
-
-      ret = inflate(&strm_, Z_NO_FLUSH);
-
-      if (prev_avail_in - strm_.avail_in == 0) {
-        return false;
-      }
-
-      assert(ret != Z_STREAM_ERROR);
-      switch (ret) {
-        case Z_NEED_DICT:
-        case Z_DATA_ERROR:
-        case Z_MEM_ERROR:
-          inflateEnd(&strm_);
-          return false;
-      }
-
-      if (!callback(buff.data(), buff.size() - strm_.avail_out)) {
-        return false;
-      }
-    }
-
-    if (ret != Z_OK && ret != Z_STREAM_END) return false;
-
-  } while (data_length > 0);
-
-  return true;
-}
-#endif
 
 #ifdef CPPHTTPLIB_BROTLI_SUPPORT
 inline brotli_compressor::brotli_compressor() {
@@ -2971,12 +2800,8 @@ bool prepare_content_receiver(T &x, int &status, ContentReceiverWithProgress rec
     std::unique_ptr<decompressor> decompressor;
 
     if (encoding == "gzip" || encoding == "deflate") {
-#ifdef CPPHTTPLIB_ZLIB_SUPPORT
-      decompressor = detail::make_unique<gzip_decompressor>();
-#else
       status = 415;
       return false;
-#endif
     } else if (encoding.find("br") != std::string::npos) {
 #ifdef CPPHTTPLIB_BROTLI_SUPPORT
       decompressor = detail::make_unique<brotli_decompressor>();
@@ -4506,15 +4331,8 @@ inline bool Server::write_response_core(
     Stream &strm, bool close_connection, const Request &req, Response &res, bool need_apply_ranges) {
   assert(res.status != -1);
 
-  if (400 <= res.status && error_handler_ && error_handler_(req, res) == HandlerResponse::Handled) {
-    need_apply_ranges = true;
-  }
-
   std::string content_type;
   std::string boundary;
-  if (need_apply_ranges) {
-    apply_ranges(req, res, content_type, boundary);
-  }
 
   // Prepare additional headers
   if (close_connection || req.get_header_value("Connection") == "close") {
@@ -4598,11 +4416,7 @@ inline bool Server::write_content_with_provider(
       auto type = detail::encoding_type(req, res);
 
       std::unique_ptr<detail::compressor> compressor;
-      if (type == detail::EncodingType::Gzip) {
-#ifdef CPPHTTPLIB_ZLIB_SUPPORT
-        compressor = detail::make_unique<detail::gzip_compressor>();
-#endif
-      } else if (type == detail::EncodingType::Brotli) {
+      if (type == detail::EncodingType::Brotli) {
 #ifdef CPPHTTPLIB_BROTLI_SUPPORT
         compressor = detail::make_unique<detail::brotli_compressor>();
 #endif
@@ -4892,120 +4706,6 @@ inline bool Server::dispatch_request(Request &req, Response &res) {
   if (handler != nullptr) {
     handler->handle(req.body);
     return true;
-  }
-  return false;
-}
-
-inline void Server::apply_ranges(const Request &req, Response &res, std::string &content_type, std::string &boundary) {
-  if (req.ranges.size() > 1) {
-    boundary = detail::make_multipart_data_boundary();
-
-    auto it = res.headers.find("Content-Type");
-    if (it != res.headers.end()) {
-      content_type = it->second;
-      res.headers.erase(it);
-    }
-
-    res.headers.emplace("Content-Type", "multipart/byteranges; boundary=" + boundary);
-  }
-
-  auto type = detail::encoding_type(req, res);
-
-  if (res.body.empty()) {
-    if (res.content_length_ > 0) {
-      size_t length = 0;
-      if (req.ranges.empty()) {
-        length = res.content_length_;
-      } else if (req.ranges.size() == 1) {
-        auto offsets       = detail::get_range_offset_and_length(req, res.content_length_, 0);
-        auto offset        = offsets.first;
-        length             = offsets.second;
-        auto content_range = detail::make_content_range_header_field(offset, length, res.content_length_);
-        res.set_header("Content-Range", content_range);
-      } else {
-        length = detail::get_multipart_ranges_data_length(req, res, boundary, content_type);
-      }
-      res.set_header("Content-Length", std::to_string(length));
-    } else {
-      if (res.content_provider_) {
-        if (res.is_chunked_content_provider_) {
-          res.set_header("Transfer-Encoding", "chunked");
-          if (type == detail::EncodingType::Gzip) {
-            res.set_header("Content-Encoding", "gzip");
-          } else if (type == detail::EncodingType::Brotli) {
-            res.set_header("Content-Encoding", "br");
-          }
-        }
-      }
-    }
-  } else {
-    if (req.ranges.empty()) {
-      ;
-    } else if (req.ranges.size() == 1) {
-      auto offsets       = detail::get_range_offset_and_length(req, res.body.size(), 0);
-      auto offset        = offsets.first;
-      auto length        = offsets.second;
-      auto content_range = detail::make_content_range_header_field(offset, length, res.body.size());
-      res.set_header("Content-Range", content_range);
-      if (offset < res.body.size()) {
-        res.body = res.body.substr(offset, length);
-      } else {
-        res.body.clear();
-        res.status = 416;
-      }
-    } else {
-      std::string data;
-      if (detail::make_multipart_ranges_data(req, res, boundary, content_type, data)) {
-        res.body.swap(data);
-      } else {
-        res.body.clear();
-        res.status = 416;
-      }
-    }
-
-    if (type != detail::EncodingType::None) {
-      std::unique_ptr<detail::compressor> compressor;
-      std::string                         content_encoding;
-
-      if (type == detail::EncodingType::Gzip) {
-#ifdef CPPHTTPLIB_ZLIB_SUPPORT
-        compressor       = detail::make_unique<detail::gzip_compressor>();
-        content_encoding = "gzip";
-#endif
-      } else if (type == detail::EncodingType::Brotli) {
-#ifdef CPPHTTPLIB_BROTLI_SUPPORT
-        compressor       = detail::make_unique<detail::brotli_compressor>();
-        content_encoding = "br";
-#endif
-      }
-
-      if (compressor) {
-        std::string compressed;
-        if (compressor->compress(res.body.data(), res.body.size(), true, [&](const char *data, size_t data_len) {
-              compressed.append(data, data_len);
-              return true;
-            })) {
-          res.body.swap(compressed);
-          res.set_header("Content-Encoding", content_encoding);
-        }
-      }
-    }
-
-    auto length = std::to_string(res.body.size());
-    res.set_header("Content-Length", length);
-  }
-}
-
-inline bool Server::dispatch_request_for_content_reader(
-    Request &req, Response &res, ContentReader content_reader, const HandlersForContentReader &handlers) {
-  for (const auto &x : handlers) {
-    const auto &pattern = x.first;
-    const auto &handler = x.second;
-
-    if (std::regex_match(req.path, req.matches, pattern)) {
-      handler(req, res, content_reader);
-      return true;
-    }
   }
   return false;
 }
@@ -5509,16 +5209,8 @@ inline bool ClientImpl::write_content_with_provider(Stream &strm, const Request 
   auto is_shutting_down = []() { return false; };
 
   if (req.is_chunked_content_provider_) {
-    // TODO: Brotli suport
     std::unique_ptr<detail::compressor> compressor;
-#ifdef CPPHTTPLIB_ZLIB_SUPPORT
-    if (compress_) {
-      compressor = detail::make_unique<detail::gzip_compressor>();
-    } else
-#endif
-    {
-      compressor = detail::make_unique<detail::nocompressor>();
-    }
+    { compressor = detail::make_unique<detail::nocompressor>(); }
 
     return detail::write_content_chunked(strm, req.content_provider_, is_shutting_down, *compressor, error);
   } else {
@@ -5652,60 +5344,6 @@ inline std::unique_ptr<Response> ClientImpl::send_with_content_provider(
     req.headers.emplace("Content-Type", content_type);
   }
 
-#ifdef CPPHTTPLIB_ZLIB_SUPPORT
-  if (compress_) {
-    req.headers.emplace("Content-Encoding", "gzip");
-  }
-#endif
-
-#ifdef CPPHTTPLIB_ZLIB_SUPPORT
-  if (compress_ && !content_provider_without_length) {
-    // TODO: Brotli support
-    detail::gzip_compressor compressor;
-
-    if (content_provider) {
-      auto     ok     = true;
-      size_t   offset = 0;
-      DataSink data_sink;
-
-      data_sink.write = [&](const char *data, size_t data_len) -> bool {
-        if (ok) {
-          auto last = offset + data_len == content_length;
-
-          auto ret =
-              compressor.compress(data, data_len, last, [&](const char *compressed_data, size_t compressed_data_len) {
-                req.body.append(compressed_data, compressed_data_len);
-                return true;
-              });
-
-          if (ret) {
-            offset += data_len;
-          } else {
-            ok = false;
-          }
-        }
-        return ok;
-      };
-
-      data_sink.is_writable = [&](void) { return ok && true; };
-
-      while (ok && offset < content_length) {
-        if (!content_provider(offset, content_length - offset, data_sink)) {
-          error = Error::Canceled;
-          return nullptr;
-        }
-      }
-    } else {
-      if (!compressor.compress(body, content_length, true, [&](const char *data, size_t data_len) {
-            req.body.append(data, data_len);
-            return true;
-          })) {
-        error = Error::Compression;
-        return nullptr;
-      }
-    }
-  } else
-#endif
   {
     if (content_provider) {
       req.content_length_              = content_length;
@@ -6124,7 +5762,5 @@ inline void Client::set_proxy_basic_auth(const std::string &username, const std:
 inline void Client::set_proxy_bearer_token_auth(const std::string &token) {
   cli_->set_proxy_bearer_token_auth(token);
 }
-
-// ----------------------------------------------------------------------------
 
 }  // namespace httplib
