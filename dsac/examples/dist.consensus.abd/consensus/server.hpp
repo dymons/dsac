@@ -493,8 +493,6 @@ private:
   std::mutex mutex_;
 };
 
-using Logger = std::function<void(const Request &, const Response &)>;
-
 using SocketOptions = std::function<void(socket_t sock)>;
 
 void default_socket_options(socket_t sock);
@@ -541,7 +539,6 @@ public:
   Server &set_post_routing_handler(Handler handler);
 
   Server &set_expect_100_continue_handler(Expect100ContinueHandler handler);
-  Server &set_logger(Logger logger);
 
   Server &set_address_family(int family);
   Server &set_tcp_nodelay(bool on);
@@ -661,7 +658,6 @@ private:
   ExceptionHandler exception_handler_;
   HandlerWithResponse pre_routing_handler_;
   Handler post_routing_handler_;
-  Logger logger_;
   Expect100ContinueHandler expect_100_continue_handler_;
 
   int address_family_ = AF_UNSPEC;
@@ -789,8 +785,6 @@ public:
                             const std::string &password);
   void set_proxy_bearer_token_auth(const std::string &token);
 
-  void set_logger(Logger logger);
-
 protected:
   struct Socket {
     socket_t sock = INVALID_SOCKET;
@@ -877,8 +871,6 @@ protected:
   std::string proxy_basic_auth_username_;
   std::string proxy_basic_auth_password_;
   std::string proxy_bearer_token_auth_token_;
-
-  Logger logger_;
 
 private:
   socket_t create_client_socket(Error &error) const;
@@ -977,8 +969,6 @@ public:
   void set_proxy_basic_auth(const std::string &username,
                             const std::string &password);
   void set_proxy_bearer_token_auth(const std::string &token);
-
-  void set_logger(Logger logger);
 
 private:
   std::unique_ptr<ClientImpl> cli_;
@@ -4117,11 +4107,6 @@ inline Server &Server::set_post_routing_handler(Handler handler) {
   return *this;
 }
 
-inline Server &Server::set_logger(Logger logger) {
-  logger_ = std::move(logger);
-  return *this;
-}
-
 inline Server &
 Server::set_expect_100_continue_handler(Expect100ContinueHandler handler) {
   expect_100_continue_handler_ = std::move(handler);
@@ -4356,9 +4341,6 @@ inline bool Server::write_response_core(Stream &strm, bool close_connection,
       }
     }
   }
-
-  // Log
-  if (logger_) { logger_(req, res); }
 
   return ret;
 }
@@ -4987,7 +4969,6 @@ inline void ClientImpl::copy_settings(const ClientImpl &rhs) {
   proxy_basic_auth_username_ = rhs.proxy_basic_auth_username_;
   proxy_basic_auth_password_ = rhs.proxy_basic_auth_password_;
   proxy_bearer_token_auth_token_ = rhs.proxy_bearer_token_auth_token_;
-  logger_ = rhs.logger_;
 }
 
 inline socket_t ClientImpl::create_client_socket(Error &error) const {
@@ -5577,9 +5558,6 @@ inline bool ClientImpl::process_request(Stream &strm, Request &req,
     close_socket(socket_);
   }
 
-  // Log
-  if (logger_) { logger_(req, res); }
-
   return true;
 }
 
@@ -5694,10 +5672,6 @@ inline void ClientImpl::set_proxy_basic_auth(const std::string &username,
 
 inline void ClientImpl::set_proxy_bearer_token_auth(const std::string &token) {
   proxy_bearer_token_auth_token_ = token;
-}
-
-inline void ClientImpl::set_logger(Logger logger) {
-  logger_ = std::move(logger);
 }
 
 // Universal client implementation
@@ -5832,8 +5806,6 @@ inline void Client::set_proxy_basic_auth(const std::string &username,
 inline void Client::set_proxy_bearer_token_auth(const std::string &token) {
   cli_->set_proxy_bearer_token_auth(token);
 }
-
-inline void Client::set_logger(Logger logger) { cli_->set_logger(logger); }
 
 // ----------------------------------------------------------------------------
 
