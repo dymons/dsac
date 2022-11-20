@@ -41,11 +41,7 @@
 #endif
 
 #ifndef CPPHTTPLIB_IDLE_INTERVAL_USECOND
-#ifdef _WIN32
-#define CPPHTTPLIB_IDLE_INTERVAL_USECOND 10000
-#else
 #define CPPHTTPLIB_IDLE_INTERVAL_USECOND 0
-#endif
 #endif
 
 #ifndef CPPHTTPLIB_REQUEST_URI_MAX_LENGTH
@@ -1059,19 +1055,12 @@ inline ssize_t Stream::write_format(const char *fmt, const Args &...args) {
 
 inline void default_socket_options(socket_t sock) {
   int yes = 1;
-#ifdef _WIN32
-  setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, reinterpret_cast<char *>(&yes),
-             sizeof(yes));
-  setsockopt(sock, SOL_SOCKET, SO_EXCLUSIVEADDRUSE,
-             reinterpret_cast<char *>(&yes), sizeof(yes));
-#else
 #ifdef SO_REUSEPORT
   setsockopt(sock, SOL_SOCKET, SO_REUSEPORT, reinterpret_cast<void *>(&yes),
              sizeof(yes));
 #else
   setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, reinterpret_cast<void *>(&yes),
              sizeof(yes));
-#endif
 #endif
 }
 
@@ -1477,12 +1466,8 @@ inline std::string base64_encode(const std::string &in) {
 }
 
 inline bool is_file(const std::string &path) {
-#ifdef _WIN32
-  return _access_s(path.c_str(), 0) == 0;
-#else
   struct stat st;
   return stat(path.c_str(), &st) >= 0 && S_ISREG(st.st_mode);
-#endif
 }
 
 inline bool is_dir(const std::string &path) {
@@ -1737,11 +1722,7 @@ inline void stream_line_reader::append(char c) {
 }
 
 inline int close_socket(socket_t sock) {
-#ifdef _WIN32
-  return closesocket(sock);
-#else
   return close(sock);
-#endif
 }
 
 template <typename T> inline ssize_t handle_EINTR(T fn) {
@@ -1757,11 +1738,7 @@ template <typename T> inline ssize_t handle_EINTR(T fn) {
 inline ssize_t read_socket(socket_t sock, void *ptr, size_t size, int flags) {
   return handle_EINTR([&]() {
     return recv(sock,
-#ifdef _WIN32
-                static_cast<char *>(ptr), static_cast<int>(size),
-#else
                 ptr, size,
-#endif
                 flags);
   });
 }
@@ -1770,11 +1747,7 @@ inline ssize_t send_socket(socket_t sock, const void *ptr, size_t size,
                            int flags) {
   return handle_EINTR([&]() {
     return send(sock,
-#ifdef _WIN32
-                static_cast<const char *>(ptr), static_cast<int>(size),
-#else
                 ptr, size,
-#endif
                 flags);
   });
 }
@@ -1789,9 +1762,7 @@ inline ssize_t select_read(socket_t sock, time_t sec, time_t usec) {
 
   return handle_EINTR([&]() { return poll(&pfd_read, 1, timeout); });
 #else
-#ifndef _WIN32
   if (sock >= FD_SETSIZE) { return 1; }
-#endif
 
   fd_set fds;
   FD_ZERO(&fds);
@@ -1817,9 +1788,7 @@ inline ssize_t select_write(socket_t sock, time_t sec, time_t usec) {
 
   return handle_EINTR([&]() { return poll(&pfd_read, 1, timeout); });
 #else
-#ifndef _WIN32
   if (sock >= FD_SETSIZE) { return 1; }
-#endif
 
   fd_set fds;
   FD_ZERO(&fds);
@@ -1859,9 +1828,9 @@ inline Error wait_until_socket_is_ready(socket_t sock, time_t sec,
 
   return Error::Connection;
 #else
-#ifndef _WIN32
+
   if (sock >= FD_SETSIZE) { return Error::Connection; }
-#endif
+
 
   fd_set fdsr;
   FD_ZERO(&fdsr);
@@ -1995,11 +1964,7 @@ inline bool process_client_socket(socket_t sock, time_t read_timeout_sec,
 }
 
 inline int shutdown_socket(socket_t sock) {
-#ifdef _WIN32
-  return shutdown(sock, SD_BOTH);
-#else
   return shutdown(sock, SHUT_RDWR);
-#endif
 }
 
 template <typename BindOrConnect>
@@ -2026,7 +1991,6 @@ socket_t create_socket(const std::string &host, const std::string &ip, int port,
     hints.ai_flags = socket_flags;
   }
 
-#ifndef _WIN32
   if (hints.ai_family == AF_UNIX) {
     const auto addrlen = host.length();
     if (addrlen > sizeof(sockaddr_un::sun_path)) return INVALID_SOCKET;
@@ -2051,7 +2015,6 @@ socket_t create_socket(const std::string &host, const std::string &ip, int port,
     }
     return sock;
   }
-#endif
 
   auto service = std::to_string(port);
 
@@ -2063,36 +2026,11 @@ socket_t create_socket(const std::string &host, const std::string &ip, int port,
   }
 
   for (auto rp = result; rp; rp = rp->ai_next) {
-    // Create a socket
-#ifdef _WIN32
-    auto sock =
-        WSASocketW(rp->ai_family, rp->ai_socktype, rp->ai_protocol, nullptr, 0,
-                   WSA_FLAG_NO_HANDLE_INHERIT | WSA_FLAG_OVERLAPPED);
-    /**
-     * Since the WSA_FLAG_NO_HANDLE_INHERIT is only supported on Windows 7 SP1
-     * and above the socket creation fails on older Windows Systems.
-     *
-     * Let's try to create a socket the old way in this case.
-     *
-     * Reference:
-     * https://docs.microsoft.com/en-us/windows/win32/api/winsock2/nf-winsock2-wsasocketa
-     *
-     * WSA_FLAG_NO_HANDLE_INHERIT:
-     * This flag is supported on Windows 7 with SP1, Windows Server 2008 R2 with
-     * SP1, and later
-     *
-     */
-    if (sock == INVALID_SOCKET) {
-      sock = socket(rp->ai_family, rp->ai_socktype, rp->ai_protocol);
-    }
-#else
     auto sock = socket(rp->ai_family, rp->ai_socktype, rp->ai_protocol);
-#endif
+
     if (sock == INVALID_SOCKET) { continue; }
 
-#ifndef _WIN32
     if (fcntl(sock, F_SETFD, FD_CLOEXEC) == -1) { continue; }
-#endif
 
     if (tcp_nodelay) {
       int yes = 1;
@@ -2122,22 +2060,13 @@ socket_t create_socket(const std::string &host, const std::string &ip, int port,
 }
 
 inline void set_nonblocking(socket_t sock, bool nonblocking) {
-#ifdef _WIN32
-  auto flags = nonblocking ? 1UL : 0UL;
-  ioctlsocket(sock, FIONBIO, &flags);
-#else
   auto flags = fcntl(sock, F_GETFL, 0);
   fcntl(sock, F_SETFL,
         nonblocking ? (flags | O_NONBLOCK) : (flags & (~O_NONBLOCK)));
-#endif
 }
 
 inline bool is_connection_error() {
-#ifdef _WIN32
-  return WSAGetLastError() != WSAEWOULDBLOCK;
-#else
   return errno != EINPROGRESS;
-#endif
 }
 
 inline bool bind_ip_address(socket_t sock, const std::string &host) {
@@ -2245,31 +2174,16 @@ inline socket_t create_client_socket(
         set_nonblocking(sock2, false);
 
         {
-#ifdef _WIN32
-          auto timeout = static_cast<uint32_t>(read_timeout_sec * 1000 +
-                                               read_timeout_usec / 1000);
-          setsockopt(sock2, SOL_SOCKET, SO_RCVTIMEO, (char *)&timeout,
-                     sizeof(timeout));
-#else
           timeval tv;
           tv.tv_sec = static_cast<long>(read_timeout_sec);
           tv.tv_usec = static_cast<decltype(tv.tv_usec)>(read_timeout_usec);
           setsockopt(sock2, SOL_SOCKET, SO_RCVTIMEO, (char *)&tv, sizeof(tv));
-#endif
         }
         {
-
-#ifdef _WIN32
-          auto timeout = static_cast<uint32_t>(write_timeout_sec * 1000 +
-                                               write_timeout_usec / 1000);
-          setsockopt(sock2, SOL_SOCKET, SO_SNDTIMEO, (char *)&timeout,
-                     sizeof(timeout));
-#else
           timeval tv;
           tv.tv_sec = static_cast<long>(write_timeout_sec);
           tv.tv_usec = static_cast<decltype(tv.tv_usec)>(write_timeout_usec);
           setsockopt(sock2, SOL_SOCKET, SO_SNDTIMEO, (char *)&tv, sizeof(tv));
-#endif
         }
 
         error = Error::Success;
@@ -2314,7 +2228,6 @@ inline void get_remote_ip_and_port(socket_t sock, std::string &ip, int &port) {
 
   if (!getpeername(sock, reinterpret_cast<struct sockaddr *>(&addr),
                    &addr_len)) {
-#ifndef _WIN32
     if (addr.ss_family == AF_UNIX) {
 #if defined(__linux__)
       struct ucred ucred;
@@ -2331,7 +2244,6 @@ inline void get_remote_ip_and_port(socket_t sock, std::string &ip, int &port) {
 #endif
       return;
     }
-#endif
     get_remote_ip_and_port(addr, addr_len, ip, port);
   }
 }
@@ -4046,13 +3958,8 @@ inline bool SocketStream::is_writable() const {
 }
 
 inline ssize_t SocketStream::read(char *ptr, size_t size) {
-#ifdef _WIN32
-  size =
-      (std::min)(size, static_cast<size_t>((std::numeric_limits<int>::max)()));
-#else
   size = (std::min)(size,
                     static_cast<size_t>((std::numeric_limits<ssize_t>::max)()));
-#endif
 
   if (read_buff_off_ < read_buff_content_size_) {
     auto remaining_size = read_buff_content_size_ - read_buff_off_;
@@ -4093,11 +4000,6 @@ inline ssize_t SocketStream::read(char *ptr, size_t size) {
 
 inline ssize_t SocketStream::write(const char *ptr, size_t size) {
   if (!is_writable()) { return -1; }
-
-#if defined(_WIN32) && !defined(_WIN64)
-  size =
-      (std::min)(size, static_cast<size_t>((std::numeric_limits<int>::max)()));
-#endif
 
   return send_socket(sock_, ptr, size, CPPHTTPLIB_SEND_FLAGS);
 }
@@ -4143,9 +4045,7 @@ inline Server::Server()
   : new_task_queue(
         [] { return new ThreadPool(CPPHTTPLIB_THREAD_POOL_COUNT); }),
   svr_sock_(INVALID_SOCKET), is_running_(false) {
-#ifndef _WIN32
   signal(SIGPIPE, SIG_IGN);
-#endif
 }
 
 inline Server::~Server() {}
@@ -4695,18 +4595,14 @@ inline bool Server::listen_internal() {
     std::unique_ptr<TaskQueue> task_queue(new_task_queue());
 
     while (svr_sock_ != INVALID_SOCKET) {
-#ifndef _WIN32
       if (idle_interval_sec_ > 0 || idle_interval_usec_ > 0) {
-#endif
         auto val = detail::select_read(svr_sock_, idle_interval_sec_,
                                        idle_interval_usec_);
         if (val == 0) { // Timeout
           task_queue->on_idle();
           continue;
         }
-#ifndef _WIN32
       }
-#endif
       socket_t sock = accept(svr_sock_, nullptr, nullptr);
 
       if (sock == INVALID_SOCKET) {
@@ -4726,31 +4622,16 @@ inline bool Server::listen_internal() {
       }
 
       {
-#ifdef _WIN32
-        auto timeout = static_cast<uint32_t>(read_timeout_sec_ * 1000 +
-                                             read_timeout_usec_ / 1000);
-        setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, (char *)&timeout,
-                   sizeof(timeout));
-#else
         timeval tv;
         tv.tv_sec = static_cast<long>(read_timeout_sec_);
         tv.tv_usec = static_cast<decltype(tv.tv_usec)>(read_timeout_usec_);
         setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, (char *)&tv, sizeof(tv));
-#endif
       }
       {
-
-#ifdef _WIN32
-        auto timeout = static_cast<uint32_t>(write_timeout_sec_ * 1000 +
-                                             write_timeout_usec_ / 1000);
-        setsockopt(sock, SOL_SOCKET, SO_SNDTIMEO, (char *)&timeout,
-                   sizeof(timeout));
-#else
         timeval tv;
         tv.tv_sec = static_cast<long>(write_timeout_sec_);
         tv.tv_usec = static_cast<decltype(tv.tv_usec)>(write_timeout_usec_);
         setsockopt(sock, SOL_SOCKET, SO_SNDTIMEO, (char *)&tv, sizeof(tv));
-#endif
       }
 
 #if __cplusplus > 201703L
@@ -4942,9 +4823,6 @@ Server::process_request(Stream &strm, bool close_connection,
     }
   }
 
-#ifdef _WIN32
-  // TODO: Increase FD_SETSIZE statically (libzmq), dynamically (MySQL).
-#else
 #ifndef CPPHTTPLIB_USE_POLL
   // Socket file descriptor exceeded FD_SETSIZE...
   if (strm.socket() >= FD_SETSIZE) {
@@ -4953,7 +4831,6 @@ Server::process_request(Stream &strm, bool close_connection,
     res.status = 500;
     return write_response(strm, close_connection, req, res);
   }
-#endif
 #endif
 
   // Check if the request URI doesn't exceed the limit
@@ -5961,8 +5838,3 @@ inline void Client::set_logger(Logger logger) { cli_->set_logger(logger); }
 // ----------------------------------------------------------------------------
 
 } // namespace httplib
-
-#if defined(_WIN32) && defined(CPPHTTPLIB_USE_POLL)
-#undef poll
-#endif
-
