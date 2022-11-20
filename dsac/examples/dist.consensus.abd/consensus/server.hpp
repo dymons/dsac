@@ -1,5 +1,7 @@
 #pragma once
 
+#include <examples/dist.consensus.abd/consensus/factory.hpp>
+
 #define CPPHTTPLIB_VERSION "0.11.2"
 
 #ifndef CPPHTTPLIB_KEEPALIVE_TIMEOUT_SECOND
@@ -5487,18 +5489,12 @@ inline bool Server::routing(Request &req, Response &res, Stream &strm) {
   }
 
   // Regular handler
-  if (req.method == "GET" || req.method == "HEAD") {
-    return dispatch_request(req, res, get_handlers_);
-  } else if (req.method == "POST") {
+  if (req.method == "GET" && req.path == "/ping") {
+    return true;
+  }
+
+  if (req.method == "POST") {
     return dispatch_request(req, res, post_handlers_);
-  } else if (req.method == "PUT") {
-    return dispatch_request(req, res, put_handlers_);
-  } else if (req.method == "DELETE") {
-    return dispatch_request(req, res, delete_handlers_);
-  } else if (req.method == "OPTIONS") {
-    return dispatch_request(req, res, options_handlers_);
-  } else if (req.method == "PATCH") {
-    return dispatch_request(req, res, patch_handlers_);
   }
 
   res.status = 400;
@@ -5507,14 +5503,10 @@ inline bool Server::routing(Request &req, Response &res, Stream &strm) {
 
 inline bool Server::dispatch_request(Request &req, Response &res,
                                      const Handlers &handlers) {
-  for (const auto &x : handlers) {
-    const auto &pattern = x.first;
-    const auto &handler = x.second;
-
-    if (std::regex_match(req.path, req.matches, pattern)) {
-      handler(req, res);
-      return true;
-    }
+  std::unique_ptr<dsac::abd> handler = dsac::abd::factory::construct(req.path);
+  if (handler != nullptr) {
+    handler->handle(req.body);
+    return true;
   }
   return false;
 }
