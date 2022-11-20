@@ -160,6 +160,9 @@ public:
     \brief
         Check that the user component is contained in the component factory
 
+    \param component_name
+        Name of the user component
+
     \ingroup
         DsacPattern
   */
@@ -180,8 +183,11 @@ public:
     \brief
         Creating a user component using a factory
 
+    \param component_name
+        Name of the user component
+
     \param args
-        Arguments for creating a component
+        Arguments for component construction
 
     \ingroup
         DsacPattern
@@ -206,6 +212,9 @@ public:
   /*!
     \brief
         User constructor, registers a user component in the factory by component_name
+
+    \param component_name
+        Name of the user component
   */
   explicit registractor(const std::string& component_name);
 };
