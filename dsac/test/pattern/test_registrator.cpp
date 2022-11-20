@@ -8,10 +8,10 @@ class consensus {
 public:
   using factory = dsac::factory<consensus>;
 
-  consensus()                     = default;
-  consensus(const consensus&)     = default;
-  consensus(consensus&&) noexcept = default;
-  consensus& operator=(const consensus&) = default;
+  consensus()                                = default;
+  consensus(const consensus&)                = default;
+  consensus(consensus&&) noexcept            = default;
+  consensus& operator=(const consensus&)     = default;
   consensus& operator=(consensus&&) noexcept = default;
   virtual ~consensus()                       = default;
 };
