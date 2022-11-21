@@ -1,12 +1,7 @@
 #include <examples/dist.consensus.abd/transport/transport_http/detail/socket.hpp>
 #include <examples/dist.consensus.abd/transport/transport_http/http.hpp>
 
-#include <dsac/functional/expected.hpp>
-
 #include <atomic>
-#include <memory>
-
-#include <netdb.h>
 
 namespace dsac {
 

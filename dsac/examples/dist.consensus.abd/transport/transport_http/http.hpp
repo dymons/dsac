@@ -1,8 +1,8 @@
 #pragma once
 
-#include <dsac/memory/shared_ptr.hpp>
-
 #include <examples/dist.consensus.abd/transport/transport.hpp>
+
+#include <dsac/memory/shared_ptr.hpp>
 
 namespace dsac {
 
