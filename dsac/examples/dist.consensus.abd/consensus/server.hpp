@@ -116,7 +116,6 @@
 using socket_t = int;
 #define INVALID_SOCKET (-1)
 
-#include <errno.h>
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <algorithm>
@@ -125,7 +124,6 @@ using socket_t = int;
 #include <cassert>
 #include <cctype>
 #include <climits>
-#include <condition_variable>
 #include <cstring>
 #include <fstream>
 #include <functional>
@@ -422,14 +420,10 @@ public:
   template <class Rep, class Period>
   Server &set_idle_interval(const std::chrono::duration<Rep, Period> &duration);
 
-  Server &set_payload_max_length(size_t length);
-
   bool bind_to_port(const std::string &host, int port, int socket_flags = 0);
-  int  bind_to_any_port(const std::string &host, int socket_flags = 0);
 
   bool listen(const std::string &host, int port, int socket_flags = 0);
 
-  bool is_running() const;
   void stop();
 
   dsac::executor_base_ref new_task_queue = dsac::make_static_thread_pool(4U);
@@ -820,10 +814,6 @@ private:
   std::unique_ptr<ClientImpl> cli_;
 };
 
-/*
- * Implementation of template methods.
- */
-
 namespace detail {
 
 template <typename T, typename U>
@@ -888,11 +878,7 @@ inline ssize_t Stream::write_format(const char *fmt, const Args &...args) {
 
 inline void default_socket_options(socket_t sock) {
   int yes = 1;
-#ifdef SO_REUSEPORT
   setsockopt(sock, SOL_SOCKET, SO_REUSEPORT, reinterpret_cast<void *>(&yes), sizeof(yes));
-#else
-  setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, reinterpret_cast<void *>(&yes), sizeof(yes));
-#endif
 }
 
 template <class Rep, class Period>
@@ -984,11 +970,6 @@ template <class Rep, class Period>
 inline void Client::set_write_timeout(const std::chrono::duration<Rep, Period> &duration) {
   cli_->set_write_timeout(duration);
 }
-
-/*
- * Forward declarations and types that will be part of the .h file if split into
- * .h + .cc.
- */
 
 std::string hosted_at(const std::string &hostname);
 
@@ -1119,12 +1100,6 @@ private:
 
 }  // namespace detail
 
-// ----------------------------------------------------------------------------
-
-/*
- * Implementation that will be part of the .cc file if split into .h + .cc.
- */
-
 namespace detail {
 
 inline bool is_hex(char c, int &v) {
@@ -1199,14 +1174,11 @@ inline size_t to_utf8(int code, char *buff) {
     return 4;
   }
 
-  // NOTREACHED
   return 0;
 }
 
-// NOTE: This code came up with the following stackoverflow post:
-// https://stackoverflow.com/questions/180947/base64-decode-snippet-in-c
 inline std::string base64_encode(const std::string &in) {
-  static const auto lookup = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+  static const auto *const lookup = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
   std::string out;
   out.reserve(in.size());
@@ -1235,12 +1207,12 @@ inline std::string base64_encode(const std::string &in) {
 }
 
 inline bool is_file(const std::string &path) {
-  struct stat st;
+  struct stat st{};
   return stat(path.c_str(), &st) >= 0 && S_ISREG(st.st_mode);
 }
 
 inline bool is_dir(const std::string &path) {
-  struct stat st;
+  struct stat st{};
   return stat(path.c_str(), &st) >= 0 && S_ISDIR(st.st_mode);
 }
 
@@ -3850,25 +3822,12 @@ inline Server &Server::set_idle_interval(time_t sec, time_t usec) {
   return *this;
 }
 
-inline Server &Server::set_payload_max_length(size_t length) {
-  payload_max_length_ = length;
-  return *this;
-}
-
 inline bool Server::bind_to_port(const std::string &host, int port, int socket_flags) {
-  if (bind_internal(host, port, socket_flags) < 0) return false;
-  return true;
-}
-inline int Server::bind_to_any_port(const std::string &host, int socket_flags) {
-  return bind_internal(host, 0, socket_flags);
+  return bind_internal(host, port, socket_flags) >= 0;
 }
 
 inline bool Server::listen(const std::string &host, int port, int socket_flags) {
   return bind_to_port(host, port, socket_flags) && listen_internal();
-}
-
-inline bool Server::is_running() const {
-  return is_running_;
 }
 
 inline void Server::stop() {
