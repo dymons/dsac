@@ -1,8 +1,5 @@
-#include <examples/dist.consensus.abd/transport/detail/http.hpp>
+#include <examples/dist.consensus.abd/transport/transport_http/detail/socket.hpp>
 
-#include <dsac/functional/expected.hpp>
-
-#include <atomic>
 #include <memory>
 
 #include <netdb.h>
@@ -11,11 +8,12 @@ namespace dsac {
 
 namespace {
 
-constexpr const char* kEndpoint                    = "0.0.0.0";
-constexpr const int   kInvalidSocket               = -1;
-constexpr const int   kNumberOfConnectionsOnSocket = 5;
+constexpr const int kInvalidSocket               = -1;
+constexpr const int kNumberOfConnectionsOnSocket = 5;
 
-dsac::expected<int, std::string> create_server_socket(std::string const& endpoint, std::string const& port) {
+}  // namespace
+
+auto create_server_socket(std::string const& endpoint, std::string const& port) -> dsac::expected<int, std::string> {
   addrinfo hints{
       .ai_flags     = 0,
       .ai_family    = 0,
@@ -51,30 +49,6 @@ dsac::expected<int, std::string> create_server_socket(std::string const& endpoin
   }
 
   return dsac::make_unexpected("cant search service provider");
-}
-
-}  // namespace
-
-class transport_http::transport_http_pimpl {
-  std::atomic<int> socket_;
-
-public:
-  void serve(int port) {
-    const dsac::expected<int, std::string> socket = create_server_socket(kEndpoint, std::to_string(port));
-    if (!socket.has_value()) {
-      throw transport_exception{socket.error()};
-    }
-
-    socket_.store(socket.value());
-  }
-};
-
-transport_http::transport_http()
-  : pimpl(make_shared<transport_http_pimpl>()) {
-}
-
-void transport_http::serve(int port) {
-  pimpl->serve(port);
 }
 
 }  // namespace dsac
