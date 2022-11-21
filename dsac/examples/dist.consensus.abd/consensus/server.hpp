@@ -400,21 +400,7 @@ public:
 
   Server();
 
-  virtual ~Server();
-
-  bool    set_base_dir(const std::string &dir, const std::string &mount_point = std::string());
-  bool    set_mount_point(const std::string &mount_point, const std::string &dir, Headers headers = Headers());
-  bool    remove_mount_point(const std::string &mount_point);
-  Server &set_file_extension_and_mimetype_mapping(const std::string &ext, const std::string &mime);
-  Server &set_file_request_handler(Handler handler);
-
-  Server &set_error_handler(HandlerWithResponse handler);
-  Server &set_error_handler(Handler handler);
-  Server &set_exception_handler(ExceptionHandler handler);
-  Server &set_pre_routing_handler(HandlerWithResponse handler);
-  Server &set_post_routing_handler(Handler handler);
-
-  Server &set_expect_100_continue_handler(Expect100ContinueHandler handler);
+  virtual ~Server() = default;
 
   Server &set_address_family(int family);
   Server &set_tcp_nodelay(bool on);
@@ -3828,78 +3814,6 @@ inline Server::Server()
   : svr_sock_(INVALID_SOCKET)
   , is_running_(false) {
   signal(SIGPIPE, SIG_IGN);
-}
-
-inline Server::~Server() {
-}
-
-inline bool Server::set_base_dir(const std::string &dir, const std::string &mount_point) {
-  return set_mount_point(mount_point, dir);
-}
-
-inline bool Server::set_mount_point(const std::string &mount_point, const std::string &dir, Headers headers) {
-  if (detail::is_dir(dir)) {
-    std::string mnt = !mount_point.empty() ? mount_point : "/";
-    if (!mnt.empty() && mnt[0] == '/') {
-      base_dirs_.push_back({mnt, dir, std::move(headers)});
-      return true;
-    }
-  }
-  return false;
-}
-
-inline bool Server::remove_mount_point(const std::string &mount_point) {
-  for (auto it = base_dirs_.begin(); it != base_dirs_.end(); ++it) {
-    if (it->mount_point == mount_point) {
-      base_dirs_.erase(it);
-      return true;
-    }
-  }
-  return false;
-}
-
-inline Server &Server::set_file_extension_and_mimetype_mapping(const std::string &ext, const std::string &mime) {
-  file_extension_and_mimetype_map_[ext] = mime;
-  return *this;
-}
-
-inline Server &Server::set_file_request_handler(Handler handler) {
-  file_request_handler_ = std::move(handler);
-  return *this;
-}
-
-inline Server &Server::set_error_handler(HandlerWithResponse handler) {
-  error_handler_ = std::move(handler);
-  return *this;
-}
-
-inline Server &Server::set_error_handler(Handler handler) {
-  error_handler_ = [handler](const Request &req, Response &res) {
-    handler(req, res);
-    return HandlerResponse::Handled;
-  };
-  return *this;
-}
-
-inline Server &Server::set_exception_handler(ExceptionHandler handler) {
-  exception_handler_ = std::move(handler);
-  return *this;
-}
-
-inline Server &Server::set_pre_routing_handler(HandlerWithResponse handler) {
-  pre_routing_handler_ = std::move(handler);
-  return *this;
-}
-
-inline Server &Server::set_post_routing_handler(Handler handler) {
-  post_routing_handler_ = std::move(handler);
-  return *this;
-}
-
-inline Server &Server::set_expect_100_continue_handler(Expect100ContinueHandler handler) {
-  expect_100_continue_handler_ = std::move(handler);
-
-  return *this;
 }
 
 inline Server &Server::set_address_family(int family) {
