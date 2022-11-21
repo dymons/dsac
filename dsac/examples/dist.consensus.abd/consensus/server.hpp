@@ -402,7 +402,6 @@ public:
 
   virtual ~Server() = default;
 
-  Server &set_address_family(int family);
   Server &set_tcp_nodelay(bool on);
   Server &set_socket_options(SocketOptions socket_options);
 
@@ -500,12 +499,6 @@ private:
   std::atomic<bool>                  is_running_;
   std::map<std::string, std::string> file_extension_and_mimetype_map_;
   Handler                            file_request_handler_;
-  Handlers                           get_handlers_;
-  Handlers                           put_handlers_;
-  Handlers                           patch_handlers_;
-  Handlers                           delete_handlers_;
-  Handlers                           options_handlers_;
-  HandlerWithResponse                error_handler_;
   ExceptionHandler                   exception_handler_;
   HandlerWithResponse                pre_routing_handler_;
   Handler                            post_routing_handler_;
@@ -616,7 +609,6 @@ public:
 
   void set_default_headers(Headers headers);
 
-  void set_address_family(int family);
   void set_tcp_nodelay(bool on);
   void set_socket_options(SocketOptions socket_options);
 
@@ -791,7 +783,6 @@ public:
 
   void set_default_headers(Headers headers);
 
-  void set_address_family(int family);
   void set_tcp_nodelay(bool on);
   void set_socket_options(SocketOptions socket_options);
 
@@ -3816,11 +3807,6 @@ inline Server::Server()
   signal(SIGPIPE, SIG_IGN);
 }
 
-inline Server &Server::set_address_family(int family) {
-  address_family_ = family;
-  return *this;
-}
-
 inline Server &Server::set_tcp_nodelay(bool on) {
   tcp_nodelay_ = on;
   return *this;
@@ -5138,10 +5124,6 @@ inline void ClientImpl::set_default_headers(Headers headers) {
   default_headers_ = std::move(headers);
 }
 
-inline void ClientImpl::set_address_family(int family) {
-  address_family_ = family;
-}
-
 inline void ClientImpl::set_tcp_nodelay(bool on) {
   tcp_nodelay_ = on;
 }
@@ -5250,10 +5232,6 @@ inline void Client::set_hostname_addr_map(std::map<std::string, std::string> add
 
 inline void Client::set_default_headers(Headers headers) {
   cli_->set_default_headers(std::move(headers));
-}
-
-inline void Client::set_address_family(int family) {
-  cli_->set_address_family(family);
 }
 
 inline void Client::set_tcp_nodelay(bool on) {
