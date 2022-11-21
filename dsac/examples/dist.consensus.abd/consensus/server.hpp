@@ -3,8 +3,6 @@
 #include <dsac/concurrency/executors/static_thread_pool.hpp>
 #include <examples/dist.consensus.abd/consensus/factory.hpp>
 
-#define CPPHTTPLIB_VERSION "0.11.2"
-
 #ifndef CPPHTTPLIB_KEEPALIVE_TIMEOUT_SECOND
 #define CPPHTTPLIB_KEEPALIVE_TIMEOUT_SECOND 5
 #endif
@@ -192,10 +190,10 @@ public:
     , sb_(*this) {
   }
 
-  DataSink(const DataSink &)            = delete;
+  DataSink(const DataSink &) = delete;
   DataSink &operator=(const DataSink &) = delete;
   DataSink(DataSink &&)                 = delete;
-  DataSink &operator=(DataSink &&)      = delete;
+  DataSink &operator=(DataSink &&) = delete;
 
   std::function<bool(const char *data, size_t data_len)> write;
   std::function<void()>                                  done;
@@ -341,11 +339,11 @@ struct Response {
       ContentProviderWithoutLength    provider,
       ContentProviderResourceReleaser resource_releaser = nullptr);
 
-  Response()                            = default;
-  Response(const Response &)            = default;
+  Response()                 = default;
+  Response(const Response &) = default;
   Response &operator=(const Response &) = default;
   Response(Response &&)                 = default;
-  Response &operator=(Response &&)      = default;
+  Response &operator=(Response &&) = default;
   ~Response() {
     if (content_provider_resource_releaser_) {
       content_provider_resource_releaser_(content_provider_success_);
@@ -1207,12 +1205,12 @@ inline std::string base64_encode(const std::string &in) {
 }
 
 inline bool is_file(const std::string &path) {
-  struct stat st{};
+  struct stat st {};
   return stat(path.c_str(), &st) >= 0 && S_ISREG(st.st_mode);
 }
 
 inline bool is_dir(const std::string &path) {
-  struct stat st{};
+  struct stat st {};
   return stat(path.c_str(), &st) >= 0 && S_ISDIR(st.st_mode);
 }
 
@@ -1695,44 +1693,11 @@ socket_t create_socket(
   hints.ai_socktype = SOCK_STREAM;
   hints.ai_protocol = 0;
 
-  if (!ip.empty()) {
-    node = ip.c_str();
-    // Ask getaddrinfo to convert IP in c-string to address
-    hints.ai_family = AF_UNSPEC;
-    hints.ai_flags  = AI_NUMERICHOST;
-  } else {
-    if (!host.empty()) {
-      node = host.c_str();
-    }
-    hints.ai_family = address_family;
-    hints.ai_flags  = socket_flags;
+  if (!host.empty()) {
+    node = host.c_str();
   }
-
-  if (hints.ai_family == AF_UNIX) {
-    const auto addrlen = host.length();
-    if (addrlen > sizeof(sockaddr_un::sun_path)) return INVALID_SOCKET;
-
-    auto sock = socket(hints.ai_family, hints.ai_socktype, hints.ai_protocol);
-    if (sock != INVALID_SOCKET) {
-      sockaddr_un addr;
-      addr.sun_family = AF_UNIX;
-      std::copy(host.begin(), host.end(), addr.sun_path);
-
-      hints.ai_addr    = reinterpret_cast<sockaddr *>(&addr);
-      hints.ai_addrlen = static_cast<socklen_t>(sizeof(addr) - sizeof(addr.sun_path) + addrlen);
-
-      fcntl(sock, F_SETFD, FD_CLOEXEC);
-      if (socket_options) {
-        socket_options(sock);
-      }
-
-      if (!bind_or_connect(sock, hints)) {
-        close_socket(sock);
-        sock = INVALID_SOCKET;
-      }
-    }
-    return sock;
-  }
+  hints.ai_family = address_family;
+  hints.ai_flags  = socket_flags;
 
   auto service = std::to_string(port);
 
@@ -1752,11 +1717,6 @@ socket_t create_socket(
 
     if (fcntl(sock, F_SETFD, FD_CLOEXEC) == -1) {
       continue;
-    }
-
-    if (tcp_nodelay) {
-      int yes = 1;
-      setsockopt(sock, IPPROTO_TCP, TCP_NODELAY, reinterpret_cast<char *>(&yes), sizeof(yes));
     }
 
     if (socket_options) {
@@ -4659,7 +4619,7 @@ inline bool ClientImpl::handle_request(Stream &strm, Request &req, Response &res
 
   if (!proxy_host_.empty() && proxy_port_ != -1) {
     auto req2 = req;
-    req2.path = "http://" + host_and_port_ + req.path;
+    req2.path = "detail://" + host_and_port_ + req.path;
     ret       = process_request(strm, req2, res, close_connection, error);
     req       = req2;
     req.path  = req_save.path;
@@ -4698,7 +4658,7 @@ inline bool ClientImpl::redirect(Request &req, Response &res, Error &error) {
     return false;
   }
 
-  auto scheme = "http";
+  auto scheme = "detail";
 
   auto next_scheme = m[1].str();
   auto next_host   = m[2].str();
@@ -4772,7 +4732,7 @@ inline bool ClientImpl::write_request(Stream &strm, Request &req, bool close_con
   }
 
   if (!req.has_header("User-Agent")) {
-    auto agent = std::string("cpp-httplib/") + CPPHTTPLIB_VERSION;
+    auto agent = std::string("cpp-httplib/") + "0.11.2";
     req.headers.emplace("User-Agent", agent);
   }
 
@@ -5130,7 +5090,7 @@ inline Client::Client(
   if (std::regex_match(scheme_host_port, m, re)) {
     auto scheme = m[1].str();
 
-    if (!scheme.empty() && scheme != "http") {
+    if (!scheme.empty() && scheme != "detail") {
       std::string msg = "'" + scheme + "' scheme is not supported.";
       throw std::invalid_argument(msg);
     }

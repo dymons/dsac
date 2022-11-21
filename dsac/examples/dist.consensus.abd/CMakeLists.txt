@@ -1,6 +1,7 @@
 file(GLOB_RECURSE DSAC_DIST_CONSENSUS_ABD_CONSENSUS_HEADERS "consensus/*.hpp" "consensus/*.cpp")
+file(GLOB_RECURSE DSAC_DIST_CONSENSUS_ABD_TRANSPORT_HEADERS "transport/*.hpp" "transport/*.cpp")
 
-add_executable(dist.consensus.abd main.cpp ${DSAC_DIST_CONSENSUS_ABD_CONSENSUS_HEADERS})
+add_executable(dist.consensus.abd main.cpp ${DSAC_DIST_CONSENSUS_ABD_CONSENSUS_HEADERS} ${DSAC_DIST_CONSENSUS_ABD_TRANSPORT_HEADERS})
 
 include(FetchContent)
 
