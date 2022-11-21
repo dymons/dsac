@@ -1,5 +1,6 @@
 #pragma once
 
+#include <dsac/concurrency/executors/static_thread_pool.hpp>
 #include <examples/dist.consensus.abd/consensus/factory.hpp>
 
 #define CPPHTTPLIB_VERSION "0.11.2"
@@ -193,10 +194,10 @@ public:
     , sb_(*this) {
   }
 
-  DataSink(const DataSink &) = delete;
+  DataSink(const DataSink &)            = delete;
   DataSink &operator=(const DataSink &) = delete;
   DataSink(DataSink &&)                 = delete;
-  DataSink &operator=(DataSink &&) = delete;
+  DataSink &operator=(DataSink &&)      = delete;
 
   std::function<bool(const char *data, size_t data_len)> write;
   std::function<void()>                                  done;
@@ -342,11 +343,11 @@ struct Response {
       ContentProviderWithoutLength    provider,
       ContentProviderResourceReleaser resource_releaser = nullptr);
 
-  Response()                 = default;
-  Response(const Response &) = default;
+  Response()                            = default;
+  Response(const Response &)            = default;
   Response &operator=(const Response &) = default;
   Response(Response &&)                 = default;
-  Response &operator=(Response &&) = default;
+  Response &operator=(Response &&)      = default;
   ~Response() {
     if (content_provider_resource_releaser_) {
       content_provider_resource_releaser_(content_provider_success_);
@@ -377,91 +378,6 @@ public:
   ssize_t write_format(const char *fmt, const Args &...args);
   ssize_t write(const char *ptr);
   ssize_t write(const std::string &s);
-};
-
-class TaskQueue {
-public:
-  TaskQueue()          = default;
-  virtual ~TaskQueue() = default;
-
-  virtual void enqueue(std::function<void()> fn) = 0;
-  virtual void shutdown()                        = 0;
-
-  virtual void on_idle() {
-  }
-};
-
-class ThreadPool : public TaskQueue {
-public:
-  explicit ThreadPool(size_t n)
-    : shutdown_(false) {
-    while (n) {
-      threads_.emplace_back(worker(*this));
-      n--;
-    }
-  }
-
-  ThreadPool(const ThreadPool &) = delete;
-  ~ThreadPool() override         = default;
-
-  void enqueue(std::function<void()> fn) override {
-    std::unique_lock<std::mutex> lock(mutex_);
-    jobs_.push_back(std::move(fn));
-    cond_.notify_one();
-  }
-
-  void shutdown() override {
-    // Stop all worker threads...
-    {
-      std::unique_lock<std::mutex> lock(mutex_);
-      shutdown_ = true;
-      cond_.notify_all();
-    }
-
-    // Join...
-    for (auto &t : threads_) {
-      t.join();
-    }
-  }
-
-private:
-  struct worker {
-    explicit worker(ThreadPool &pool)
-      : pool_(pool) {
-    }
-
-    void operator()() {
-      for (;;) {
-        std::function<void()> fn;
-        {
-          std::unique_lock<std::mutex> lock(pool_.mutex_);
-
-          pool_.cond_.wait(lock, [&] { return !pool_.jobs_.empty() || pool_.shutdown_; });
-
-          if (pool_.shutdown_ && pool_.jobs_.empty()) {
-            break;
-          }
-
-          fn = pool_.jobs_.front();
-          pool_.jobs_.pop_front();
-        }
-
-        assert(true == static_cast<bool>(fn));
-        fn();
-      }
-    }
-
-    ThreadPool &pool_;
-  };
-  friend struct worker;
-
-  std::vector<std::thread>         threads_;
-  std::list<std::function<void()>> jobs_;
-
-  bool shutdown_;
-
-  std::condition_variable cond_;
-  std::mutex              mutex_;
 };
 
 using SocketOptions = std::function<void(socket_t sock)>;
@@ -534,7 +450,7 @@ public:
   bool is_running() const;
   void stop();
 
-  std::function<TaskQueue *(void)> new_task_queue;
+  dsac::executor_base_ref new_task_queue = dsac::make_static_thread_pool(4U);
 
 protected:
   bool process_request(
@@ -3912,8 +3828,7 @@ inline const std::string &BufferStream::get_buffer() const {
 
 // HTTP server implementation
 inline Server::Server()
-  : new_task_queue([] { return new ThreadPool(CPPHTTPLIB_THREAD_POOL_COUNT); })
-  , svr_sock_(INVALID_SOCKET)
+  : svr_sock_(INVALID_SOCKET)
   , is_running_(false) {
   signal(SIGPIPE, SIG_IGN);
 }
@@ -4455,13 +4370,10 @@ inline bool Server::listen_internal() {
   is_running_ = true;
 
   {
-    std::unique_ptr<TaskQueue> task_queue(new_task_queue());
-
     while (svr_sock_ != INVALID_SOCKET) {
       if (idle_interval_sec_ > 0 || idle_interval_usec_ > 0) {
         auto val = detail::select_read(svr_sock_, idle_interval_sec_, idle_interval_usec_);
         if (val == 0) {  // Timeout
-          task_queue->on_idle();
           continue;
         }
       }
@@ -4496,10 +4408,10 @@ inline bool Server::listen_internal() {
         setsockopt(sock, SOL_SOCKET, SO_SNDTIMEO, (char *)&tv, sizeof(tv));
       }
 
-      task_queue->enqueue([=, this]() { process_and_close_socket(sock); });
+      new_task_queue->submit([=, this]() { process_and_close_socket(sock); });
     }
 
-    task_queue->shutdown();
+    new_task_queue->join();
   }
 
   is_running_ = false;
