@@ -402,8 +402,6 @@ public:
 
   virtual ~Server();
 
-  virtual bool is_valid() const;
-
   bool    set_base_dir(const std::string &dir, const std::string &mount_point = std::string());
   bool    set_mount_point(const std::string &mount_point, const std::string &dir, Headers headers = Headers());
   bool    remove_mount_point(const std::string &mount_point);
@@ -443,7 +441,6 @@ public:
 
   bool bind_to_port(const std::string &host, int port, int socket_flags = 0);
   int  bind_to_any_port(const std::string &host, int socket_flags = 0);
-  bool listen_after_bind();
 
   bool listen(const std::string &host, int port, int socket_flags = 0);
 
@@ -3966,10 +3963,6 @@ inline int Server::bind_to_any_port(const std::string &host, int socket_flags) {
   return bind_internal(host, 0, socket_flags);
 }
 
-inline bool Server::listen_after_bind() {
-  return listen_internal();
-}
-
 inline bool Server::listen(const std::string &host, int port, int socket_flags) {
   return bind_to_port(host, port, socket_flags) && listen_internal();
 }
@@ -4338,31 +4331,12 @@ inline socket_t Server::create_server_socket(
 }
 
 inline int Server::bind_internal(const std::string &host, int port, int socket_flags) {
-  if (!is_valid()) {
-    return -1;
-  }
-
   svr_sock_ = create_server_socket(host, port, socket_flags, socket_options_);
   if (svr_sock_ == INVALID_SOCKET) {
     return -1;
   }
 
-  if (port == 0) {
-    struct sockaddr_storage addr;
-    socklen_t               addr_len = sizeof(addr);
-    if (getsockname(svr_sock_, reinterpret_cast<struct sockaddr *>(&addr), &addr_len) == -1) {
-      return -1;
-    }
-    if (addr.ss_family == AF_INET) {
-      return ntohs(reinterpret_cast<struct sockaddr_in *>(&addr)->sin_port);
-    } else if (addr.ss_family == AF_INET6) {
-      return ntohs(reinterpret_cast<struct sockaddr_in6 *>(&addr)->sin6_port);
-    } else {
-      return -1;
-    }
-  } else {
-    return port;
-  }
+  return port;
 }
 
 inline bool Server::listen_internal() {
@@ -4556,10 +4530,6 @@ inline bool Server::process_request(
     }
     return write_response(strm, close_connection, req, res);
   }
-}
-
-inline bool Server::is_valid() const {
-  return true;
 }
 
 inline bool Server::process_and_close_socket(socket_t sock) {
