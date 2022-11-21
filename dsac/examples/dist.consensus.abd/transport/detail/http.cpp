@@ -61,6 +61,11 @@ class transport_http::transport_http_pimpl {
 public:
   void serve(int port) {
     const dsac::expected<int, std::string> socket = create_server_socket(kEndpoint, std::to_string(port));
+    if (!socket.has_value()) {
+      throw transport_exception{socket.error()};
+    }
+
+    socket_.store(socket.value());
   }
 };
 
