@@ -19,10 +19,10 @@ public:
 };
 
 template <typename T>
-class deleter : public deleter_base {
+class default_deleter final : public deleter_base {
 public:
   void operator()(void* data) override {
-    delete static_cast<T*>(data);
+    delete static_cast<T*>(data);  // NOLINT(cppcoreguidelines-owning-memory)
   }
 };
 
@@ -58,7 +58,7 @@ public:
   explicit shared_ptr(T* other)
     : ptr_{other}
     , ref_count_{new std::atomic<long>{1}}
-    , deleter_{new detail::deleter<T>()} {
+    , deleter_{new detail::default_deleter<T>()} {
   }
 
   /*!
@@ -69,7 +69,7 @@ public:
   explicit shared_ptr(U* other)
     : ptr_{other}
     , ref_count_{new std::atomic<long>{1}}
-    , deleter_{new detail::deleter<U>()} {
+    , deleter_{new detail::default_deleter<U>()} {
   }
 
   /*!
