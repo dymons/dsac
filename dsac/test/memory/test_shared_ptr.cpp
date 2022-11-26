@@ -33,7 +33,7 @@ TEST_CASE("Construct shared_ptr with raw pointer", "[shared_ptr][raw-pointer-own
 
   {
     dsac::shared_ptr<local_object> shared{raw_pointer};
-    REQUIRE(shared.use_count() == 1);
+    REQUIRE(shared.unique());
   }
 
   REQUIRE(was_destructed_local_object);
@@ -85,15 +85,17 @@ TEST_CASE("Construct shared_ptr with base/derived classes", "[shared_ptr][base-d
 
 TEST_CASE("Construct shared_ptr with copy constructor", "[shared_ptr][default-copy-constructor]") {
   dsac::shared_ptr<int> shared = dsac::shared_ptr<int>{new int{}};
-  REQUIRE(shared.use_count() == 1);
+  REQUIRE(shared.unique());
 
   {
     dsac::shared_ptr<int> shared_copy = shared;  // NOLINT(performance-unnecessary-copy-initialization)
-    REQUIRE(shared_copy.use_count() == 2);
+    REQUIRE_FALSE(shared.unique());
+    REQUIRE_FALSE(shared_copy.unique());
     REQUIRE(shared.use_count() == 2);
+    REQUIRE(shared_copy.use_count() == 2);
   }
 
-  REQUIRE(shared.use_count() == 1);
+  REQUIRE(shared.unique());
 }
 
 TEST_CASE("Construct shared_ptr with nullptr copy constructor", "[shared_ptr][nullptr-copy-constructor]") {
@@ -104,6 +106,32 @@ TEST_CASE("Construct shared_ptr with nullptr copy constructor", "[shared_ptr][nu
     dsac::shared_ptr<int> shared_copy = shared;  // NOLINT(performance-unnecessary-copy-initialization)
     REQUIRE(shared_copy.use_count() == 0);
     REQUIRE(shared.use_count() == 0);
+  }
+
+  REQUIRE(shared.use_count() == 0);
+}
+
+TEST_CASE("Construct shared_ptr with move constructor", "[shared_ptr][default-move-constructor]") {
+  dsac::shared_ptr<int> shared = dsac::shared_ptr<int>{new int{}};
+  REQUIRE(shared.unique());
+
+  {
+    dsac::shared_ptr<int> shared_copy = std::move(shared);
+    REQUIRE(shared.use_count() == 0);  // NOLINT(bugprone-use-after-move)
+    REQUIRE(shared_copy.unique());
+  }
+
+  REQUIRE(shared.use_count() == 0);
+}
+
+TEST_CASE("Construct shared_ptr with nullptr move constructor", "[shared_ptr][nullptr-move-constructor]") {
+  dsac::shared_ptr<int> shared = std::nullptr_t{};
+  REQUIRE(shared.use_count() == 0);
+
+  {
+    dsac::shared_ptr<int> shared_copy = std::move(shared);
+    REQUIRE(shared.use_count() == 0);  // NOLINT(bugprone-use-after-move)
+    REQUIRE(shared_copy.use_count() == 0);
   }
 
   REQUIRE(shared.use_count() == 0);
