@@ -2,6 +2,87 @@
 
 #include <dsac/memory/shared_ptr.hpp>
 
+TEST_CASE("Construct shared_ptr with default constructor", "[shared_ptr][default-constructor]") {
+  dsac::shared_ptr<int> shared;
+  REQUIRE(shared.use_count() == 0);
+}
+
+TEST_CASE("Construct shared_ptr with std::nullptr_t constructor", "[shared_ptr][default-nullptr-constructor]") {
+  dsac::shared_ptr<int> shared = std::nullptr_t{};
+  REQUIRE(shared.use_count() == 0);
+}
+
+TEST_CASE("Construct shared_ptr with raw pointer", "[shared_ptr][raw-pointer-ownership]") {
+  class local_object final {  // NOLINT(cppcoreguidelines-special-member-functions)
+    std::reference_wrapper<bool> was_destructed_;
+
+  public:
+    explicit local_object(bool& was_destructed)
+      : was_destructed_(was_destructed) {
+      was_destructed_.get() = false;
+    }
+
+    ~local_object() {
+      was_destructed_.get() = true;
+    }
+  };
+
+  bool          was_destructed_local_object = false;
+  local_object* raw_pointer = new local_object{was_destructed_local_object};  // NOLINT(cppcoreguidelines-owning-memory)
+  REQUIRE_FALSE(was_destructed_local_object);
+
+  {
+    dsac::shared_ptr<local_object> shared{raw_pointer};
+    REQUIRE(shared.use_count() == 1);
+  }
+
+  REQUIRE(was_destructed_local_object);
+}
+
+TEST_CASE("Construct shared_ptr with base/derived classes", "[shared_ptr][base-derived-constructor]") {
+  class base {  // NOLINT(cppcoreguidelines-special-member-functions)
+    std::reference_wrapper<bool> was_base_class_destructed_;
+
+  public:
+    explicit base(bool& was_destructed)
+      : was_base_class_destructed_{was_destructed} {
+      was_base_class_destructed_.get() = false;
+    }
+
+    virtual ~base() {
+      was_base_class_destructed_.get() = true;
+    }
+  };
+
+  class derived final : public base {  // NOLINT(cppcoreguidelines-special-member-functions)
+    std::reference_wrapper<bool> was_derived_class_destructed_;
+
+  public:
+    explicit derived(bool& was_base_class_destructed, bool& was_derived_class_destructed)
+      : base(was_base_class_destructed)
+      , was_derived_class_destructed_{was_derived_class_destructed} {
+      was_derived_class_destructed_.get() = false;
+    }
+
+    ~derived() override {
+      was_derived_class_destructed_.get() = true;
+    }
+  };
+
+  bool was_base_class_destructed    = false;
+  bool was_derived_class_destructed = false;
+  {
+    // clang-format off
+    dsac::shared_ptr<base> base_data = dsac::shared_ptr(new derived{was_base_class_destructed, was_derived_class_destructed});
+    // clang-format on
+    REQUIRE_FALSE(was_base_class_destructed);
+    REQUIRE_FALSE(was_derived_class_destructed);
+  }
+
+  REQUIRE(was_base_class_destructed);
+  REQUIRE(was_derived_class_destructed);
+}
+
 TEST_CASE("Construction of a smart pointer shared_ptr", "[shared_ptr][build]") {
   SECTION("Construction of a smart pointer using default constructor") {
     dsac::shared_ptr<int> shared;
@@ -12,7 +93,7 @@ TEST_CASE("Construction of a smart pointer shared_ptr", "[shared_ptr][build]") {
     REQUIRE(shared_copy_constructor.use_count() == 0);
 
     dsac::shared_ptr<int> shared_move_constructor = std::move(shared);
-    REQUIRE(shared.use_count() == 0);
+    REQUIRE(shared.use_count() == 0);  // NOLINT(bugprone-use-after-move)
     REQUIRE(shared_move_constructor.use_count() == 0);
 
     dsac::shared_ptr<int> shared_copy_operator;

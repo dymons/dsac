@@ -8,15 +8,8 @@ add_library(${PROJECT_NAME} ${DSAC_LIBRARY_HEADERS} ${DSAC_LIBRARY_SOURCES})
 target_include_directories(${PROJECT_NAME} PUBLIC .)
 target_link_libraries(${PROJECT_NAME} fmt::fmt)
 
-include(FetchContent)
-
 find_package(benchmark REQUIRED)
-
-FetchContent_Declare(fmt
-        GIT_REPOSITORY https://github.com/fmtlib/fmt.git
-        GIT_TAG master
-        )
-FetchContent_MakeAvailable(fmt)
+find_package(fmt REQUIRED)
 
 if (BUILD_TESTS)
     find_package(Threads)
