@@ -7,7 +7,7 @@ TEST_CASE("Construct shared_ptr with default constructor", "[shared_ptr][default
   REQUIRE(shared.use_count() == 0);
 }
 
-TEST_CASE("Construct shared_ptr with std::nullptr_t constructor", "[shared_ptr][default-nullptr-constructor]") {
+TEST_CASE("Construct shared_ptr with std::nullptr_t constructor", "[shared_ptr][nullptr-default-constructor]") {
   dsac::shared_ptr<int> shared = std::nullptr_t{};
   REQUIRE(shared.use_count() == 0);
 }
@@ -81,6 +81,32 @@ TEST_CASE("Construct shared_ptr with base/derived classes", "[shared_ptr][base-d
 
   REQUIRE(was_base_class_destructed);
   REQUIRE(was_derived_class_destructed);
+}
+
+TEST_CASE("Construct shared_ptr with copy constructor", "[shared_ptr][default-copy-constructor]") {
+  dsac::shared_ptr<int> shared = dsac::shared_ptr<int>{new int{}};
+  REQUIRE(shared.use_count() == 1);
+
+  {
+    dsac::shared_ptr<int> shared_copy = shared;  // NOLINT(performance-unnecessary-copy-initialization)
+    REQUIRE(shared_copy.use_count() == 2);
+    REQUIRE(shared.use_count() == 2);
+  }
+
+  REQUIRE(shared.use_count() == 1);
+}
+
+TEST_CASE("Construct shared_ptr with nullptr copy constructor", "[shared_ptr][nullptr-copy-constructor]") {
+  dsac::shared_ptr<int> shared = std::nullptr_t{};
+  REQUIRE(shared.use_count() == 0);
+
+  {
+    dsac::shared_ptr<int> shared_copy = shared;  // NOLINT(performance-unnecessary-copy-initialization)
+    REQUIRE(shared_copy.use_count() == 0);
+    REQUIRE(shared.use_count() == 0);
+  }
+
+  REQUIRE(shared.use_count() == 0);
 }
 
 TEST_CASE("Construction of a smart pointer shared_ptr", "[shared_ptr][build]") {
