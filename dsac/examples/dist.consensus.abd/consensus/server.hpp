@@ -190,10 +190,10 @@ public:
     , sb_(*this) {
   }
 
-  DataSink(const DataSink &) = delete;
+  DataSink(const DataSink &)            = delete;
   DataSink &operator=(const DataSink &) = delete;
   DataSink(DataSink &&)                 = delete;
-  DataSink &operator=(DataSink &&) = delete;
+  DataSink &operator=(DataSink &&)      = delete;
 
   std::function<bool(const char *data, size_t data_len)> write;
   std::function<void()>                                  done;
@@ -339,11 +339,11 @@ struct Response {
       ContentProviderWithoutLength    provider,
       ContentProviderResourceReleaser resource_releaser = nullptr);
 
-  Response()                 = default;
-  Response(const Response &) = default;
+  Response()                            = default;
+  Response(const Response &)            = default;
   Response &operator=(const Response &) = default;
   Response(Response &&)                 = default;
-  Response &operator=(Response &&) = default;
+  Response &operator=(Response &&)      = default;
   ~Response() {
     if (content_provider_resource_releaser_) {
       content_provider_resource_releaser_(content_provider_success_);
@@ -4201,7 +4201,9 @@ inline bool Server::listen_internal() {
         setsockopt(sock, SOL_SOCKET, SO_SNDTIMEO, (char *)&tv, sizeof(tv));
       }
 
-      new_task_queue->submit([=, this]() { process_and_close_socket(sock); });
+      process_and_close_socket(sock);
+
+      //      new_task_queue->submit([=, this]() { process_and_close_socket(sock); });
     }
 
     new_task_queue->join();
@@ -4216,17 +4218,13 @@ inline bool Server::routing(Request &req, Response &res, Stream &strm) {
     return true;
   }
 
-  // Regular handler
-  if (req.method == "GET" && req.path == "/ping") {
-    return true;
+  if (detail::expect_content(req)) {
+    if (!read_content(strm, req, res)) {
+      return false;
+    }
   }
 
-  if (req.method == "POST") {
-    return dispatch_request(req, res);
-  }
-
-  res.status = 400;
-  return false;
+  return dispatch_request(req, res);
 }
 
 inline bool Server::dispatch_request(Request &req, Response &res) {

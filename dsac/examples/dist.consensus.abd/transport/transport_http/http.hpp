@@ -14,7 +14,7 @@ public:
 
 private:
   class transport_http_pimpl;
-  shared_ptr<transport_http_pimpl> pimpl;
+  shared_ptr<transport_http_pimpl> pimpl_;
 };
 
 }  // namespace dsac

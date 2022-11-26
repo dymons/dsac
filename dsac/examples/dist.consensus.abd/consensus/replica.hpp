@@ -11,7 +11,7 @@ class replica_set final : public abd {
 
 public:
   static std::string get_type_name() {
-    return "replica/set";
+    return "/v1/replica/set";
   }
 };
 
@@ -22,7 +22,7 @@ class replica_get final : public abd {
 
 public:
   static std::string get_type_name() {
-    return "replica/get";
+    return "/v1/replica/get";
   }
 };
 
