@@ -23,12 +23,12 @@ constexpr std::chrono::milliseconds kWriteTimeoutMilliseconds = 0ms;
 constexpr std::chrono::seconds      kIdleTimeoutSeconds       = 5s;
 constexpr std::chrono::milliseconds kIdleTimeoutMilliseconds  = 0ms;
 constexpr std::size_t               kPayloadMaxSize           = std::numeric_limits<std::size_t>::max();
+const std::size_t                   kWorkersCount             = std::thread::hardware_concurrency();
 
 }  // namespace
 
 class transport_http::transport_http_pimpl {
-  std::atomic<int>        server_socket_;
-  dsac::executor_base_ref executor_ = dsac::make_static_thread_pool(std::thread::hardware_concurrency());
+  std::atomic<int> server_socket_;
 
   auto check_peer_socket_status() {
     return [this](dsac::expected<int, socket_status> const& socket) -> dsac::expected<int, socket_status> {
@@ -58,24 +58,11 @@ class transport_http::transport_http_pimpl {
     };
   }
 
-  auto process_socket_at_executor() {
-    return [this](dsac::expected<int, socket_status> const& socket) -> void {
+  auto process_socket_at_executor(dsac::executor_base_ref executor) {
+    return [executor = std::move(executor), this](dsac::expected<int, socket_status> const& socket) -> void {
       if (socket.has_value()) {
-        executor_->submit([socket = socket.value(), this]() { process_and_close_socket(socket); });
+        executor->submit([socket = socket.value(), this]() { process_and_close_socket(socket); });
       }
-    };
-  }
-
-  auto serve_server_on_socket() {
-    return [this](dsac::expected<int, socket_status> const& server_socket) -> dsac::expected<int, socket_status> {
-      server_socket_.store(server_socket.value());
-      while (is_socket_valid(server_socket_)) {
-        accept_server_socket(server_socket_)
-            .and_then(check_peer_socket_status())
-            .and_then(close_server_socket_if_error())
-            .map(process_socket_at_executor());
-      }
-      return server_socket_.load();
     };
   }
 
@@ -89,19 +76,33 @@ class transport_http::transport_http_pimpl {
     };
   }
 
-  auto await_stop_server() {
-    return [this]([[maybe_unused]] auto&&) -> void { executor_->join(); };
+  auto serve_server_on_executor(dsac::executor_base_ref&& executor) {
+    return [executor = std::move(executor), this](dsac::expected<int, socket_status> const& socket) mutable
+           -> dsac::expected<dsac::executor_base_ref, socket_status> {
+      server_socket_.store(socket.value());
+      while (is_socket_valid(server_socket_)) {
+        accept_server_socket(server_socket_)
+            .and_then(check_peer_socket_status())
+            .and_then(close_server_socket_if_error())
+            .map(process_socket_at_executor(executor));
+      }
+      return std::move(executor);
+    };
+  }
+
+  auto await_stop_serve_server() {
+    return [this](dsac::executor_base_ref&& executor) -> void { executor->join(); };
   }
 
   void process_and_close_socket(int socket) {
   }
 
 public:
-  void serve(int port) {
+  void serve(int const port) {
     create_server_socket(kEndpoint, std::to_string(port))
         .and_then(check_server_socket_status())
-        .and_then(serve_server_on_socket())
-        .map(await_stop_server());
+        .and_then(serve_server_on_executor(make_static_thread_pool(kWorkersCount)))
+        .map(await_stop_serve_server());
   }
 };
 
