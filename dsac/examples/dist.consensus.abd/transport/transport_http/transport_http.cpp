@@ -68,13 +68,13 @@ class transport_http::transport_http_pimpl {
   }
 
   auto serve_server_on_executor(dsac::executor_base_ref&& executor) {
-    return [executor = std::move(executor), this](dsac::expected<int, socket_status> const& socket) mutable
+    return [executor = std::move(executor), this](dsac::expected<int, socket_status> const& server_socket) mutable
            -> dsac::expected<dsac::executor_base_ref, socket_status> {
       std::stop_source stop_source;
-      while (is_socket_readable(socket.value())) {
-        accept_server_socket(socket.value())
+      while (is_socket_readable(server_socket.value())) {
+        accept_server_socket(server_socket.value())
             .and_then(check_peer_socket_status())
-            .and_then(close_server_socket_if_error(socket.value()))
+            .and_then(close_server_socket_if_error(server_socket.value()))
             .map(process_socket_at_executor(executor, stop_source.get_token()));
       }
       stop_source.request_stop();
