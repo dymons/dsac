@@ -21,7 +21,7 @@ constexpr std::chrono::milliseconds kWriteTimeoutMilliseconds    = 0ms;
 constexpr std::chrono::seconds      kIdleTimeoutSeconds          = 5s;
 constexpr std::chrono::milliseconds kIdleTimeoutMilliseconds     = 0ms;
 
-inline auto handle_with_retry_on_eintr_signal(auto&& routine) -> int {
+inline auto handle_with_retry_on_eintr_signal(auto&& routine) -> ssize_t {
   while (true) {
     if (auto res = routine(); !(res < 0 && errno == EINTR)) {
       return res;
@@ -121,6 +121,10 @@ auto keep_alive(int const socket, std::chrono::seconds const timeout) -> bool {
     }
   }
   return true;
+}
+
+auto read_socket(int socket, void* ptr, std::size_t size, int flags) -> ssize_t {
+  return handle_with_retry_on_eintr_signal([&]() { return recv(socket, ptr, size, flags); });
 }
 
 }  // namespace dsac

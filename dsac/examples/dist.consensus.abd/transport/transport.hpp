@@ -1,5 +1,7 @@
 #pragma once
 
+#include <examples/dist.consensus.abd/channel/channel.hpp>
+
 #include <dsac/memory/shared_ptr.hpp>
 
 #include <stdexcept>

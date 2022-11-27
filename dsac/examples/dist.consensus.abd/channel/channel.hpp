@@ -4,6 +4,11 @@
 
 namespace dsac {
 
+struct request {
+  std::string method;
+  std::string message;
+};
+
 class channel_base {
 public:
   channel_base()                                   = default;

@@ -5,7 +5,11 @@
 
 #include <atomic>
 #include <chrono>
+#include <cstring>
+#include <optional>
+#include <ranges>
 #include <stop_token>
+#include <string_view>
 #include <thread>
 
 namespace dsac {
@@ -18,6 +22,89 @@ constexpr const char*          kEndpoint                = "0.0.0.0";
 const std::size_t              kWorkersCount            = std::thread::hardware_concurrency();
 constexpr std::size_t          kKeepAliveMaxCount       = 5UL;
 constexpr std::chrono::seconds kKeepAliveTimeoutSeconds = 5s;
+constexpr std::size_t          kMaxBufferSize           = 2048;
+
+class socket_stream final {
+  const int         socket_;
+  std::vector<char> buffer_;
+  ssize_t           buffer_head_{0UL};
+
+public:
+  explicit socket_stream(int const socket)
+    : socket_(socket) {
+  }
+
+  ssize_t read(char* content, ssize_t const requested_content_size) {
+    if (buffer_head_ < buffer_.size()) {
+      ssize_t const remaining_size = static_cast<ssize_t>(buffer_.size()) - buffer_head_;
+      if (requested_content_size <= remaining_size) {
+        std::memcpy(content, std::next(buffer_.data(), buffer_head_), requested_content_size);
+        buffer_head_ += requested_content_size;
+        return static_cast<ssize_t>(requested_content_size);
+      }
+
+      std::memcpy(content, std::next(buffer_.data(), buffer_head_), remaining_size);
+      buffer_head_ += remaining_size;
+      return static_cast<ssize_t>(remaining_size);
+    }
+
+    if (!dsac::is_socket_readable(socket_)) {
+      return -1;
+    }
+
+    if (requested_content_size < kMaxBufferSize) {
+      buffer_.resize(kMaxBufferSize, '0');
+      auto n = read_socket(socket_, buffer_.data(), buffer_.size(), 0);
+      if (n <= 0) {
+        return n;
+      }
+
+      buffer_head_ = 0UL;
+
+      if (n <= requested_content_size) {
+        std::memcpy(content, buffer_.data(), static_cast<size_t>(n));
+        return n;
+      }
+
+      memcpy(content, buffer_.data(), requested_content_size);
+      buffer_head_ = requested_content_size;
+      buffer_.resize(static_cast<size_t>(n));
+      return static_cast<ssize_t>(requested_content_size);
+    }
+
+    return read_socket(socket_, content, requested_content_size, 0);
+  }
+};
+
+class socket_parser final {
+  socket_stream socket_stream_;
+
+public:
+  socket_parser(socket_stream&& socket_stream)  // NOLINT(google-explicit-constructor)
+    : socket_stream_(std::move(socket_stream)) {
+  }
+
+  std::optional<std::string> get_next_line() {
+    std::string next_line;
+
+    while (true) {
+      char          byte = '0';
+      ssize_t const n    = socket_stream_.read(&byte, 1);
+      if (n < 0) {
+        return std::nullopt;
+      }
+      if (n == 0) {
+        break;
+      }
+
+      if (next_line += byte; byte == '\n') {
+        break;
+      }
+    }
+
+    return next_line;
+  }
+};
 
 auto keep_alive_peer_socket(std::stop_token const& stop_token, int const socket) -> bool {
   std::size_t keep_alive_count_attempts = std::max(kKeepAliveMaxCount, 1UL);
@@ -29,10 +116,30 @@ auto keep_alive_peer_socket(std::stop_token const& stop_token, int const socket)
   return false;
 }
 
+auto get_target_method(std::string const& start_query) -> std::string {
+  std::string_view const view_query{start_query};
+  std::string_view const view_space{" "};
+
+  for (auto target : view_query | std::ranges::views::split(view_space) | std::ranges::views::drop(1)) {
+    return std::string(&*target.begin(), std::ranges::distance(target));
+  }
+
+  return std::string{};
+}
+
 void process_peer_socket(std::stop_token&& stop_token, int const socket) {
   if (!keep_alive_peer_socket(stop_token, socket)) {
     return;
   }
+
+  socket_parser                    socket_parser = socket_stream{socket};
+  const std::optional<std::string> start_query   = socket_parser.get_next_line();
+  if (!start_query.has_value()) {
+    return;
+  }
+
+  request request;
+  request.method = get_target_method(start_query.value());
 }
 
 void process_and_close_socket(std::stop_token&& stop_token, int const socket) {

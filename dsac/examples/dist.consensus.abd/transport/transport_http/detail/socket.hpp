@@ -23,4 +23,6 @@ auto shutdown_socket(int socket) -> void;
 
 auto keep_alive(int socket, std::chrono::seconds timeout) -> bool;
 
+auto read_socket(int socket, void *ptr, std::size_t size, int flags) -> ssize_t;
+
 }  // namespace dsac
