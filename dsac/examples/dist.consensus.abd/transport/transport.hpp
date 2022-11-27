@@ -1,5 +1,7 @@
 #pragma once
 
+#include <dsac/memory/shared_ptr.hpp>
+
 #include <stdexcept>
 #include <string>
 
@@ -26,5 +28,7 @@ public:
 
   virtual void serve(int port) = 0;
 };
+
+using transport_base_ref = dsac::shared_ptr<transport_base>;
 
 }  // namespace dsac

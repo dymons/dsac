@@ -1,5 +1,5 @@
 #include <examples/dist.consensus.abd/transport/transport_http/detail/socket.hpp>
-#include <examples/dist.consensus.abd/transport/transport_http/http.hpp>
+#include <examples/dist.consensus.abd/transport/transport_http/transport_http.hpp>
 
 #include <dsac/concurrency/executors/static_thread_pool.hpp>
 
@@ -11,15 +11,14 @@ namespace dsac {
 
 namespace {
 
-constexpr const char* kEndpoint       = "0.0.0.0";
-constexpr std::size_t kPayloadMaxSize = std::numeric_limits<std::size_t>::max();
-const std::size_t     kWorkersCount   = std::thread::hardware_concurrency();
+constexpr const char* kEndpoint     = "0.0.0.0";
+const std::size_t     kWorkersCount = std::thread::hardware_concurrency();
 
 }  // namespace
 
 class transport_http::transport_http_pimpl {
-  auto check_peer_socket_status() {
-    return [this](dsac::expected<int, socket_status> const& socket) -> dsac::expected<int, socket_status> {
+  static auto check_peer_socket_status() {
+    return [](dsac::expected<int, socket_status> const& socket) -> dsac::expected<int, socket_status> {
       if (!socket.has_value()) {
         if (socket.error() == socket_status::too_many_open_files) {
           return socket;
@@ -58,8 +57,8 @@ class transport_http::transport_http_pimpl {
     };
   }
 
-  auto check_server_socket_status() {
-    return [this](dsac::expected<int, socket_status> const& socket) -> dsac::expected<int, socket_status> {
+  static auto check_server_socket_status() {
+    return [](dsac::expected<int, socket_status> const& socket) -> dsac::expected<int, socket_status> {
       if (!socket.has_value()) {
         throw transport_server_socket{to_string(socket.error())};
       }
@@ -83,8 +82,8 @@ class transport_http::transport_http_pimpl {
     };
   }
 
-  auto await_stop_serve_server() {
-    return [this](dsac::executor_base_ref&& executor) -> void { executor->join(); };
+  static auto await_stop_serve_server() {
+    return [](dsac::executor_base_ref&& executor) -> void { executor->join(); };
   }
 
   void process_and_close_socket(std::stop_token&& stop_token, int const socket) {
