@@ -4,6 +4,7 @@
 #include <dsac/concurrency/executors/static_thread_pool.hpp>
 
 #include <atomic>
+#include <chrono>
 #include <stop_token>
 #include <thread>
 
@@ -11,10 +12,33 @@ namespace dsac {
 
 namespace {
 
-constexpr const char* kEndpoint     = "0.0.0.0";
-const std::size_t     kWorkersCount = std::thread::hardware_concurrency();
+using namespace std::chrono_literals;
+
+constexpr const char*          kEndpoint                = "0.0.0.0";
+const std::size_t              kWorkersCount            = std::thread::hardware_concurrency();
+constexpr std::size_t          kKeepAliveMaxCount       = 5UL;
+constexpr std::chrono::seconds kKeepAliveTimeoutSeconds = 5s;
+
+auto keep_alive_peer_socket(std::stop_token const& stop_token, int const socket) -> bool {
+  std::size_t keep_alive_count_attempts = std::max(kKeepAliveMaxCount, 1UL);
+  while (!stop_token.stop_requested() && keep_alive_count_attempts-- != 0UL) {
+    if (keep_alive(socket, kKeepAliveTimeoutSeconds)) {
+      return true;
+    }
+  }
+  return false;
+}
+
+void process_peer_socket(std::stop_token&& stop_token, int const socket) {
+  if (!keep_alive_peer_socket(stop_token, socket)) {
+    return;
+  }
+}
 
 void process_and_close_socket(std::stop_token&& stop_token, int const socket) {
+  process_peer_socket(std::move(stop_token), socket);
+  shutdown_socket(socket);
+  close_socket(socket);
 }
 
 auto check_peer_socket_status() {

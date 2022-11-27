@@ -14,8 +14,6 @@ using namespace std::chrono_literals;
 
 constexpr const inline int          kInvalidSocket               = -1;
 constexpr const int                 kNumberOfConnectionsOnSocket = 5;
-constexpr std::size_t               kKeepAliveMaxCount           = 5U;
-constexpr std::chrono::seconds      kKeepAliveTimeoutSeconds     = 5s;
 constexpr std::chrono::seconds      kReadTimeoutSeconds          = 5s;
 constexpr std::chrono::milliseconds kReadTimeoutMilliseconds     = 0ms;
 constexpr std::chrono::seconds      kWriteTimeoutSeconds         = 5s;
@@ -107,6 +105,22 @@ auto is_socket_readable(int socket) -> bool {
 
 auto close_socket(int socket) -> void {
   ::close(socket);
+}
+
+auto shutdown_socket(int socket) -> void {
+  ::shutdown(socket, SHUT_RDWR);
+}
+
+auto keep_alive(int const socket, std::chrono::seconds const timeout) -> bool {
+  auto const start_keep_alive = std::chrono::steady_clock::now();
+  while (!is_readable(socket, timeout)) {
+    auto const current_keep_alive  = std::chrono::steady_clock::now();
+    auto const duration_keep_alive = duration_cast<std::chrono::milliseconds>(current_keep_alive - start_keep_alive);
+    if (duration_keep_alive.count() > duration_cast<std::chrono::milliseconds>(timeout).count()) {
+      return false;
+    }
+  }
+  return true;
 }
 
 }  // namespace dsac

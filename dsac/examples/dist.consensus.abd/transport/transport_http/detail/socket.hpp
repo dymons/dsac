@@ -4,7 +4,7 @@
 
 #include <dsac/functional/expected.hpp>
 
-#include <atomic>
+#include <chrono>
 #include <string>
 
 namespace dsac {
@@ -18,5 +18,9 @@ auto is_socket_valid(int socket) -> bool;
 auto is_socket_readable(int socket) -> bool;
 
 auto close_socket(int socket) -> void;
+
+auto shutdown_socket(int socket) -> void;
+
+auto keep_alive(int socket, std::chrono::seconds timeout) -> bool;
 
 }  // namespace dsac
