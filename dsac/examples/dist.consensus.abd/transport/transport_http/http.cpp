@@ -4,26 +4,16 @@
 #include <dsac/concurrency/executors/static_thread_pool.hpp>
 
 #include <atomic>
-#include <chrono>
+#include <stop_token>
 #include <thread>
 
 namespace dsac {
 
 namespace {
 
-using namespace std::chrono_literals;
-
-constexpr const char*               kEndpoint                 = "0.0.0.0";
-constexpr std::size_t               kKeepAliveMaxCount        = 5U;
-constexpr std::chrono::seconds      kKeepAliveTimeoutSeconds  = 5s;
-constexpr std::chrono::seconds      kReadTimeoutSeconds       = 5s;
-constexpr std::chrono::milliseconds kReadTimeoutMilliseconds  = 0ms;
-constexpr std::chrono::seconds      kWriteTimeoutSeconds      = 5s;
-constexpr std::chrono::milliseconds kWriteTimeoutMilliseconds = 0ms;
-constexpr std::chrono::seconds      kIdleTimeoutSeconds       = 5s;
-constexpr std::chrono::milliseconds kIdleTimeoutMilliseconds  = 0ms;
-constexpr std::size_t               kPayloadMaxSize           = std::numeric_limits<std::size_t>::max();
-const std::size_t                   kWorkersCount             = std::thread::hardware_concurrency();
+constexpr const char* kEndpoint       = "0.0.0.0";
+constexpr std::size_t kPayloadMaxSize = std::numeric_limits<std::size_t>::max();
+const std::size_t     kWorkersCount   = std::thread::hardware_concurrency();
 
 }  // namespace
 
@@ -58,10 +48,13 @@ class transport_http::transport_http_pimpl {
     };
   }
 
-  auto process_socket_at_executor(dsac::executor_base_ref executor) {
-    return [executor = std::move(executor), this](dsac::expected<int, socket_status> const& socket) -> void {
+  auto process_socket_at_executor(dsac::executor_base_ref executor, std::stop_token stop_token) {
+    return [executor = std::move(executor), stop_token = std::move(stop_token), this](
+               dsac::expected<int, socket_status> const& socket) mutable -> void {
       if (socket.has_value()) {
-        executor->submit([socket = socket.value(), this]() { process_and_close_socket(socket); });
+        executor->submit([socket = socket.value(), stop_token = std::move(stop_token), this]() {
+          process_and_close_socket(stop_token, socket);
+        });
       }
     };
   }
@@ -79,13 +72,14 @@ class transport_http::transport_http_pimpl {
   auto serve_server_on_executor(dsac::executor_base_ref&& executor) {
     return [executor = std::move(executor), this](dsac::expected<int, socket_status> const& socket) mutable
            -> dsac::expected<dsac::executor_base_ref, socket_status> {
-      server_socket_.store(socket.value());
-      while (is_socket_valid(server_socket_)) {
-        accept_server_socket(server_socket_)
+      std::stop_source stop_source;
+      while (is_socket_readable(socket.value())) {
+        accept_server_socket(socket.value())
             .and_then(check_peer_socket_status())
             .and_then(close_server_socket_if_error())
-            .map(process_socket_at_executor(executor));
+            .map(process_socket_at_executor(executor, stop_source.get_token()));
       }
+      stop_source.request_stop();
       return std::move(executor);
     };
   }
@@ -94,7 +88,7 @@ class transport_http::transport_http_pimpl {
     return [this](dsac::executor_base_ref&& executor) -> void { executor->join(); };
   }
 
-  void process_and_close_socket(int socket) {
+  void process_and_close_socket(std::stop_token stop_token, int socket) {
   }
 
 public:

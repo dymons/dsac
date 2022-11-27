@@ -15,6 +15,8 @@ auto accept_server_socket(int server_socket) -> dsac::expected<int, socket_statu
 
 auto is_socket_valid(int socket) -> bool;
 
+auto is_socket_readable(int socket) -> bool;
+
 auto close_socket(int socket) -> void;
 
 }  // namespace dsac
