@@ -89,7 +89,7 @@ class transport_http::transport_http_pimpl {
     };
   }
 
-  auto stop_server() {
+  auto await_stop_server() {
     return [this]([[maybe_unused]] auto&&) -> void { executor_->join(); };
   }
 
@@ -101,7 +101,7 @@ public:
     create_server_socket(kEndpoint, std::to_string(port))
         .and_then(check_server_socket_status())
         .and_then(serve_server_on_socket())
-        .map(stop_server());
+        .map(await_stop_server());
   }
 };
 
