@@ -52,8 +52,8 @@ class transport_http::transport_http_pimpl {
     return [executor = std::move(executor), stop_token = std::move(stop_token), this](
                dsac::expected<int, socket_status> const& socket) mutable -> void {
       if (socket.has_value()) {
-        executor->submit([socket = socket.value(), stop_token = std::move(stop_token), this]() {
-          process_and_close_socket(stop_token, socket);
+        executor->submit([socket = socket.value(), stop_token = std::move(stop_token), this]() mutable {
+          process_and_close_socket(std::move(stop_token), socket);
         });
       }
     };
@@ -88,7 +88,7 @@ class transport_http::transport_http_pimpl {
     return [this](dsac::executor_base_ref&& executor) -> void { executor->join(); };
   }
 
-  void process_and_close_socket(std::stop_token stop_token, int socket) {
+  void process_and_close_socket(std::stop_token&& stop_token, int const socket) {
   }
 
 public:
