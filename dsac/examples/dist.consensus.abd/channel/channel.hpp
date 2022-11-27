@@ -4,11 +4,6 @@
 
 namespace dsac {
 
-struct request {
-  std::string method;
-  std::string message;
-};
-
 class channel_base {
 public:
   channel_base()                                   = default;
@@ -17,6 +12,8 @@ public:
   channel_base& operator=(const channel_base&)     = default;
   channel_base& operator=(channel_base&&) noexcept = default;
   virtual ~channel_base()                          = default;
+
+  virtual std::string execute(std::string method, std::string message) = 0;
 };
 
 using channel_base_ref = dsac::shared_ptr<channel_base>;

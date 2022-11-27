@@ -2308,19 +2308,9 @@ inline bool read_headers(Stream &strm, Headers &headers) {
       if (line_reader.size() == 2) {
         break;
       }
-#ifdef CPPHTTPLIB_ALLOW_LF_AS_LINE_TERMINATOR
-    } else {
-      // Blank line indicates end of headers.
-      if (line_reader.size() == 1) {
-        break;
-      }
-      line_terminator_len = 1;
-    }
-#else
     } else {
       continue;  // Skip invalid line.
     }
-#endif
 
     if (line_reader.size() > CPPHTTPLIB_HEADER_MAX_LENGTH) {
       return false;

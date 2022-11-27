@@ -6,6 +6,7 @@
 #include <atomic>
 #include <chrono>
 #include <cstring>
+#include <map>
 #include <optional>
 #include <ranges>
 #include <stop_token>
@@ -106,16 +107,6 @@ public:
   }
 };
 
-auto keep_alive_peer_socket(std::stop_token const& stop_token, int const socket) -> bool {
-  std::size_t keep_alive_count_attempts = std::max(kKeepAliveMaxCount, 1UL);
-  while (!stop_token.stop_requested() && keep_alive_count_attempts-- != 0UL) {
-    if (keep_alive(socket, kKeepAliveTimeoutSeconds)) {
-      return true;
-    }
-  }
-  return false;
-}
-
 auto get_target_method(std::string const& start_query) -> std::string {
   std::string_view const view_query{start_query};
   std::string_view const view_space{" "};
@@ -127,19 +118,78 @@ auto get_target_method(std::string const& start_query) -> std::string {
   return std::string{};
 }
 
+auto parse_header(auto begin, auto end, auto&& fn) -> void {
+  while (begin < end && (*end == ' ' || *end == '\t' || *end == '\n')) {
+    end--;
+  }
+
+  auto separate = begin;
+  while (separate < end && *separate != ':') {
+    separate++;
+  }
+
+  if (separate == end) {
+    return;
+  }
+
+  auto key_end = separate;
+  if (*separate++ != ':') {
+    return;
+  }
+
+  while (separate < end && (*separate == ' ' || *separate == '\t')) {
+    separate++;
+  }
+
+  if (separate < end) {
+    fn(std::string(begin, key_end), std::string(separate, end));
+  }
+}
+
+auto get_headers(socket_parser& parser) -> std::map<std::string, std::string> {
+  std::map<std::string, std::string> headers;
+  for (;;) {
+    std::optional<std::string> const header = parser.get_next_line();
+    if (!header.has_value()) {
+      return {};
+    }
+    if (header == "\r\n") {
+      break;
+    }
+
+    parse_header(header->begin(), std::prev(header->end()), [&](std::string&& key, std::string&& value) {
+      headers.emplace(std::move(key), std::move(value));
+    });
+  }
+  return headers;
+}
+
+auto get_message(socket_parser& parser) -> std::string {
+  std::optional<std::string> const start_query = parser.get_next_line();
+  return {};
+}
+
 void process_peer_socket(std::stop_token&& stop_token, int const socket) {
-  if (!keep_alive_peer_socket(stop_token, socket)) {
-    return;
-  }
+  std::size_t keep_alive_count_attempts = std::max(kKeepAliveMaxCount, 1UL);
+  while (!stop_token.stop_requested() && keep_alive_count_attempts-- != 0UL) {
+    if (!keep_alive(socket, kKeepAliveTimeoutSeconds)) {
+      break;
+    }
 
-  socket_parser                    socket_parser = socket_stream{socket};
-  const std::optional<std::string> start_query   = socket_parser.get_next_line();
-  if (!start_query.has_value()) {
-    return;
-  }
+    socket_parser                    socket_parser = socket_stream{socket};
+    std::optional<std::string> const start_query   = socket_parser.get_next_line();
+    if (!start_query.has_value()) {
+      return;
+    }
 
-  request request;
-  request.method = get_target_method(start_query.value());
+    std::map<std::string, std::string> headers = get_headers(socket_parser);
+    std::string                        method  = get_target_method(start_query.value());
+    std::string                        message = get_message(socket_parser);
+
+    if (headers["Connection"] != "Keep-Alive") {
+      break;
+    }
+  }
 }
 
 void process_and_close_socket(std::stop_token&& stop_token, int const socket) {
@@ -181,9 +231,10 @@ auto process_socket_at_executor(dsac::executor_base_ref executor, std::stop_toke
   return [executor   = std::move(executor),
           stop_token = std::move(stop_token)](dsac::expected<int, socket_status> const& socket) mutable -> void {
     if (socket.has_value()) {
-      executor->submit([socket = socket.value(), stop_token = std::move(stop_token)]() mutable {
-        process_and_close_socket(std::move(stop_token), socket);
-      });
+      process_and_close_socket(std::move(stop_token), socket.value());
+      //      executor->submit([socket = socket.value(), stop_token = std::move(stop_token)]() mutable {
+      //        process_and_close_socket(std::move(stop_token), socket);
+      //      });
     }
   };
 }
