@@ -18,8 +18,6 @@ const std::size_t     kWorkersCount   = std::thread::hardware_concurrency();
 }  // namespace
 
 class transport_http::transport_http_pimpl {
-  std::atomic<int> server_socket_;
-
   auto check_peer_socket_status() {
     return [this](dsac::expected<int, socket_status> const& socket) -> dsac::expected<int, socket_status> {
       if (!socket.has_value()) {
@@ -34,11 +32,12 @@ class transport_http::transport_http_pimpl {
     };
   }
 
-  auto close_server_socket_if_error() {
-    return [this](dsac::expected<int, socket_status> const& peer_socket) -> dsac::expected<int, socket_status> {
+  auto close_server_socket_if_error(int const server_socket) {
+    return [server_socket = server_socket,
+            this](dsac::expected<int, socket_status> const& peer_socket) -> dsac::expected<int, socket_status> {
       if (!peer_socket.has_value() && peer_socket.error() != socket_status::too_many_open_files) {
-        if (!is_socket_valid(server_socket_)) {
-          close_socket(server_socket_);
+        if (!is_socket_valid(server_socket)) {
+          close_socket(server_socket);
         }
 
         return dsac::make_unexpected(socket_status::closed_by_user);
@@ -76,7 +75,7 @@ class transport_http::transport_http_pimpl {
       while (is_socket_readable(socket.value())) {
         accept_server_socket(socket.value())
             .and_then(check_peer_socket_status())
-            .and_then(close_server_socket_if_error())
+            .and_then(close_server_socket_if_error(socket.value()))
             .map(process_socket_at_executor(executor, stop_source.get_token()));
       }
       stop_source.request_stop();
