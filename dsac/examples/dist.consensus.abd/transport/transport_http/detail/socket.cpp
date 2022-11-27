@@ -13,7 +13,7 @@ constexpr const int        kNumberOfConnectionsOnSocket = 5;
 
 }  // namespace
 
-auto create_server_socket(std::string const& endpoint, std::string const& port) -> dsac::expected<int, std::string> {
+auto create_server_socket(std::string const& endpoint, std::string const& port) -> dsac::expected<int, socket_status> {
   addrinfo hints{
       .ai_flags     = 0,
       .ai_family    = 0,
@@ -27,7 +27,7 @@ auto create_server_socket(std::string const& endpoint, std::string const& port) 
 
   addrinfo* service_provider = nullptr;
   if (getaddrinfo(endpoint.c_str(), port.c_str(), &hints, &service_provider) != 0) {
-    return dsac::make_unexpected("cant get a list of address");
+    return dsac::make_unexpected(socket_status::not_found_address_info);
   }
 
   std::shared_ptr<addrinfo> addrinfo_defer{service_provider, [](addrinfo* addrinfo) { freeaddrinfo(addrinfo); }};
@@ -38,17 +38,17 @@ auto create_server_socket(std::string const& endpoint, std::string const& port) 
     }
 
     if (::bind(socket, provider->ai_addr, static_cast<socklen_t>(provider->ai_addrlen)) != 0) {
-      return dsac::make_unexpected("cant bind to the socket");
+      return dsac::make_unexpected(socket_status::cant_bind_socket);
     }
 
     if (::listen(socket, kNumberOfConnectionsOnSocket) != 0) {
-      return dsac::make_unexpected("cant listen on the socket");
+      return dsac::make_unexpected(socket_status::cant_listen_socket);
     }
 
     return socket;
   }
 
-  return dsac::make_unexpected("cant search service provider");
+  return dsac::make_unexpected(socket_status::not_found_service_provider);
 }
 
 auto accept_server_socket(int server_socket) -> dsac::expected<int, socket_status> {

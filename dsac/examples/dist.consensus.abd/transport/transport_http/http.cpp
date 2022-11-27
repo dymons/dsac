@@ -30,25 +30,67 @@ class transport_http::transport_http_pimpl {
   std::atomic<int>        server_socket_;
   dsac::executor_base_ref executor_ = dsac::make_static_thread_pool(std::thread::hardware_concurrency());
 
-  void serve_impl() {
-    while (is_socket_valid(server_socket_)) {
-      dsac::expected<int, socket_status> const socket = accept_server_socket(server_socket_);
+  auto check_peer_socket_status() {
+    return [this](dsac::expected<int, socket_status> const& socket) -> dsac::expected<int, socket_status> {
       if (!socket.has_value()) {
         if (socket.error() == socket_status::too_many_open_files) {
-          continue;
+          return socket;
         }
 
+        return dsac::make_unexpected(socket_status::closed_by_user);
+      }
+
+      return socket;
+    };
+  }
+
+  auto close_server_socket_if_error() {
+    return [this](dsac::expected<int, socket_status> const& peer_socket) -> dsac::expected<int, socket_status> {
+      if (!peer_socket.has_value() && peer_socket.error() != socket_status::too_many_open_files) {
         if (!is_socket_valid(server_socket_)) {
           close_socket(server_socket_);
         }
 
-        break;
+        return dsac::make_unexpected(socket_status::closed_by_user);
       }
 
-      executor_->submit([socket = socket.value(), this]() { process_and_close_socket(socket); });
-    }
+      return peer_socket;
+    };
+  }
 
-    executor_->join();
+  auto process_socket_at_executor() {
+    return [this](dsac::expected<int, socket_status> const& socket) -> void {
+      if (socket.has_value()) {
+        executor_->submit([socket = socket.value(), this]() { process_and_close_socket(socket); });
+      }
+    };
+  }
+
+  auto serve_server_on_socket() {
+    return [this](dsac::expected<int, socket_status> const& server_socket) -> dsac::expected<int, socket_status> {
+      server_socket_.store(server_socket.value());
+      while (is_socket_valid(server_socket_)) {
+        accept_server_socket(server_socket_)
+            .and_then(check_peer_socket_status())
+            .and_then(close_server_socket_if_error())
+            .map(process_socket_at_executor());
+      }
+      return server_socket_.load();
+    };
+  }
+
+  auto check_server_socket_status() {
+    return [this](dsac::expected<int, socket_status> const& socket) -> dsac::expected<int, socket_status> {
+      if (!socket.has_value()) {
+        throw transport_server_socket{to_string(socket.error())};
+      }
+
+      return socket;
+    };
+  }
+
+  auto stop_server() {
+    return [this]([[maybe_unused]] auto&&) -> void { executor_->join(); };
   }
 
   void process_and_close_socket(int socket) {
@@ -56,12 +98,10 @@ class transport_http::transport_http_pimpl {
 
 public:
   void serve(int port) {
-    dsac::expected<int, std::string> const server_socket = create_server_socket(kEndpoint, std::to_string(port));
-    if (!server_socket.has_value()) {
-      throw transport_exception{server_socket.error()};
-    }
-
-    serve_impl();
+    create_server_socket(kEndpoint, std::to_string(port))
+        .and_then(check_server_socket_status())
+        .and_then(serve_server_on_socket())
+        .map(stop_server());
   }
 };
 

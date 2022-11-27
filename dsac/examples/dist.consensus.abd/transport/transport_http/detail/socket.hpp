@@ -9,7 +9,7 @@
 
 namespace dsac {
 
-auto create_server_socket(std::string const& endpoint, std::string const& port) -> dsac::expected<int, std::string>;
+auto create_server_socket(std::string const& endpoint, std::string const& port) -> dsac::expected<int, socket_status>;
 
 auto accept_server_socket(int server_socket) -> dsac::expected<int, socket_status>;
 

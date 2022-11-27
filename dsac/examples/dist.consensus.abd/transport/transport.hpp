@@ -10,6 +10,11 @@ public:
   using std::runtime_error::runtime_error;
 };
 
+class transport_server_socket : public transport_exception {
+public:
+  using transport_exception::transport_exception;
+};
+
 class transport_base {
 public:
   transport_base()                                     = default;
