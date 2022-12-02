@@ -17,14 +17,12 @@ int main() {
         return;
       }
 
-      topic_callback->execute(/*parameters*/ request.body)
+      topic_callback->execute(/*parameters*/ dsac::json::parse(request.body))
           .map([&response](dsac::json const& json) {
-            response.status = 200;
-            response.set_content(to_string(json), "text/plain");
+            (response.status = 200, response.set_content(to_string(json), "text/json"));
           })
           .map_error([&response](std::string const& error) {
-            response.status = 500;
-            response.set_content(error, "text/plain");
+            (response.status = 500, response.set_content(to_string(dsac::json{{"error_message", error}}), "text/json"));
           });
     });
   }
