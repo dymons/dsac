@@ -54,7 +54,7 @@ auto replica_set::execute([[maybe_unused]] json request) -> expected<json, std::
   return "";
 }
 
-auto replica_get::execute([[maybe_unused]] json request) -> expected<json, std::string> {
+auto replica_get::execute(json request) -> expected<json, std::string> {
   if (!request.contains(kKey) || !request[kKey].is_string()) {
     return dsac::make_unexpected(kUnexpectedKey);
   }
