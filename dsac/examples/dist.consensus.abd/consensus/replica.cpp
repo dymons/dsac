@@ -2,11 +2,11 @@
 
 namespace dsac {
 
-auto replica_set::handle([[maybe_unused]] json request) -> expected<json, std::string> {
+auto replica_set::execute([[maybe_unused]] json request) -> expected<json, std::string> {
   return {};
 }
 
-auto replica_get::handle([[maybe_unused]] json request) -> expected<json, std::string> {
+auto replica_get::execute([[maybe_unused]] json request) -> expected<json, std::string> {
   return {};
 }
 

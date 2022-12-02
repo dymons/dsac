@@ -20,7 +20,7 @@ public:
   abd& operator=(abd&&) noexcept = default;
   virtual ~abd()                 = default;
 
-  virtual auto handle(json request) -> expected<json, std::string> = 0;
+  virtual auto execute(json request) -> expected<json, std::string> = 0;
 };
 
 }  // namespace dsac
