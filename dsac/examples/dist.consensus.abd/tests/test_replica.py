@@ -4,5 +4,6 @@ async def test_replica_get_happy_path(consensus):
     })
     assert response.status == 200
     assert response.json() == {
-        'value': '__unspecified_value'
+        'value': '__unspecified_value',
+        'timestamp': 0,
     }

@@ -2,6 +2,7 @@
 
 #include <dsac/pattern/singleton/singleton.hpp>
 
+#include <chrono>
 #include <map>
 #include <mutex>
 #include <optional>
@@ -15,11 +16,13 @@ const std::string kKey              = "key";
 const std::string kValue            = "value";
 
 class key_value_store final {
-  std::map<std::string, std::string> storage_;
-  std::shared_mutex                  mutex_;
-
 public:
-  [[nodiscard]] std::optional<std::string> get(std::string const& key) {
+  struct value final {
+    std::string                                        value;
+    std::chrono::time_point<std::chrono::steady_clock> timestamp;
+  };
+
+  [[nodiscard]] std::optional<value> get(std::string const& key) {
     std::shared_lock guard(mutex_);
     if (storage_.contains(key)) {
       return storage_[key];
@@ -27,14 +30,21 @@ public:
     return std::nullopt;
   }
 
-  void set(std::string const& key, std::string const& value) {
+  void set(std::string const& key, value const& value_) {
     std::unique_lock guard(mutex_);
-    storage_[key] = value;
+    storage_[key] = value_;
   }
+
+private:
+  std::map<std::string, value> storage_;
+  std::shared_mutex            mutex_;
 };
 
-auto make_response(std::optional<std::string> const& value) -> dsac::json {
-  return dsac::json{{"value", value.value_or(kUnspecifiedValue)}};
+auto make_response(std::optional<key_value_store::value> const& record) -> dsac::json {
+  if (!record.has_value()) {
+    return dsac::json{{"value", kUnspecifiedValue}, {"timestamp", 0UL}};
+  }
+  return dsac::json{{"value", record->value}, {"timestamp", record->timestamp.time_since_epoch().count()}};
 }
 
 }  // namespace
@@ -49,9 +59,14 @@ auto replica_set::execute(json request) -> expected<json, std::string> {
     return dsac::make_unexpected(kUnexpectedValue);
   }
 
-  singleton<key_value_store>()->set(request[kKey].get<std::string>(), request[kValue].get<std::string>());
+  // clang-format off
+  key_value_store::value value{
+      .value = request[kValue].get<std::string>(),
+      .timestamp = std::chrono::steady_clock::now()
+  };
+  // clang-format on
 
-  return "";
+  return (singleton<key_value_store>()->set(request[kKey].get<std::string>(), value), "");
 }
 
 auto replica_get::execute(json request) -> expected<json, std::string> {
