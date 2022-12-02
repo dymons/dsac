@@ -9,11 +9,13 @@
 
 namespace {
 
-const std::string kUnexpectedKey    = "__unexpected_key";
-const std::string kUnexpectedValue  = "__unexpected_value";
-const std::string kUnspecifiedValue = "__unspecified_value";
-const std::string kKey              = "key";
-const std::string kValue            = "value";
+const std::string kUnexpectedKey       = "__unexpected_key";
+const std::string kUnexpectedValue     = "__unexpected_value";
+const std::string kUnexpectedTimestamp = "__unexpected_timestamp";
+const std::string kUnspecifiedValue    = "__unspecified_value";
+const std::string kKey                 = "key";
+const std::string kValue               = "value";
+const std::string kTimestamp           = "timestamp";
 
 class key_value_store final {
 public:
@@ -42,9 +44,9 @@ private:
 
 auto make_response(std::optional<key_value_store::value> const& record) -> dsac::json {
   if (!record.has_value()) {
-    return dsac::json{{"value", kUnspecifiedValue}, {"timestamp", 0UL}};
+    return dsac::json{{kValue, kUnspecifiedValue}, {kTimestamp, 0UL}};
   }
-  return dsac::json{{"value", record->value}, {"timestamp", record->timestamp.time_since_epoch().count()}};
+  return dsac::json{{kValue, record->value}, {kTimestamp, record->timestamp.time_since_epoch().count()}};
 }
 
 }  // namespace
@@ -57,6 +59,9 @@ auto replica_set::execute(json request) -> expected<json, std::string> {
   }
   if (!request.contains(kValue) || !request[kValue].is_string()) {
     return dsac::make_unexpected(kUnexpectedValue);
+  }
+  if (!request.contains(kTimestamp) || !request[kTimestamp].is_number_unsigned()) {
+    return dsac::make_unexpected(kUnexpectedTimestamp);
   }
 
   // clang-format off
