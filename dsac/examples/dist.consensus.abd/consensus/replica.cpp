@@ -32,9 +32,9 @@ public:
     return std::nullopt;
   }
 
-  void set(std::string const& key, value const& value_) {
+  void set(std::string const& key, value&& value_) {
     std::unique_lock guard(mutex_);
-    storage_[key] = value_;
+    storage_[key] = std::move(value_);
   }
 
 private:
@@ -64,14 +64,12 @@ auto replica_set::execute(json request) -> expected<json, std::string> {
     return dsac::make_unexpected(kUnexpectedTimestamp);
   }
 
-  // clang-format off
   key_value_store::value value{
-      .value = request[kValue].get<std::string>(),
-      .timestamp = std::chrono::steady_clock::now()
-  };
-  // clang-format on
+      .value     = request[kValue].get<std::string>(),
+      .timestamp = std::chrono::time_point<std::chrono::steady_clock>{
+          static_cast<const std::chrono::duration<long, std::ratio<1, 1000000000>>>(request[kTimestamp].get<int>())}};
 
-  return (singleton<key_value_store>()->set(request[kKey].get<std::string>(), value), "");
+  return (singleton<key_value_store>()->set(request[kKey].get<std::string>(), std::move(value)), "");
 }
 
 auto replica_get::execute(json request) -> expected<json, std::string> {
