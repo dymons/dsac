@@ -33,8 +33,8 @@ public:
   }
 };
 
-auto make_response(std::string const& value) -> dsac::json {
-  return dsac::json{{"value", value}};
+auto make_response(std::optional<std::string> const& value) -> dsac::json {
+  return dsac::json{{"value", value.value_or(kUnspecifiedValue)}};
 }
 
 }  // namespace
@@ -58,8 +58,7 @@ auto replica_get::execute([[maybe_unused]] json request) -> expected<json, std::
   if (!request.contains(kKey) || !request[kKey].is_string()) {
     return dsac::make_unexpected(kUnexpectedKey);
   }
-  return make_response(
-      singleton<key_value_store>()->read(request[kKey].get<std::string>()).value_or(kUnspecifiedValue));
+  return make_response(singleton<key_value_store>()->read(request[kKey].get<std::string>()));
 }
 
 }  // namespace dsac
