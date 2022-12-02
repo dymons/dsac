@@ -19,7 +19,7 @@ class key_value_store final {
   std::shared_mutex                  mutex_;
 
 public:
-  [[nodiscard]] std::optional<std::string> read(std::string const& key) {
+  [[nodiscard]] std::optional<std::string> get(std::string const& key) {
     std::shared_lock guard(mutex_);
     if (storage_.contains(key)) {
       return storage_[key];
@@ -27,7 +27,7 @@ public:
     return std::nullopt;
   }
 
-  void write(std::string const& key, std::string const& value) {
+  void set(std::string const& key, std::string const& value) {
     std::unique_lock guard(mutex_);
     storage_[key] = value;
   }
@@ -41,7 +41,7 @@ auto make_response(std::optional<std::string> const& value) -> dsac::json {
 
 namespace dsac {
 
-auto replica_set::execute([[maybe_unused]] json request) -> expected<json, std::string> {
+auto replica_set::execute(json request) -> expected<json, std::string> {
   if (!request.contains(kKey) || !request[kKey].is_string()) {
     return dsac::make_unexpected(kUnexpectedKey);
   }
@@ -49,7 +49,7 @@ auto replica_set::execute([[maybe_unused]] json request) -> expected<json, std::
     return dsac::make_unexpected(kUnexpectedValue);
   }
 
-  singleton<key_value_store>()->write(request[kKey].get<std::string>(), request[kValue].get<std::string>());
+  singleton<key_value_store>()->set(request[kKey].get<std::string>(), request[kValue].get<std::string>());
 
   return "";
 }
@@ -58,7 +58,7 @@ auto replica_get::execute(json request) -> expected<json, std::string> {
   if (!request.contains(kKey) || !request[kKey].is_string()) {
     return dsac::make_unexpected(kUnexpectedKey);
   }
-  return make_response(singleton<key_value_store>()->read(request[kKey].get<std::string>()));
+  return make_response(singleton<key_value_store>()->get(request[kKey].get<std::string>()));
 }
 
 }  // namespace dsac
