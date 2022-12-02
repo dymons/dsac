@@ -1,4 +1,4 @@
-async def test_replica_get(consensus):
+async def test_replica_get_happy_path(consensus):
     response = await consensus.post('v1/replica/get', json={
         'key': 'entity_0',
     })
