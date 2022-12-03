@@ -7,7 +7,7 @@ namespace dsac {
 class coordinator_set final : public abd {
   static const inline factory::registractor<coordinator_set> kRegistractor;
 
-  auto execute([[maybe_unused]] json request) -> expected<json, std::string> override;
+  auto execute(request request) -> expected<response, std::string> override;
 
 public:
   static std::string get_type_name() {
@@ -18,7 +18,7 @@ public:
 class coordinator_get final : public abd {
   static const inline factory::registractor<coordinator_get> kRegistractor;
 
-  auto execute([[maybe_unused]] json request) -> expected<json, std::string> override;
+  auto execute(request request) -> expected<response, std::string> override;
 
 public:
   static std::string get_type_name() {

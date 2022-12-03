@@ -9,19 +9,13 @@
 
 namespace {
 
-const std::string kUnexpectedKey       = "__unexpected_key";
-const std::string kUnexpectedValue     = "__unexpected_value";
-const std::string kUnexpectedTimestamp = "__unexpected_timestamp";
-const std::string kUnspecifiedValue    = "__unspecified_value";
-const std::string kKey                 = "key";
-const std::string kValue               = "value";
-const std::string kTimestamp           = "timestamp";
+const std::string kUnspecifiedValue = "__unspecified_value";
 
 class key_value_store final {
 public:
   struct value final {
     std::string                                        value;
-    std::chrono::time_point<std::chrono::steady_clock> timestamp;
+    std::chrono::time_point<std::chrono::system_clock> timestamp;
   };
 
   [[nodiscard]] std::optional<value> get(std::string const& key) {
@@ -32,9 +26,15 @@ public:
     return std::nullopt;
   }
 
-  void set(std::string const& key, value&& value_) {
+  void set(
+      std::string const&                                        key,
+      std::string const&                                        value,
+      std::chrono::time_point<std::chrono::system_clock> const& timestamp) {
     std::unique_lock guard(mutex_);
-    storage_[key] = std::move(value_);
+    storage_[key] = key_value_store::value{
+        .value     = value,
+        .timestamp = timestamp,
+    };
   }
 
 private:
@@ -42,41 +42,29 @@ private:
   std::shared_mutex            mutex_;
 };
 
-auto make_response(std::optional<key_value_store::value> const& record) -> dsac::json {
-  if (!record.has_value()) {
-    return dsac::json{{kValue, kUnspecifiedValue}, {kTimestamp, 0UL}};
-  }
-  return dsac::json{{kValue, record->value}, {kTimestamp, record->timestamp.time_since_epoch().count()}};
-}
-
 }  // namespace
 
 namespace dsac {
 
-auto replica_set::execute(json request) -> expected<json, std::string> {
-  if (!request.contains(kKey) || !request[kKey].is_string()) {
-    return dsac::make_unexpected(kUnexpectedKey);
+auto replica_set::execute(request request) -> expected<response, std::string> {
+  if (!request.key.has_value() || !request.value.has_value() || !request.timestamp.has_value()) {
+    return dsac::make_unexpected("Input data is incorrect for consensus algorithm");
   }
-  if (!request.contains(kValue) || !request[kValue].is_string()) {
-    return dsac::make_unexpected(kUnexpectedValue);
-  }
-  if (!request.contains(kTimestamp) || !request[kTimestamp].is_number_unsigned()) {
-    return dsac::make_unexpected(kUnexpectedTimestamp);
-  }
-
-  key_value_store::value value{
-      .value     = request[kValue].get<std::string>(),
-      .timestamp = std::chrono::time_point<std::chrono::steady_clock>{
-          static_cast<const std::chrono::duration<long, std::ratio<1, 1000000000>>>(request[kTimestamp].get<int>())}};
-
-  return (singleton<key_value_store>()->set(request[kKey].get<std::string>(), std::move(value)), "");
+  singleton<key_value_store>()->set(request.key.value(), request.value.value(), request.timestamp.value());
+  return response{.value = request.value, .timestamp = request.timestamp};
 }
 
-auto replica_get::execute(json request) -> expected<json, std::string> {
-  if (!request.contains(kKey) || !request[kKey].is_string()) {
-    return dsac::make_unexpected(kUnexpectedKey);
+auto replica_get::execute(request request) -> expected<response, std::string> {
+  if (!request.key.has_value()) {
+    return dsac::make_unexpected("Input data is incorrect for consensus algorithm");
   }
-  return make_response(singleton<key_value_store>()->get(request[kKey].get<std::string>()));
+
+  std::optional<key_value_store::value> v = singleton<key_value_store>()->get(request.key.value());
+  if (v.has_value()) {
+    return response{.value = v->value, .timestamp = v->timestamp};
+  }
+
+  return dsac::make_unexpected(kUnspecifiedValue);
 }
 
 }  // namespace dsac

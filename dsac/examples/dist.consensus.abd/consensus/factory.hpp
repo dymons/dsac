@@ -3,11 +3,21 @@
 #include <dsac/functional/expected.hpp>
 #include <dsac/pattern/registrator/registrator.hpp>
 
-#include <nlohmann/json.hpp>
+#include <chrono>
+#include <optional>
 
 namespace dsac {
 
-using nlohmann::json;
+struct request final {
+  std::optional<std::string>                                        key;
+  std::optional<std::string>                                        value;
+  std::optional<std::chrono::time_point<std::chrono::system_clock>> timestamp;
+};
+
+struct response final {
+  std::optional<std::string>                                        value;
+  std::optional<std::chrono::time_point<std::chrono::system_clock>> timestamp;
+};
 
 class abd {
 public:
@@ -20,7 +30,7 @@ public:
   abd& operator=(abd&&) noexcept = default;
   virtual ~abd()                 = default;
 
-  virtual auto execute(json request) -> expected<json, std::string> = 0;
+  virtual auto execute(request request) -> expected<response, std::string> = 0;
 };
 
 }  // namespace dsac
