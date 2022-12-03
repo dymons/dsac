@@ -1,8 +1,10 @@
 #pragma once
 
-#include <examples/dist.consensus.abd/consensus/factory.hpp>
+#include <examples/dist.consensus.abd/models/request.hpp>
+#include <examples/dist.consensus.abd/models/response.hpp>
 
 #include <dsac/container/dynamic_array.hpp>
+#include <dsac/functional/expected.hpp>
 
 #include <string>
 
@@ -12,7 +14,7 @@ struct peer final {
   std::string host;
   int         port;
 
-  auto execute(std::string topic, request request) -> response;
+  auto execute(std::string const& topic, request const& request) -> dsac::expected<response, std::string>;
 };
 
 [[nodiscard]] auto get_peers() -> dynamic_array<peer>;
