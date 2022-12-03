@@ -43,11 +43,10 @@ def _registry_server_binary(_registry_server_dir):
     return config['executable']
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture(scope='function')
 async def _registry_service_scope(
         pytestconfig,
         create_daemon_scope,
-        mockserver_info,
         _registry_service_baseurl,
         _registry_server_binary,
 ):
