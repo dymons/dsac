@@ -57,7 +57,7 @@ int main(int args, char** argv) {
               response.set_content(to_string(to_json(r)), "text/json");
             })
             .map_error([&response](std::string const& error) {
-              response.status = 400;
+              response.status = 404;
               response.set_content(to_string(nlohmann::json{{"error_message", error}}), "text/json");
             });
       } catch (dsac::parse_exception const& exception) {

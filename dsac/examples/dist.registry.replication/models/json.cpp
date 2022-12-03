@@ -10,14 +10,6 @@ namespace dsac {
 
 template <typename Message>
 auto from_json(const nlohmann::json& j, Message& r) -> void {
-  if constexpr (requires { r.key; }) {
-    if (j.contains("key")) {
-      if (!j["key"].is_string()) {
-        throw parse_exception{fmt::format("The key is incorrect, expected string")};
-      }
-      r.key = j["key"].get<std::string>();
-    }
-  }
   if constexpr (requires { r.value; }) {
     if (j.contains("value")) {
       if (!j["value"].is_string()) {
