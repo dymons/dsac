@@ -72,5 +72,5 @@ int main(int args, char** argv) {
 
       });
 
-  server.listen("0.0.0.0", 8080);
+  server.listen("0.0.0.0", port.value());
 }
