@@ -6,6 +6,8 @@
 #include <chrono>
 #include <optional>
 
+#include <nlohmann/json_fwd.hpp>
+
 namespace dsac {
 
 struct request final {
@@ -18,6 +20,17 @@ struct response final {
   std::optional<std::string>                                        value;
   std::optional<std::chrono::time_point<std::chrono::system_clock>> timestamp;
 };
+
+class parse_exception : public std::runtime_error {
+public:
+  using std::runtime_error::runtime_error;
+};
+
+template <typename Message>
+auto from_json(nlohmann::json const& j, Message& r) -> void;
+
+template <typename Message>
+auto to_json(Message const& r) -> nlohmann::json;
 
 class abd {
 public:

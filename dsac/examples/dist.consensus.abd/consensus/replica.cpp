@@ -50,6 +50,7 @@ auto replica_set::execute(request request) -> expected<response, std::string> {
   if (!request.key.has_value() || !request.value.has_value() || !request.timestamp.has_value()) {
     return dsac::make_unexpected("Input data is incorrect for consensus algorithm");
   }
+
   singleton<key_value_store>()->set(request.key.value(), request.value.value(), request.timestamp.value());
   return response{.value = request.value, .timestamp = request.timestamp};
 }
