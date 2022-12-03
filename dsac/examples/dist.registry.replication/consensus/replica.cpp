@@ -14,7 +14,7 @@ const std::string kUnspecifiedValue = "__unspecified_value";
 class register_ final {
 public:
   struct value final {
-    std::string                                        value;
+    int                                                value;
     std::chrono::time_point<std::chrono::system_clock> timestamp;
   };
 
@@ -23,7 +23,7 @@ public:
     return register_;
   }
 
-  void set(std::string const& value, std::chrono::time_point<std::chrono::system_clock> const& timestamp) {
+  void set(int const value, std::chrono::time_point<std::chrono::system_clock> const& timestamp) {
     std::unique_lock guard(mutex_);
     register_ = register_::value{
         .value     = value,

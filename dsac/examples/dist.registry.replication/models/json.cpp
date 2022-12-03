@@ -1,6 +1,6 @@
-#include <examples/dist.registry.replication//models/json.hpp>
-#include <examples/dist.registry.replication//models/request.hpp>
-#include <examples/dist.registry.replication//models/response.hpp>
+#include <examples/dist.registry.replication/models/json.hpp>
+#include <examples/dist.registry.replication/models/request.hpp>
+#include <examples/dist.registry.replication/models/response.hpp>
 
 #include <fmt/chrono.h>
 #include <fmt/format.h>
@@ -12,10 +12,10 @@ template <typename Message>
 auto from_json(const nlohmann::json& j, Message& r) -> void {
   if constexpr (requires { r.value; }) {
     if (j.contains("value")) {
-      if (!j["value"].is_string()) {
-        throw parse_exception{fmt::format("The value is incorrect, expected string")};
+      if (!j["value"].is_number_integer()) {
+        throw parse_exception{fmt::format("The value is incorrect, expected is_number_integer")};
       }
-      r.value = j["value"].get<std::string>();
+      r.value = j["value"].get<int>();
     }
   }
   if constexpr (requires { r.timestamp; }) {
