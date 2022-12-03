@@ -3,6 +3,12 @@
 namespace dsac {
 
 auto coordinator_set::execute(request request) -> expected<response, std::string> {
+  if (!request.value.has_value()) {
+    return dsac::make_unexpected("Input data is incorrect for consensus algorithm");
+  }
+
+
+
   return {};
 }
 

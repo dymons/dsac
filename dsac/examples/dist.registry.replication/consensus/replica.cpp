@@ -14,8 +14,8 @@ const std::string kUnspecifiedValue = "__unspecified_value";
 class register_ final {
 public:
   struct value final {
-    int                                                value;
-    std::chrono::time_point<std::chrono::system_clock> timestamp;
+    int         value;
+    std::size_t timestamp;
   };
 
   [[nodiscard]] std::optional<value> get() {
@@ -23,7 +23,7 @@ public:
     return register_;
   }
 
-  void set(int const value, std::chrono::time_point<std::chrono::system_clock> const& timestamp) {
+  void set(int const value, std::size_t const& timestamp) {
     std::unique_lock guard(mutex_);
 
     bool const is_register_setup = register_.has_value();
@@ -51,7 +51,9 @@ auto replica_set::execute(request request) -> expected<response, std::string> {
   }
 
   singleton<register_>()->set(request.value.value(), request.timestamp.value());
-  return response{.value = request.value, .timestamp = request.timestamp};
+
+  // We always confirm the client's record, even if we ignore it by timestamp.
+  return response{};
 }
 
 auto replica_get::execute([[maybe_unused]] request request) -> expected<response, std::string> {
