@@ -9,19 +9,22 @@
 namespace {
 
 template <typename T, typename U>
-auto to(U) -> T;
+auto cast_to(U) -> T;
 
 template <>
-auto to<int, char*>(char* string) -> int {  // NOLINT(readability-non-const-parameter)
+auto cast_to<int, char*>(char* string) -> int {  // NOLINT(readability-non-const-parameter)
   return std::stoi(string);
 }
 
 template <typename T, typename Iterator>
-auto get_parameter_from_args_as(Iterator begin, Iterator end, std::string parameter) -> std::optional<T> {
+auto get_parameter_from_args_as(Iterator begin, Iterator end, std::string parameter) -> std::optional<T> try {
   Iterator it = std::find(begin, end, parameter);
   if (it != end && ++it != end) {
-    return to<T>(*it);
+    return cast_to<T>(*it);
   }
+  return std::nullopt;
+} catch (const std::exception& exception) {
+  std::cerr << "Unexpected exception caught with error message " << exception.what();
   return std::nullopt;
 }
 
