@@ -1,10 +1,39 @@
 #include <examples/dist.consensus.abd/consensus/factory.hpp>
-#include <examples/dist.consensus.abd/transport/httplib.hpp>
 #include <examples/dist.consensus.abd/models/json.hpp>
+#include <examples/dist.consensus.abd/transport/httplib.hpp>
 
 #include <nlohmann/json.hpp>
 
-int main() {
+#include <optional>
+
+namespace {
+
+template <typename T, typename U>
+auto to(U) -> T;
+
+template <>
+auto to<int, char*>(char* string) -> int {  // NOLINT(readability-non-const-parameter)
+  return std::stoi(string);
+}
+
+template <typename T, typename Iterator>
+auto get_parameter_from_args_as(Iterator begin, Iterator end, std::string parameter) -> std::optional<T> {
+  Iterator it = std::find(begin, end, parameter);
+  if (it != end && ++it != end) {
+    return to<T>(*it);
+  }
+  return std::nullopt;
+}
+
+}  // namespace
+
+int main(int args, char** argv) {
+  std::optional<int> const port = get_parameter_from_args_as<int>(argv, std::next(argv, args), "--port");
+  if (!port.has_value()) {
+    std::cerr << "The server port is not set. Please specify the port using the key --port <port>";
+    return -1;
+  }
+
   httplib::Server             server;
   std::set<std::string> const topics = dsac::abd::factory::get_registered_keys();
   for (std::string const& topic : topics) {
