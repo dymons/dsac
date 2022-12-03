@@ -6,7 +6,7 @@ pytest_plugins = ['testsuite.pytest_plugin']
 
 
 def pytest_addoption(parser):
-    group = parser.getgroup('dist-registry-replication')
+    group = parser.getgroup('dist-configuration-replication')
     group.addoption(
         '--port',
         help='bind echo server to this port (default is %(default)s)',

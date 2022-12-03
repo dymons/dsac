@@ -25,10 +25,15 @@ public:
 
   void set(int const value, std::chrono::time_point<std::chrono::system_clock> const& timestamp) {
     std::unique_lock guard(mutex_);
-    register_ = register_::value{
-        .value     = value,
-        .timestamp = timestamp,
-    };
+
+    bool const is_register_setup = register_.has_value();
+    bool const is_register_olden = is_register_setup && register_->timestamp < timestamp;
+    if (!is_register_setup || is_register_olden) {
+      register_ = register_::value{
+          .value     = value,
+          .timestamp = timestamp,
+      };
+    }
   }
 
 private:
