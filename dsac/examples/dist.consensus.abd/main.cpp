@@ -1,5 +1,6 @@
 #include <examples/dist.consensus.abd/consensus/factory.hpp>
 #include <examples/dist.consensus.abd/transport/httplib.hpp>
+#include <examples/dist.consensus.abd/models/json.hpp>
 
 #include <nlohmann/json.hpp>
 
