@@ -1,6 +1,6 @@
-#include <examples/dist.registry.replication//configuration/peers.hpp>
-#include <examples/dist.registry.replication//models/json.hpp>
-#include <examples/dist.registry.replication//transport/httplib.hpp>
+#include <examples/dist.registry.replication/registry/peers.hpp>
+#include <examples/dist.registry.replication/models/json.hpp>
+#include <examples/dist.registry.replication/transport/httplib.hpp>
 
 #include <fmt/format.h>
 #include <nlohmann/json.hpp>
