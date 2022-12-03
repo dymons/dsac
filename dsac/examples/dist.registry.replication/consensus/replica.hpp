@@ -1,6 +1,6 @@
 #pragma once
 
-#include <examples/dist.consensus.abd/consensus/factory.hpp>
+#include <examples/dist.registry.replication//consensus/factory.hpp>
 
 namespace dsac {
 

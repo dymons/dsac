@@ -1,6 +1,6 @@
-#include <examples/dist.consensus.abd/models/json.hpp>
-#include <examples/dist.consensus.abd/models/request.hpp>
-#include <examples/dist.consensus.abd/models/response.hpp>
+#include <examples/dist.registry.replication//models/json.hpp>
+#include <examples/dist.registry.replication//models/request.hpp>
+#include <examples/dist.registry.replication//models/response.hpp>
 
 #include <fmt/chrono.h>
 #include <fmt/format.h>

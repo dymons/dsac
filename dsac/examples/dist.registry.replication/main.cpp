@@ -1,6 +1,6 @@
-#include <examples/dist.consensus.abd/consensus/factory.hpp>
-#include <examples/dist.consensus.abd/models/json.hpp>
-#include <examples/dist.consensus.abd/transport/httplib.hpp>
+#include <examples/dist.registry.replication//consensus/factory.hpp>
+#include <examples/dist.registry.replication//models/json.hpp>
+#include <examples/dist.registry.replication//transport/httplib.hpp>
 
 #include <nlohmann/json.hpp>
 

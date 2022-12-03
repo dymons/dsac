@@ -1,4 +1,4 @@
-#include <examples/dist.consensus.abd/consensus/factory.hpp>
+#include <examples/dist.registry.replication//consensus/factory.hpp>
 
 #include <fmt/chrono.h>
 #include <fmt/format.h>

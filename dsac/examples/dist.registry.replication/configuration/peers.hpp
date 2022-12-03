@@ -1,7 +1,7 @@
 #pragma once
 
-#include <examples/dist.consensus.abd/models/request.hpp>
-#include <examples/dist.consensus.abd/models/response.hpp>
+#include <examples/dist.registry.replication//models/request.hpp>
+#include <examples/dist.registry.replication//models/response.hpp>
 
 #include <dsac/container/dynamic_array.hpp>
 #include <dsac/functional/expected.hpp>

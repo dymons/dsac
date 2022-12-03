@@ -8405,7 +8405,7 @@ inline long Client::get_openssl_verify_result() const {
   return -1; // NOTE: -1 doesn't match any of X509_V_ERR_???#pragma once
 
 #include <dsac/concurrency/executors/static_thread_pool.hpp>
-#include <examples/dist.consensus.abd/consensus/factory.hpp>
+#include <examples/dist.registry.replication//consensus/factory.hpp>
 
 #ifndef CPPHTTPLIB_KEEPALIVE_TIMEOUT_SECOND
 #define CPPHTTPLIB_KEEPALIVE_TIMEOUT_SECOND 5

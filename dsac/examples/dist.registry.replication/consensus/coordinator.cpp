@@ -1,4 +1,4 @@
-#include <examples/dist.consensus.abd/consensus/coordinator.hpp>
+#include <examples/dist.registry.replication//consensus/coordinator.hpp>
 
 namespace dsac {
 

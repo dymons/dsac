@@ -3,7 +3,7 @@ file(GLOB_RECURSE DSAC_DIST_CONSENSUS_ABD_TRANSPORT_HEADERS "transport/*.hpp" "t
 file(GLOB_RECURSE DSAC_DIST_CONSENSUS_ABD_CONFIGURATION_HEADERS "configuration/*.hpp" "configuration/*.cpp")
 file(GLOB_RECURSE DSAC_DIST_CONSENSUS_ABD_MODELS_HEADERS "models/*.hpp" "models/*.cpp")
 
-add_executable(dist.consensus.abd
+add_executable(dist.registry.replication
         main.cpp
         ${DSAC_DIST_CONSENSUS_ABD_CONSENSUS_HEADERS}
         ${DSAC_DIST_CONSENSUS_ABD_TRANSPORT_HEADERS}
@@ -18,10 +18,10 @@ FetchContent_Declare(json
         )
 FetchContent_MakeAvailable(json)
 
-target_link_libraries(dist.consensus.abd PRIVATE fmt::fmt dsac nlohmann_json::nlohmann_json)
+target_link_libraries(dist.registry.replication PRIVATE fmt::fmt dsac nlohmann_json::nlohmann_json)
 
 FILE(WRITE ${CMAKE_CURRENT_SOURCE_DIR}/static/config.json
         "{\n"
-        "  \"executable\" : \"${CMAKE_CURRENT_BINARY_DIR}/dist.consensus.abd\"\n"
+        "  \"executable\" : \"${CMAKE_CURRENT_BINARY_DIR}/dist.registry.replication\"\n"
         "}\n"
         )

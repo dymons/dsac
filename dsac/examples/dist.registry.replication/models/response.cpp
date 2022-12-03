@@ -1,0 +1,1 @@
+#include <examples/dist.registry.replication//models/response.hpp>
