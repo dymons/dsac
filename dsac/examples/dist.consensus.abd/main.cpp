@@ -23,7 +23,7 @@ auto get_parameter_from_args_as(Iterator begin, Iterator end, std::string parame
     return cast_to<T>(*it);
   }
   return std::nullopt;
-} catch (const std::exception& exception) {
+} catch (std::exception const& exception) {
   std::cerr << "Unexpected exception caught with error message " << exception.what();
   return std::nullopt;
 }
