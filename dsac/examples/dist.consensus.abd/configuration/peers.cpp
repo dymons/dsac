@@ -7,7 +7,7 @@
 
 namespace dsac {
 
-auto peer::execute(std::string const& topic, request const& request) -> dsac::expected<response, std::string> {
+auto peer::execute(std::string const& topic, request const& request) const -> dsac::expected<response, std::string> {
   httplib::Result const response = httplib::Client{host, port}.Post(topic, to_string(to_json(request)), "text/json");
   if (response) {
     return nlohmann::json::parse(response.value().body).get<dsac::response>();

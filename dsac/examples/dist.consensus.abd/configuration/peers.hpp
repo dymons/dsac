@@ -14,7 +14,7 @@ struct peer final {
   std::string host;
   int         port;
 
-  auto execute(std::string const& topic, request const& request) -> dsac::expected<response, std::string>;
+  auto execute(std::string const& topic, request const& request) const -> dsac::expected<response, std::string>;
 };
 
 [[nodiscard]] auto get_peers() -> dynamic_array<peer>;
