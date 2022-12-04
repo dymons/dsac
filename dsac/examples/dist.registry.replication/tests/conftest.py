@@ -6,23 +6,18 @@ pytest_plugins = ['testsuite.pytest_plugin']
 
 
 @pytest.fixture
-async def registry0(
+async def registry(
         create_service_client,
         ensure_daemon_started,
         _registry_service_scope,
 ):
     await ensure_daemon_started(_registry_service_scope)
-    return create_service_client(f'http://localhost:8080/')
 
+    class Context:
+        def __getitem__(self, port):
+            return create_service_client(f'http://localhost:{port}/')
 
-@pytest.fixture
-async def registry1(
-        create_service_client,
-        ensure_daemon_started,
-        _registry_service_scope,
-):
-    await ensure_daemon_started(_registry_service_scope)
-    return create_service_client(f'http://localhost:8081/')
+    return Context()
 
 
 @pytest.fixture
