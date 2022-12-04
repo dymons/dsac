@@ -11,7 +11,7 @@ async def test_happy_path(registry, snapshot):
 
 async def test_reject_record_with_olden_timestamp(registry, snapshot):
     """
-         ~ |----w(12, 2)----|    |-w(10, 0)-|
+         ~ |----W(12, 2)----|    |-W(10, 0)-|
             \ \        /   /      \ \  /   /
         -----\-\------/---/--------\-\/---/----------------/\-------------
               \ \    /   /          \    /                /  \
