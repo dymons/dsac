@@ -21,6 +21,24 @@ async def registry(
 
 
 @pytest.fixture
+async def snapshot(
+        registry,
+):
+    async def __wrapper():
+        snapshot = []
+        for port in range(8080, 8083):
+            response = await registry[port].post('v1/coordinator/get', json={})
+            assert response.status == 200
+            snapshot.append({
+                'port': port,
+                'snapshot': response.json()
+            })
+        return snapshot
+
+    return __wrapper
+
+
+@pytest.fixture
 async def registry2(
         create_service_client,
         ensure_daemon_started,
