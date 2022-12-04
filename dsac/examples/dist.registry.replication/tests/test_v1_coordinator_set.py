@@ -21,7 +21,7 @@ async def test_reject_record_with_olden_timestamp(registry, snapshot):
                   \  /                                /  /    \  \
         -----------\/--------------------------------/--/------\--\-------
                                                     /  /        \  \
-                                                   /--|-R(12, 2)----|
+                                                   |----R(12, 2)----|
 
           Record has olden timestamp value,so the record will not be executed.
           Replicas in the cluster contain a value "12" with a timestamp "2"
