@@ -9,7 +9,24 @@ async def test_happy_path(registry, snapshot):
     ]
 
 
-async def test_asynchronous_network(registry, snapshot):
+async def test_ignoring_value_with_lowest_timestamp(registry, snapshot):
+    """
+                          snapshot            snapshot
+                              |                  |
+         ~ |----w(12, 2)----| |   |-w(10, 0)-|   |
+            \ \        |   |  |    \ \  |   |    |
+        -----\-\------|---|---|-----\-\|---|-----|------
+              \ \    |   |    |      \    |      |
+               \ \  |   |     |       \  |       |
+        --------\-\|---|------|--------\|--------|------
+                 \    |       |                  |
+                  \  |        |                  |
+        -----------\|---------|------------------|------
+                              |                  |
+                              ^                  ^
+          Replicas in the cluster contain        Record has the lowest timestamp value,
+          a value "12" with a timestamp "2"      so the record will not be executed
+    """
     assert (await registry[8080].post('v1/coordinator/set', json={'value': 10, 'timestamp': 0})).status == 200
     assert (await registry[8080].post('v1/coordinator/set', json={'value': 11, 'timestamp': 1})).status == 200
     assert (await registry[8080].post('v1/coordinator/set', json={'value': 12, 'timestamp': 2})).status == 200
