@@ -24,6 +24,9 @@ class peer final {
 public:
   [[nodiscard]] auto execute(std::string const& topic, request const& request) const
       -> dsac::expected<response, std::string>;
+
+  auto get_host() const -> std::string;
+  auto get_port() const -> int;
 };
 
 [[nodiscard]] auto get_static_configuration() -> dynamic_array<peer>;

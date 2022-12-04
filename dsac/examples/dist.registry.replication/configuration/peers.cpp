@@ -15,6 +15,14 @@ auto peer::execute(std::string const& topic, request const& request) const -> ds
   return make_unexpected(fmt::format("The request to {} is failed with code {}", topic, to_string(response.error())));
 }
 
+auto peer::get_host() const -> std::string {
+  return host_;
+}
+
+auto peer::get_port() const -> int {
+  return port_;
+}
+
 auto get_static_configuration() -> dynamic_array<peer> {
   return {{"0.0.0.0", 8080}, {"0.0.0.0", 8081}, {"0.0.0.0", 8082}};
 }
