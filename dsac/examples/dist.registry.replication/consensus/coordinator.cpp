@@ -11,10 +11,11 @@ auto coordinator_set::execute(request request) -> expected<response, std::string
     return dsac::make_unexpected("Input data is incorrect for consensus algorithm");
   }
 
-  for (peer const& peer : get_static_configuration()) {
-    dsac::request peer_request{.value = request.value.value(), .timestamp = request.timestamp.value()};
+  for (std::string const& key : dsac::peer::factory::get_registered_keys()) {
+    std::unique_ptr<dsac::peer> peer = dsac::peer::factory::construct(key);
+    dsac::request               peer_request{.value = request.value.value(), .timestamp = request.timestamp.value()};
     [[maybe_unused]] expected<response, std::string> response =
-        peer.execute(replica_set::get_type_name(), peer_request);
+        peer->execute(replica_set::get_type_name(), peer_request);
   }
 
   return response{};
@@ -22,8 +23,9 @@ auto coordinator_set::execute(request request) -> expected<response, std::string
 
 auto coordinator_get::execute([[maybe_unused]] request request) -> expected<response, std::string> {
   dynamic_array<response> responses;
-  for (peer const& peer : get_static_configuration()) {
-    expected<response, std::string> response = peer.execute(replica_get::get_type_name(), dsac::request{});
+  for (std::string const& key : dsac::peer::factory::get_registered_keys()) {
+    std::unique_ptr<dsac::peer>     peer     = dsac::peer::factory::construct(key);
+    expected<response, std::string> response = peer->execute(replica_get::get_type_name(), dsac::request{});
     if (response.has_value()) {
       responses.push_back(response.value());
     }

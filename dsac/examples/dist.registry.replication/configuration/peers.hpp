@@ -5,30 +5,42 @@
 
 #include <dsac/container/dynamic_array.hpp>
 #include <dsac/functional/expected.hpp>
+#include <dsac/pattern/registrator/registrator.hpp>
 
 #include <string>
 
 namespace dsac {
 
-class peer final {
-  friend auto get_static_configuration() -> dynamic_array<peer>;
-
-  std::string host_;
-  int         port_;
-
-  peer(std::string host, int port)
-    : host_(std::move(host))
-    , port_(port) {
-  }
-
+class peer {
 public:
-  [[nodiscard]] auto execute(std::string const& topic, request const& request) const
-      -> dsac::expected<response, std::string>;
+  using factory = ::dsac::factory<peer>;
 
-  auto get_host() const -> std::string;
-  auto get_port() const -> int;
+  peer()                           = default;
+  peer(const peer&)                = default;
+  peer(peer&&) noexcept            = default;
+  peer& operator=(const peer&)     = default;
+  peer& operator=(peer&&) noexcept = default;
+  virtual ~peer()                  = default;
+
+  auto         execute(std::string topic, request request) -> expected<response, std::string>;
+  virtual auto get_host() -> std::string = 0;
+  virtual auto get_port() -> int         = 0;
 };
 
-[[nodiscard]] auto get_static_configuration() -> dynamic_array<peer>;
+#define PEER_NODE_SPAWN_ON_PORT(port)                                                                              \
+  class node##port final : public peer {                                                                           \
+    static const inline factory::registractor<node##port> kRegistractor;                                           \
+    auto                                                  get_port() -> int override { return (port); }            \
+    auto                                                  get_host() -> std::string override { return "0.0.0.0"; } \
+                                                                                                                   \
+  public:                                                                                                          \
+    static std::string get_type_name() { return "node" + (port); }                                                 \
+  };
+
+PEER_NODE_SPAWN_ON_PORT(8080)
+PEER_NODE_SPAWN_ON_PORT(8081)
+PEER_NODE_SPAWN_ON_PORT(8082)
+
+#undef PEER_NODE_SPAWN_ON_PORT
 
 }  // namespace dsac

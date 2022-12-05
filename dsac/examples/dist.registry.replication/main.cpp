@@ -52,11 +52,13 @@ auto make_server() -> dsac::shared_ptr<httplib::Server> {
 }  // namespace
 
 int main() {
-  dsac::dynamic_array<dsac::peer> const peers    = dsac::get_static_configuration();
-  dsac::executor_base_ref               executor = dsac::make_static_thread_pool(peers.size());
+  std::set<std::string> const peer_keys = dsac::peer::factory::get_registered_keys();
+  dsac::executor_base_ref     executor  = dsac::make_static_thread_pool(peer_keys.size());
 
-  for (dsac::peer const& peer : peers) {
-    executor->submit([server = make_server(), peer] { server->listen(peer.get_host(), peer.get_port()); });
+  for (std::string const& peer_key : peer_keys) {
+    executor->submit([server = make_server(), peer = dsac::peer::factory::construct(peer_key)] {
+      server->listen(peer->get_host(), peer->get_port());
+    });
   }
 
   executor->join();

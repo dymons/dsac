@@ -1,7 +1,7 @@
 #pragma once
 
-#include <examples/dist.registry.replication//models/request.hpp>
-#include <examples/dist.registry.replication//models/response.hpp>
+#include <examples/dist.registry.replication/models/request.hpp>
+#include <examples/dist.registry.replication/models/response.hpp>
 
 #include <dsac/functional/expected.hpp>
 #include <dsac/pattern/registrator/registrator.hpp>
