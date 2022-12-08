@@ -38,16 +38,6 @@ async def snapshot(
     return __wrapper
 
 
-@pytest.fixture
-async def registry2(
-        create_service_client,
-        ensure_daemon_started,
-        _registry_service_scope,
-):
-    await ensure_daemon_started(_registry_service_scope)
-    return create_service_client(f'http://localhost:8082/')
-
-
 @pytest.fixture(scope='session')
 def _registry_server_dir(pytestconfig):
     return pathlib.Path(pytestconfig.rootpath).parent
