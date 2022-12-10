@@ -11,7 +11,7 @@ class coordinator_set final : public abd {
 
 public:
   static std::string get_type_name() {
-    return "/v1/coordinator/set";
+    return "/v1/register/set";
   }
 };
 
@@ -22,7 +22,7 @@ class coordinator_get final : public abd {
 
 public:
   static std::string get_type_name() {
-    return "/v1/coordinator/get";
+    return "/v1/register/get";
   }
 };
 

@@ -2,8 +2,6 @@
 
 #include <dsac/pattern/singleton/singleton.hpp>
 
-#include <chrono>
-#include <map>
 #include <mutex>
 #include <optional>
 
