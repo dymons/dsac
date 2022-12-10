@@ -26,4 +26,15 @@ public:
   }
 };
 
+class replica_reset final : public abd {
+  static const inline factory::registractor<replica_reset> kRegistractor;
+
+  auto execute(request request) -> expected<response, std::string> override;
+
+public:
+  static std::string get_type_name() {
+    return "/v1/replica/reset";
+  }
+};
+
 }  // namespace dsac

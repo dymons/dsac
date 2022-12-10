@@ -36,6 +36,11 @@ public:
     }
   }
 
+  void reset() {
+    std::unique_lock guard(mutex_);
+    register_.reset();
+  }
+
 private:
   std::optional<value> register_;
   std::shared_mutex    mutex_;
@@ -63,6 +68,11 @@ auto replica_get::execute([[maybe_unused]] request request) -> expected<response
   }
 
   return dsac::make_unexpected(kUnspecifiedValue);
+}
+
+auto replica_reset::execute([[maybe_unused]] request request) -> expected<response, std::string> {
+  singleton<register_>()->reset();
+  return response{};
 }
 
 }  // namespace dsac

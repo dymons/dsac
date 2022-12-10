@@ -10,8 +10,10 @@ async def registry(
         create_service_client,
         ensure_daemon_started,
         _registry_service_scope,
+        _reset_service_cluster,
 ):
     await ensure_daemon_started(_registry_service_scope)
+    await _reset_service_cluster()
 
     class Context:
         def __getitem__(self, port):
@@ -27,11 +29,10 @@ async def snapshot(
     async def __wrapper():
         snapshot = []
         for port in range(8080, 8083):
-            response = await registry[port].post('v1/coordinator/get', json={})
-            assert response.status == 200
+            response = await registry[port].post('v1/replica/get', json={})
             snapshot.append({
                 'port': port,
-                'snapshot': response.json()
+                'snapshot': response.json() if response.status == 200 else None
             })
         return snapshot
 
@@ -63,3 +64,16 @@ async def _registry_service_scope(
             ping_url=f'http://localhost:8080/ping',
     ) as scope:
         yield scope
+
+
+@pytest.fixture(scope='function')
+async def _reset_service_cluster(
+        create_service_client,
+):
+    async def __wrapper():
+        for port in range(8080, 8083):
+            registry = create_service_client(f'http://localhost:{port}/')
+            response = await registry.post('v1/replica/reset', json={})
+            assert response.status == 200
+
+    return __wrapper
