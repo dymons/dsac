@@ -10,11 +10,39 @@
 
 namespace {
 
-auto make_server() -> dsac::shared_ptr<httplib::Server> {
-  dsac::shared_ptr<httplib::Server> server = dsac::make_shared<httplib::Server>();
-  std::set<std::string> const       topics = dsac::abd::factory::get_registered_keys();
+template <typename T, typename U>
+auto cast_to(U) -> T;
+
+template <>
+auto cast_to<int, char*>(char* string) -> int {  // NOLINT(readability-non-const-parameter)
+  return std::stoi(string);
+}
+
+template <typename T, typename Iterator>
+auto get_parameter_from_args_as(Iterator begin, Iterator end, std::string parameter) -> std::optional<T> try {
+  Iterator it = std::find(begin, end, parameter);
+  if (it != end && ++it != end) {
+    return cast_to<T>(*it);
+  }
+  return std::nullopt;
+} catch (std::exception const& exception) {
+  std::cerr << "Unexpected exception caught with error message " << exception.what();
+  return std::nullopt;
+}
+
+}  // namespace
+
+int main(int args, char** argv) {
+  std::optional<int> const port = get_parameter_from_args_as<int>(argv, std::next(argv, args), "--port");
+  if (!port.has_value()) {
+    std::cerr << "The server port is not set. Please specify the port using the key --port <port>";
+    return -1;
+  }
+
+  httplib::Server             server;
+  std::set<std::string> const topics = dsac::abd::factory::get_registered_keys();
   for (std::string const& topic : topics) {
-    server->Post(topic, [topic, topics](const httplib::Request& request, httplib::Response& response) {
+    server.Post(topic, [topic, topics](const httplib::Request& request, httplib::Response& response) {
       std::unique_ptr<dsac::abd> const topic_callback = dsac::abd::factory::construct(topic);
       if (nullptr == topic_callback) {
         response.status = 404;
@@ -41,25 +69,10 @@ auto make_server() -> dsac::shared_ptr<httplib::Server> {
     });
   }
 
-  server->Get(
+  server.Get(
       "/ping", []([[maybe_unused]] const httplib::Request& request, [[maybe_unused]] httplib::Response& response) {
-
+        (void)request;
       });
 
-  return server;
-}
-
-}  // namespace
-
-int main() {
-  std::set<std::string> const peer_keys = dsac::peer::factory::get_registered_keys();
-  dsac::executor_base_ref     executor  = dsac::make_static_thread_pool(peer_keys.size());
-
-  for (std::string const& peer_key : peer_keys) {
-    executor->submit([server = make_server(), peer = dsac::peer::factory::construct(peer_key)] {
-      server->listen(peer->get_host(), peer->get_port());
-    });
-  }
-
-  executor->join();
+  server.listen("0.0.0.0", port.value());
 }

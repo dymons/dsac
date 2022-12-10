@@ -34,7 +34,7 @@ public:
     auto                                                  get_host() -> std::string override { return "0.0.0.0"; } \
                                                                                                                    \
   public:                                                                                                          \
-    static std::string get_type_name() { return "node" + (port); }                                                 \
+    static std::string get_type_name() { return "node" + std::to_string(port); }                                                 \
   };
 
 PEER_NODE_SPAWN_ON_PORT(8080)
