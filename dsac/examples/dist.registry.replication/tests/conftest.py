@@ -32,7 +32,7 @@ async def snapshot(
             response = await registry[port].post('v1/replica/read', json={})
             snapshot.append({
                 'port': port,
-                'snapshot': response.json() if response.status == 200 else None
+                'snapshot': response.json() if response.status_code == 200 else None
             })
         return snapshot
 
