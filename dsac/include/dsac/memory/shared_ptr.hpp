@@ -19,10 +19,10 @@ public:
 };
 
 template <typename T>
-class deleter : public deleter_base {
+class default_deleter final : public deleter_base {
 public:
   void operator()(void* data) override {
-    delete static_cast<T*>(data);
+    delete static_cast<T*>(data);  // NOLINT(cppcoreguidelines-owning-memory)
   }
 };
 
@@ -58,7 +58,7 @@ public:
   explicit shared_ptr(T* other)
     : ptr_{other}
     , ref_count_{new std::atomic<long>{1}}
-    , deleter_{new detail::deleter<T>()} {
+    , deleter_{new detail::default_deleter<T>()} {
   }
 
   /*!
@@ -69,7 +69,7 @@ public:
   explicit shared_ptr(U* other)
     : ptr_{other}
     , ref_count_{new std::atomic<long>{1}}
-    , deleter_{new detail::deleter<U>()} {
+    , deleter_{new detail::default_deleter<U>()} {
   }
 
   /*!
@@ -89,7 +89,7 @@ public:
     \brief
         Copy conversion constructor.
   */
-  template <typename U>
+  template <std::derived_from<T> U>
   shared_ptr(const shared_ptr<U>& other) noexcept  // NOLINT(google-explicit-constructor)
     : ptr_{other.ptr_}
     , ref_count_{other.ref_count_}
@@ -114,7 +114,7 @@ public:
   /// No side-effect if shared_ptr is empty or use_count() > 1,
   /// otherwise release the resources
   ~shared_ptr() {
-    if (ptr_) {
+    if (nullptr != ptr_) {
       if (--(*ref_count_) == 0) {
         delete ref_count_;
         (*deleter_)(ptr_);
@@ -182,7 +182,7 @@ public:
     \brief
         Returns use_count (use_count == 0 if shared_ptr is empty).
   */
-  long use_count() const noexcept {
+  [[nodiscard]] long use_count() const noexcept {
     if (ptr_) {
       return *ref_count_;
     }
@@ -193,7 +193,7 @@ public:
     \brief
         Checks if solely owns the managed object.
   */
-  bool unique() const noexcept {
+  [[nodiscard]] bool unique() const noexcept {
     return (use_count() == 1);
   }
 
@@ -202,7 +202,7 @@ public:
         Checks if there is an associated managed object.
   */
   explicit operator bool() const noexcept {
-    return (ptr_ != nullptr);
+    return (nullptr != ptr_);
   }
 
   // Modifiers
@@ -231,10 +231,9 @@ public:
         Swap with another shared_ptr.
   */
   void swap(shared_ptr& sp) noexcept {
-    using std::swap;
-    swap(ptr_, sp.ptr_);
-    swap(ref_count_, sp.ref_count_);
-    swap(deleter_, sp.deleter_);
+    std::swap(ptr_, sp.ptr_);
+    std::swap(ref_count_, sp.ref_count_);
+    std::swap(deleter_, sp.deleter_);
   }
 
 private:

@@ -13,8 +13,13 @@ auto async_via(executor_base_ref executor, F&& routine) {
 
   promise<return_type> promise;
   future<return_type>  future = promise.make_future().via(executor);
-  executor->submit(
-      [promise = std::move(promise), routine = std::forward<F>(routine)]() mutable { promise.set(routine()); });
+  executor->submit([promise = std::move(promise), routine = std::forward<F>(routine)]() mutable {
+    try {
+      promise.set(routine());
+    } catch (...) {
+      promise.set(std::current_exception());
+    }
+  });
 
   return future;
 }

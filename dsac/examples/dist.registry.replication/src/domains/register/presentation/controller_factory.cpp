@@ -1,0 +1,1 @@
+#include <examples/dist.registry.replication/src/domains/register/presentation/controller_factory.hpp>
