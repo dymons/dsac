@@ -22,7 +22,8 @@ Codemap
   <br /> The `container` directory contains concurrency primitives for writing asynchronous code efficiently.
 * [`memory`](dsac/include/dsac/memory) Smart pointers and Allocators
   <br /> The `memory` directory contains implementation of smart pointers and different types of allocators.
-  primitives from directory [`concurrency`](dsac/include/dsac/concurrency).
+* [`pattern`](dsac/include/dsac/pattern) Software design pattern
+  <br /> The `pattern` directory contains implementation of common patterns to solve common problems in software design.
 * [`examples`](dsac/examples) A set of examples on working with the POSIX API
   <br /> The `examples` directory contains examples with working POSIX API for writing backend apps using concurrency
   primitives from directory [`concurrency`](dsac/include/dsac/concurrency).
