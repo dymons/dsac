@@ -1,5 +1,9 @@
 async def test_spec_read_to_write_phase(registry, snapshot):
     """
+        This specification illustrates a scenario when the recording has not yet completed
+        and  subsequent  reads can return various answer options and violate the guarantee
+        of  Linearizability.  To do this, an additional write is added to the replicas of
+        the last actual value in the reading phase.
                    |-W(10, 1)-------------------------------------------------------
                     \        /
      R[8080]  -------\------/-------------------/\----------------------/\----------
@@ -11,7 +15,11 @@ async def test_spec_read_to_write_phase(registry, snapshot):
      R[8082]  ------------------/-/\---\--/--/------\--\----------/-/\---------\----
                                / /  \   \/  /        \  \        / /  \         \
                               |-R(10, 1)-----W(10, 1)----|      |----R(10, 1)----|
-                                  read        write
+                                   ^     ^       ^       ^
+                                   |     |       |        \
+                             read phase  |  write phase    \
+                                         |                  \
+                         replicas are not consistent        replicas are consistent
     """
 
     assert (await registry[8081].post('v1/replica/write', json={'value': 10, 'timestamp': 1})).status_code == 200
