@@ -30,6 +30,13 @@ Codemap
 The current status of the project can be found at
 the [whimsical.com/dsac](https://whimsical.com/dsac-JxDytPofZNmQLZdBoeC3jw)
 
+Distributed Systems
+-------------------
+
+This repository also contains examples of the implementation of various algorithms and the theory of distributed systems
+to illustrate the use of concurrency. Examples of the implementation of distributed algorithms can be found in the
+folder with the prefix `examples/dist.*`
+
 How to start?
 -------------
 
