@@ -134,3 +134,22 @@ async def test_rewrite_register_coordinator_with_olden_timestamp(registry, snaps
         {'port': 8081, 'snapshot': {'timestamp': 2, 'value': 12}},
         {'port': 8082, 'snapshot': {'timestamp': 2, 'value': 12}},
     ]
+
+
+async def test_not_rewrite_register_coordinator_with_same_timestamp(
+        registry,
+        snapshot,
+):
+    assert (await registry[8080].post('v1/coordinator/write', json={'value': 10, 'timestamp': 0})).status_code == 200
+    assert await snapshot() == [
+        {'port': 8080, 'snapshot': {'timestamp': 0, 'value': 10}},
+        {'port': 8081, 'snapshot': {'timestamp': 0, 'value': 10}},
+        {'port': 8082, 'snapshot': {'timestamp': 0, 'value': 10}},
+    ]
+
+    assert (await registry[8080].post('v1/coordinator/write', json={'value': 20, 'timestamp': 0})).status_code == 200
+    assert await snapshot() == [
+        {'port': 8080, 'snapshot': {'timestamp': 0, 'value': 10}},
+        {'port': 8081, 'snapshot': {'timestamp': 0, 'value': 10}},
+        {'port': 8082, 'snapshot': {'timestamp': 0, 'value': 10}},
+    ]
