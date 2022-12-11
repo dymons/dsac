@@ -1,13 +1,13 @@
 #pragma once
 
-#include <examples/dist.registry.replication/src/domains/register/domain/policy/quorum.hpp>
+#include "examples/dist.registry.replication/src/domains/register/domain/policy/quorum.hpp"
 
-#include <dsac/concurrency/executors/executor.hpp>
+#include "dsac/concurrency/executors/executor.hpp"
 
 #include <cstdint>
 #include <optional>
 
-namespace dsac::application::query::coordinator {
+namespace dsac::application::command::coordinator {
 
 class register_state_dto final {
   std::int32_t value_{};
@@ -27,19 +27,19 @@ public:
   [[nodiscard]] auto                      get_timestamp() const noexcept -> std::size_t;
 };
 
-struct read_register_query final {};
+struct read_register_command final {};
 
-class read_register_query_handler final {
+class read_and_write_register_command_handler final {
   const executor_base_ref                 executor_;
   const domain::policy::quorum_policy_ref quorum_policy_;
 
 public:
-  explicit read_register_query_handler(executor_base_ref executor, domain::policy::quorum_policy_ref quorum_policy)
+  explicit read_and_write_register_command_handler(executor_base_ref executor, domain::policy::quorum_policy_ref quorum_policy)
     : executor_(std::move(executor))
     , quorum_policy_(std::move(quorum_policy)) {
   }
 
-  [[nodiscard]] auto handle(read_register_query const& query) const -> std::optional<register_state_dto>;
+  [[nodiscard]] auto handle(read_register_command const& command) const -> std::optional<register_state_dto>;
 };
 
-}  // namespace dsac::application::query::coordinator
+}  // namespace dsac::application::command::coordinator

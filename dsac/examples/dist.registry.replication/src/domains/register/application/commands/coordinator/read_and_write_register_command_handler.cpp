@@ -1,10 +1,10 @@
-#include <examples/dist.registry.replication/src/domains/register/application/queries/coordinator/read_register_query_handler.hpp>
-#include <examples/dist.registry.replication/src/domains/register/presentation/web/register_replica_client.hpp>
+#include "read_and_write_register_command_handler.hpp"
+#include "examples/dist.registry.replication/src/domains/register/presentation/web/register_replica_client.hpp"
 
-#include <dsac/concurrency/futures/combine/first_n.hpp>
-#include <dsac/container/dynamic_array.hpp>
+#include "dsac/concurrency/futures/combine/first_n.hpp"
+#include "dsac/container/dynamic_array.hpp"
 
-namespace dsac::application::query::coordinator {
+namespace dsac::application::command::coordinator {
 
 using domain::register_dto;
 using presentation::web::register_replica_client;
@@ -88,7 +88,7 @@ auto register_state_dto::get_timestamp() const noexcept -> std::size_t {
   return timestamp_;
 }
 
-auto read_register_query_handler::handle([[maybe_unused]] read_register_query const& query) const
+auto read_and_write_register_command_handler::handle([[maybe_unused]] read_register_command const& query) const
     -> std::optional<register_state_dto> {
   auto const replica_states     = get_replica_states_from_quorum(executor_, quorum_policy_);
   auto const max_register_state = get_max_replica_state(replica_states);
@@ -101,4 +101,4 @@ auto read_register_query_handler::handle([[maybe_unused]] read_register_query co
   return register_state_dto::hydrate(max_register_state->get_value(), max_register_state->get_timestamp());
 }
 
-}  // namespace dsac::application::query::coordinator
+}  // namespace dsac::application::command::coordinator
