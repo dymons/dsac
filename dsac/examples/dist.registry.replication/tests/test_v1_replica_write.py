@@ -30,7 +30,7 @@ import pytest
         ),
     ]
 )
-async def test_invalid_arguments(
+async def test_write_invalid_value_to_replica_register(
         registry,
         snapshot,
         request_json,
@@ -48,7 +48,7 @@ async def test_invalid_arguments(
     ]
 
 
-async def test_replica_set(registry, snapshot):
+async def test_write_valid_value_to_replica_register(registry, snapshot):
     assert (await registry[8080].post('v1/replica/write', json={'value': 10, 'timestamp': 0})).status == 200
     assert await snapshot() == [
         {'port': 8080, 'snapshot': {'timestamp': 0, 'value': 10}},
