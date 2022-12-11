@@ -1,5 +1,7 @@
 #pragma once
 
+#include <examples/dist.registry.replication/src/domains/register/domain/register_repository.hpp>
+
 #include <cstdint>
 #include <optional>
 
@@ -26,8 +28,14 @@ public:
 struct read_register_query final {};
 
 class read_register_query_handler {
+  const domain::register_repository_ref register_repository_;
+
 public:
-  static auto handle(read_register_query const& query) -> std::optional<register_state_dto>;
+  explicit read_register_query_handler(domain::register_repository_ref register_repository)
+    : register_repository_(std::move(register_repository)) {
+  }
+
+  [[nodiscard]] auto handle(read_register_query const& query) const -> std::optional<register_state_dto>;
 };
 
 }  // namespace dsac::application::query::replica

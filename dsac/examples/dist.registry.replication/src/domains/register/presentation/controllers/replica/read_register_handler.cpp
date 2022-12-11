@@ -1,4 +1,5 @@
 #include <examples/dist.registry.replication/src/domains/register/application/queries/replica/read_register_query_handler.hpp>
+#include <examples/dist.registry.replication/src/domains/register/infrastructure/inmemory/register_repository.hpp>
 #include <examples/dist.registry.replication/src/domains/register/presentation/controllers/replica/read_register_handler.hpp>
 #include <examples/dist.registry.replication/src/domains/register/presentation/exception.hpp>
 
@@ -9,6 +10,7 @@ namespace dsac::presentation::replica {
 using application::query::replica::read_register_query;
 using application::query::replica::read_register_query_handler;
 using application::query::replica::register_state_dto;
+using infrastructure::inmemory::register_repository;
 
 namespace {
 
@@ -22,7 +24,9 @@ auto make_response(register_state_dto const& register_state_dto) -> nlohmann::js
 }  // namespace
 
 auto read_register_handler::handle([[maybe_unused]] nlohmann::json const& request) -> nlohmann::json {
-  std::optional const register_state_dto = read_register_query_handler::handle(read_register_query{});
+  read_register_query_handler read_register_query_handler{make_shared<register_repository>()};
+
+  std::optional const register_state_dto = read_register_query_handler.handle(read_register_query{});
   if (!register_state_dto.has_value()) [[unlikely]] {
     throw not_found{"The register is not initialized"};
   }

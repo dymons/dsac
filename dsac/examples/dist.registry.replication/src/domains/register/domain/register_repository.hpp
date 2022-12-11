@@ -2,6 +2,8 @@
 
 #include <examples/dist.registry.replication/src/domains/register/domain/register.hpp>
 
+#include <dsac/memory/shared_ptr.hpp>
+
 #include <optional>
 
 namespace dsac::domain {
@@ -19,5 +21,7 @@ public:
   virtual auto reset() -> void                        = 0;
   virtual auto read() -> std::optional<register_dto>  = 0;
 };
+
+using register_repository_ref = shared_ptr<register_repository>;
 
 }  // namespace dsac::domain
