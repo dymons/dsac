@@ -38,14 +38,6 @@ auto read_register_query_handler::handle([[maybe_unused]] read_register_query co
   future<dynamic_array<result<register_dto>>> quorum_future    = first_n(std::move(responses), quorum);
   dynamic_array<result<register_dto>>         quorum_responses = std::move(quorum_future).get().value_or_throw();
 
-  bool const has_register_state_dto =
-      std::any_of(quorum_responses.begin(), quorum_responses.end(), [](result<register_dto> const& response) {
-        return response.has_value();
-      });
-  if (!has_register_state_dto) {
-    return std::nullopt;
-  }
-
   std::optional<register_dto> max_register_state;
   for (result<register_dto> const& r : quorum_responses) {
     if (!r.has_value()) {
