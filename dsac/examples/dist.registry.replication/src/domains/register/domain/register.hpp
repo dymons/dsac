@@ -22,4 +22,6 @@ public:
   [[nodiscard]] auto                get_timestamp() const noexcept -> std::size_t;
 };
 
+bool operator>(register_dto const& lhs, register_dto const& rha);
+
 }  // namespace dsac::domain

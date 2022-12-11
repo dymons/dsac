@@ -1,5 +1,7 @@
 #pragma once
 
+#include <examples/dist.registry.replication/src/domains/register/domain/policy/quorum.hpp>
+
 #include <dsac/concurrency/executors/executor.hpp>
 
 #include <cstdint>
@@ -28,14 +30,16 @@ public:
 struct read_register_query final {};
 
 class read_register_query_handler final {
-  const executor_base_ref executor_;
+  const executor_base_ref                 executor_;
+  const domain::policy::quorum_policy_ref quorum_policy_;
 
 public:
-  explicit read_register_query_handler(executor_base_ref executor)
-    : executor_(std::move(executor)) {
+  explicit read_register_query_handler(executor_base_ref executor, domain::policy::quorum_policy_ref quorum_policy)
+    : executor_(std::move(executor))
+    , quorum_policy_(std::move(quorum_policy)) {
   }
 
-  auto handle(read_register_query const& query) const -> std::optional<register_state_dto>;
+  [[nodiscard]] auto handle(read_register_query const& query) const -> std::optional<register_state_dto>;
 };
 
 }  // namespace dsac::application::query::coordinator

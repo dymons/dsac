@@ -19,4 +19,8 @@ auto register_dto::get_timestamp() const noexcept -> std::size_t {
   return timestamp_;
 }
 
+bool operator>(const register_dto& lhs, const register_dto& rhs) {
+  return lhs.get_timestamp() > rhs.get_timestamp();
+}
+
 }  // namespace dsac::domain

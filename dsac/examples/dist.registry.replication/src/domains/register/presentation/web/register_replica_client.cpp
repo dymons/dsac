@@ -44,25 +44,27 @@ auto register_replica_client::write(domain::register_dto const& request) -> futu
   });
 }
 
-auto register_replica_client::read() -> std::optional<domain::register_dto> {
-  httplib::Result const response =
-      httplib::Client{get_host(), get_port()}.Post(read_register_handler::get_type_name(), kRequestEmpty, "text/json");
-  if (nullptr == response) {
-    throw service_unavailable{fmt::format("Failed to execute the request to host={}, port={}", get_host(), get_port())};
-  }
+auto register_replica_client::read() -> future<domain::register_dto> {
+  return async_via(get_executor(), [host = get_host(), port = get_port()]() -> domain::register_dto {
+    httplib::Result const response =
+        httplib::Client{host, port}.Post(read_register_handler::get_type_name(), kRequestEmpty, "text/json");
+    if (nullptr == response) {
+      throw service_unavailable{fmt::format("Failed to execute the request to host={}, port={}", host, port)};
+    }
 
-  nlohmann::json const response_json = nlohmann::json::parse(response.value().body);
+    nlohmann::json const response_json = nlohmann::json::parse(response.value().body);
 
-  bool const has_error_message  = response_json.contains("error_message");
-  bool const not_found_register = response->status == 404;
-  if (has_error_message && not_found_register) {
-    return std::nullopt;
-  }
-  if (has_error_message) {
-    throw service_unavailable{fmt::format("Unexpected error response from host={}, port={}", get_host(), get_port())};
-  }
+    bool const has_error_message  = response_json.contains("error_message");
+    bool const not_found_register = response->status == 404;
+    if (has_error_message && not_found_register) {
+      throw not_found{response_json["error_message"].get<std::string>()};
+    }
+    if (has_error_message) {
+      throw service_unavailable{fmt::format("Unexpected error response from host={}, port={}", host, port)};
+    }
 
-  return from_json(response_json);
+    return from_json(response_json);
+  });
 }
 
 }  // namespace dsac::presentation::web

@@ -32,7 +32,7 @@ public:
   virtual ~register_replica_client()                                     = default;
 
   auto         write(domain::register_dto const& request) -> future<void*>;
-  auto         read() -> std::optional<domain::register_dto>;
+  auto         read() -> future<domain::register_dto>;
   virtual auto get_host() -> std::string = 0;
   virtual auto get_port() -> int         = 0;
 };
