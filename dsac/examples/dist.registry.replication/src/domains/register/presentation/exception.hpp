@@ -19,4 +19,9 @@ public:
   using exception::exception;
 };
 
+class service_unavailable : public exception {
+public:
+  using exception::exception;
+};
+
 }  // namespace dsac::presentation

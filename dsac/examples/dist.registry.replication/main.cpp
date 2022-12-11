@@ -1,14 +1,20 @@
-#include <examples/dist.registry.replication/configuration/peers.hpp>
-#include <examples/dist.registry.replication/consensus/factory.hpp>
-#include <examples/dist.registry.replication/models/json.hpp>
-#include <examples/dist.registry.replication/transport/httplib.hpp>
+// #include <examples/dist.registry.replication/configuration/peers.hpp>
+// #include <examples/dist.registry.replication/consensus/factory.hpp>
+// #include <examples/dist.registry.replication/models/json.hpp>
+// #include <examples/dist.registry.replication/transport/httplib.hpp>
 
-#include <dsac/concurrency/executors/static_thread_pool.hpp>
-#include <dsac/memory/shared_ptr.hpp>
+#include <examples/dist.registry.replication/src/domains/register/presentation/controller_factory.hpp>
+#include <examples/dist.registry.replication/src/domains/register/presentation/exception.hpp>
+#include <examples/dist.registry.replication/src/domains/register/presentation/web/detail/httplib.hpp>
+
+#include <iostream>
+#include <optional>
 
 #include <nlohmann/json.hpp>
 
 namespace {
+
+using dsac::presentation::controller;
 
 template <typename T, typename U>
 auto cast_to(U) -> T;
@@ -40,10 +46,10 @@ int main(int args, char** argv) {
   }
 
   httplib::Server             server;
-  std::set<std::string> const topics = dsac::abd::factory::get_registered_keys();
+  std::set<std::string> const topics = controller::factory::get_registered_keys();
   for (std::string const& topic : topics) {
     server.Post(topic, [topic, topics](const httplib::Request& request, httplib::Response& response) {
-      std::unique_ptr<dsac::abd> const topic_callback = dsac::abd::factory::construct(topic);
+      std::unique_ptr<controller> const topic_callback = controller::factory::construct(topic);
       if (nullptr == topic_callback) {
         response.status = 404;
         response.set_content(
@@ -53,16 +59,21 @@ int main(int args, char** argv) {
       }
 
       try {
-        topic_callback->execute(nlohmann::json::parse(request.body).get<dsac::request>())
-            .map([&response](dsac::response const& r) {
-              response.status = 200;
-              response.set_content(to_string(to_json(r)), "text/json");
-            })
-            .map_error([&response](std::string const& error) {
-              response.status = 404;
-              response.set_content(to_string(nlohmann::json{{"error_message", error}}), "text/json");
-            });
-      } catch (dsac::parse_exception const& exception) {
+        nlohmann::json const request_json =
+            request.body.empty() ? nlohmann::json{} : nlohmann::json::parse(request.body);
+        nlohmann::json const response_json = topic_callback->handle(request_json);
+        response.status                    = 200;
+        response.set_content(to_string(response_json), "text/json");
+      } catch (dsac::presentation::invalid_argument const& exception) {
+        response.status = 400;
+        response.set_content(to_string(nlohmann::json{{"error_message", exception.what()}}), "text/json");
+      } catch (dsac::presentation::not_found const& exception) {
+        response.status = 404;
+        response.set_content(to_string(nlohmann::json{{"error_message", exception.what()}}), "text/json");
+      } catch (dsac::presentation::service_unavailable const& exception) {
+        response.status = 503;
+        response.set_content(to_string(nlohmann::json{{"error_message", exception.what()}}), "text/json");
+      } catch (dsac::presentation::exception const& exception) {
         response.status = 500;
         response.set_content(to_string(nlohmann::json{{"error_message", exception.what()}}), "text/json");
       }

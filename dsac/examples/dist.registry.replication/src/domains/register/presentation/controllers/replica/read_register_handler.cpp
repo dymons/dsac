@@ -13,10 +13,10 @@ using application::query::replica::register_state_dto;
 namespace {
 
 auto make_response(register_state_dto const& register_state_dto) -> nlohmann::json {
-  nlohmann::json response;
-  response["value"]     = register_state_dto.get_value();
-  response["timestamp"] = register_state_dto.get_timestamp();
-  return response;
+  nlohmann::json response_json;
+  response_json["value"]     = register_state_dto.get_value();
+  response_json["timestamp"] = register_state_dto.get_timestamp();
+  return response_json;
 }
 
 }  // namespace

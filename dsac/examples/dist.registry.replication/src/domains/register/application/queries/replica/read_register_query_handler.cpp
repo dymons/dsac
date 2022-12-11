@@ -23,7 +23,7 @@ auto register_state_dto::get_timestamp() const noexcept -> std::size_t {
   return timestamp_;
 }
 
-auto read_register_query_handler::handle([[maybe_unused]] read_register_query const& command)
+auto read_register_query_handler::handle([[maybe_unused]] read_register_query const& query)
     -> std::optional<register_state_dto> {
   std::optional<domain::register_dto> const value = register_repository{}.read();
   if (value.has_value()) {

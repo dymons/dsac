@@ -27,7 +27,7 @@ struct read_register_query final {};
 
 class read_register_query_handler {
 public:
-  static auto handle(read_register_query const& command) -> std::optional<register_state_dto>;
+  static auto handle(read_register_query const& query) -> std::optional<register_state_dto>;
 };
 
 }  // namespace dsac::application::query::replica

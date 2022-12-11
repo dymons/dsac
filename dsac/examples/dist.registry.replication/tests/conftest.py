@@ -29,7 +29,7 @@ async def snapshot(
     async def __wrapper():
         snapshot = []
         for port in range(8080, 8083):
-            response = await registry[port].post('v1/replica/get', json={})
+            response = await registry[port].post('v1/replica/read', json={})
             snapshot.append({
                 'port': port,
                 'snapshot': response.json() if response.status == 200 else None
