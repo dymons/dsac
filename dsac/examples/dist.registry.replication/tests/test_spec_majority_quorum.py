@@ -1,9 +1,9 @@
 async def test_spec_majority_quorum(registry, snapshot):
     """
-              This specification illustrates an example of the quorum system.
-              To  get  the  most  up-to-date  register  value  from replicas,
-              we  need  to  collect  a  quorum from the majority of replicas
-              and take the maximum value from it by timestamp.
+       This specification illustrates an example of the quorum system.
+       To  get  the  most  up-to-date  register  value  from replicas,
+       we  need  to  collect  a  quorum from the majority of replicas
+       and take the maximum value from it by timestamp.
       
                    |-W(10, 1)-|   |----W(20, 2)----|
                     \  /     /     \ \  /         /
@@ -18,11 +18,11 @@ async def test_spec_majority_quorum(registry, snapshot):
                                            |-R(20, 2)-|
     """
 
-    assert (await registry[8080].post('v1/replica/write', json={'value': 10, 'timestamp': 1})).status == 200
-    assert (await registry[8081].post('v1/replica/write', json={'value': 10, 'timestamp': 1})).status == 200
+    assert (await registry[8080].post('v1/replica/write', json={'value': 10, 'timestamp': 1})).status_code == 200
+    assert (await registry[8081].post('v1/replica/write', json={'value': 10, 'timestamp': 1})).status_code == 200
 
-    assert (await registry[8080].post('v1/replica/write', json={'value': 20, 'timestamp': 2})).status == 200
-    assert (await registry[8082].post('v1/replica/write', json={'value': 20, 'timestamp': 2})).status == 200
+    assert (await registry[8080].post('v1/replica/write', json={'value': 20, 'timestamp': 2})).status_code == 200
+    assert (await registry[8082].post('v1/replica/write', json={'value': 20, 'timestamp': 2})).status_code == 200
 
     assert await snapshot() == [
         {'port': 8080, 'snapshot': {'timestamp': 2, 'value': 20}},

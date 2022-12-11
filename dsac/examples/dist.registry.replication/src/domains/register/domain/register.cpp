@@ -23,4 +23,8 @@ bool operator>(const register_dto& lhs, const register_dto& rhs) {
   return lhs.get_timestamp() > rhs.get_timestamp();
 }
 
+bool operator==(register_dto const& lhs, register_dto const& rhs) {
+  return (lhs.get_timestamp() == rhs.get_timestamp()) && (lhs.get_value() == rhs.get_value());
+}
+
 }  // namespace dsac::domain
