@@ -30,7 +30,7 @@ import pytest
         ),
     ]
 )
-async def test_write_to_replica_register_with_invalid_value(
+async def test_write_to_register_replica_with_invalid_value(
         registry,
         snapshot,
         request_json,
@@ -48,7 +48,7 @@ async def test_write_to_replica_register_with_invalid_value(
     ]
 
 
-async def test_write_to_replica_register_with_valid_value(registry, snapshot):
+async def test_write_to_register_replica_with_valid_value(registry, snapshot):
     assert (await registry[8080].post('v1/replica/write', json={'value': 10, 'timestamp': 0})).status == 200
     assert await snapshot() == [
         {'port': 8080, 'snapshot': {'timestamp': 0, 'value': 10}},
@@ -71,7 +71,7 @@ async def test_write_to_replica_register_with_valid_value(registry, snapshot):
     ]
 
 
-async def test_rewrite_replica_register_with_invalid_input_data(registry, snapshot):
+async def test_rewrite_register_replica_with_invalid_input_data(registry, snapshot):
     assert (await registry[8080].post('v1/replica/write', json={'value': 10, 'timestamp': 0})).status == 200
     assert await snapshot() == [
         {'port': 8080, 'snapshot': {'timestamp': 0, 'value': 10}},
@@ -87,7 +87,7 @@ async def test_rewrite_replica_register_with_invalid_input_data(registry, snapsh
     ]
 
 
-async def test_rewrite_replica_register_with_valid_input_data(registry, snapshot):
+async def test_rewrite_register_replica_with_valid_input_data(registry, snapshot):
     assert (await registry[8080].post('v1/replica/write', json={'value': 10, 'timestamp': 0})).status == 200
     assert await snapshot() == [
         {'port': 8080, 'snapshot': {'timestamp': 0, 'value': 10}},
@@ -98,6 +98,22 @@ async def test_rewrite_replica_register_with_valid_input_data(registry, snapshot
     assert (await registry[8080].post('v1/replica/write', json={'value': 20, 'timestamp': 1})).status == 200
     assert await snapshot() == [
         {'port': 8080, 'snapshot': {'timestamp': 1, 'value': 20}},
+        {'port': 8081, 'snapshot': None},
+        {'port': 8082, 'snapshot': None},
+    ]
+
+
+async def test_rewrite_register_replica_with_olden_timestamp(registry, snapshot):
+    assert (await registry[8080].post('v1/replica/write', json={'value': 10, 'timestamp': 10})).status == 200
+    assert await snapshot() == [
+        {'port': 8080, 'snapshot': {'timestamp': 10, 'value': 10}},
+        {'port': 8081, 'snapshot': None},
+        {'port': 8082, 'snapshot': None},
+    ]
+
+    assert (await registry[8080].post('v1/replica/write', json={'value': 20, 'timestamp': 1})).status == 200
+    assert await snapshot() == [
+        {'port': 8080, 'snapshot': {'timestamp': 10, 'value': 10}},
         {'port': 8081, 'snapshot': None},
         {'port': 8082, 'snapshot': None},
     ]
