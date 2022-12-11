@@ -1,21 +1,21 @@
 async def test_spec_majority_quorum(registry, snapshot):
     """
-        This specification illustrates an example of the quorum system.
-        To  get  the  most  up-to-date  register  value  from replicas,
-        we  need  to  collect  a  quorum from the majority of replicas
-        and take the maximum value from it by timestamp.
-
-             |-W(10, 1)-|   |----W(20, 2)----|
-              \  /     /     \ \  /         /
-     R1 -------\/-----/-------\-\/---------/------------
-                \    /         \          /
-                 \  /           \        /
-     R2 ----------\/-------------\------/-/\------------
-                                  \    / /  \
-                                   \  / /    \
-     R3 ----------------------------\/-/-/\---\---------
-                                      / /  \   \
-                                     |-R(20, 2)-|
+              This specification illustrates an example of the quorum system.
+              To  get  the  most  up-to-date  register  value  from replicas,
+              we  need  to  collect  a  quorum from the majority of replicas
+              and take the maximum value from it by timestamp.
+      
+                   |-W(10, 1)-|   |----W(20, 2)----|
+                    \  /     /     \ \  /         /
+     R[8080]  -------\/-----/-------\-\/---------/------------
+                      \    /         \          /
+                       \  /           \        /
+     R[8081]  ----------\/-------------\------/-/\------------
+                                        \    / /  \
+                                         \  / /    \
+     R[8082]  ----------------------------\/-/-/\---\---------
+                                            / /  \   \
+                                           |-R(20, 2)-|
     """
 
     assert (await registry[8080].post('v1/replica/write', json={'value': 10, 'timestamp': 1})).status == 200
