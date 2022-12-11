@@ -104,6 +104,13 @@ async def test_rewrite_register_replica_with_valid_input_data(registry, snapshot
 
 
 async def test_rewrite_register_replica_with_olden_timestamp(registry, snapshot):
+    """
+        The replica can get the old value by the timestamp when writing to the register.
+        This  behavior  can  happen  with  an  asynchronous  network  when a TCP packet
+        is delivered longer than expected. The ABD algorithm ignores the old value  and
+        responds with the status 200 that the record was completed successfully.
+    """
+
     assert (await registry[8080].post('v1/replica/write', json={'value': 10, 'timestamp': 10})).status == 200
     assert await snapshot() == [
         {'port': 8080, 'snapshot': {'timestamp': 10, 'value': 10}},
