@@ -22,7 +22,8 @@ auto make_response(register_state_dto const& register_state_dto) -> nlohmann::js
 }  // namespace
 
 auto read_register_handler::handle([[maybe_unused]] nlohmann::json const& request) -> nlohmann::json {
-  std::optional const register_state_dto = read_register_query_handler::handle(read_register_query{});
+  read_register_query_handler read_register_query_handler{get_executor()};
+  std::optional const         register_state_dto = read_register_query_handler.handle(read_register_query{});
   if (!register_state_dto.has_value()) [[unlikely]] {
     throw not_found{"The register is not initialized"};
   }

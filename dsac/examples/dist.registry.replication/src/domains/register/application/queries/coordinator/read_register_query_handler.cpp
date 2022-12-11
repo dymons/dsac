@@ -25,12 +25,12 @@ auto register_state_dto::get_timestamp() const noexcept -> std::size_t {
   return timestamp_;
 }
 
-auto read_register_query_handler::handle([[maybe_unused]] read_register_query const& query)
+auto read_register_query_handler::handle([[maybe_unused]] read_register_query const& query) const
     -> std::optional<register_state_dto> {
   dynamic_array<std::optional<register_dto>> responses;
   for (std::string const& key : register_replica_client::factory::get_registered_keys()) {
-    std::unique_ptr<register_replica_client> replica_client = register_replica_client::factory::construct(key);
-    responses.push_back(replica_client->read());
+    std::unique_ptr<register_replica_client> replica = register_replica_client::factory::construct(key, executor_);
+    responses.push_back(replica->read());
   }
 
   bool const has_register_state_dto =

@@ -4,6 +4,8 @@
 #include <examples/dist.registry.replication/src/domains/register/presentation/web/detail/httplib.hpp>
 #include <examples/dist.registry.replication/src/domains/register/presentation/web/register_replica_client.hpp>
 
+#include <dsac/concurrency/futures/async_via.hpp>
+
 #include <nlohmann/json.hpp>
 
 namespace dsac::presentation::web {
@@ -35,9 +37,11 @@ auto from_json(nlohmann::json const& json) -> domain::register_dto {
 
 }  // namespace
 
-auto register_replica_client::write(domain::register_dto const& request) -> void {
-  [[maybe_unused]] httplib::Result const response = httplib::Client{get_host(), get_port()}.Post(
-      write_register_handler::get_type_name(), to_json(request), "text/json");
+auto register_replica_client::write(domain::register_dto const& request) -> future<void*> {
+  return async_via(get_executor(), [host = get_host(), port = get_port(), request = request]() -> void* {
+    httplib::Client{host, port}.Post(write_register_handler::get_type_name(), to_json(request), "text/json");
+    return nullptr;
+  });
 }
 
 auto register_replica_client::read() -> std::optional<domain::register_dto> {

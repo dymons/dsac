@@ -1,5 +1,7 @@
 #pragma once
 
+#include <dsac/concurrency/executors/executor.hpp>
+
 #include <cstdint>
 #include <optional>
 
@@ -26,8 +28,14 @@ public:
 struct read_register_query final {};
 
 class read_register_query_handler final {
+  const executor_base_ref executor_;
+
 public:
-  static auto handle(read_register_query const& query) -> std::optional<register_state_dto>;
+  explicit read_register_query_handler(executor_base_ref executor)
+    : executor_(std::move(executor)) {
+  }
+
+  auto handle(read_register_query const& query) const -> std::optional<register_state_dto>;
 };
 
 }  // namespace dsac::application::query::coordinator

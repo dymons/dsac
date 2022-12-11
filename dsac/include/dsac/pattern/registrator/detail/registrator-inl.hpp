@@ -68,7 +68,7 @@ bool factory<BaseComponent, Args...>::contains(const std::string& component_name
 
 template <typename BaseComponent, typename... Args>
 std::unique_ptr<BaseComponent> factory<BaseComponent, Args...>::construct(
-    const std::string& component_name, Args&&... args) {
+    const std::string& component_name, Args... args) {
   return singleton<factory<BaseComponent, Args...>>()->construct_impl(component_name, std::forward<Args>(args)...);
 }
 

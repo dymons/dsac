@@ -24,7 +24,7 @@ kill_descendant_processes() {
 
 eval "${REGISTRY_REPLICATION_EXECUTABLE}" --port 8081 &
 eval "${REGISTRY_REPLICATION_EXECUTABLE}" --port 8082 &
-pytest
+pytest -vvs
 
 kill_descendant_processes $$
 

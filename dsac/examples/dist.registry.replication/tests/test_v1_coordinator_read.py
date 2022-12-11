@@ -29,7 +29,7 @@ async def test_read_from_register_coordinator_with_specified_state(
         'value': 10,
         'timestamp': 0,
     })
-    assert response.status_code == 200
+    assert response.status_code == 200, response.text
 
     response = await registry[8080].post('v1/coordinator/read')
     assert response.status_code == 200

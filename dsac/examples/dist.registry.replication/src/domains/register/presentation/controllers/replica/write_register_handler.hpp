@@ -8,6 +8,8 @@ class write_register_handler final : public controller {
   auto handle(nlohmann::json const& request) -> nlohmann::json override;
 
 public:
+  using controller::controller;
+  
   static auto get_type_name() -> std::string {
     return "/v1/replica/write";
   }

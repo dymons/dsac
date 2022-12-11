@@ -2,6 +2,8 @@
 
 #include <examples/dist.registry.replication/src/domains/register/domain/register.hpp>
 
+#include <dsac/concurrency/executors/executor.hpp>
+#include <dsac/concurrency/futures/future.hpp>
 #include <dsac/pattern/registrator/registrator.hpp>
 
 #include <optional>
@@ -9,17 +11,27 @@
 namespace dsac::presentation::web {
 
 class register_replica_client {
-public:
-  using factory = ::dsac::factory<register_replica_client>;
+  executor_base_ref executor_;
 
-  register_replica_client()                                              = default;
+protected:
+  [[nodiscard]] executor_base_ref get_executor() const noexcept {
+    return executor_;
+  }
+
+public:
+  using factory = ::dsac::factory<register_replica_client, executor_base_ref>;
+
+  explicit register_replica_client(executor_base_ref executor)
+    : executor_(std::move(executor)) {
+  }
+
   register_replica_client(const register_replica_client&)                = default;
   register_replica_client(register_replica_client&&) noexcept            = default;
   register_replica_client& operator=(const register_replica_client&)     = default;
   register_replica_client& operator=(register_replica_client&&) noexcept = default;
   virtual ~register_replica_client()                                     = default;
 
-  auto         write(domain::register_dto const& request) -> void;
+  auto         write(domain::register_dto const& request) -> future<void*>;
   auto         read() -> std::optional<domain::register_dto>;
   virtual auto get_host() -> std::string = 0;
   virtual auto get_port() -> int         = 0;

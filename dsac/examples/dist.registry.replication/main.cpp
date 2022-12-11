@@ -2,8 +2,11 @@
 #include <examples/dist.registry.replication/src/domains/register/presentation/exception.hpp>
 #include <examples/dist.registry.replication/src/domains/register/presentation/web/detail/httplib.hpp>
 
+#include <dsac/concurrency/executors/static_thread_pool.hpp>
+
 #include <iostream>
 #include <optional>
+#include <thread>
 
 #include <nlohmann/json.hpp>
 
@@ -40,11 +43,13 @@ int main(int args, char** argv) {
     return -1;
   }
 
+  dsac::executor_base_ref executor = dsac::make_static_thread_pool(std::thread::hardware_concurrency());
+
   httplib::Server             server;
   std::set<std::string> const topics = controller::factory::get_registered_keys();
   for (std::string const& topic : topics) {
-    server.Post(topic, [topic, topics](const httplib::Request& request, httplib::Response& response) {
-      std::unique_ptr<controller> const topic_callback = controller::factory::construct(topic);
+    server.Post(topic, [topic, topics, executor](const httplib::Request& request, httplib::Response& response) {
+      std::unique_ptr<controller> const topic_callback = controller::factory::construct(topic, executor);
       if (nullptr == topic_callback) {
         response.status = 404;
         response.set_content(
@@ -81,4 +86,5 @@ int main(int args, char** argv) {
       });
 
   server.listen("0.0.0.0", port.value());
+  executor->join();
 }
