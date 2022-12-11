@@ -85,7 +85,12 @@ async def test_rewrite_register_replica_with_invalid_input_data(
         {'port': 8082, 'snapshot': None},
     ]
 
-    assert (await registry[8080].post('v1/replica/write', json={'value': 10, 'timestamp': '0'})).status_code == 400
+    response = await registry[8080].post('v1/replica/write', json={'value': 10, 'timestamp': '0'})
+    assert response.status_code == 400
+    assert response.json() == {
+        'error_message': 'Input data is incorrect or the required field \'timestamp\' is missing'
+    }
+
     assert await snapshot() == [
         {'port': 8080, 'snapshot': {'timestamp': 0, 'value': 10}},
         {'port': 8081, 'snapshot': None},
