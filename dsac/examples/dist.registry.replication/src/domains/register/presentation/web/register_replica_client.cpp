@@ -43,11 +43,21 @@ auto register_replica_client::write(domain::register_dto const& request) -> void
 auto register_replica_client::read() -> std::optional<domain::register_dto> {
   httplib::Result const response =
       httplib::Client{get_host(), get_port()}.Post(read_register_handler::get_type_name(), kRequestEmpty, "text/json");
-  if (!response) {
+  if (nullptr == response) {
     throw service_unavailable{fmt::format("Failed to execute the request to host={}, port={}", get_host(), get_port())};
   }
 
   nlohmann::json const response_json = nlohmann::json::parse(response.value().body);
+
+  bool const has_error_message  = response_json.contains("error_message");
+  bool const not_found_register = response->status == 404;
+  if (has_error_message && not_found_register) {
+    return std::nullopt;
+  }
+  if (has_error_message) {
+    throw service_unavailable{fmt::format("Unexpected error response from host={}, port={}", get_host(), get_port())};
+  }
+
   return from_json(response_json);
 }
 
