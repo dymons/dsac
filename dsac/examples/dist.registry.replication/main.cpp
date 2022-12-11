@@ -1,8 +1,3 @@
-// #include <examples/dist.registry.replication/configuration/peers.hpp>
-// #include <examples/dist.registry.replication/consensus/factory.hpp>
-// #include <examples/dist.registry.replication/models/json.hpp>
-// #include <examples/dist.registry.replication/transport/httplib.hpp>
-
 #include <examples/dist.registry.replication/src/domains/register/presentation/controller_factory.hpp>
 #include <examples/dist.registry.replication/src/domains/register/presentation/exception.hpp>
 #include <examples/dist.registry.replication/src/domains/register/presentation/web/detail/httplib.hpp>
