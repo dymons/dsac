@@ -3,7 +3,7 @@ async def test_spec_majority_quorum(registry, snapshot):
         This specification illustrates an example of the quorum system.
         To  get  the  most  up-to-date  register  value  from replicas,
         we  need  to  collect  a  quorum from the majority of replicas
-        and take the maximum value from it.
+        and take the maximum value from it by timestamp.
 
              |-W(10, 1)-|   |----W(20, 2)----|
               \  /     /     \ \  /         /
