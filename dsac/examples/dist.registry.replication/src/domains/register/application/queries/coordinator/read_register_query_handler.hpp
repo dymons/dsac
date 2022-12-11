@@ -25,7 +25,7 @@ public:
 
 struct read_register_query final {};
 
-class read_register_query_handler {
+class read_register_query_handler final {
 public:
   static auto handle(read_register_query const& query) -> std::optional<register_state_dto>;
 };

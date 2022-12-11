@@ -27,7 +27,7 @@ public:
 
 struct read_register_query final {};
 
-class read_register_query_handler {
+class read_register_query_handler final {
   const domain::register_repository_ref register_repository_;
 
 public:

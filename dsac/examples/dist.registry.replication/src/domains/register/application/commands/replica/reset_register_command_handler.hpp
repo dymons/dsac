@@ -6,7 +6,7 @@ namespace dsac::application::command::replica {
 
 struct reset_register_command final {};
 
-class reset_register_command_handler {
+class reset_register_command_handler final {
   const domain::register_repository_ref register_repository_;
 
 public:

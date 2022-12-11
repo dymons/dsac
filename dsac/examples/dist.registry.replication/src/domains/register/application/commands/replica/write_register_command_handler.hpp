@@ -11,7 +11,7 @@ struct write_register_command final {
   std::size_t  timestamp{};
 };
 
-class write_register_command_handler {
+class write_register_command_handler final {
   const domain::register_repository_ref register_repository_;
 
 public:

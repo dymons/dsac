@@ -9,7 +9,7 @@ struct write_register_command final {
   std::size_t  timestamp{};
 };
 
-class write_register_command_handler {
+class write_register_command_handler final {
 public:
   static auto handle(write_register_command const& command) -> void;
 };
