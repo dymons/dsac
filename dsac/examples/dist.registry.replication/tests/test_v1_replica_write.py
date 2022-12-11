@@ -32,6 +32,7 @@ import pytest
 )
 async def test_invalid_arguments(
         registry,
+        snapshot,
         request_json,
         expected_response_json,
         expected_status_code=400,
@@ -39,6 +40,12 @@ async def test_invalid_arguments(
     response = await registry[8080].post('v1/replica/write', json=request_json)
     assert response.status_code == expected_status_code
     assert response.json() == expected_response_json
+
+    assert await snapshot() == [
+        {'port': 8080, 'snapshot': None},
+        {'port': 8081, 'snapshot': None},
+        {'port': 8082, 'snapshot': None},
+    ]
 
 
 async def test_replica_set(registry, snapshot):
