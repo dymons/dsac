@@ -9,12 +9,11 @@ namespace dsac::presentation::coordinator {
 
 using application::command::coordinator::read_and_write_register_command_handler;
 using application::command::coordinator::read_register_command;
-using application::command::coordinator::register_state_dto;
 using infrastructure::quorum::majority_quorum_policy;
 
 namespace {
 
-auto make_response(register_state_dto const& register_state_dto) -> nlohmann::json {
+auto make_response(domain::register_dto const& register_state_dto) -> nlohmann::json {
   nlohmann::json response_json;
   response_json["value"]     = register_state_dto.get_value();
   response_json["timestamp"] = register_state_dto.get_timestamp();

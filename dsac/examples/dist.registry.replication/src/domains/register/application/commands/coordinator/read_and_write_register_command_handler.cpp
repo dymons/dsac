@@ -71,25 +71,8 @@ auto make_write_phase_if_need(
 
 }  // namespace
 
-register_state_dto::register_state_dto(std::int32_t value, std::size_t timestamp)
-  : value_(value)
-  , timestamp_(timestamp) {
-}
-
-register_state_dto register_state_dto::hydrate(std::int32_t value, std::size_t timestamp) noexcept {
-  return {value, timestamp};
-}
-
-auto register_state_dto::get_value() const noexcept -> std::int32_t {
-  return value_;
-}
-
-auto register_state_dto::get_timestamp() const noexcept -> std::size_t {
-  return timestamp_;
-}
-
 auto read_and_write_register_command_handler::handle([[maybe_unused]] read_register_command const& query) const
-    -> std::optional<register_state_dto> {
+    -> std::optional<register_dto> {
   auto const replica_states     = get_replica_states_from_quorum(executor_, quorum_policy_);
   auto const max_register_state = get_max_replica_state(replica_states);
   if (!max_register_state.has_value()) {
@@ -98,7 +81,7 @@ auto read_and_write_register_command_handler::handle([[maybe_unused]] read_regis
 
   make_write_phase_if_need(replica_states, max_register_state.value(), executor_, quorum_policy_);
 
-  return register_state_dto::hydrate(max_register_state->get_value(), max_register_state->get_timestamp());
+  return max_register_state;
 }
 
 }  // namespace dsac::application::command::coordinator
