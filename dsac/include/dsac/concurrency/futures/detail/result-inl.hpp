@@ -38,4 +38,9 @@ bool operator==(const result<T>& p, const result<T>& b) {
   return (p.has_value() && b.has_value()) && (p.value_or_throw() == b.value_or_throw());
 }
 
+template <typename T>
+bool operator>(const result<T>& p, const result<T>& b) {
+  return (p.has_value() && b.has_value()) && (p.value_or_throw() > b.value_or_throw());
+}
+
 }  // namespace dsac

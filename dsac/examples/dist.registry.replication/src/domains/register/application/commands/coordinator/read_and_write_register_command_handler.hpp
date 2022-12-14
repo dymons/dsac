@@ -10,8 +10,6 @@
 
 namespace dsac::application::command::coordinator {
 
-struct read_register_command final {};
-
 class read_and_write_register_command_handler final {
   const executor_base_ref                 executor_;
   const domain::policy::quorum_policy_ref quorum_policy_;
@@ -22,7 +20,7 @@ public:
     , quorum_policy_(std::move(quorum_policy)) {
   }
 
-  [[nodiscard]] auto handle(read_register_command const& command) const -> std::optional<domain::register_dto>;
+  [[nodiscard]] auto handle() const -> std::optional<domain::register_dto>;
 };
 
 }  // namespace dsac::application::command::coordinator

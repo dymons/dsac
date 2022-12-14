@@ -46,6 +46,8 @@ public:
 */
 template <typename T>
 bool operator==(const result<T>& p, const result<T>& b);
+template <typename T>
+bool operator>(const result<T>& p, const result<T>& b);
 
 }  // namespace dsac
 

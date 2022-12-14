@@ -8,7 +8,6 @@
 namespace dsac::presentation::coordinator {
 
 using application::command::coordinator::read_and_write_register_command_handler;
-using application::command::coordinator::read_register_command;
 using infrastructure::quorum::majority_quorum_policy;
 
 namespace {
@@ -25,7 +24,7 @@ auto make_response(domain::register_dto const& register_state_dto) -> nlohmann::
 auto read_register_handler::handle([[maybe_unused]] nlohmann::json const& request) -> nlohmann::json {
   read_and_write_register_command_handler read_register_query_handler{
       get_executor(), make_shared<majority_quorum_policy>()};
-  std::optional const register_state_dto = read_register_query_handler.handle(read_register_command{});
+  std::optional const register_state_dto = read_register_query_handler.handle();
   if (!register_state_dto.has_value()) [[unlikely]] {
     throw not_found{"The register is not initialized"};
   }
