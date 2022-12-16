@@ -44,9 +44,6 @@ auto make_write_phase_if_need(auto&& cluster_snapshot, auto&& executor, auto&& q
 
 auto read_and_write_register_command_handler::handle() const -> std::optional<register_dto> try {
   auto const cluster_snapshot = create_cluster_snapshot(executor_, quorum_policy_);
-  if (not cluster_snapshot.has_latest_snapshot()) {
-    return std::nullopt;
-  }
 
   make_write_phase_if_need(cluster_snapshot, executor_, quorum_policy_);
 
