@@ -53,7 +53,7 @@ public:
 
   /*!
     \brief
-        A hydrate method to create an Cluster Data Transfer Object from the snapshots data.
+        A hydrate method to create Cluster Data Transfer Object from snapshots data.
 
     \param snapshots
         Snapshots of the cluster. A snapshot represents the current state of a cluster node at a given time
@@ -102,12 +102,18 @@ public:
   /*!
     \brief
         Returns the current up-to-date register value on the cluster.
+
+    \throw dsac::domain::not_found_latest_value
+        Cluster has a non-consistent state, it was not possible to extract the current up-to-date register value
   */
   [[nodiscard]] auto get_latest_value() const -> std::int32_t;
 
   /*!
     \brief
         Returns the current up-to-date register timestamp on the cluster.
+
+    \throw dsac::domain::not_found_latest_timestamp
+        Cluster has a non-consistent state, it was not possible to extract the current up-to-date register timestamp
   */
   [[nodiscard]] auto get_latest_timestamp() const -> std::size_t;
 
