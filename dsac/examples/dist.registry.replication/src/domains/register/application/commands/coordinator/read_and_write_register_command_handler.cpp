@@ -14,10 +14,6 @@ using presentation::web::register_replica_client;
 
 namespace {
 
-auto const kGreaterSnapshotCompare = [](auto&& lhs, auto&& rhs) {
-  return (lhs > rhs) || lhs.has_value() || rhs.has_value();
-};
-
 auto create_cluster_snapshot(executor_base_ref const& executor, domain::policy::quorum_policy_ref const& quorum_policy)
     -> dynamic_array<result<register_dto>> {
   dynamic_array<future<register_dto>> responses;
@@ -33,8 +29,22 @@ auto create_cluster_snapshot(executor_base_ref const& executor, domain::policy::
 }
 
 auto choose_latest_snapshot(dynamic_array<result<register_dto>> const& snapshots) -> std::optional<register_dto> {
-  auto const latest_snapshot = std::max_element(snapshots.begin(), snapshots.end(), kGreaterSnapshotCompare);
-  return latest_snapshot != snapshots.end() ? latest_snapshot->value_or_throw() : std::optional<register_dto>{};
+  if (snapshots.empty()) {
+    return std::nullopt;
+  }
+
+  auto latest_snapshot = snapshots.begin();
+  for (auto begin = std::begin(snapshots), end = std::end(snapshots); begin != end; ++begin) {
+    if (*begin > *latest_snapshot || !latest_snapshot->has_value()) {
+      latest_snapshot = begin;
+    }
+  }
+
+  if (!latest_snapshot->has_value()) {
+    return std::nullopt;
+  }
+
+  return latest_snapshot->value_or_throw();
 }
 
 auto make_write_phase_if_need(
