@@ -103,7 +103,10 @@ async def test_rewrite_register_coordinator_with_valid_input_data(
     ]
 
 
-async def test_rewrite_register_coordinator_with_olden_timestamp(registry, snapshot):
+async def test_rewrite_register_coordinator_with_olden_timestamp(
+        registry,
+        snapshot,
+):
     """
            |----W(12, 2)----|          |-W(10, 0)-|
             \ \        /   /            \ \  /   /

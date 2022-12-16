@@ -1,4 +1,7 @@
-async def test_spec_majority_quorum(registry, snapshot):
+async def test_spec_majority_quorum(
+        registry,
+        snapshot,
+):
     """
        This specification illustrates an example of the quorum system.
        To  get  the  most  up-to-date  register  value  from replicas,

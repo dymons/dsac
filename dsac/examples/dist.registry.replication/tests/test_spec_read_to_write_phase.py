@@ -1,4 +1,7 @@
-async def test_spec_read_to_write_phase(registry, snapshot):
+async def test_spec_read_to_write_phase(
+        registry,
+        snapshot
+):
     """
         This specification illustrates a scenario when the write operation
         has  not  yet  completed and  subsequent  reads can return various
