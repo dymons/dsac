@@ -5,9 +5,14 @@
 namespace dsac::infrastructure::quorum {
 
 class majority_quorum_policy final : public domain::policy::quorum_policy {
+  static const inline factory::registractor<majority_quorum_policy> kRegistractor;
+
 public:
   [[nodiscard]] auto quorum(std::size_t n) const -> std::size_t override {
     return n / 2 + 1;
+  }
+  static auto get_type_name() -> std::string {
+    return "majority";
   }
 };
 

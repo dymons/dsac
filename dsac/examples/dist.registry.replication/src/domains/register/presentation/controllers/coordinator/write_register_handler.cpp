@@ -5,9 +5,18 @@
 
 #include <nlohmann/json.hpp>
 
-namespace dsac::application::command::coordinator {
+namespace {
 
-void from_json(const nlohmann::json& request, write_register_command& p) {
+using dsac::domain::policy::quorum_policy;
+using dsac::infrastructure::quorum::majority_quorum_policy;
+
+struct write_request_dto final {
+  std::int32_t                            value{};
+  std::size_t                             timestamp{};
+  dsac::domain::policy::quorum_policy_ref quorum_policy{nullptr};
+};
+
+void from_json(const nlohmann::json& request, write_request_dto& p) {
   if (!request.contains("value") || !request["value"].is_number_integer()) [[unlikely]] {
     throw dsac::presentation::invalid_argument{"Input data is incorrect or the required field 'value' is missing"};
   }
@@ -15,11 +24,21 @@ void from_json(const nlohmann::json& request, write_register_command& p) {
     throw dsac::presentation::invalid_argument{"Input data is incorrect or the required field 'timestamp' is missing"};
   }
 
-  p.value     = request["value"].get<std::int32_t>();
-  p.timestamp = request["timestamp"].get<std::size_t>();
+  std::string quorum_policy = majority_quorum_policy::get_type_name();
+  if (request.contains("quorum_policy")) {
+    if (!request["quorum_policy"].is_string()) [[unlikely]] {
+      throw dsac::presentation::invalid_argument{
+          "Input data is incorrect or the required field 'quorum_policy' is missing"};
+    }
+    quorum_policy = request["quorum_policy"].get<std::string>();
+  }
+
+  p.value         = request["value"].get<std::int32_t>();
+  p.timestamp     = request["timestamp"].get<std::size_t>();
+  p.quorum_policy = dsac::shared_ptr{quorum_policy::factory::construct(quorum_policy).release()};
 }
 
-}  // namespace dsac::application::command::coordinator
+}  // namespace
 
 namespace dsac::presentation::coordinator {
 
@@ -28,10 +47,10 @@ using application::command::coordinator::write_register_command_handler;
 using infrastructure::quorum::majority_quorum_policy;
 
 auto write_register_handler::handle(nlohmann::json const& request) -> nlohmann::json {
-  auto const write_register_command = request.get<coordinator::write_register_command>();
-
-  write_register_command_handler write_register_command_handler{get_executor(), make_shared<majority_quorum_policy>()};
-  write_register_command_handler.handle(write_register_command);
+  auto const command = request.get<write_request_dto>();
+  
+  write_register_command_handler write_register_command_handler{get_executor(), command.quorum_policy};
+  write_register_command_handler.handle(write_register_command::hydrate(command.value, command.timestamp));
 
   // We always confirm the client's record, even if we ignore it by timestamp.
   return {};

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <dsac/memory/shared_ptr.hpp>
+#include <dsac/pattern/registrator/registrator.hpp>
 
 #include <cstdint>
 
@@ -8,6 +9,8 @@ namespace dsac::domain::policy {
 
 class quorum_policy {
 public:
+  using factory = ::dsac::factory<quorum_policy>;
+
   quorum_policy()                                    = default;
   quorum_policy(const quorum_policy&)                = default;
   quorum_policy(quorum_policy&&) noexcept            = default;

@@ -11,6 +11,8 @@ namespace dsac::application::command::coordinator {
 struct write_register_command final {
   std::int32_t value{};
   std::size_t  timestamp{};
+
+  static write_register_command hydrate(std::int32_t value, std::size_t timestamp);
 };
 
 class write_register_command_handler final {
