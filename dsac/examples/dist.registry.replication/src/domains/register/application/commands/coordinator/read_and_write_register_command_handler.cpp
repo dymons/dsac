@@ -19,9 +19,12 @@ using dsac::domain::cluster_dto;
 
 auto create_cluster_snapshot(auto&& executor, auto&& quorum_policy) -> cluster_dto {
   dynamic_array<future<register_dto>> responses;
-  for (std::string const& key : register_replica_client::factory::get_registered_keys()) {
-    responses.push_back(register_replica_client::factory::construct(key, executor)->read());
-  }
+  std::ranges::transform(
+      register_replica_client::factory::get_registered_keys(),
+      std::back_inserter(responses),
+      [&executor](auto&& replica_name) {
+        return register_replica_client::factory::construct(replica_name, executor)->read();
+      });
 
   auto const quorum        = quorum_policy->quorum(responses.size());
   auto       quorum_future = first_n(std::move(responses), quorum);
