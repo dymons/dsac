@@ -8,8 +8,8 @@
 
 namespace dsac::application::command::coordinator {
 
-using application::command::coordinator::write_register_command;
-using application::command::coordinator::write_register_command_handler;
+using write_command         = application::command::coordinator::write_register_command;
+using write_command_handler = application::command::coordinator::write_register_command_handler;
 using domain::register_dto;
 using presentation::web::register_replica_client;
 
@@ -32,23 +32,15 @@ auto create_cluster_snapshot(auto&& executor, auto&& quorum_policy) -> cluster_d
   return cluster_dto::hydrate(std::move(quorum_future).get().value_or_throw());
 }
 
-auto make_write_phase_if_need(auto&& cluster_snapshot, auto&& executor, auto&& quorum_policy) -> void {
-  if (not cluster_snapshot.is_consistent()) {
-    write_register_command write_register_command{};
-    write_register_command.value     = cluster_snapshot.get_latest_value();
-    write_register_command.timestamp = cluster_snapshot.get_latest_timestamp();
-
-    write_register_command_handler write_register_command_handler{executor, quorum_policy};
-    write_register_command_handler.handle(write_register_command);
-  }
-}
-
 }  // namespace
 
 auto read_and_write_register_command_handler::handle() const -> std::optional<register_dto> try {
   auto const cluster_snapshot = create_cluster_snapshot(executor_, quorum_policy_);
 
-  make_write_phase_if_need(cluster_snapshot, executor_, quorum_policy_);
+  if (not cluster_snapshot.is_consistent()) {
+    write_command_handler{executor_, quorum_policy_}.handle(
+        write_command::hydrate(cluster_snapshot.get_latest_value(), cluster_snapshot.get_latest_timestamp()));
+  }
 
   return register_dto::hydrate(cluster_snapshot.get_latest_value(), cluster_snapshot.get_latest_timestamp());
 } catch ([[maybe_unused]] dsac::domain::cluster_exception const& what) {
