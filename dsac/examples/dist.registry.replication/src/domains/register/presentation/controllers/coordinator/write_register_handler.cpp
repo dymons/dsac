@@ -42,15 +42,13 @@ void from_json(const nlohmann::json& request, write_request_dto& p) {
 
 namespace dsac::presentation::coordinator {
 
-using application::command::coordinator::write_register_command;
-using application::command::coordinator::write_register_command_handler;
-using infrastructure::quorum::majority_quorum_policy;
+using command         = application::command::coordinator::write_register_command;
+using command_handler = application::command::coordinator::write_register_command_handler;
 
-auto write_register_handler::handle(nlohmann::json const& request) -> nlohmann::json {
-  auto const command = request.get<write_request_dto>();
-  
-  write_register_command_handler write_register_command_handler{get_executor(), command.quorum_policy};
-  write_register_command_handler.handle(write_register_command::hydrate(command.value, command.timestamp));
+auto write_register_handler::handle(nlohmann::json const& request_json) -> nlohmann::json {
+  auto const request = request_json.get<write_request_dto>();
+
+  command_handler{get_executor(), request.quorum_policy}.handle(command::hydrate(request.value, request.timestamp));
 
   // We always confirm the client's record, even if we ignore it by timestamp.
   return {};
