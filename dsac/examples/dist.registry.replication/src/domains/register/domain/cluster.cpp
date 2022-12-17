@@ -1,10 +1,17 @@
 #include <examples/dist.registry.replication/src/domains/register/domain/cluster.hpp>
+#include <examples/dist.registry.replication/src/domains/register/presentation/web/register_replica_client.hpp>
+
+#include <dsac/concurrency/futures/combine/first_n.hpp>
+#include <dsac/container/dynamic_array.hpp>
 
 #include <algorithm>
 
 namespace dsac::domain {
 
 namespace {
+
+using domain::register_dto;
+using presentation::web::register_replica_client;
 
 auto choose_latest_snapshot(dynamic_array<result<register_dto>> const& snapshots) -> std::optional<register_dto> {
   if (snapshots.empty()) {
@@ -61,6 +68,22 @@ auto cluster_dto::get_latest_timestamp() const -> std::size_t {
     throw not_found_latest_timestamp{};
   }
   return latest_snapshot_->get_timestamp();
+}
+
+auto cluster_dto::make_snapshot(executor_base_ref executor, policy::quorum_policy_ref quorum_policy)
+    -> cluster_dto {
+  dynamic_array<future<register_dto>> responses;
+  std::ranges::transform(
+      register_replica_client::factory::get_registered_keys(),
+      std::back_inserter(responses),
+      [&executor](auto&& replica_name) {
+        return register_replica_client::factory::construct(replica_name, executor)->read();
+      });
+
+  auto const quorum        = quorum_policy->quorum(responses.size());
+  auto       quorum_future = first_n(std::move(responses), quorum);
+
+  return cluster_dto::hydrate(std::move(quorum_future).get().value_or_throw());
 }
 
 }  // namespace dsac::domain

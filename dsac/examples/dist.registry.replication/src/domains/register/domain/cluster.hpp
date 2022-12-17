@@ -1,7 +1,9 @@
 #pragma once
 
+#include <examples/dist.registry.replication/src/domains/register/domain/policy/quorum.hpp>
 #include <examples/dist.registry.replication/src/domains/register/domain/register.hpp>
 
+#include <dsac/concurrency/executors/executor.hpp>
 #include <dsac/concurrency/futures/result.hpp>
 #include <dsac/container/dynamic_array.hpp>
 
@@ -66,7 +68,7 @@ public:
         cluster_dto cluster = cluster_dto::hydrate(snapshots);
     \endcode
   */
-  static cluster_dto hydrate(dynamic_array<result<register_dto>> snapshots);
+  static auto hydrate(dynamic_array<result<register_dto>> snapshots) -> cluster_dto;
 
   // Destructor
 
@@ -116,6 +118,25 @@ public:
         Cluster has a non-consistent state, it was not possible to extract the current up-to-date register timestamp
   */
   [[nodiscard]] auto get_latest_timestamp() const -> std::size_t;
+
+  /*!
+    \brief
+        Creating a snapshot of the cluster configuration.
+
+    \param executor
+        Executor for executing asynchronous operations to replicas
+
+    \param quorum_policy
+        Policy for reading values from replicas. Used to optimize the execution of read requests
+
+    \ingroup
+        RegistryReplicationDomain
+
+    \code
+        cluster_dto cluster = cluster_dto::make_snapshot(executor, quorum_policy);
+    \endcode
+  */
+  static auto make_snapshot(executor_base_ref executor, policy::quorum_policy_ref quorum_policy) -> cluster_dto;
 
 private:
   /// Snapshots of a cluster at a given time
