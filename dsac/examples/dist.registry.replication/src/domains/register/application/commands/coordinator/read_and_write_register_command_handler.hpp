@@ -5,7 +5,6 @@
 
 #include <dsac/concurrency/executors/executor.hpp>
 
-#include <cstdint>
 #include <optional>
 
 namespace dsac::application::command::coordinator {

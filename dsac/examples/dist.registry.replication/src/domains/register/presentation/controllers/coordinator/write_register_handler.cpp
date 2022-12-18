@@ -1,4 +1,5 @@
 #include <examples/dist.registry.replication/src/domains/register/application/commands/coordinator/write_register_command_handler.hpp>
+#include <examples/dist.registry.replication/src/domains/register/infrastructure/policy/majority_quorum.hpp>
 #include <examples/dist.registry.replication/src/domains/register/presentation/controllers/coordinator/detail/write_request.hpp>
 #include <examples/dist.registry.replication/src/domains/register/presentation/controllers/coordinator/write_register_handler.hpp>
 
@@ -8,9 +9,14 @@ namespace dsac::presentation::coordinator {
 
 using command         = application::command::coordinator::write_register_command;
 using command_handler = application::command::coordinator::write_register_command_handler;
+using quorum_factory  = domain::policy::quorum_policy::factory;
+using quorum_majority = dsac::infrastructure::quorum::majority_quorum_policy;
 
 auto write_register_handler::handle(nlohmann::json const& request_json) -> nlohmann::json {
-  auto const request = request_json.get<write_request_dto>();
+  auto request = request_json.get<write_request_dto>();
+  if (nullptr == request.quorum_policy) {
+    request.quorum_policy = shared_ptr{quorum_factory::construct(quorum_majority::get_type_name()).release()};
+  }
 
   command_handler{get_executor(), request.quorum_policy}.handle(command::hydrate(request.value, request.timestamp));
 
