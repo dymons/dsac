@@ -7,18 +7,22 @@
 
 namespace dsac::presentation::coordinator {
 
-using command         = application::command::coordinator::write_register_command;
-using command_handler = application::command::coordinator::write_register_command_handler;
-using quorum_factory  = domain::policy::quorum_policy::factory;
-using quorum_majority = dsac::infrastructure::quorum::majority_quorum_policy;
+using application::command::coordinator::write_register_command;
+using application::command::coordinator::write_register_command_handler;
+using domain::policy::quorum_policy;
+using dsac::infrastructure::quorum::majority_quorum_policy;
 
 auto write_register_handler::handle(nlohmann::json const& request_json) -> nlohmann::json {
   auto request = request_json.get<write_request_dto>();
   if (nullptr == request.quorum_policy) {
-    request.quorum_policy = shared_ptr{quorum_factory::construct(quorum_majority::get_type_name()).release()};
+    request.quorum_policy =
+        shared_ptr{quorum_policy::factory::construct(majority_quorum_policy::get_type_name()).release()};
   }
 
-  command_handler{get_executor(), request.quorum_policy}.handle(command::hydrate(request.value, request.timestamp));
+  write_register_command_handler{get_executor(), request.quorum_policy}.handle(write_register_command{
+      .value     = domain::register_value{request.value},
+      .timestamp = domain::register_timestamp{request.timestamp},
+  });
 
   // We always confirm the client's record, even if we ignore it by timestamp.
   return {};

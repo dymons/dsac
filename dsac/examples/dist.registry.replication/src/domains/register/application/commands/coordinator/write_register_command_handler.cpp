@@ -9,13 +9,6 @@ namespace dsac::application::command::coordinator {
 using domain::register_value_object;
 using presentation::web::register_replica_client;
 
-write_register_command write_register_command::hydrate(std::int32_t value, std::size_t timestamp) {
-  return write_register_command{
-      .value     = value,
-      .timestamp = timestamp,
-  };
-}
-
 auto write_register_command_handler::handle(write_register_command const& command) const -> void {
   dynamic_array<future<void*>> responses;
   for (std::string const& key : register_replica_client::factory::get_registered_keys()) {
