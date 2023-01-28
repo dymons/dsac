@@ -1,6 +1,7 @@
 #pragma once
 
 #include <examples/dist.registry.replication/src/domains/register/domain/register.hpp>
+#include <examples/dist.registry.replication/src/domains/register/domain/replica.hpp>
 
 #include <dsac/concurrency/executors/executor.hpp>
 #include <dsac/concurrency/futures/future.hpp>
@@ -10,7 +11,7 @@
 
 namespace dsac::presentation::web {
 
-class register_replica_client {
+class register_replica_client : public domain::replica_base {
   executor_base_ref executor_;
 
 protected:
@@ -25,33 +26,31 @@ public:
     : executor_(std::move(executor)) {
   }
 
-  register_replica_client(const register_replica_client&)                = default;
-  register_replica_client(register_replica_client&&) noexcept            = default;
-  register_replica_client& operator=(const register_replica_client&)     = default;
-  register_replica_client& operator=(register_replica_client&&) noexcept = default;
-  virtual ~register_replica_client()                                     = default;
+  auto async_write(domain::register_value_object const& request) -> future<void*>;
 
-  auto         write(domain::register_value_object const& request) -> future<void*>;
-  auto         read() -> future<domain::register_value_object>;
+  auto async_read() -> future<domain::register_value_object>;
+
   virtual auto get_host() -> std::string = 0;
-  virtual auto get_port() -> int         = 0;
+
+  virtual auto get_port() -> int = 0;
 };
 
-#define PEER_NODE_SPAWN_ON_PORT(port)                                                  \
-  class node##port final : public register_replica_client {                            \
-    static const inline factory::registractor<node##port> kRegistractor;               \
-    auto                                                  get_port() -> int override { \
-      return (port);                  \
-    }                                                                                  \
-    auto get_host() -> std::string override {                                          \
-      return "0.0.0.0";                                                                \
-    }                                                                                  \
-                                                                                       \
-  public:                                                                              \
-    using register_replica_client::register_replica_client;                            \
-    static std::string get_type_name() {                                               \
-      return "node" + std::to_string(port);                                            \
-    }                                                                                  \
+#define PEER_NODE_SPAWN_ON_PORT(port)                                    \
+  class node##port final : public register_replica_client {              \
+    static const inline factory::registractor<node##port> kRegistractor; \
+                                                                         \
+    auto get_port() -> int override {                                    \
+      return (port);                                                     \
+    }                                                                    \
+    auto get_host() -> std::string override {                            \
+      return "0.0.0.0";                                                  \
+    }                                                                    \
+                                                                         \
+  public:                                                                \
+    using register_replica_client::register_replica_client;              \
+    static std::string get_type_name() {                                 \
+      return "node" + std::to_string(port);                              \
+    }                                                                    \
   };
 
 PEER_NODE_SPAWN_ON_PORT(8080)

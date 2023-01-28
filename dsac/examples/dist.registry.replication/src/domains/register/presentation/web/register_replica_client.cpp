@@ -39,14 +39,14 @@ auto from_json(nlohmann::json const& json) -> domain::register_value_object {
 
 }  // namespace
 
-auto register_replica_client::write(domain::register_value_object const& request) -> future<void*> {
+auto register_replica_client::async_write(domain::register_value_object const& request) -> future<void*> {
   return async_via(get_executor(), [host = get_host(), port = get_port(), request = request]() -> void* {
     httplib::Client{host, port}.Post(write_register_handler::get_type_name(), to_json(request), "text/json");
     return nullptr;
   });
 }
 
-auto register_replica_client::read() -> future<domain::register_value_object> {
+auto register_replica_client::async_read() -> future<domain::register_value_object> {
   return async_via(get_executor(), [host = get_host(), port = get_port()]() -> domain::register_value_object {
     httplib::Result const response =
         httplib::Client{host, port}.Post(read_register_handler::get_type_name(), kRequestEmpty, "text/json");

@@ -2,6 +2,7 @@
 
 #include <examples/dist.registry.replication/src/domains/register/domain/policy/quorum.hpp>
 #include <examples/dist.registry.replication/src/domains/register/domain/register.hpp>
+#include <examples/dist.registry.replication/src/domains/register/domain/replica.hpp>
 #include <examples/dist.registry.replication/src/domains/register/domain/shapshot.hpp>
 
 #include <dsac/concurrency/executors/executor.hpp>
@@ -24,6 +25,12 @@ public:
   /*!
     \brief
         Restore the current state of the cluster based on the snapshots from the system nodes.
+
+    \param snapshots
+        A set of snapshots from the system nodes
+
+    \ingroup
+        RegistryReplicationDomain
   */
   static auto restore_from_snapshots(const dynamic_array<snapshot>& snapshots) -> cluster_value_object;
 
@@ -31,20 +38,19 @@ public:
   \brief
       Restore the current state of the cluster based on the snapshots from the system nodes.
 
-    \param executor
-        Executor for executing asynchronous operations to replicas
+    \param replicas
+        A set of replicas from which the current register value will be taken
 
     \param quorum_policy
         Policy for reading values from replicas. Used to optimize the execution of read requests
 
     \ingroup
         RegistryReplicationDomain
-
-    \code
-        cluster_value_object cluster = cluster_value_object::make_snapshot(executor, quorum_policy);
-    \endcode
   */
-  static auto restore_from_replicas(executor_base_ref executor, policy::quorum_policy_ref quorum) -> cluster_value_object;
+  static auto restore_from_replicas(
+      dynamic_array<replica_ref> const& replicas,
+      policy::quorum_policy_ref const&  quorum_policy  //
+  ) -> cluster_value_object;
 
   // Observers
 
