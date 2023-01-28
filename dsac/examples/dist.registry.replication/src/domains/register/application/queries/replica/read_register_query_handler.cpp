@@ -2,13 +2,8 @@
 
 namespace dsac::application::query::replica {
 
-auto read_register_query_handler::handle([[maybe_unused]] read_register_query const& query) const
-    -> std::optional<domain::register_value_object> {
-  std::optional<domain::register_value_object> const value = register_repository_->read();
-  if (value.has_value()) {
-    return value.value();
-  }
-  return std::nullopt;
+auto read_register_query_handler::handle() & -> std::optional<domain::register_value_object> {
+  return register_repository_->read();
 }
 
 }  // namespace dsac::application::query::replica

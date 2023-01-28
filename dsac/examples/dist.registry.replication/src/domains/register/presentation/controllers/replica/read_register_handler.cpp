@@ -7,7 +7,6 @@
 
 namespace dsac::presentation::replica {
 
-using application::query::replica::read_register_query;
 using application::query::replica::read_register_query_handler;
 using infrastructure::inmemory::register_repository;
 
@@ -23,14 +22,12 @@ auto make_response(domain::register_value_object const& object) -> nlohmann::jso
 }  // namespace
 
 auto read_register_handler::handle([[maybe_unused]] nlohmann::json const& request) -> nlohmann::json {
-  read_register_query_handler read_register_query_handler{make_shared<register_repository>()};
-
-  std::optional const register_state_dto = read_register_query_handler.handle(read_register_query{});
-  if (!register_state_dto.has_value()) [[unlikely]] {
-    throw not_found{"The register is not initialized"};
+  read_register_query_handler query_handler{make_shared<register_repository>()};
+  if (auto const register_value = query_handler.handle(); register_value.has_value()) [[unlikely]] {
+    return make_response(register_value.value());
   }
 
-  return make_response(register_state_dto.value());
+  throw not_found{"The register is not initialized"};
 }
 
 }  // namespace dsac::presentation::replica
