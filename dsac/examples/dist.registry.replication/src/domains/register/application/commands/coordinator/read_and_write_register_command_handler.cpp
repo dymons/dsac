@@ -13,9 +13,10 @@ auto read_and_write_register_command_handler::handle() const -> std::optional<do
 
   if (not cluster_snapshot.is_consistent()) {
     write_command_handler{executor_, quorum_policy_}.handle(write_command{
-        .value     = cluster_snapshot.get_latest_value(),
-        .timestamp = cluster_snapshot.get_latest_timestamp(),
-    });
+        .object = domain::register_value_object(
+            domain::register_value{cluster_snapshot.get_latest_value()},
+            domain::register_timestamp{cluster_snapshot.get_latest_timestamp()}
+        )});
   }
 
   return domain::register_value_object(

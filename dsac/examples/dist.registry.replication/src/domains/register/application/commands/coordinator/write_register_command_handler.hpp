@@ -10,8 +10,7 @@
 namespace dsac::application::command::coordinator {
 
 struct write_register_command final {
-  domain::register_value     value;
-  domain::register_timestamp timestamp;
+  domain::register_value_object object;
 };
 
 class write_register_command_handler final {

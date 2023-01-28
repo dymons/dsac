@@ -20,9 +20,8 @@ auto write_register_handler::handle(nlohmann::json const& request_json) -> nlohm
   }
 
   write_register_command_handler{get_executor(), request.quorum_policy}.handle(write_register_command{
-      .value     = domain::register_value{request.value},
-      .timestamp = domain::register_timestamp{request.timestamp},
-  });
+      .object = domain::register_value_object{
+          domain::register_value{request.value}, domain::register_timestamp{request.timestamp}}});
 
   // We always confirm the client's record, even if we ignore it by timestamp.
   return {};
