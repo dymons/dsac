@@ -5,9 +5,15 @@
 
 #include <nlohmann/json.hpp>
 
-namespace dsac::application::command::replica {
+namespace dsac::presentation::replica {
 
-void from_json(const nlohmann::json& request, write_register_command& p) {
+using application::command::replica::write_register_command;
+using application::command::replica::write_register_command_handler;
+using infrastructure::inmemory::register_repository;
+
+namespace {
+
+auto from_json(const nlohmann::json& request) -> replica::write_register_command {
   if (!request.contains("value") || !request["value"].is_number_integer()) [[unlikely]] {
     throw dsac::presentation::invalid_argument{"Input data is incorrect or the required field 'value' is missing"};
   }
@@ -15,23 +21,22 @@ void from_json(const nlohmann::json& request, write_register_command& p) {
     throw dsac::presentation::invalid_argument{"Input data is incorrect or the required field 'timestamp' is missing"};
   }
 
-  p.value     = request["value"].get<std::int32_t>();
-  p.timestamp = request["timestamp"].get<std::size_t>();
+  return replica::write_register_command{
+      .new_register_value =
+          domain::register_value_object{
+              domain::register_value{request["value"].get<std::int32_t>()},
+              domain::register_timestamp{request["timestamp"].get<std::size_t>()},
+          },
+  };
 }
 
-}  // namespace dsac::application::command::replica
-
-namespace dsac::presentation::replica {
-
-using application::command::replica::write_register_command;
-using application::command::replica::write_register_command_handler;
-using infrastructure::inmemory::register_repository;
+}  // namespace
 
 auto write_register_handler::handle(nlohmann::json const& request) -> nlohmann::json {
-  auto const write_register_command = request.get<replica::write_register_command>();
+  write_register_command command = from_json(request);
 
   write_register_command_handler write_register_command_handler{make_shared<register_repository>()};
-  write_register_command_handler.handle(write_register_command);
+  write_register_command_handler.handle(command);
 
   // We always confirm the client's record, even if we ignore it by timestamp.
   return {};

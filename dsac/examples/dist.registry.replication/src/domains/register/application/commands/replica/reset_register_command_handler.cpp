@@ -2,7 +2,7 @@
 
 namespace dsac::application::command::replica {
 
-auto reset_register_command_handler::handle([[maybe_unused]] reset_register_command const& command) -> void {
+auto reset_register_command_handler::handle() & -> void {
   register_repository_->reset();
 }
 

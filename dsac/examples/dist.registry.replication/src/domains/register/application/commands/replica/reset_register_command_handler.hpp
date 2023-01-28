@@ -4,17 +4,15 @@
 
 namespace dsac::application::command::replica {
 
-struct reset_register_command final {};
-
 class reset_register_command_handler final {
-  const domain::register_repository_ref register_repository_;
+  domain::register_repository_ref register_repository_;
 
 public:
   explicit reset_register_command_handler(domain::register_repository_ref register_repository)
     : register_repository_(std::move(register_repository)) {
   }
 
-  auto handle(reset_register_command const& command) -> void;
+  auto handle() & -> void;
 };
 
 }  // namespace dsac::application::command::replica
