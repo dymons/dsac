@@ -6,9 +6,22 @@
 
 namespace dsac::domain {
 
-using register_value     = strong_type<std::int32_t, struct RegisterValue>;
-using register_timestamp = strong_type<std::size_t, struct RegisterMonotonicTimestamp>;
+/*!
+  \brief
+      The register stores an integer type
+*/
+using register_value = strong_type<std::int32_t, struct RegisterValue>;
 
+/*!
+  \brief
+      Monotonically increasing clocks are used for versioning
+*/
+using register_timestamp = strong_type<std::size_t, struct RegisterTimestamp>;
+
+/*!
+  \brief
+      The entity of the subject area, represents a register value object
+*/
 class register_value_object final {
   register_value     value_;
   register_timestamp timestamp_;
@@ -16,6 +29,10 @@ class register_value_object final {
 public:
   // Constructors
 
+  /*!
+    \brief
+        User constructor in a private scope. Used to create from the hydrate method.
+  */
   register_value_object(register_value value, register_timestamp timestamp)
     : value_(value)
     , timestamp_(timestamp) {

@@ -9,7 +9,7 @@ using write_command         = application::command::coordinator::write_register_
 using write_command_handler = application::command::coordinator::write_register_command_handler;
 
 auto read_and_write_register_command_handler::handle() const -> std::optional<domain::register_value_object> try {
-  auto const cluster_snapshot = domain::cluster_value_object::make_snapshot(executor_, quorum_policy_);
+  auto const cluster_snapshot = domain::cluster_value_object::restore_from_replicas(executor_, quorum_policy_);
 
   if (not cluster_snapshot.is_consistent()) {
     write_command_handler command_handler{executor_, quorum_policy_};

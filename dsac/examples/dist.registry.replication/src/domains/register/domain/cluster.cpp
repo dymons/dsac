@@ -35,9 +35,13 @@ auto get_fresh_snapshot(dynamic_array<snapshot> const& snapshots) -> snapshot {
 
 }  // namespace
 
-cluster_value_object::cluster_value_object(dynamic_array<snapshot> snapshots)
+cluster_value_object::cluster_value_object(dynamic_array<snapshot> snapshots, snapshot fresh_snapshot_)
   : snapshots_(std::move(snapshots))
-  , fresh_snapshot_(get_fresh_snapshot(snapshots_)) {
+  , fresh_snapshot_(fresh_snapshot_) {
+}
+
+auto cluster_value_object::restore_from_snapshots(const dynamic_array<snapshot>& snapshots) -> cluster_value_object {
+  return {snapshots, get_fresh_snapshot(snapshots)};
 }
 
 auto cluster_value_object::is_consistent() const -> bool {
@@ -63,7 +67,7 @@ auto cluster_value_object::get_latest_timestamp() const -> register_timestamp {
   return register_timestamp{fresh_snapshot_.get()->get_timestamp()};
 }
 
-auto cluster_value_object::make_snapshot(executor_base_ref executor, const policy::quorum_policy_ref& quorum_policy)
+auto cluster_value_object::restore_from_replicas(executor_base_ref executor, policy::quorum_policy_ref quorum_policy)
     -> cluster_value_object {
   dynamic_array<future<register_value_object>> responses;
   std::ranges::transform(
@@ -78,7 +82,7 @@ auto cluster_value_object::make_snapshot(executor_base_ref executor, const polic
   auto       quorum_future = first_n(std::move(responses), quorum);
   auto const snapshots     = std::move(quorum_future).get().value_or_throw();
 
-  return cluster_value_object(details::cast<dynamic_array<snapshot>>(snapshots));
+  return cluster_value_object::restore_from_snapshots(details::cast<dynamic_array<snapshot>>(snapshots));
 }
 
 }  // namespace dsac::domain

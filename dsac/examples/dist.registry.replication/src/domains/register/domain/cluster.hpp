@@ -10,14 +10,41 @@
 namespace dsac::domain {
 
 class cluster_value_object final {
+  // Constructors
+
+  /*!
+    \brief
+        Restore the current state of the cluster.
+  */
+  cluster_value_object(dynamic_array<snapshot> snapshots, snapshot fresh_snapshot_);
+
 public:
   // Constructors
 
   /*!
     \brief
-        User constructor in a private scope. Used to create from the hydrate method.
+        Restore the current state of the cluster based on the snapshots from the system nodes.
   */
-  explicit cluster_value_object(dynamic_array<snapshot> snapshots);
+  static auto restore_from_snapshots(const dynamic_array<snapshot>& snapshots) -> cluster_value_object;
+
+  /*!
+  \brief
+      Restore the current state of the cluster based on the snapshots from the system nodes.
+
+    \param executor
+        Executor for executing asynchronous operations to replicas
+
+    \param quorum_policy
+        Policy for reading values from replicas. Used to optimize the execution of read requests
+
+    \ingroup
+        RegistryReplicationDomain
+
+    \code
+        cluster_value_object cluster = cluster_value_object::make_snapshot(executor, quorum_policy);
+    \endcode
+  */
+  static auto restore_from_replicas(executor_base_ref executor, policy::quorum_policy_ref quorum) -> cluster_value_object;
 
   // Observers
 
@@ -45,26 +72,6 @@ public:
         Cluster has a non-consistent state, it was not possible to extract the current up-to-date register timestamp
   */
   [[nodiscard]] auto get_latest_timestamp() const -> register_timestamp;
-
-  /*!
-    \brief
-        Creating a snapshot of the cluster configuration.
-
-    \param executor
-        Executor for executing asynchronous operations to replicas
-
-    \param quorum_policy
-        Policy for reading values from replicas. Used to optimize the execution of read requests
-
-    \ingroup
-        RegistryReplicationDomain
-
-    \code
-        cluster_value_object cluster = cluster_value_object::make_snapshot(executor, quorum_policy);
-    \endcode
-  */
-  static auto make_snapshot(executor_base_ref executor, const policy::quorum_policy_ref& quorum_policy)
-      -> cluster_value_object;
 
 private:
   /// Snapshots of a cluster at a given time
