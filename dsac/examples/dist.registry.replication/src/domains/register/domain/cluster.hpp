@@ -79,6 +79,14 @@ public:
   */
   [[nodiscard]] auto get_latest_timestamp() const -> register_timestamp;
 
+  // Modifiers
+
+  static auto store_to_replicas(
+      domain::register_value_object const& object,
+      dynamic_array<replica_ref> const&    replicas,
+      policy::quorum_policy_ref const&     quorum_policy  //
+  ) -> void;
+
 private:
   /// Snapshots of a cluster at a given time
   dynamic_array<snapshot> snapshots_;

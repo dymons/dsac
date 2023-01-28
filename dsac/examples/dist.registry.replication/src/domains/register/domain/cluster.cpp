@@ -79,4 +79,21 @@ auto cluster_value_object::get_latest_timestamp() const -> register_timestamp {
   return register_timestamp{fresh_snapshot_.get()->get_timestamp()};
 }
 
+auto cluster_value_object::store_to_replicas(
+    domain::register_value_object const& object,
+    dynamic_array<replica_ref> const&    replicas,
+    policy::quorum_policy_ref const&     quorum_policy
+) -> void {
+  dynamic_array<future<void*>> responses;
+  std::ranges::transform(replicas, std::back_inserter(responses), [&object](domain::replica_ref const& replica) {
+    return replica->async_write(object);
+  });
+
+  auto const quorum           = nullptr == quorum_policy ? responses.size() : quorum_policy->quorum(responses.size());
+  auto       quorum_future    = first_n(std::move(responses), quorum);
+  auto       quorum_responses = std::move(quorum_future).get().value_or_throw();
+
+  std::ranges::for_each(quorum_responses, &result<void*>::value_or_throw);
+}
+
 }  // namespace dsac::domain
