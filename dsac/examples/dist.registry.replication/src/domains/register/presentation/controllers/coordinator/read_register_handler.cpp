@@ -14,8 +14,8 @@ namespace {
 
 auto make_response(domain::register_value_object const& register_state_dto) -> nlohmann::json {
   nlohmann::json response_json;
-  response_json["value"]     = register_state_dto.get_value();
-  response_json["timestamp"] = register_state_dto.get_timestamp();
+  response_json["value"]     = register_state_dto.get_value().get();
+  response_json["timestamp"] = register_state_dto.get_timestamp().get();
   return response_json;
 }
 

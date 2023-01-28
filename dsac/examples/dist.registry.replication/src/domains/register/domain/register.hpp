@@ -23,8 +23,8 @@ public:
 
   // Observers
 
-  [[nodiscard]] auto get_value() const noexcept -> std::int32_t;
-  [[nodiscard]] auto get_timestamp() const noexcept -> std::size_t;
+  [[nodiscard]] auto get_value() const noexcept -> register_value;
+  [[nodiscard]] auto get_timestamp() const noexcept -> register_timestamp;
 };
 
 bool operator>(register_value_object const& lhs, register_value_object const& rhs);

@@ -19,8 +19,8 @@ const std::string kRequestEmpty = "";
 
 auto to_json(domain::register_value_object const& request) -> std::string {
   nlohmann::json request_json;
-  request_json["value"]     = request.get_value();
-  request_json["timestamp"] = request.get_timestamp();
+  request_json["value"]     = request.get_value().get();
+  request_json["timestamp"] = request.get_timestamp().get();
   return to_string(request_json);
 }
 

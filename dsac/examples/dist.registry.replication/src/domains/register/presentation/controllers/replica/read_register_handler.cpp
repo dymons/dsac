@@ -9,15 +9,14 @@ namespace dsac::presentation::replica {
 
 using application::query::replica::read_register_query;
 using application::query::replica::read_register_query_handler;
-using application::query::replica::register_state_dto;
 using infrastructure::inmemory::register_repository;
 
 namespace {
 
-auto make_response(register_state_dto const& register_state_dto) -> nlohmann::json {
+auto make_response(domain::register_value_object const& object) -> nlohmann::json {
   nlohmann::json response_json;
-  response_json["value"]     = register_state_dto.get_value();
-  response_json["timestamp"] = register_state_dto.get_timestamp();
+  response_json["value"]     = object.get_value().get();
+  response_json["timestamp"] = object.get_timestamp().get();
   return response_json;
 }
 

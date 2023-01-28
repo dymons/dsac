@@ -25,7 +25,7 @@ auto get_fresh_snapshot(dynamic_array<snapshot> const& snapshots) -> snapshot {
     if (not bsnapshot->get().has_value()) {
       continue;
     }
-    if (not fsnapshot->get().has_value() || bsnapshot->get()->get_value() > fsnapshot->get()->get_value()) {
+    if (not fsnapshot->get().has_value() || bsnapshot->get()->get_value().get() > fsnapshot->get()->get_value().get()) {
       fsnapshot = bsnapshot;
     }
   }

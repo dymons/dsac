@@ -1,5 +1,7 @@
 #pragma once
 
+#include <examples/dist.registry.replication/src/domains/register/domain/register.hpp>
+
 #include <dsac/memory/shared_ptr.hpp>
 
 #include <cstdint>
@@ -9,15 +11,10 @@ namespace dsac::infrastructure::inmemory::detail {
 
 class register_ final {
 public:
-  struct value final {
-    int         value;
-    std::size_t timestamp;
-  };
-
   register_();
 
-  auto write(std::int32_t value, std::size_t timestamp) -> void;
-  auto read() -> std::optional<value>;
+  auto write(domain::register_value_object _register) -> void;
+  auto read() -> std::optional<domain::register_value_object>;
   auto reset() -> void;
 
 private:
