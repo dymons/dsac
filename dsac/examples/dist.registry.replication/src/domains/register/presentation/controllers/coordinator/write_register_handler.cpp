@@ -28,14 +28,14 @@ auto write_register_handler::handle(nlohmann::json const& request_json) -> nlohm
     request.quorum_policy = get_default_quorum_policy();
   }
 
-  dynamic_array<domain::replica_ref> replicas;
+  dynamic_array<not_null<domain::replica_ref>> replicas;
   std::ranges::transform(
       register_replica_client::factory::get_registered_keys(),
       std::back_inserter(replicas),
-      [this](std::string const& replica_name) -> domain::replica_ref {
-        return shared_ptr<register_replica_client>(
+      [this](std::string const& replica_name) -> not_null<domain::replica_ref> {
+        return assume_not_null(shared_ptr<register_replica_client>(
             register_replica_client::factory::construct(replica_name, get_executor()).release()
-        );
+        ));
       }
   );
 

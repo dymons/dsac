@@ -7,6 +7,7 @@
 
 #include <dsac/concurrency/executors/executor.hpp>
 #include <dsac/container/dynamic_array.hpp>
+#include <dsac/memory/not_null.hpp>
 
 namespace dsac::domain {
 
@@ -48,8 +49,8 @@ public:
         RegistryReplicationDomain
   */
   static auto restore_from_replicas(
-      dynamic_array<replica_ref> const& replicas,
-      policy::quorum_policy_ref const&  quorum_policy  //
+      dynamic_array<not_null<replica_ref>> const& replicas,
+      policy::quorum_policy_ref const&            quorum_policy  //
   ) -> cluster_value_object;
 
   // Observers
@@ -82,9 +83,9 @@ public:
   // Modifiers
 
   static auto store_to_replicas(
-      domain::register_value_object const& object,
-      dynamic_array<replica_ref> const&    replicas,
-      policy::quorum_policy_ref const&     quorum_policy  //
+      domain::register_value_object const&        object,
+      dynamic_array<not_null<replica_ref>> const& replicas,
+      policy::quorum_policy_ref const&            quorum_policy  //
   ) -> void;
 
 private:
