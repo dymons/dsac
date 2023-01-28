@@ -10,7 +10,7 @@
 namespace dsac::application::command::coordinator {
 
 struct write_register_command final {
-  domain::register_value_object object;
+  domain::register_value_object new_register_value;
 };
 
 class write_register_command_handler final {
@@ -23,7 +23,7 @@ public:
     , quorum_policy_(std::move(quorum_policy)) {
   }
 
-  auto handle(write_register_command const& command) const -> void;
+  auto handle(write_register_command const& command) & -> void;
 };
 
 }  // namespace dsac::application::command::coordinator

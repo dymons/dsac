@@ -12,16 +12,27 @@ using application::command::coordinator::write_register_command_handler;
 using domain::policy::quorum_policy;
 using dsac::infrastructure::quorum::majority_quorum_policy;
 
+namespace {
+
+auto get_default_quorum_policy() -> dsac::domain::policy::quorum_policy_ref {
+  return shared_ptr{quorum_policy::factory::construct(majority_quorum_policy::get_type_name()).release()};
+}
+
+} // namespace
+
 auto write_register_handler::handle(nlohmann::json const& request_json) -> nlohmann::json {
   auto request = request_json.get<write_request_dto>();
   if (nullptr == request.quorum_policy) {
-    request.quorum_policy =
-        shared_ptr{quorum_policy::factory::construct(majority_quorum_policy::get_type_name()).release()};
+    request.quorum_policy = get_default_quorum_policy();
   }
 
-  write_register_command_handler{get_executor(), request.quorum_policy}.handle(write_register_command{
-      .object = domain::register_value_object{
-          domain::register_value{request.value}, domain::register_timestamp{request.timestamp}}});
+  write_register_command_handler command_handler{get_executor(), request.quorum_policy};
+  command_handler.handle(write_register_command{
+      .new_register_value = domain::register_value_object{
+          domain::register_value{request.value},
+          domain::register_timestamp{request.timestamp}
+      }
+  });
 
   // We always confirm the client's record, even if we ignore it by timestamp.
   return {};
