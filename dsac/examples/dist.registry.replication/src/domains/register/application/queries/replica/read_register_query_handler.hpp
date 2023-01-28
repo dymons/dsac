@@ -8,7 +8,7 @@
 namespace dsac::application::query::replica {
 
 class read_register_query_handler final {
-  const domain::register_repository_ref register_repository_;
+  domain::register_repository_ref register_repository_;
 
 public:
   explicit read_register_query_handler(domain::register_repository_ref register_repository)
