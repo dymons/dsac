@@ -49,7 +49,7 @@ auto cluster_value_object::restore_from_replicas(
     return replica->async_read();
   });
 
-  auto const quorum        = quorum_policy->quorum(responses.size());
+  auto const quorum        = nullptr == quorum_policy ? responses.size() : quorum_policy->quorum(responses.size());
   auto       quorum_future = first_n(std::move(responses), quorum);
   auto const snapshots     = std::move(quorum_future).get().value_or_throw();
 
