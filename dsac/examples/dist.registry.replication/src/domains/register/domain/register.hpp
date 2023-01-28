@@ -1,28 +1,29 @@
 #pragma once
 
+#include <dsac/functional/strong_type.hpp>
+
 #include <cstdint>
 
 namespace dsac::domain {
 
-class register_dto final {
-  std::int32_t value_{};
-  std::size_t  timestamp_{};
+using register_value     = strong_type<std::int32_t, struct RegisterValue>;
+using register_timestamp = strong_type<std::size_t, struct RegisterMonotonicTimestamp>;
 
-  register_dto(std::int32_t value, std::size_t timestamp);
+class register_value_object final {
+  register_value     value_;
+  register_timestamp timestamp_;
 
 public:
-  register_dto(const register_dto&)                = default;
-  register_dto(register_dto&&) noexcept            = default;
-  register_dto& operator=(const register_dto&)     = default;
-  register_dto& operator=(register_dto&&) noexcept = default;
-  ~register_dto()                                  = default;
+  register_value_object(register_value value, register_timestamp timestamp)
+    : value_(value)
+    , timestamp_(timestamp) {
+  }
 
-  [[nodiscard]] static register_dto hydrate(std::int32_t value, std::size_t timestamp) noexcept;
-  [[nodiscard]] auto                get_value() const noexcept -> std::int32_t;
-  [[nodiscard]] auto                get_timestamp() const noexcept -> std::size_t;
+  [[nodiscard]] auto get_value() const noexcept -> std::int32_t;
+  [[nodiscard]] auto get_timestamp() const noexcept -> std::size_t;
 };
 
-bool operator>(register_dto const& lhs, register_dto const& rhs);
-bool operator==(register_dto const& lhs, register_dto const& rhs);
+bool operator>(register_value_object const& lhs, register_value_object const& rhs);
+bool operator==(register_value_object const& lhs, register_value_object const& rhs);
 
 }  // namespace dsac::domain

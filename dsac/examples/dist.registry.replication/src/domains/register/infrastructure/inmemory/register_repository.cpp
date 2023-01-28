@@ -5,7 +5,7 @@
 
 namespace dsac::infrastructure::inmemory {
 
-auto register_repository::write(domain::register_dto const& dto) -> void {
+auto register_repository::write(domain::register_value_object const& dto) -> void {
   return singleton<detail::register_>()->write(dto.get_value(), dto.get_timestamp());
 }
 
@@ -13,10 +13,11 @@ auto register_repository::reset() -> void {
   return singleton<detail::register_>()->reset();
 }
 
-auto register_repository::read() -> std::optional<domain::register_dto> {
+auto register_repository::read() -> std::optional<domain::register_value_object> {
   std::optional<detail::register_::value> const value = singleton<detail::register_>()->read();
   if (value.has_value()) {
-    return domain::register_dto::hydrate(value->value, value->timestamp);
+    return domain::register_value_object(
+        domain::register_value(value->value), domain::register_timestamp(value->timestamp));
   }
   return std::nullopt;
 }

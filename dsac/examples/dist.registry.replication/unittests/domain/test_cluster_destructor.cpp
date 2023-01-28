@@ -4,10 +4,10 @@
 
 namespace {
 
-auto const kEmptySnapshots = dsac::dynamic_array<dsac::result<dsac::domain::register_dto>>{};
+auto const kEmptySnapshots = dsac::dynamic_array<dsac::result<dsac::domain::register_value_object>>{};
 
 }  // namespace
 
 TEST_CASE("Destroy cluster with empty snapshots", "[cluster][destruction]") {
-  [[maybe_unused]] dsac::domain::cluster_dto cluster = dsac::domain::cluster_dto::hydrate(kEmptySnapshots);
+  [[maybe_unused]] dsac::domain::cluster_value_object cluster = dsac::domain::cluster_value_object::hydrate(kEmptySnapshots);
 }

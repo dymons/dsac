@@ -19,7 +19,7 @@ public:
     , quorum_policy_(std::move(quorum_policy)) {
   }
 
-  [[nodiscard]] auto handle() const -> std::optional<domain::register_dto>;
+  [[nodiscard]] auto handle() const -> std::optional<domain::register_value_object>;
 };
 
 }  // namespace dsac::application::command::coordinator

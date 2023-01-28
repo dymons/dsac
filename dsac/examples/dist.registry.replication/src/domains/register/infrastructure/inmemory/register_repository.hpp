@@ -13,9 +13,9 @@ public:
   register_repository& operator=(register_repository&&) noexcept = default;
   ~register_repository() override                                = default;
 
-  auto write(domain::register_dto const& dto) -> void override;
+  auto write(domain::register_value_object const& dto) -> void override;
   auto reset() -> void override;
-  auto read() -> std::optional<domain::register_dto> override;
+  auto read() -> std::optional<domain::register_value_object> override;
 };
 
 }  // namespace dsac::infrastructure::inmemory

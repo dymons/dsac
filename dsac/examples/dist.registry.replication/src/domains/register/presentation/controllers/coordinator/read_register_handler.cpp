@@ -12,7 +12,7 @@ using infrastructure::quorum::majority_quorum_policy;
 
 namespace {
 
-auto make_response(domain::register_dto const& register_state_dto) -> nlohmann::json {
+auto make_response(domain::register_value_object const& register_state_dto) -> nlohmann::json {
   nlohmann::json response_json;
   response_json["value"]     = register_state_dto.get_value();
   response_json["timestamp"] = register_state_dto.get_timestamp();

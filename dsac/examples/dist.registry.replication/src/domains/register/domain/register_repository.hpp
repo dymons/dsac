@@ -17,9 +17,9 @@ public:
   register_repository& operator=(register_repository&&) noexcept = default;
   virtual ~register_repository()                                 = default;
 
-  virtual auto write(register_dto const& dto) -> void = 0;
+  virtual auto write(register_value_object const& dto) -> void = 0;
   virtual auto reset() -> void                        = 0;
-  virtual auto read() -> std::optional<register_dto>  = 0;
+  virtual auto read() -> std::optional<register_value_object>  = 0;
 };
 
 using register_repository_ref = shared_ptr<register_repository>;

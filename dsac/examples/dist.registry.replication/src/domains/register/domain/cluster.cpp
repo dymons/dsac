@@ -10,10 +10,10 @@ namespace dsac::domain {
 
 namespace {
 
-using domain::register_dto;
+using domain::register_value_object;
 using presentation::web::register_replica_client;
 
-auto choose_latest_snapshot(dynamic_array<result<register_dto>> const& snapshots) -> std::optional<register_dto> {
+auto choose_latest_snapshot(dynamic_array<result<register_value_object>> const& snapshots) -> std::optional<register_value_object> {
   if (snapshots.empty()) {
     return std::nullopt;
   }
@@ -42,12 +42,12 @@ not_found_latest_timestamp::not_found_latest_timestamp()
   : cluster_exception("Couldn't extract the current register timestamp") {
 }
 
-cluster_dto cluster_dto::hydrate(dynamic_array<result<register_dto>> snapshots) {
-  auto&& latest_snapshot = choose_latest_snapshot(snapshots);
+cluster_value_object cluster_value_object::hydrate(dynamic_array<result<register_value_object>> snapshots) {
+  auto latest_snapshot = choose_latest_snapshot(snapshots);
   return {std::move(snapshots), latest_snapshot};
 }
 
-auto cluster_dto::is_consistent() const -> bool {
+auto cluster_value_object::is_consistent() const -> bool {
   if (not latest_snapshot_.has_value()) {
     return true;
   }
@@ -56,23 +56,23 @@ auto cluster_dto::is_consistent() const -> bool {
   });
 }
 
-auto cluster_dto::get_latest_value() const -> std::int32_t {
+auto cluster_value_object::get_latest_value() const -> std::int32_t {
   if (not latest_snapshot_.has_value()) [[unlikely]] {
     throw not_found_latest_value{};
   }
   return latest_snapshot_->get_value();
 }
 
-auto cluster_dto::get_latest_timestamp() const -> std::size_t {
+auto cluster_value_object::get_latest_timestamp() const -> std::size_t {
   if (not latest_snapshot_.has_value()) [[unlikely]] {
     throw not_found_latest_timestamp{};
   }
   return latest_snapshot_->get_timestamp();
 }
 
-auto cluster_dto::make_snapshot(executor_base_ref executor, policy::quorum_policy_ref quorum_policy)
-    -> cluster_dto {
-  dynamic_array<future<register_dto>> responses;
+auto cluster_value_object::make_snapshot(executor_base_ref executor, policy::quorum_policy_ref quorum_policy)
+    -> cluster_value_object {
+  dynamic_array<future<register_value_object>> responses;
   std::ranges::transform(
       register_replica_client::factory::get_registered_keys(),
       std::back_inserter(responses),
@@ -83,7 +83,7 @@ auto cluster_dto::make_snapshot(executor_base_ref executor, policy::quorum_polic
   auto const quorum        = quorum_policy->quorum(responses.size());
   auto       quorum_future = first_n(std::move(responses), quorum);
 
-  return cluster_dto::hydrate(std::move(quorum_future).get().value_or_throw());
+  return cluster_value_object::hydrate(std::move(quorum_future).get().value_or_throw());
 }
 
 }  // namespace dsac::domain

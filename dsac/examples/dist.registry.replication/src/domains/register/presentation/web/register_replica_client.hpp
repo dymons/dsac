@@ -31,8 +31,8 @@ public:
   register_replica_client& operator=(register_replica_client&&) noexcept = default;
   virtual ~register_replica_client()                                     = default;
 
-  auto         write(domain::register_dto const& request) -> future<void*>;
-  auto         read() -> future<domain::register_dto>;
+  auto         write(domain::register_value_object const& request) -> future<void*>;
+  auto         read() -> future<domain::register_value_object>;
   virtual auto get_host() -> std::string = 0;
   virtual auto get_port() -> int         = 0;
 };

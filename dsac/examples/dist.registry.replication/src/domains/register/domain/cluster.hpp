@@ -26,33 +26,19 @@ public:
   not_found_latest_timestamp();
 };
 
-class cluster_dto final {
+class cluster_value_object final {
   // Constructors
 
   /*!
     \brief
         User constructor in a private scope. Used to create from the hydrate method.
   */
-  cluster_dto(dynamic_array<result<register_dto>> snapshots, std::optional<register_dto> latest_snapshot)
+  cluster_value_object(dynamic_array<result<register_value_object>> snapshots, std::optional<register_value_object> latest_snapshot)
     : snapshots_(std::move(snapshots))
     , latest_snapshot_(latest_snapshot) {
   }
 
 public:
-  // Constructors
-
-  /*!
-    \brief
-        Copy constructor.
-  */
-  cluster_dto(const cluster_dto&) = default;
-
-  /*!
-    \brief
-        Move constructor.
-  */
-  cluster_dto(cluster_dto&&) noexcept = delete;
-
   /*!
     \brief
         A hydrate method to create Cluster Data Transfer Object from snapshots data.
@@ -64,33 +50,11 @@ public:
         RegistryReplicationDomain
 
     \code
-        dynamic_array<result<register_dto>> snapshots;
-        cluster_dto cluster = cluster_dto::hydrate(snapshots);
+        dynamic_array<result<register_value_object>> snapshots;
+        cluster_value_object cluster = cluster_value_object::hydrate(snapshots);
     \endcode
   */
-  static auto hydrate(dynamic_array<result<register_dto>> snapshots) -> cluster_dto;
-
-  // Destructor
-
-  /*!
-    \brief
-        Destructor.
-  */
-  ~cluster_dto() = default;
-
-  // Assignment
-
-  /*!
-    \brief
-        Copy conversion constructor.
-  */
-  cluster_dto& operator=(const cluster_dto&) = default;
-
-  /*!
-    \brief
-        Move conversion constructor.
-  */
-  cluster_dto& operator=(cluster_dto&&) noexcept = delete;
+  static auto hydrate(dynamic_array<result<register_value_object>> snapshots) -> cluster_value_object;
 
   // Observers
 
@@ -133,17 +97,17 @@ public:
         RegistryReplicationDomain
 
     \code
-        cluster_dto cluster = cluster_dto::make_snapshot(executor, quorum_policy);
+        cluster_value_object cluster = cluster_value_object::make_snapshot(executor, quorum_policy);
     \endcode
   */
-  static auto make_snapshot(executor_base_ref executor, policy::quorum_policy_ref quorum_policy) -> cluster_dto;
+  static auto make_snapshot(executor_base_ref executor, policy::quorum_policy_ref quorum_policy) -> cluster_value_object;
 
 private:
   /// Snapshots of a cluster at a given time
-  dynamic_array<result<register_dto>> snapshots_;
+  dynamic_array<result<register_value_object>> snapshots_;
 
   /// The current up-to-date register snapshots
-  std::optional<register_dto> latest_snapshot_;
+  std::optional<register_value_object> latest_snapshot_;
 };
 
 }  // namespace dsac::domain

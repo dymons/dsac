@@ -2,28 +2,19 @@
 
 namespace dsac::domain {
 
-register_dto::register_dto(std::int32_t value, std::size_t timestamp)
-  : value_(value)
-  , timestamp_(timestamp) {
+auto register_value_object::get_value() const noexcept -> std::int32_t {
+  return value_.get();
 }
 
-register_dto register_dto::hydrate(std::int32_t value, std::size_t timestamp) noexcept {
-  return {value, timestamp};
+auto register_value_object::get_timestamp() const noexcept -> std::size_t {
+  return timestamp_.get();
 }
 
-auto register_dto::get_value() const noexcept -> std::int32_t {
-  return value_;
-}
-
-auto register_dto::get_timestamp() const noexcept -> std::size_t {
-  return timestamp_;
-}
-
-bool operator>(const register_dto& lhs, const register_dto& rhs) {
+bool operator>(const register_value_object& lhs, const register_value_object& rhs) {
   return lhs.get_timestamp() > rhs.get_timestamp();
 }
 
-bool operator==(register_dto const& lhs, register_dto const& rhs) {
+bool operator==(register_value_object const& lhs, register_value_object const& rhs) {
   return (lhs.get_timestamp() == rhs.get_timestamp()) && (lhs.get_value() == rhs.get_value());
 }
 

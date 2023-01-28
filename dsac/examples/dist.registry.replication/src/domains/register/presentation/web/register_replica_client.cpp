@@ -17,14 +17,14 @@ namespace {
 
 const std::string kRequestEmpty = "";
 
-auto to_json(domain::register_dto const& request) -> std::string {
+auto to_json(domain::register_value_object const& request) -> std::string {
   nlohmann::json request_json;
   request_json["value"]     = request.get_value();
   request_json["timestamp"] = request.get_timestamp();
   return to_string(request_json);
 }
 
-auto from_json(nlohmann::json const& json) -> domain::register_dto {
+auto from_json(nlohmann::json const& json) -> domain::register_value_object {
   if (!json.contains("value") || !json["value"].is_number_integer()) [[unlikely]] {
     throw invalid_argument{"Input data is incorrect or the required field 'value' is missing"};
   }
@@ -32,20 +32,22 @@ auto from_json(nlohmann::json const& json) -> domain::register_dto {
     throw invalid_argument{"Input data is incorrect or the required field 'timestamp' is missing"};
   }
 
-  return domain::register_dto::hydrate(json["value"].get<std::int32_t>(), json["timestamp"].get<std::size_t>());
+  return {
+      domain::register_value(json["value"].get<std::int32_t>()),
+      domain::register_timestamp(json["timestamp"].get<std::size_t>())};
 }
 
 }  // namespace
 
-auto register_replica_client::write(domain::register_dto const& request) -> future<void*> {
+auto register_replica_client::write(domain::register_value_object const& request) -> future<void*> {
   return async_via(get_executor(), [host = get_host(), port = get_port(), request = request]() -> void* {
     httplib::Client{host, port}.Post(write_register_handler::get_type_name(), to_json(request), "text/json");
     return nullptr;
   });
 }
 
-auto register_replica_client::read() -> future<domain::register_dto> {
-  return async_via(get_executor(), [host = get_host(), port = get_port()]() -> domain::register_dto {
+auto register_replica_client::read() -> future<domain::register_value_object> {
+  return async_via(get_executor(), [host = get_host(), port = get_port()]() -> domain::register_value_object {
     httplib::Result const response =
         httplib::Client{host, port}.Post(read_register_handler::get_type_name(), kRequestEmpty, "text/json");
     if (nullptr == response) {
