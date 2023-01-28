@@ -92,7 +92,8 @@ static int FindMinCost(CompleteGraph& graph, CompleteGraph::AdjacencyMatrix& mem
 }
 
 static std::vector<Node> FindOptimalTour(
-    CompleteGraph& graph, CompleteGraph::AdjacencyMatrix& memo, const Node start, const int N) {
+    CompleteGraph& graph, CompleteGraph::AdjacencyMatrix& memo, const Node start, const int N
+) {
   const auto NotIn = [](Node node, int subset) { return ((1 << node.id) & subset) == 0; };
 
   int               last_index = start.id;

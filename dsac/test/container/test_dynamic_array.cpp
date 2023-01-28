@@ -37,7 +37,8 @@ TEST_CASE("Dynamic array should expand automatically", "[dynamic_array][default]
   }
   SECTION(
       "Dynamic array should expand automatically when an element is "
-      "inserted ") {
+      "inserted "
+  ) {
     dynamic_array.push_back(1);
 
     REQUIRE(dynamic_array.size() == 1);

@@ -39,14 +39,14 @@ auto future<T>::then(F&& continuation) && {
   promise<return_type> promise;
   future<return_type>  future = promise.make_future();
 
-  std::move(*this).subscribe(
-      [continuation = std::forward<F>(continuation), promise = std::move(promise)](result<T> result) mutable {
-        try {
-          promise.set(continuation(result));
-        } catch (...) {
-          promise.set(std::current_exception());
-        }
-      });
+  std::move(*this).subscribe([continuation = std::forward<F>(continuation),
+                              promise      = std::move(promise)](result<T> result) mutable {
+    try {
+      promise.set(continuation(result));
+    } catch (...) {
+      promise.set(std::current_exception());
+    }
+  });
 
   return future;
 }

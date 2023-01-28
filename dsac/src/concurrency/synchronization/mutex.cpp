@@ -29,7 +29,8 @@ void mutex::lock() {
     do {
       if (c == 2 || compare_and_set(/*atom*/ &state_, /*expected*/ 1, /*desired*/ 2) != 0) {
         sys_call(
-            reinterpret_cast<int*>(&state_), FUTEX_WAIT, 2);  // NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)
+            reinterpret_cast<int*>(&state_), FUTEX_WAIT, 2
+        );  // NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)
       }
     } while ((c = compare_and_set(/*atom*/ &state_, /*expected*/ 0, /*desired*/ 2)) != 0);
   }

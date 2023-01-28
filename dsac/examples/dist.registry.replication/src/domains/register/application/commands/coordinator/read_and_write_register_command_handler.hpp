@@ -14,7 +14,9 @@ class read_and_write_register_command_handler final {
   const domain::policy::quorum_policy_ref quorum_policy_;
 
 public:
-  explicit read_and_write_register_command_handler(executor_base_ref executor, domain::policy::quorum_policy_ref quorum_policy)
+  explicit read_and_write_register_command_handler(
+      executor_base_ref executor, domain::policy::quorum_policy_ref quorum_policy
+  )
     : executor_(std::move(executor))
     , quorum_policy_(std::move(quorum_policy)) {
   }

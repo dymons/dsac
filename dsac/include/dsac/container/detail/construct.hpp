@@ -63,7 +63,8 @@ NoThrowForwardIt uninitialized_move(InputIt first, InputIt last, NoThrowForwardI
 
 template <typename InputIt, typename NoThrowForwardIt, typename Allocator>
 NoThrowForwardIt uninitialized_move_if_noexcept(
-    InputIt first, InputIt last, NoThrowForwardIt d_first, Allocator& allocator) {
+    InputIt first, InputIt last, NoThrowForwardIt d_first, Allocator& allocator
+) {
   using value_type = typename dsac::iterator_traits<NoThrowForwardIt>::value_type;
 
   constexpr bool kIsNothrowMoveConstruct = std::is_nothrow_move_constructible_v<value_type>;
@@ -100,7 +101,8 @@ constexpr inline void alloc_on_copy(Allocator& one, const Allocator& two) {
 
 template <typename ForwardIterator, typename Allocator>
 typename std::allocator_traits<Allocator>::pointer allocate_and_copy(
-    std::size_t n, ForwardIterator first, ForwardIterator last, Allocator& allocator) {
+    std::size_t n, ForwardIterator first, ForwardIterator last, Allocator& allocator
+) {
   using pointer = typename std::allocator_traits<Allocator>::pointer;
 
   pointer result = dsac::allocate(n, allocator);

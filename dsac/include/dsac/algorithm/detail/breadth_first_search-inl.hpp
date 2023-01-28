@@ -12,7 +12,8 @@ template <typename... Args>
 std::vector<typename directed_graph<Args...>::node_iterator> bfs(
     directed_graph<Args...> const&                         graph,
     typename directed_graph<Args...>::node_key_type const& source,
-    typename directed_graph<Args...>::node_key_type const& destination) {
+    typename directed_graph<Args...>::node_key_type const& destination
+) {
   using node_iterator = typename directed_graph<Args...>::node_iterator;
 
   auto const source_node      = graph.get_node(source);

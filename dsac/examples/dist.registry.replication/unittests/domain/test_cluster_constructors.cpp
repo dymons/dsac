@@ -30,9 +30,12 @@ TEST_CASE("Construct cluster with inconsistent snapshots", "[cluster][hydrate-co
 
 TEST_CASE("Construct cluster with consistent snapshots", "[cluster][hydrate-constructor]") {
   dsac::dynamic_array<dsac::result<dsac::domain::register_value_object>> snapshots{
-      dsac::result<dsac::domain::register_value_object>{dsac::domain::register_value_object::register_value_object(1, 1UL)},
-      dsac::result<dsac::domain::register_value_object>{dsac::domain::register_value_object::register_value_object(1, 1UL)},
-      dsac::result<dsac::domain::register_value_object>{dsac::domain::register_value_object::register_value_object(1, 1UL)}};
+      dsac::result<dsac::domain::register_value_object>{
+          dsac::domain::register_value_object::register_value_object(1, 1UL)},
+      dsac::result<dsac::domain::register_value_object>{
+          dsac::domain::register_value_object::register_value_object(1, 1UL)},
+      dsac::result<dsac::domain::register_value_object>{
+          dsac::domain::register_value_object::register_value_object(1, 1UL)}};
   dsac::domain::cluster_value_object cluster = dsac::domain::cluster_value_object::hydrate(snapshots);
 
   REQUIRE(cluster.is_consistent());
@@ -42,8 +45,10 @@ TEST_CASE("Construct cluster with consistent snapshots", "[cluster][hydrate-cons
 
 TEST_CASE("Construct cluster with some consistent snapshots", "[cluster][hydrate-constructor]") {
   dsac::dynamic_array<dsac::result<dsac::domain::register_value_object>> snapshots{
-      dsac::result<dsac::domain::register_value_object>{dsac::domain::register_value_object::register_value_object(1, 1UL)},
-      dsac::result<dsac::domain::register_value_object>{dsac::domain::register_value_object::register_value_object(1, 1UL)},
+      dsac::result<dsac::domain::register_value_object>{
+          dsac::domain::register_value_object::register_value_object(1, 1UL)},
+      dsac::result<dsac::domain::register_value_object>{
+          dsac::domain::register_value_object::register_value_object(1, 1UL)},
       dsac::result<dsac::domain::register_value_object>{std::make_exception_ptr(std::logic_error{""})}};
   dsac::domain::cluster_value_object cluster = dsac::domain::cluster_value_object::hydrate(snapshots);
 

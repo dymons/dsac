@@ -90,7 +90,8 @@ template <typename ForwardRange>
   using value_type    = typename dsac::iterator_traits<iterator_type>::value_type;
 
   return detail::is_sorted(
-      begin(std::forward<ForwardRange>(range)), end(std::forward<ForwardRange>(range)), std::less<value_type>{});
+      begin(std::forward<ForwardRange>(range)), end(std::forward<ForwardRange>(range)), std::less<value_type>{}
+  );
 }
 
 /*!

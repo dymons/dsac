@@ -1044,8 +1044,8 @@ template <
         conjunction<
             TL_EXPECTED_IS_TRIVIALLY_COPY_ASSIGNABLE(T),
             TL_EXPECTED_IS_TRIVIALLY_COPY_CONSTRUCTIBLE(T),
-            TL_EXPECTED_IS_TRIVIALLY_DESTRUCTIBLE(T)>>::value &&TL_EXPECTED_IS_TRIVIALLY_COPY_ASSIGNABLE(E)::value
-        &&TL_EXPECTED_IS_TRIVIALLY_COPY_CONSTRUCTIBLE(E)::value &&TL_EXPECTED_IS_TRIVIALLY_DESTRUCTIBLE(E)::value>
+            TL_EXPECTED_IS_TRIVIALLY_DESTRUCTIBLE(T)>>::value &&TL_EXPECTED_IS_TRIVIALLY_COPY_ASSIGNABLE(E
+    )::value &&TL_EXPECTED_IS_TRIVIALLY_COPY_CONSTRUCTIBLE(E)::value &&TL_EXPECTED_IS_TRIVIALLY_DESTRUCTIBLE(E)::value>
 struct expected_copy_assign_base : expected_move_base<T, E> {
   using expected_move_base<T, E>::expected_move_base;
 };
@@ -1100,8 +1100,8 @@ struct expected_move_assign_base<T, E, false> : expected_copy_assign_base<T, E> 
 
   expected_move_assign_base &operator=(const expected_move_assign_base &rhs) = default;
 
-  expected_move_assign_base &operator=(expected_move_assign_base &&rhs) noexcept(
-      std::is_nothrow_move_constructible<T>::value &&std::is_nothrow_move_assignable<T>::value) {
+  expected_move_assign_base &operator=(expected_move_assign_base &&rhs
+  ) noexcept(std::is_nothrow_move_constructible<T>::value &&std::is_nothrow_move_assignable<T>::value) {
     this->assign(std::move(rhs));
     return *this;
   }
@@ -1338,25 +1338,25 @@ public:
 
 #else
   template <class F>
-  TL_EXPECTED_11_CONSTEXPR auto and_then(
-      F &&f) & -> decltype(and_then_impl(std::declval<expected &>(), std::forward<F>(f))) {
+  TL_EXPECTED_11_CONSTEXPR auto and_then(F &&f
+  ) & -> decltype(and_then_impl(std::declval<expected &>(), std::forward<F>(f))) {
     return and_then_impl(*this, std::forward<F>(f));
   }
   template <class F>
-  TL_EXPECTED_11_CONSTEXPR auto and_then(
-      F &&f) && -> decltype(and_then_impl(std::declval<expected &&>(), std::forward<F>(f))) {
+  TL_EXPECTED_11_CONSTEXPR auto and_then(F &&f
+  ) && -> decltype(and_then_impl(std::declval<expected &&>(), std::forward<F>(f))) {
     return and_then_impl(std::move(*this), std::forward<F>(f));
   }
   template <class F>
-  constexpr auto and_then(
-      F &&f) const & -> decltype(and_then_impl(std::declval<expected const &>(), std::forward<F>(f))) {
+  constexpr auto and_then(F &&f) const & -> decltype(and_then_impl(std::declval<expected const &>(), std::forward<F>(f))
+  ) {
     return and_then_impl(*this, std::forward<F>(f));
   }
 
 #ifndef TL_EXPECTED_NO_CONSTRR
   template <class F>
-  constexpr auto and_then(
-      F &&f) const && -> decltype(and_then_impl(std::declval<expected const &&>(), std::forward<F>(f))) {
+  constexpr auto and_then(F &&f
+  ) const && -> decltype(and_then_impl(std::declval<expected const &&>(), std::forward<F>(f))) {
     return and_then_impl(std::move(*this), std::forward<F>(f));
   }
 #endif
@@ -1422,25 +1422,25 @@ public:
   }
 #else
   template <class F>
-  TL_EXPECTED_11_CONSTEXPR decltype(expected_map_impl(std::declval<expected &>(), std::declval<F &&>())) transform(
-      F &&f) & {
+  TL_EXPECTED_11_CONSTEXPR decltype(expected_map_impl(std::declval<expected &>(), std::declval<F &&>())) transform(F &&f
+  ) & {
     return expected_map_impl(*this, std::forward<F>(f));
   }
   template <class F>
-  TL_EXPECTED_11_CONSTEXPR decltype(expected_map_impl(std::declval<expected>(), std::declval<F &&>())) transform(
-      F &&f) && {
+  TL_EXPECTED_11_CONSTEXPR decltype(expected_map_impl(std::declval<expected>(), std::declval<F &&>())) transform(F &&f
+  ) && {
     return expected_map_impl(std::move(*this), std::forward<F>(f));
   }
   template <class F>
-  constexpr decltype(expected_map_impl(std::declval<const expected &>(), std::declval<F &&>())) transform(
-      F &&f) const & {
+  constexpr decltype(expected_map_impl(std::declval<const expected &>(), std::declval<F &&>())) transform(F &&f
+  ) const & {
     return expected_map_impl(*this, std::forward<F>(f));
   }
 
 #ifndef TL_EXPECTED_NO_CONSTRR
   template <class F>
-  constexpr decltype(expected_map_impl(std::declval<const expected &&>(), std::declval<F &&>())) transform(
-      F &&f) const && {
+  constexpr decltype(expected_map_impl(std::declval<const expected &&>(), std::declval<F &&>())) transform(F &&f
+  ) const && {
     return expected_map_impl(std::move(*this), std::forward<F>(f));
   }
 #endif
@@ -1466,13 +1466,13 @@ public:
   }
 #else
   template <class F>
-  TL_EXPECTED_11_CONSTEXPR decltype(map_error_impl(std::declval<expected &>(), std::declval<F &&>())) map_error(
-      F &&f) & {
+  TL_EXPECTED_11_CONSTEXPR decltype(map_error_impl(std::declval<expected &>(), std::declval<F &&>())) map_error(F &&f
+  ) & {
     return map_error_impl(*this, std::forward<F>(f));
   }
   template <class F>
-  TL_EXPECTED_11_CONSTEXPR decltype(map_error_impl(std::declval<expected &&>(), std::declval<F &&>())) map_error(
-      F &&f) && {
+  TL_EXPECTED_11_CONSTEXPR decltype(map_error_impl(std::declval<expected &&>(), std::declval<F &&>())) map_error(F &&f
+  ) && {
     return map_error_impl(std::move(*this), std::forward<F>(f));
   }
   template <class F>
@@ -1482,8 +1482,8 @@ public:
 
 #ifndef TL_EXPECTED_NO_CONSTRR
   template <class F>
-  constexpr decltype(map_error_impl(std::declval<const expected &&>(), std::declval<F &&>())) map_error(
-      F &&f) const && {
+  constexpr decltype(map_error_impl(std::declval<const expected &&>(), std::declval<F &&>())) map_error(F &&f
+  ) const && {
     return map_error_impl(std::move(*this), std::forward<F>(f));
   }
 #endif
@@ -1846,11 +1846,13 @@ private:
     swap_where_only_one_has_value_and_t_is_not_void(
         rhs,
         typename std::is_nothrow_move_constructible<T>::type{},
-        typename std::is_nothrow_move_constructible<E>::type{});
+        typename std::is_nothrow_move_constructible<E>::type{}
+    );
   }
 
   void swap_where_only_one_has_value_and_t_is_not_void(
-      expected &rhs, t_is_nothrow_move_constructible, e_is_nothrow_move_constructible) noexcept {
+      expected &rhs, t_is_nothrow_move_constructible, e_is_nothrow_move_constructible
+  ) noexcept {
     auto temp = std::move(val());
     val().~T();
     ::new (errptr()) unexpected_type(std::move(rhs.err()));
@@ -1860,7 +1862,8 @@ private:
   }
 
   void swap_where_only_one_has_value_and_t_is_not_void(
-      expected &rhs, t_is_nothrow_move_constructible, move_constructing_e_can_throw) {
+      expected &rhs, t_is_nothrow_move_constructible, move_constructing_e_can_throw
+  ) {
     auto temp = std::move(val());
     val().~T();
 #ifdef TL_EXPECTED_EXCEPTIONS_ENABLED
@@ -1882,7 +1885,8 @@ private:
   }
 
   void swap_where_only_one_has_value_and_t_is_not_void(
-      expected &rhs, move_constructing_t_can_throw, t_is_nothrow_move_constructible) {
+      expected &rhs, move_constructing_t_can_throw, t_is_nothrow_move_constructible
+  ) {
     auto temp = std::move(rhs.err());
     rhs.err().~unexpected_type();
 #ifdef TL_EXPECTED_EXCEPTIONS_ENABLED
@@ -1908,9 +1912,9 @@ public:
   detail::enable_if_t<
       detail::is_swappable<OT>::value && detail::is_swappable<OE>::value &&
       (std::is_nothrow_move_constructible<OT>::value || std::is_nothrow_move_constructible<OE>::value)>
-  swap(expected &rhs) noexcept(
-      std::is_nothrow_move_constructible<T>::value &&detail::is_nothrow_swappable<T>::value
-          &&std::is_nothrow_move_constructible<E>::value &&detail::is_nothrow_swappable<E>::value) {
+  swap(expected &rhs) noexcept(std::is_nothrow_move_constructible<T>::value &&detail::is_nothrow_swappable<T>::value &&
+                                   std::is_nothrow_move_constructible<E>::value &&detail::is_nothrow_swappable<E>::value
+  ) {
     if (has_value() && rhs.has_value()) {
       swap_where_both_have_value(rhs, typename std::is_void<T>::type{});
     } else if (!has_value() && rhs.has_value()) {
@@ -1992,14 +1996,16 @@ public:
   constexpr T value_or(U &&v) const & {
     static_assert(
         std::is_copy_constructible<T>::value && std::is_convertible<U &&, T>::value,
-        "T must be copy-constructible and convertible to from U&&");
+        "T must be copy-constructible and convertible to from U&&"
+    );
     return bool(*this) ? **this : static_cast<T>(std::forward<U>(v));
   }
   template <class U>
   TL_EXPECTED_11_CONSTEXPR T value_or(U &&v) && {
     static_assert(
         std::is_move_constructible<T>::value && std::is_convertible<U &&, T>::value,
-        "T must be move-constructible and convertible to from U&&");
+        "T must be move-constructible and convertible to from U&&"
+    );
     return bool(*this) ? std::move(**this) : static_cast<T>(std::forward<U>(v));
   }
 };
@@ -2398,4 +2404,4 @@ namespace dsac {
 using tl::expected;
 using tl::make_unexpected;
 
-} // namespace dsac
+}  // namespace dsac

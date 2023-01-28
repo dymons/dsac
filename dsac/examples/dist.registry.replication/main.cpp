@@ -54,7 +54,8 @@ int main(int args, char** argv) {
         response.status = 404;
         response.set_content(
             fmt::format("The topic {} was not found. Please choose one of {}", topic, fmt::join(topics, ",")),
-            "text/plain");
+            "text/plain"
+        );
         return;
       }
 
@@ -81,9 +82,11 @@ int main(int args, char** argv) {
   }
 
   server.Get(
-      "/ping", []([[maybe_unused]] const httplib::Request& request, [[maybe_unused]] httplib::Response& response) {
+      "/ping",
+      []([[maybe_unused]] const httplib::Request& request, [[maybe_unused]] httplib::Response& response) {
         (void)request;
-      });
+      }
+  );
 
   server.listen("0.0.0.0", port.value());
   executor->join();

@@ -43,11 +43,8 @@ void shared_state<T>::set_result(result<T>&& result) {
   switch (current_state) {
     case detail::state::start: {
       if (std::atomic_compare_exchange_strong_explicit(
-              &state_,
-              &current_state,
-              detail::state::only_result,
-              std::memory_order_release,
-              std::memory_order_acquire)) {
+              &state_, &current_state, detail::state::only_result, std::memory_order_release, std::memory_order_acquire
+          )) {
         return;
       }
       assert(current_state == detail::state::only_callback);
@@ -77,11 +74,8 @@ void shared_state<T>::set_callback(callback<T>&& callback) {
   detail::state current_state = state_.load(std::memory_order_acquire);
   if (current_state == detail::state::start) {
     if (std::atomic_compare_exchange_strong_explicit(
-            &state_,
-            &current_state,
-            detail::state::only_callback,
-            std::memory_order_release,
-            std::memory_order_acquire)) {
+            &state_, &current_state, detail::state::only_callback, std::memory_order_release, std::memory_order_acquire
+        )) {
       return;
     }
     assert(current_state == detail::state::only_result);
@@ -102,8 +96,9 @@ void shared_state<T>::do_callback() {
 
   auto data = *result_;
   if (executor_base_ref executor = get_executor(); executor != nullptr) {
-    executor->submit(
-        [callback = std::move(callback_), data = std::move(data)]() mutable { (*callback)(std::move(data)); });
+    executor->submit([callback = std::move(callback_), data = std::move(data)]() mutable {
+      (*callback)(std::move(data));
+    });
   } else {
     (*callback_)(std::move(data));
   }

@@ -27,7 +27,7 @@ public:
     std::shared_lock guard(mutex_);
     return register_;
   }
-  
+
   auto reset() -> void {
     std::unique_lock guard(mutex_);
     register_.reset();

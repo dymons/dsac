@@ -21,7 +21,8 @@ auto write_register_command_handler::handle(write_register_command const& comman
   for (std::string const& key : register_replica_client::factory::get_registered_keys()) {
     std::unique_ptr<register_replica_client> replica = register_replica_client::factory::construct(key, executor_);
     responses.push_back(replica->write(
-        register_value_object(domain::register_value(command.value), domain::register_timestamp(command.timestamp))));
+        register_value_object(domain::register_value(command.value), domain::register_timestamp(command.timestamp))
+    ));
   }
 
   std::size_t const                    quorum           = quorum_policy_->quorum(responses.size());

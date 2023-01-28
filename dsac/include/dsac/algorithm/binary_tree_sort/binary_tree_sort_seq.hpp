@@ -64,7 +64,8 @@ template <typename RandomRange, typename Compare>
 
   binary_search_tree<value_type, Compare> binary_tree{std::move(comp)};
   return detail::binary_tree_sort(
-      begin(std::forward<RandomRange>(range)), end(std::forward<RandomRange>(range)), std::move(binary_tree));
+      begin(std::forward<RandomRange>(range)), end(std::forward<RandomRange>(range)), std::move(binary_tree)
+  );
 }
 
 /*!

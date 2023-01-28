@@ -37,15 +37,21 @@ public:
   virtual auto get_port() -> int         = 0;
 };
 
-#define PEER_NODE_SPAWN_ON_PORT(port)                                                                              \
-  class node##port final : public register_replica_client {                                                        \
-    static const inline factory::registractor<node##port> kRegistractor;                                           \
-    auto                                                  get_port() -> int override { return (port); }            \
-    auto                                                  get_host() -> std::string override { return "0.0.0.0"; } \
-                                                                                                                   \
-  public:                                                                                                          \
-    using register_replica_client::register_replica_client;                                                        \
-    static std::string get_type_name() { return "node" + std::to_string(port); }                                   \
+#define PEER_NODE_SPAWN_ON_PORT(port)                                                  \
+  class node##port final : public register_replica_client {                            \
+    static const inline factory::registractor<node##port> kRegistractor;               \
+    auto                                                  get_port() -> int override { \
+      return (port);                  \
+    }                                                                                  \
+    auto get_host() -> std::string override {                                          \
+      return "0.0.0.0";                                                                \
+    }                                                                                  \
+                                                                                       \
+  public:                                                                              \
+    using register_replica_client::register_replica_client;                            \
+    static std::string get_type_name() {                                               \
+      return "node" + std::to_string(port);                                            \
+    }                                                                                  \
   };
 
 PEER_NODE_SPAWN_ON_PORT(8080)

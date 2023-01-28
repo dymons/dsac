@@ -106,7 +106,8 @@ TEST_CASE("Testcases for checking building direct graph", "[graph][direct]") {
     WHEN("Create a cycle for one node") {
       auto const node = graph.insert_node(node::make_empty());
       REQUIRE_THROWS_AS(
-          graph.insert_direct_edge(node.first, node.first, edge::make_empty()), dsac::loops_not_supported);
+          graph.insert_direct_edge(node.first, node.first, edge::make_empty()), dsac::loops_not_supported
+      );
     }
   }
 }

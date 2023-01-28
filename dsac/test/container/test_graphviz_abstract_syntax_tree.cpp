@@ -58,10 +58,12 @@ TEST_CASE("Checking visit of abstract syntax tree", "[graphviz][ast]") {
 
                   return nullptr;
                 },
-                statement);
+                statement
+            );
           }
           return nullptr;
         },
-        statements);
+        statements
+    );
   }
 }

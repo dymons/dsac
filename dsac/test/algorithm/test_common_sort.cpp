@@ -34,7 +34,8 @@ TEMPLATE_TEST_CASE(
     BubbleSortFunctor,
     InsertionSortFunctor,
     BinaryTreeSortFunctor,
-    SelectionSortFunctor) {
+    SelectionSortFunctor
+) {
   TestType sort_type;
 
   using testcase = dsac::dynamic_array<int>;
@@ -68,7 +69,8 @@ TEMPLATE_TEST_CASE(
     BubbleSortFunctor,
     InsertionSortFunctor,
     BinaryTreeSortFunctor,
-    SelectionSortFunctor) {
+    SelectionSortFunctor
+) {
   TestType sort_type;
 
   constexpr std::size_t kNumberOfIteration = 1000U;

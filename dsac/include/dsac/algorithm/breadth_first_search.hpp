@@ -8,7 +8,8 @@ template <typename... Args>
 std::vector<typename directed_graph<Args...>::node_iterator> bfs(
     directed_graph<Args...> const&                         graph,
     typename directed_graph<Args...>::node_key_type const& source,
-    typename directed_graph<Args...>::node_key_type const& destination);
+    typename directed_graph<Args...>::node_key_type const& destination
+);
 
 }  // namespace dsac
 

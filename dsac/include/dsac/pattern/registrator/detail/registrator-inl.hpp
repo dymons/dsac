@@ -10,8 +10,8 @@
 namespace dsac {
 
 template <typename BaseComponent, typename DerivedComponent, typename... Args>
-std::unique_ptr<BaseComponent> factory_constructor<BaseComponent, DerivedComponent, Args...>::construct(
-    Args&&... args) const {
+std::unique_ptr<BaseComponent> factory_constructor<BaseComponent, DerivedComponent, Args...>::construct(Args&&... args
+) const {
   return std::make_unique<DerivedComponent>(std::forward<Args>(args)...);
 }
 
@@ -39,7 +39,8 @@ std::set<std::string> factory_base<BaseComponent, Args...>::get_factory_keys() c
 
 template <typename BaseComponent, typename... Args>
 factory_constructor_base<BaseComponent, Args...>* factory_base<BaseComponent, Args...>::get_factory_constructor_unsafe(
-    const std::string& component_name) const {
+    const std::string& component_name
+) const {
   std::shared_lock guard(mutex_);
   if (auto constructor = constructors_.find(component_name); constructor != constructors_.end()) {
     return constructor->second.get();
@@ -55,7 +56,8 @@ bool factory_base<BaseComponent, Args...>::factory_contains(const std::string& c
 
 template <typename BaseComponent, typename... Args>
 std::unique_ptr<BaseComponent> factory<BaseComponent, Args...>::construct_impl(
-    const std::string& component_name, Args&&... args) const {
+    const std::string& component_name, Args&&... args
+) const {
   factory_constructor_base<BaseComponent, Args...>* constructor = this->get_factory_constructor_unsafe(component_name);
   return constructor == nullptr ? nullptr : constructor->construct(std::forward<Args>(args)...);
 }
@@ -63,12 +65,14 @@ std::unique_ptr<BaseComponent> factory<BaseComponent, Args...>::construct_impl(
 template <typename BaseComponent, typename... Args>
 bool factory<BaseComponent, Args...>::contains(const std::string& component_name) {
   return singleton<factory<BaseComponent, Args...>>()->factory_base<BaseComponent, Args...>::factory_contains(
-      component_name);
+      component_name
+  );
 }
 
 template <typename BaseComponent, typename... Args>
 std::unique_ptr<BaseComponent> factory<BaseComponent, Args...>::construct(
-    const std::string& component_name, Args... args) {
+    const std::string& component_name, Args... args
+) {
   return singleton<factory<BaseComponent, Args...>>()->construct_impl(component_name, std::forward<Args>(args)...);
 }
 

@@ -133,12 +133,14 @@ inline bool operator==(const normal_node_iterator<Container>& lhs, const normal_
 }
 template <typename Container>
 inline bool operator==(
-    const normal_node_iterator<Container>& lhs, const typename normal_node_iterator<Container>::pointer& rha) {
+    const normal_node_iterator<Container>& lhs, const typename normal_node_iterator<Container>::pointer& rha
+) {
   return lhs.base() == rha;
 }
 template <typename Container>
 inline bool operator!=(
-    const normal_node_iterator<Container>& lhs, const typename normal_node_iterator<Container>::pointer& rha) {
+    const normal_node_iterator<Container>& lhs, const typename normal_node_iterator<Container>::pointer& rha
+) {
   return !(lhs.base() == rha);
 }
 template <typename Container>

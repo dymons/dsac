@@ -33,7 +33,9 @@ class cluster_value_object final {
     \brief
         User constructor in a private scope. Used to create from the hydrate method.
   */
-  cluster_value_object(dynamic_array<result<register_value_object>> snapshots, std::optional<register_value_object> latest_snapshot)
+  cluster_value_object(
+      dynamic_array<result<register_value_object>> snapshots, std::optional<register_value_object> latest_snapshot
+  )
     : snapshots_(std::move(snapshots))
     , latest_snapshot_(latest_snapshot) {
   }
@@ -100,7 +102,8 @@ public:
         cluster_value_object cluster = cluster_value_object::make_snapshot(executor, quorum_policy);
     \endcode
   */
-  static auto make_snapshot(executor_base_ref executor, policy::quorum_policy_ref quorum_policy) -> cluster_value_object;
+  static auto make_snapshot(executor_base_ref executor, policy::quorum_policy_ref quorum_policy)
+      -> cluster_value_object;
 
 private:
   /// Snapshots of a cluster at a given time

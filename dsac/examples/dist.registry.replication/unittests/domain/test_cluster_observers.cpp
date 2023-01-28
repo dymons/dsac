@@ -4,9 +4,12 @@
 
 TEST_CASE("Cluster is consistent, get up-to-date register value", "[cluster][observers]") {
   dsac::dynamic_array<dsac::result<dsac::domain::register_value_object>> snapshots{
-      dsac::result<dsac::domain::register_value_object>{dsac::domain::register_value_object::register_value_object(1, 1UL)},
-      dsac::result<dsac::domain::register_value_object>{dsac::domain::register_value_object::register_value_object(1, 1UL)},
-      dsac::result<dsac::domain::register_value_object>{dsac::domain::register_value_object::register_value_object(1, 1UL)}};
+      dsac::result<dsac::domain::register_value_object>{
+          dsac::domain::register_value_object::register_value_object(1, 1UL)},
+      dsac::result<dsac::domain::register_value_object>{
+          dsac::domain::register_value_object::register_value_object(1, 1UL)},
+      dsac::result<dsac::domain::register_value_object>{
+          dsac::domain::register_value_object::register_value_object(1, 1UL)}};
   dsac::domain::cluster_value_object cluster = dsac::domain::cluster_value_object::hydrate(snapshots);
 
   REQUIRE(cluster.is_consistent());
@@ -16,9 +19,12 @@ TEST_CASE("Cluster is consistent, get up-to-date register value", "[cluster][obs
 
 TEST_CASE("Cluster is inconsistent, get up-to-date register value", "[cluster][observers]") {
   dsac::dynamic_array<dsac::result<dsac::domain::register_value_object>> snapshots{
-      dsac::result<dsac::domain::register_value_object>{dsac::domain::register_value_object::register_value_object(1, 1UL)},
-      dsac::result<dsac::domain::register_value_object>{dsac::domain::register_value_object::register_value_object(2, 2UL)},
-      dsac::result<dsac::domain::register_value_object>{dsac::domain::register_value_object::register_value_object(2, 2UL)}};
+      dsac::result<dsac::domain::register_value_object>{
+          dsac::domain::register_value_object::register_value_object(1, 1UL)},
+      dsac::result<dsac::domain::register_value_object>{
+          dsac::domain::register_value_object::register_value_object(2, 2UL)},
+      dsac::result<dsac::domain::register_value_object>{
+          dsac::domain::register_value_object::register_value_object(2, 2UL)}};
   dsac::domain::cluster_value_object cluster = dsac::domain::cluster_value_object::hydrate(snapshots);
 
   REQUIRE_FALSE(cluster.is_consistent());
@@ -28,8 +34,10 @@ TEST_CASE("Cluster is inconsistent, get up-to-date register value", "[cluster][o
 
 TEST_CASE("Cluster is inconsistent with exceptions, get up-to-date register value", "[cluster][observers]") {
   dsac::dynamic_array<dsac::result<dsac::domain::register_value_object>> snapshots{
-      dsac::result<dsac::domain::register_value_object>{dsac::domain::register_value_object::register_value_object(2, 2UL)},
-      dsac::result<dsac::domain::register_value_object>{dsac::domain::register_value_object::register_value_object(2, 2UL)},
+      dsac::result<dsac::domain::register_value_object>{
+          dsac::domain::register_value_object::register_value_object(2, 2UL)},
+      dsac::result<dsac::domain::register_value_object>{
+          dsac::domain::register_value_object::register_value_object(2, 2UL)},
       dsac::result<dsac::domain::register_value_object>{std::make_exception_ptr(std::logic_error{""})}};
   dsac::domain::cluster_value_object cluster = dsac::domain::cluster_value_object::hydrate(snapshots);
 

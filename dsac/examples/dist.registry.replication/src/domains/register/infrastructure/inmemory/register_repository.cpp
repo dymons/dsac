@@ -17,7 +17,8 @@ auto register_repository::read() -> std::optional<domain::register_value_object>
   std::optional<detail::register_::value> const value = singleton<detail::register_>()->read();
   if (value.has_value()) {
     return domain::register_value_object(
-        domain::register_value(value->value), domain::register_timestamp(value->timestamp));
+        domain::register_value(value->value), domain::register_timestamp(value->timestamp)
+    );
   }
   return std::nullopt;
 }

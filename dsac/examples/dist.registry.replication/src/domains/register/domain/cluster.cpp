@@ -13,7 +13,8 @@ namespace {
 using domain::register_value_object;
 using presentation::web::register_replica_client;
 
-auto choose_latest_snapshot(dynamic_array<result<register_value_object>> const& snapshots) -> std::optional<register_value_object> {
+auto choose_latest_snapshot(dynamic_array<result<register_value_object>> const& snapshots)
+    -> std::optional<register_value_object> {
   if (snapshots.empty()) {
     return std::nullopt;
   }
@@ -78,7 +79,8 @@ auto cluster_value_object::make_snapshot(executor_base_ref executor, policy::quo
       std::back_inserter(responses),
       [&executor](auto&& replica_name) {
         return register_replica_client::factory::construct(replica_name, executor)->read();
-      });
+      }
+  );
 
   auto const quorum        = quorum_policy->quorum(responses.size());
   auto       quorum_future = first_n(std::move(responses), quorum);

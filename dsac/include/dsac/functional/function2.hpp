@@ -193,23 +193,22 @@ struct property {
 namespace invocation {
 /// Invokes the given callable object with the given arguments
 template <typename Callable, typename... Args>
-constexpr auto invoke(Callable&& callable, Args&&... args) noexcept(
-    noexcept(std::forward<Callable>(callable)(std::forward<Args>(args)...)))
-    -> decltype(std::forward<Callable>(callable)(std::forward<Args>(args)...)) {
+constexpr auto invoke(Callable&& callable, Args&&... args) noexcept(noexcept(std::forward<Callable>(callable
+)(std::forward<Args>(args)...))) -> decltype(std::forward<Callable>(callable)(std::forward<Args>(args)...)) {
   return std::forward<Callable>(callable)(std::forward<Args>(args)...);
 }
 /// Invokes the given member function pointer by reference
 template <typename T, typename Type, typename Self, typename... Args>
 constexpr auto invoke(Type T::*member, Self&& self, Args&&... args) noexcept(
-    noexcept((std::forward<Self>(self).*member)(std::forward<Args>(args)...)))
-    -> decltype((std::forward<Self>(self).*member)(std::forward<Args>(args)...)) {
+    noexcept((std::forward<Self>(self).*member)(std::forward<Args>(args)...))
+) -> decltype((std::forward<Self>(self).*member)(std::forward<Args>(args)...)) {
   return (std::forward<Self>(self).*member)(std::forward<Args>(args)...);
 }
 /// Invokes the given member function pointer by pointer
 template <typename T, typename Type, typename Self, typename... Args>
 constexpr auto invoke(Type T::*member, Self&& self, Args&&... args) noexcept(
-    noexcept((std::forward<Self>(self)->*member)(std::forward<Args>(args)...)))
-    -> decltype((std::forward<Self>(self)->*member)(std::forward<Args>(args)...)) {
+    noexcept((std::forward<Self>(self)->*member)(std::forward<Args>(args)...))
+) -> decltype((std::forward<Self>(self)->*member)(std::forward<Args>(args)...)) {
   return (std::forward<Self>(self)->*member)(std::forward<Args>(args)...);
 }
 /// Invokes the given pointer to a scalar member by reference
@@ -394,7 +393,8 @@ struct box_factory<box<IsCopyable, T, Allocator>> {
 template <bool IsCopyable, typename T, typename Allocator>
 auto make_box(std::integral_constant<bool, IsCopyable>, T&& value, Allocator&& allocator) {
   return box<IsCopyable, std::decay_t<T>, std::decay_t<Allocator>>(
-      std::forward<T>(value), std::forward<Allocator>(allocator));
+      std::forward<T>(value), std::forward<Allocator>(allocator)
+  );
 }
 
 template <typename T>
@@ -545,7 +545,8 @@ using is_noexcept_noexcept = std::true_type;
         auto box = static_cast<T CONST VOLATILE*>(obj);                                                                \
         return invocation::invoke(                                                                                     \
             static_cast<std::decay_t<decltype(box->value_)> CONST VOLATILE REF>(box->value_),                          \
-            std::forward<Args>(args)...);                                                                              \
+            std::forward<Args>(args)...                                                                                \
+        );                                                                                                             \
       }                                                                                                                \
     };                                                                                                                 \
                                                                                                                        \
@@ -630,7 +631,9 @@ struct invoke_table<First, Second, Args...> {
             std::make_tuple(
                 &function_trait<First>::template internal_invoker<T, IsInplace>::invoke,
                 &function_trait<Second>::template internal_invoker<T, IsInplace>::invoke,
-                &function_trait<Args>::template internal_invoker<T, IsInplace>::invoke...)) {
+                &function_trait<Args>::template internal_invoker<T, IsInplace>::invoke...
+            )
+        ) {
     }
   };
 
@@ -650,7 +653,9 @@ struct invoke_table<First, Second, Args...> {
             std::make_tuple(
                 &function_trait<First>::template view_invoker<T>::invoke,
                 &function_trait<Second>::template view_invoker<T>::invoke,
-                &function_trait<Args>::template view_invoker<T>::invoke...)) {
+                &function_trait<Args>::template view_invoker<T>::invoke...
+            )
+        ) {
     }
   };
 
@@ -670,7 +675,9 @@ struct invoke_table<First, Second, Args...> {
             std::make_tuple(
                 &function_trait<First>::template empty_invoker<IsThrowing>::invoke,
                 &function_trait<Second>::template empty_invoker<IsThrowing>::invoke,
-                &function_trait<Args>::template empty_invoker<IsThrowing>::invoke...)) {
+                &function_trait<Args>::template empty_invoker<IsThrowing>::invoke...
+            )
+        ) {
     }
   };
 
@@ -715,7 +722,8 @@ class operator_impl;
       /* `std::decay_t<decltype(parent->erasure_)>` is a workaround for a   */                            \
       /* compiler regression of MSVC 16.3.1, see #29 for details.           */                            \
       return std::decay_t<decltype(parent->erasure_)>::template invoke<Index>(                            \
-          static_cast<erasure_t CONST VOLATILE REF>(parent->erasure_), std::forward<Args>(args)...);      \
+          static_cast<erasure_t CONST VOLATILE REF>(parent->erasure_), std::forward<Args>(args)...        \
+      );                                                                                                  \
     }                                                                                                     \
   };                                                                                                      \
   template <std::size_t Index, typename Config, typename Property, typename Ret, typename... Args>        \
@@ -739,7 +747,8 @@ class operator_impl;
       /* `std::decay_t<decltype(parent->erasure_)>` is a workaround for a   */                            \
       /* compiler regression of MSVC 16.3.1, see #29 for details.           */                            \
       return std::decay_t<decltype(parent->erasure_)>::template invoke<Index>(                            \
-          static_cast<erasure_t CONST VOLATILE REF>(parent->erasure_), std::forward<Args>(args)...);      \
+          static_cast<erasure_t CONST VOLATILE REF>(parent->erasure_), std::forward<Args>(args)...        \
+      );                                                                                                  \
     }                                                                                                     \
   };
 
@@ -772,7 +781,8 @@ class vtable<property<IsThrowing, HasStrongExceptGuarantee, FormalArgs...>> {
       data_accessor* /*from*/,
       std::size_t /*from_capacity*/,
       data_accessor* /*to*/,
-      std::size_t /*to_capacity*/);
+      std::size_t /*to_capacity*/
+  );
 
   using invoke_table_t = invocation_table::invoke_table<FormalArgs...>;
 
@@ -791,7 +801,8 @@ class vtable<property<IsThrowing, HasStrongExceptGuarantee, FormalArgs...>> {
         data_accessor* from,
         std::size_t    from_capacity,
         data_accessor* to,
-        std::size_t    to_capacity) {
+        std::size_t    to_capacity
+    ) {
       switch (op) {
         case opcode::op_move: {
           /// Retrieve the pointer to the object
@@ -855,11 +866,8 @@ class vtable<property<IsThrowing, HasStrongExceptGuarantee, FormalArgs...>> {
 
     template <typename Box>
     static void construct(
-        std::true_type /*apply*/,
-        Box&&          box,
-        vtable*        to_table,
-        data_accessor* to,
-        std::size_t    to_capacity) noexcept(HasStrongExceptGuarantee) {
+        std::true_type /*apply*/, Box&& box, vtable* to_table, data_accessor* to, std::size_t to_capacity
+    ) noexcept(HasStrongExceptGuarantee) {
       // result to allocate the object inplace
       void* storage = retrieve<T>(std::true_type{}, to, to_capacity);
       if (storage) {
@@ -878,7 +886,8 @@ class vtable<property<IsThrowing, HasStrongExceptGuarantee, FormalArgs...>> {
         Box&& /*box*/,
         vtable* /*to_table*/,
         data_accessor* /*to*/,
-        std::size_t /*to_capacity*/) noexcept(HasStrongExceptGuarantee) {
+        std::size_t /*to_capacity*/
+    ) noexcept(HasStrongExceptGuarantee) {
     }
   };
 
@@ -889,7 +898,8 @@ class vtable<property<IsThrowing, HasStrongExceptGuarantee, FormalArgs...>> {
       data_accessor* /*from*/,
       std::size_t /*from_capacity*/,
       data_accessor* to,
-      std::size_t /*to_capacity*/) {
+      std::size_t /*to_capacity*/
+  ) {
     switch (op) {
       case opcode::op_move:
       case opcode::op_copy: {
@@ -922,22 +932,16 @@ public:
 
   /// Moves the object at the given position
   void move(
-      vtable&        to_table,
-      data_accessor* from,
-      std::size_t    from_capacity,
-      data_accessor* to,
-      std::size_t    to_capacity) noexcept(HasStrongExceptGuarantee) {
+      vtable& to_table, data_accessor* from, std::size_t from_capacity, data_accessor* to, std::size_t to_capacity
+  ) noexcept(HasStrongExceptGuarantee) {
     cmd_(&to_table, opcode::op_move, from, from_capacity, to, to_capacity);
     set_empty();
   }
 
   /// Destroys the object at the given position
   void copy(
-      vtable&              to_table,
-      data_accessor const* from,
-      std::size_t          from_capacity,
-      data_accessor*       to,
-      std::size_t          to_capacity) const {
+      vtable& to_table, data_accessor const* from, std::size_t from_capacity, data_accessor* to, std::size_t to_capacity
+  ) const {
     cmd_(&to_table, opcode::op_copy, const_cast<data_accessor*>(from), from_capacity, to, to_capacity);
   }
 
@@ -1077,35 +1081,41 @@ public:
   }
 
   template <typename OtherConfig>
-  FU2_DETAIL_CXX14_CONSTEXPR erasure(erasure<true, OtherConfig, Property> right) noexcept(
-      Property::is_strong_exception_guaranteed) {
+  FU2_DETAIL_CXX14_CONSTEXPR erasure(erasure<true, OtherConfig, Property> right
+  ) noexcept(Property::is_strong_exception_guaranteed) {
     right.vtable_.move(vtable_, right.opaque_ptr(), right.capacity(), this->opaque_ptr(), capacity());
   }
 
   template <typename T, typename Allocator = std::allocator<std::decay_t<T>>>
   FU2_DETAIL_CXX14_CONSTEXPR erasure(
-      std::false_type /*use_bool_op*/, T&& callable, Allocator&& allocator = Allocator{}) {
+      std::false_type /*use_bool_op*/, T&& callable, Allocator&& allocator = Allocator{}
+  ) {
     vtable_t::init(
         vtable_,
         type_erasure::make_box(
             std::integral_constant<bool, Config::is_copyable>{},
             std::forward<T>(callable),
-            std::forward<Allocator>(allocator)),
+            std::forward<Allocator>(allocator)
+        ),
         this->opaque_ptr(),
-        capacity());
+        capacity()
+    );
   }
   template <typename T, typename Allocator = std::allocator<std::decay_t<T>>>
   FU2_DETAIL_CXX14_CONSTEXPR erasure(
-      std::true_type /*use_bool_op*/, T&& callable, Allocator&& allocator = Allocator{}) {
+      std::true_type /*use_bool_op*/, T&& callable, Allocator&& allocator = Allocator{}
+  ) {
     if (bool(callable)) {
       vtable_t::init(
           vtable_,
           type_erasure::make_box(
               std::integral_constant<bool, Config::is_copyable>{},
               std::forward<T>(callable),
-              std::forward<Allocator>(allocator)),
+              std::forward<Allocator>(allocator)
+          ),
           this->opaque_ptr(),
-          capacity());
+          capacity()
+      );
     } else {
       vtable_.set_empty();
     }
@@ -1133,8 +1143,8 @@ public:
   }
 
   template <typename OtherConfig>
-  FU2_DETAIL_CXX14_CONSTEXPR erasure& operator=(erasure<true, OtherConfig, Property> right) noexcept(
-      Property::is_strong_exception_guaranteed) {
+  FU2_DETAIL_CXX14_CONSTEXPR erasure& operator=(erasure<true, OtherConfig, Property> right
+  ) noexcept(Property::is_strong_exception_guaranteed) {
     vtable_.weak_destroy(this->opaque_ptr(), capacity());
     right.vtable_.move(vtable_, right.opaque_ptr(), right.capacity(), this->opaque_ptr(), capacity());
     return *this;
@@ -1148,9 +1158,11 @@ public:
         type_erasure::make_box(
             std::integral_constant<bool, Config::is_copyable>{},
             std::forward<T>(callable),
-            std::forward<Allocator>(allocator)),
+            std::forward<Allocator>(allocator)
+        ),
         this->opaque_ptr(),
-        capacity());
+        capacity()
+    );
   }
 
   template <typename T, typename Allocator = std::allocator<std::decay_t<T>>>
@@ -1175,7 +1187,8 @@ public:
   static constexpr decltype(auto) invoke(Erasure&& erasure, Args&&... args) {
     auto const capacity = erasure.capacity();
     return erasure.vtable_.template invoke<Index>(
-        std::forward<Erasure>(erasure).opaque_ptr(), capacity, std::forward<Args>(args)...);
+        std::forward<Erasure>(erasure).opaque_ptr(), capacity, std::forward<Args>(args)...
+    );
   }
 };
 
@@ -1345,7 +1358,8 @@ template <typename Config, typename T>
 struct assert_wrong_copy_assign {
   static_assert(
       !Config::is_owning || !Config::is_copyable || std::is_copy_constructible<std::decay_t<T>>::value,
-      "Can't wrap a non copyable object into a unique function!");
+      "Can't wrap a non copyable object into a unique function!"
+  );
 
   using type = void;
 };
@@ -1356,7 +1370,8 @@ struct assert_no_strong_except_guarantee {
       !IsStrongExceptGuaranteed ||
           (std::is_nothrow_move_constructible<T>::value && std::is_nothrow_destructible<T>::value),
       "Can't wrap a object an object that has no strong exception guarantees "
-      "if this is required by the wrapper!");
+      "if this is required by the wrapper!"
+  );
 
   using type = void;
 };

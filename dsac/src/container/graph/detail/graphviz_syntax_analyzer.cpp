@@ -79,7 +79,8 @@ ast_base_ref graphviz_syntax_analyzer::attribute() {
       get_token_maybe<token::identifier>()
           .or_else([this]([[maybe_unused]] auto&& error) { return get_token_maybe<token::literal>(); })
           .or_else([]([[maybe_unused]] auto&& error) __attribute__((__noreturn__)) { throw unexpected_syntax{}; })
-          .value());
+          .value()
+  );
 }
 
 ast_base_ref graphviz_syntax_analyzer::attributes_list() {

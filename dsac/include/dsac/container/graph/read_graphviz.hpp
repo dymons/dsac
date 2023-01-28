@@ -41,7 +41,8 @@ template <typename N, typename E, typename A = std::allocator<N>, typename B = s
         }
         return nullptr;
       },
-      statements);
+      statements
+  );
 
   return graph;
 }

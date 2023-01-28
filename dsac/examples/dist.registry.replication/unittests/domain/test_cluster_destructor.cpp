@@ -9,5 +9,6 @@ auto const kEmptySnapshots = dsac::dynamic_array<dsac::result<dsac::domain::regi
 }  // namespace
 
 TEST_CASE("Destroy cluster with empty snapshots", "[cluster][destruction]") {
-  [[maybe_unused]] dsac::domain::cluster_value_object cluster = dsac::domain::cluster_value_object::hydrate(kEmptySnapshots);
+  [[maybe_unused]] dsac::domain::cluster_value_object cluster =
+      dsac::domain::cluster_value_object::hydrate(kEmptySnapshots);
 }

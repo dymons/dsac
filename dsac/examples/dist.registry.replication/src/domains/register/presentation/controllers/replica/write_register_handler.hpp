@@ -9,7 +9,7 @@ class write_register_handler final : public controller {
 
 public:
   using controller::controller;
-  
+
   static auto get_type_name() -> std::string {
     return "/v1/replica/write";
   }

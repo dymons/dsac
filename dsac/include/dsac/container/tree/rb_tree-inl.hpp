@@ -178,9 +178,9 @@ void RBTree<T>::Insert(T key) {
   Node* parent = nullptr;
   Node* child  = root_;
   while (child != nullptr) [[likely]] {
-      parent = child;
-      child  = new_node->key < child->key ? child->left : child->right;
-    }
+    parent = child;
+    child  = new_node->key < child->key ? child->left : child->right;
+  }
 
   new_node->parent = parent;
   if (parent == nullptr) [[unlikely]] {
