@@ -5,7 +5,7 @@
 
 namespace dsac::presentation {
 
-using dsac::domain::policy::quorum_policy;
+using dsac::domain::policy::quorum_policy_base;
 
 void from_json(const nlohmann::json& request, write_request_dto& p) {
   if (!request.contains("value") || !request["value"].is_number_integer()) [[unlikely]] {
@@ -15,13 +15,13 @@ void from_json(const nlohmann::json& request, write_request_dto& p) {
     throw dsac::presentation::invalid_argument{"Input data is incorrect or the required field 'timestamp' is missing"};
   }
 
-  if (request.contains("quorum_policy")) {
-    if (!request["quorum_policy"].is_string()) [[unlikely]] {
+  if (request.contains("quorum_policy_base")) {
+    if (!request["quorum_policy_base"].is_string()) [[unlikely]] {
       throw dsac::presentation::invalid_argument{
-          "Input data is incorrect or the required field 'quorum_policy' is missing"};
+          "Input data is incorrect or the required field 'quorum_policy_base' is missing"};
     }
     p.quorum_policy =
-        dsac::shared_ptr{quorum_policy::factory::construct(request["quorum_policy"].get<std::string>()).release()};
+        dsac::shared_ptr{quorum_policy_base::factory::construct(request["quorum_policy_base"].get<std::string>()).release()};
   }
 
   p.value     = request["value"].get<std::int32_t>();

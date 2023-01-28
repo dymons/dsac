@@ -4,7 +4,7 @@
 
 namespace dsac::infrastructure::quorum {
 
-class majority_quorum_policy final : public domain::policy::quorum_policy {
+class majority_quorum_policy final : public domain::policy::quorum_policy_base {
   static const inline factory::registractor<majority_quorum_policy> kRegistractor;
 
 public:

@@ -1,10 +1,10 @@
 #pragma once
 
-#include <examples/dist.registry.replication/src/domains/register/domain/register_repository.hpp>
+#include <examples/dist.registry.replication/src/domains/register/domain/register_repository_base.hpp>
 
 namespace dsac::infrastructure::inmemory {
 
-class register_repository final : public domain::register_repository {
+class register_repository final : public domain::register_repository_base {
 public:
   register_repository()                                          = default;
   register_repository(const register_repository&)                = default;

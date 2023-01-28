@@ -1,6 +1,6 @@
 #pragma once
 
-#include <examples/dist.registry.replication/src/domains/register/domain/register_repository.hpp>
+#include <examples/dist.registry.replication/src/domains/register/domain/register_repository_base.hpp>
 
 namespace dsac::application::command::replica {
 

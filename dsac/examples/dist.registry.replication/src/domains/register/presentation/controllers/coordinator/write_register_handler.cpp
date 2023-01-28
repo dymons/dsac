@@ -10,7 +10,7 @@ namespace dsac::presentation::coordinator {
 
 using application::command::coordinator::write_register_command;
 using application::command::coordinator::write_register_command_handler;
-using domain::policy::quorum_policy;
+using domain::policy::quorum_policy_base;
 using dsac::infrastructure::quorum::majority_quorum_policy;
 using dsac::presentation::web::register_replica_client;
 
@@ -42,7 +42,9 @@ auto write_register_handler::handle(nlohmann::json const& request_json) -> nlohm
   write_register_command_handler command_handler{std::move(replicas), request.quorum_policy};
   command_handler.handle(write_register_command{
       .new_register_value = domain::register_value_object{
-          domain::register_value{request.value}, domain::register_timestamp{request.timestamp}}});
+          domain::register_value{request.value},         //
+          domain::register_timestamp{request.timestamp}  //
+      }});
 
   // We always confirm the client's record, even if we ignore it by timestamp.
   return {};
