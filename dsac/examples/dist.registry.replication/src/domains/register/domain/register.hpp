@@ -40,7 +40,16 @@ public:
 
   // Observers
 
+  /*!
+    \brief
+        Get current value of register
+  */
   [[nodiscard]] auto get_value() const noexcept -> register_value;
+
+  /*!
+    \brief
+        Get current timestamp of register
+  */
   [[nodiscard]] auto get_timestamp() const noexcept -> register_timestamp;
 };
 
