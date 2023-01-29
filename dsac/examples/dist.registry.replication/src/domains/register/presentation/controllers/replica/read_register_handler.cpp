@@ -22,7 +22,7 @@ auto make_response(domain::register_value_object const& object) -> nlohmann::jso
 }  // namespace
 
 auto read_register_handler::handle([[maybe_unused]] nlohmann::json const& request) -> nlohmann::json {
-  read_register_query_handler query_handler{make_shared<register_repository>()};
+  read_register_query_handler query_handler{assume_not_null(make_shared<register_repository>())};
   if (auto const register_value = query_handler.handle(); register_value.has_value()) [[unlikely]] {
     return make_response(register_value.value());
   }

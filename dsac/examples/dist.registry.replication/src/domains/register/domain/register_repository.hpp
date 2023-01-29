@@ -3,6 +3,7 @@
 #include <examples/dist.registry.replication/src/domains/register/domain/register.hpp>
 
 #include <dsac/memory/shared_ptr.hpp>
+#include <dsac/memory/not_null.hpp>
 
 #include <optional>
 
@@ -17,13 +18,13 @@ public:
   register_repository_base& operator=(register_repository_base&&) noexcept = delete;
   virtual ~register_repository_base()                                      = default;
 
-  virtual auto write(register_value_object const& dto) -> void = 0;
+  virtual auto write(register_value_object const& object) -> void = 0;
 
   virtual auto reset() -> void = 0;
 
   virtual auto read() -> std::optional<register_value_object> = 0;
 };
 
-using register_repository_ref = shared_ptr<register_repository_base>;
+using register_repository_ref = not_null<shared_ptr<register_repository_base>>;
 
 }  // namespace dsac::domain

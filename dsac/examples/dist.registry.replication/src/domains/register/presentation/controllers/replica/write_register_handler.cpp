@@ -35,7 +35,7 @@ auto from_json(const nlohmann::json& request) -> replica::write_register_command
 auto write_register_handler::handle(nlohmann::json const& request) -> nlohmann::json {
   write_register_command command = from_json(request);
 
-  write_register_command_handler write_register_command_handler{make_shared<register_repository>()};
+  write_register_command_handler write_register_command_handler{assume_not_null(make_shared<register_repository>())};
   write_register_command_handler.handle(command);
 
   // We always confirm the client's record, even if we ignore it by timestamp.

@@ -23,7 +23,7 @@ class write_register_command_handler final {
 public:
   explicit write_register_command_handler(
       dynamic_array<not_null<domain::replica_ref>> replicas,
-      not_null<domain::policy::quorum_policy_ref>  quorum_policy  //
+      not_null<domain::policy::quorum_policy_ref>            quorum_policy  //
   )
     : replicas_(std::move(replicas))
     , quorum_policy_(std::move(quorum_policy)) {
