@@ -21,8 +21,8 @@ auto make_response(domain::register_value_object const& register_state_dto) -> n
   return response_json;
 }
 
-auto get_default_quorum_policy() -> dsac::domain::policy::quorum_policy_ref {
-  return make_shared<majority_quorum_policy>();
+auto get_default_quorum_policy() -> not_null<dsac::domain::policy::quorum_policy_ref> {
+  return assume_not_null(make_shared<majority_quorum_policy>());
 }
 
 }  // namespace

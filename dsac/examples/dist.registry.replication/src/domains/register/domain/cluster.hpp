@@ -50,7 +50,7 @@ public:
   */
   static auto restore_from_replicas(
       dynamic_array<not_null<replica_ref>> const& replicas,
-      policy::quorum_policy_ref const&            quorum_policy = nullptr  //
+      not_null<policy::quorum_policy_ref> const&  quorum_policy  //
   ) -> cluster_value_object;
 
   // Observers
@@ -102,7 +102,7 @@ public:
   static auto store_to_replicas(
       domain::register_value_object const&        object,
       dynamic_array<not_null<replica_ref>> const& replicas,
-      policy::quorum_policy_ref const&            quorum_policy = nullptr
+      not_null<policy::quorum_policy_ref> const&  quorum_policy
   ) -> void;
 
 private:

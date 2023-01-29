@@ -39,7 +39,7 @@ auto write_register_handler::handle(nlohmann::json const& request_json) -> nlohm
       }
   );
 
-  write_register_command_handler command_handler{std::move(replicas), request.quorum_policy};
+  write_register_command_handler command_handler{std::move(replicas), assume_not_null(request.quorum_policy)};
   command_handler.handle(write_register_command{
       .new_register_value = domain::register_value_object{
           domain::register_value{request.value},         //

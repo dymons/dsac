@@ -42,14 +42,14 @@ auto cluster_value_object::restore_from_snapshots(const dynamic_array<snapshot>&
 }
 
 auto cluster_value_object::restore_from_replicas(
-    dynamic_array<not_null<replica_ref>> const& replicas, policy::quorum_policy_ref const& quorum_policy
+    dynamic_array<not_null<replica_ref>> const& replicas, not_null<policy::quorum_policy_ref> const& quorum_policy
 ) -> cluster_value_object {
   dynamic_array<future<register_value_object>> responses;
   std::ranges::transform(replicas, std::back_inserter(responses), [](not_null<replica_ref> const& replica) {
     return replica->async_read();
   });
 
-  auto const quorum        = nullptr == quorum_policy ? responses.size() : quorum_policy->quorum(responses.size());
+  auto const quorum        = quorum_policy->quorum(responses.size());
   auto       quorum_future = first_n(std::move(responses), quorum);
   auto const snapshots     = std::move(quorum_future).get().value_or_throw();
 
@@ -82,7 +82,7 @@ auto cluster_value_object::get_latest_timestamp() const -> register_timestamp {
 auto cluster_value_object::store_to_replicas(
     domain::register_value_object const&        object,
     dynamic_array<not_null<replica_ref>> const& replicas,
-    policy::quorum_policy_ref const&            quorum_policy
+    not_null<policy::quorum_policy_ref> const&  quorum_policy
 ) -> void {
   dynamic_array<future<void*>> responses;
   std::ranges::transform(
@@ -91,7 +91,7 @@ auto cluster_value_object::store_to_replicas(
       [&object](not_null<domain::replica_ref> const& replica) { return replica->async_write(object); }
   );
 
-  auto const quorum           = nullptr == quorum_policy ? responses.size() : quorum_policy->quorum(responses.size());
+  auto const quorum           = quorum_policy->quorum(responses.size());
   auto       quorum_future    = first_n(std::move(responses), quorum);
   auto       quorum_responses = std::move(quorum_future).get().value_or_throw();
 

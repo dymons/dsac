@@ -14,12 +14,12 @@ namespace dsac::application::command::coordinator {
 
 class read_and_write_register_command_handler final {
   dynamic_array<not_null<domain::replica_ref>> replicas_;
-  domain::policy::quorum_policy_ref            quorum_policy_;
+  not_null<domain::policy::quorum_policy_ref>  quorum_policy_;
 
 public:
   read_and_write_register_command_handler(
       dynamic_array<not_null<domain::replica_ref>> replicas,
-      domain::policy::quorum_policy_ref            quorum_policy  //
+      not_null<domain::policy::quorum_policy_ref>  quorum_policy  //
   )
     : replicas_(std::move(replicas))
     , quorum_policy_(std::move(quorum_policy)) {
