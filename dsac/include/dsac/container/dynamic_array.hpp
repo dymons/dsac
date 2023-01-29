@@ -218,13 +218,13 @@ public:
 
   /*!
     \brief
-        Copy conversion constructor.
+        Copy conversion operator.
   */
   dynamic_array& operator=(dynamic_array const& other);
 
   /*!
     \brief
-        Move conversion constructor.
+        Move conversion operator.
   */
   dynamic_array& operator=(dynamic_array&& other) = delete;  // Sorry, unimplemented yet ¯\_(ツ)_/¯
 

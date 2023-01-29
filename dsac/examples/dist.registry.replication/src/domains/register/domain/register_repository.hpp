@@ -33,19 +33,23 @@ public:
 
   // Destructor
 
+  /*!
+    \brief
+        Destructor.
+  */
   virtual ~register_repository_base() = default;
 
   // Assignment
 
   /*!
     \brief
-        Copy conversion constructor.
+        Copy conversion operator.
   */
   register_repository_base& operator=(const register_repository_base&) = delete;
 
   /*!
     \brief
-        Move conversion constructor.
+        Move conversion operator.
   */
   register_repository_base& operator=(register_repository_base&&) noexcept = delete;
 
