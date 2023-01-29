@@ -13,7 +13,7 @@ using dsac::domain::snapshot;
 using dsac::domain::snapshot_error;
 
 TEST_CASE(
-    "Given equivalent snapshots when restore cluster then cluster is consistent",
+    "Given equivalent snapshots when restore cluster then cluster is restored and consistent",
     "[observers][restore_from_snapshots][happy-path]"
 ) {
   // Arrange
@@ -33,7 +33,7 @@ TEST_CASE(
 }
 
 TEST_CASE(
-    "Given not equivalent snapshots when restore cluster then cluster is not consistent",
+    "Given not equivalent snapshots when restore cluster then cluster is restored and not consistent",
     "[observers][restore_from_snapshots][happy-path]"
 ) {
   // Arrange
@@ -53,7 +53,7 @@ TEST_CASE(
 }
 
 TEST_CASE(
-    "Given not equivalent snapshots with one error when restore cluster then cluster is not consistent",
+    "Given not equivalent snapshots with one error when restore cluster then cluster restored and not consistent",
     "[observers][restore_from_snapshots][happy-path]"
 ) {
   // Arrange
@@ -73,7 +73,7 @@ TEST_CASE(
 }
 
 TEST_CASE(
-    "Given equivalent snapshots with errors when restore cluster then cluster is consistent",
+    "Given equivalent snapshots with errors when restore cluster then cluster restored and consistent",
     "[observers][restore_from_snapshots][happy-path]"
 ) {
   // Arrange

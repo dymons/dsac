@@ -27,7 +27,7 @@ public:
   };
 
   static auto make() -> dsac::domain::register_repository_ref {
-    return dsac::make_shared<fake_repository>();
+    return dsac::assume_not_null(dsac::make_shared<fake_repository>());
   }
 
 private:
@@ -38,7 +38,7 @@ private:
 
 TEST_CASE(
     "Given empty register when write a user value to the register then user value has been saved to the register",
-    "[replica][write-register][happy-path]"
+    "[observers][replica-write-register][happy-path]"
 ) {
   // Arrange
   auto repository = fake_repository::make();
