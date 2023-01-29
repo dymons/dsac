@@ -36,8 +36,8 @@ public:
   static auto restore_from_snapshots(const dynamic_array<snapshot>& snapshots) -> cluster_value_object;
 
   /*!
-  \brief
-      Restore the current state of the cluster based on the snapshots from the system nodes.
+    \brief
+        Restore the current state of the cluster based on the snapshots from the system nodes.
 
     \param replicas
         A set of replicas from which the current register value will be taken
@@ -82,6 +82,23 @@ public:
 
   // Modifiers
 
+  /*!
+    \brief
+        Store a new register value on the cluster.
+
+    \param object
+        A new register value
+
+    \param replicas
+        A set of replicas to which the new value will be saved
+
+    \param quorum_policy
+        Quorum policy. How many requests will we expect to execute synchronously.
+        Used to optimize the execution of write requests
+
+    \ingroup
+        RegistryReplicationDomain
+  */
   static auto store_to_replicas(
       domain::register_value_object const&        object,
       dynamic_array<not_null<replica_ref>> const& replicas,
