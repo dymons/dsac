@@ -31,7 +31,7 @@ public:
 
   /*!
     \brief
-        User constructor in a private scope. Used to create from the hydrate method.
+        User constructor. Restore an object register_value_object based on value and timestamp.
   */
   register_value_object(register_value value, register_timestamp timestamp)
     : value_(value)
