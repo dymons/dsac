@@ -37,7 +37,7 @@ private:
 }  // namespace
 
 TEST_CASE(
-    "Given empty register when write a user value then user value has been saved to the register",
+    "Given empty register when write a user value to the register then user value has been saved to the register",
     "[replica][write-register][happy-path]"
 ) {
   // Arrange
