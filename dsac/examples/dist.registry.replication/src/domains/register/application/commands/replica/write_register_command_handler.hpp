@@ -1,7 +1,7 @@
 #pragma once
 
 #include <examples/dist.registry.replication/src/domains/register/domain/register.hpp>
-#include <examples/dist.registry.replication/src/domains/register/domain/register_repository_base.hpp>
+#include <examples/dist.registry.replication/src/domains/register/domain/register_repository.hpp>
 
 #include <cstdint>
 

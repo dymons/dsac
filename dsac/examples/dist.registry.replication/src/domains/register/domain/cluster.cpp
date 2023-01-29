@@ -69,14 +69,14 @@ auto cluster_value_object::get_latest_value() const -> register_value {
   if (not fresh_snapshot_.get().has_value()) [[unlikely]] {
     throw not_found_latest_value{};
   }
-  return register_value{fresh_snapshot_.get()->get_value()};
+  return register_value{fresh_snapshot_->get_value()};
 }
 
 auto cluster_value_object::get_latest_timestamp() const -> register_timestamp {
   if (not fresh_snapshot_.get().has_value()) [[unlikely]] {
     throw not_found_latest_timestamp{};
   }
-  return register_timestamp{fresh_snapshot_.get()->get_timestamp()};
+  return register_timestamp{fresh_snapshot_->get_timestamp()};
 }
 
 auto cluster_value_object::store_to_replicas(

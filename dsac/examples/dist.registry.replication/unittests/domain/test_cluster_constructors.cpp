@@ -17,7 +17,7 @@ using dsac::domain::register_value_object;
 using dsac::domain::snapshot;
 using dsac::domain::snapshot_error;
 
-TEST_CASE("Construct cluster using hydrate method with empty snapshots", "[cluster][hydrate-constructor]") {
+TEST_CASE("Construct cluster using empty snapshots", "[cluster][restore-from-snapshots]") {
   cluster_value_object cluster = cluster_value_object::restore_from_snapshots(kEmptySnapshots);
 
   // We assume that if there are no snapshots of the system, then the system is in a consistent state.
