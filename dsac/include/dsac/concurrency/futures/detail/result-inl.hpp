@@ -15,7 +15,7 @@ result<T>::result(std::exception_ptr&& exception)
 }
 
 template <typename T>
-const T& result<T>::value_or_throw() const {
+const T& result<T>::value_or_throw() const& {
   if (has_exception()) {
     std::rethrow_exception(std::get<std::exception_ptr>(store_));
   }
@@ -34,13 +34,12 @@ bool result<T>::has_exception() const noexcept {
 }
 
 template <typename T>
-bool operator==(const result<T>& p, const result<T>& b) {
+bool operator==(result<T> const& p, result<T> const& b) {
   return (p.has_value() && b.has_value()) && (p.value_or_throw() == b.value_or_throw());
 }
-
 template <typename T>
-bool operator>(const result<T>& p, const result<T>& b) {
-  return (p.has_value() && b.has_value()) && (p.value_or_throw() > b.value_or_throw());
+bool operator<=>(result<T> const& p, result<T> const& b) {
+  return (p.has_value() && b.has_value()) && (p.value_or_throw() <=> b.value_or_throw());
 }
 
 }  // namespace dsac

@@ -25,7 +25,7 @@ public:
     \brief
         Get the value if not then throw.
   */
-  const T& value_or_throw() const;
+  const T& value_or_throw() const&;
 
   /*!
     \brief
@@ -45,9 +45,9 @@ public:
       Compare two results for equivalence.
 */
 template <typename T>
-bool operator==(const result<T>& p, const result<T>& b);
+bool operator==(result<T> const& p, result<T> const& b);
 template <typename T>
-bool operator>(const result<T>& p, const result<T>& b);
+bool operator<=>(result<T> const& p, result<T> const& b);
 
 }  // namespace dsac
 
