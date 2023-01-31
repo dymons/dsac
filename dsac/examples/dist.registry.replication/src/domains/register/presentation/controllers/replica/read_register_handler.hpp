@@ -5,7 +5,7 @@ namespace dsac::presentation::replica {
 class read_register_handler final : public controller {
   static const inline factory::registractor<read_register_handler> kRegistractor;
 
-  auto handle(nlohmann::json const& request) -> nlohmann::json override;
+  auto handle(nlohmann::json const& request) -> nlohmann::json final;
 
 public:
   using controller::controller;

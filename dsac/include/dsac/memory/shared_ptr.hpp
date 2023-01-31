@@ -21,7 +21,7 @@ public:
 template <typename T>
 class default_deleter final : public deleter_base {
 public:
-  void operator()(void* data) override {
+  void operator()(void* data) final {
     delete static_cast<T*>(data);  // NOLINT(cppcoreguidelines-owning-memory)
   }
 };

@@ -14,15 +14,15 @@ namespace {
 
 class fake_repository final : public register_repository_base {
 public:
-  auto write(register_value_object const& object) -> void override {
+  auto write(register_value_object const& object) -> void final {
     register_.emplace(object);
   };
 
-  auto reset() -> void override {
+  auto reset() -> void final {
     register_.reset();
   };
 
-  auto read() -> std::optional<register_value_object> override {
+  auto read() -> std::optional<register_value_object> final {
     return register_;
   };
 

@@ -44,10 +44,10 @@ public:
     \brief
         Destructor.
   */
-  ~static_thread_poll() override = default;
+  ~static_thread_poll() final = default;
 
-  void submit(task&& task) override;
-  void join() override;
+  void submit(task&& task) final;
+  void join() final;
 
 private:
   /*!

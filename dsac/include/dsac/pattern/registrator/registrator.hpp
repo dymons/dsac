@@ -80,7 +80,7 @@ public:
 
 template <typename BaseComponent, typename DerivedComponent, typename... Args>
 class factory_constructor final : public factory_constructor_base<BaseComponent, Args...> {
-  auto construct(Args&&... args) const -> std::unique_ptr<BaseComponent> override;
+  auto construct(Args&&... args) const -> std::unique_ptr<BaseComponent> final;
 };
 
 template <typename BaseComponent, typename... Args>

@@ -64,7 +64,7 @@ TEST_CASE("Construct shared_ptr with base/derived classes", "[shared_ptr][base-d
       was_derived_class_destructed_.get() = false;
     }
 
-    ~derived() override {
+    ~derived() final {
       was_derived_class_destructed_.get() = true;
     }
   };
@@ -94,7 +94,7 @@ TEST_CASE("Execute shared_ptr with base/derived classes", "[shared_ptr][base-der
 
   class derived final : public base {  // NOLINT(cppcoreguidelines-special-member-functions)
   public:
-    [[nodiscard]] std::string get_name_class() const override {
+    [[nodiscard]] std::string get_name_class() const final {
       return "derived";
     }
   };
