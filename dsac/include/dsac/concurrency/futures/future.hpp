@@ -71,7 +71,7 @@ public:
         do_stuff(value.value_or_throw());
     \endcode
   */
-  result<T> get() && noexcept;
+  result<T> get() &&;
 
   // Modifiers
 

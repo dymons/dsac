@@ -5,7 +5,7 @@
 namespace dsac {
 
 template <typename T>
-result<T> future<T>::get() && noexcept {
+result<T> future<T>::get() && {
   return std::move(*this).release_state()->get_result();
 }
 
