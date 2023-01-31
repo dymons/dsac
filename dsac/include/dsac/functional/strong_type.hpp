@@ -13,9 +13,6 @@ public:
   auto get() const& noexcept -> T const& {
     return value_;
   }
-  auto operator->() const& noexcept -> T const& {
-    return value_;
-  }
 
 private:
   T value_;
