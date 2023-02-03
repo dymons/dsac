@@ -1,5 +1,6 @@
 #pragma once
 
+#include <compare>
 #include <exception>
 #include <variant>
 
@@ -24,30 +25,33 @@ public:
   /*!
     \brief
         Get the value if not then throw.
+
+    \throw std::rethrow_exception
+        The result does not have a value
   */
-  const T& value_or_throw() const&;
+  [[nodiscard]] auto value_or_throw() & -> T&;
+  [[nodiscard]] auto value_or_throw() const& -> const T&;
+  [[nodiscard]] auto value_or_throw() && -> T&&;
+  [[nodiscard]] auto value_or_throw() const&& -> const T&&;
 
   /*!
     \brief
         Check that the result store a value.
   */
-  [[nodiscard]] bool has_value() const noexcept;
+  [[nodiscard]] auto has_value() const noexcept -> bool;
 
   /*!
     \brief
         Check that the result store an exception.
   */
-  [[nodiscard]] bool has_exception() const noexcept;
-};
+  [[nodiscard]] auto has_exception() const noexcept -> bool;
 
-/*!
-  \brief
-      Compare two results for equivalence.
-*/
-template <typename T>
-bool operator==(result<T> const& p, result<T> const& b);
-template <typename T>
-bool operator<=>(result<T> const& p, result<T> const& b);
+  /*!
+    \brief
+        Compare two results for equivalence.
+  */
+  auto operator<=>(result<T> const& other) const -> bool = default;
+};
 
 }  // namespace dsac
 

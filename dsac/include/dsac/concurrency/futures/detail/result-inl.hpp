@@ -16,11 +16,38 @@ result<T>::result(std::exception_ptr&& exception)
 
 template <typename T>
 const T& result<T>::value_or_throw() const& {
-  if (has_exception()) {
+  if (has_exception()) [[unlikely]] {
     std::rethrow_exception(std::get<std::exception_ptr>(store_));
   }
 
   return std::get<T>(store_);
+}
+
+template <typename T>
+auto result<T>::value_or_throw() & -> T& {
+  if (has_exception()) [[unlikely]] {
+    std::rethrow_exception(std::get<std::exception_ptr>(store_));
+  }
+
+  return std::get<T>(store_);
+}
+
+template <typename T>
+auto result<T>::value_or_throw() && -> T&& {
+  if (has_exception()) [[unlikely]] {
+    std::rethrow_exception(std::get<std::exception_ptr>(store_));
+  }
+
+  return std::get<T>(std::move(store_));
+}
+
+template <typename T>
+auto result<T>::value_or_throw() const&& -> const T&& {
+  if (has_exception()) [[unlikely]] {
+    std::rethrow_exception(std::get<std::exception_ptr>(store_));
+  }
+
+  return std::get<T>(std::move(store_));
 }
 
 template <typename T>
@@ -31,15 +58,6 @@ bool result<T>::has_value() const noexcept {
 template <typename T>
 bool result<T>::has_exception() const noexcept {
   return store_.index() == 1;
-}
-
-template <typename T>
-bool operator==(result<T> const& p, result<T> const& b) {
-  return (p.has_value() && b.has_value()) && (p.value_or_throw() == b.value_or_throw());
-}
-template <typename T>
-bool operator<=>(result<T> const& p, result<T> const& b) {
-  return (p.has_value() && b.has_value()) && (p.value_or_throw() <=> b.value_or_throw());
 }
 
 }  // namespace dsac
