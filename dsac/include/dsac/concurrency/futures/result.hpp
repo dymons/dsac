@@ -7,7 +7,7 @@
 namespace dsac {
 
 template <typename T>
-class result {
+class result final {
   std::variant<T, std::exception_ptr> store_;
 
 public:
@@ -18,7 +18,7 @@ public:
         User constructor, constructs an result with user-specified value T or std::exception_ptr.
   */
   explicit result(T value);
-  explicit result(std::exception_ptr&& exception);
+  explicit result(std::exception_ptr exception);
 
   // Observers
 
@@ -48,7 +48,7 @@ public:
 
   /*!
     \brief
-        Compare two results for equivalence.
+        Compare two results.
   */
   auto operator<=>(result<T> const& other) const -> bool = default;
 };

@@ -10,7 +10,7 @@ result<T>::result(T value)
 }
 
 template <typename T>
-result<T>::result(std::exception_ptr&& exception)
+result<T>::result(std::exception_ptr exception)
   : store_(std::move(exception)) {
 }
 
