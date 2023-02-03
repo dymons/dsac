@@ -95,7 +95,7 @@ auto cluster_value_object::store_to_replicas(
   auto       quorum_future    = first_n(std::move(responses), quorum);
   auto       quorum_responses = std::move(quorum_future).get().value_or_throw();
 
-  std::ranges::for_each(quorum_responses, &result<void*>::value_or_throw);
+  std::ranges::for_each(quorum_responses, [](auto const& r) { r.value_or_throw(); });
 }
 
 }  // namespace dsac::domain

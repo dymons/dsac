@@ -29,10 +29,10 @@ public:
     \throw std::rethrow_exception
         The result does not have a value
   */
-  [[nodiscard]] auto value_or_throw() & -> T&;
-  [[nodiscard]] auto value_or_throw() const& -> const T&;
-  [[nodiscard]] auto value_or_throw() && -> T&&;
-  [[nodiscard]] auto value_or_throw() const&& -> const T&&;
+  auto value_or_throw() & -> T&;
+  auto value_or_throw() const& -> const T&;
+  auto value_or_throw() && -> T&&;
+  auto value_or_throw() const&& -> const T&&;
 
   /*!
     \brief
