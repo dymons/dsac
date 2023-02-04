@@ -1,0 +1,53 @@
+openapi: "3.0.0"
+info:
+  version: 1.0.0
+  title: Register Replication
+  description: Distributed Algorithms. Atomic snapshots and ABD
+paths:
+  /v1/replica/write:
+    post:
+      description: Write a new register value to a replica
+      operationId: WriteReplica
+      requestBody:
+        description: A new register value
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterValue'
+      responses:
+        '200':
+          description: The new value was successfully written to the replica
+        '400':
+          description: The input data contains incorrect values for writing the value to the register
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+
+components:
+  schemas:
+    RegisterValue:
+      type: object
+      required:
+        - value
+      properties:
+        value:
+          type: integer
+          format: int32
+          description: Register value
+        timestamp:
+          type: string
+          format: int64
+          minimum: 0
+          description: | 
+            Register timestamp. It is used to model the behavior of the system in integration tests
+
+    ErrorMessage:
+      type: object
+      required:
+        - error_message
+      properties:
+        error_message:
+          type: string
+          description: Error message
