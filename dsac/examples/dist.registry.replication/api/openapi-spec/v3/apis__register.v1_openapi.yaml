@@ -4,7 +4,7 @@ info:
   title: Register Replication
   description: Distributed Algorithms. Atomic snapshots and ABD
 paths:
-  /v1/register/replica:
+  /v1/replica:
     post:
       description: Write a new register value to the replica
       operationId: WriteRegisterValueToReplica
@@ -41,7 +41,15 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorMessage'
 
-  /v1/register/coordinator:
+  /v1/replica/reset:
+    post:
+      description: Reset register value on the replica
+      operationId: ResetRegisterValueOnReplica
+      responses:
+        '200':
+          description: The register value was successfully reset on the replica
+
+  /v1/coordinator:
     post:
       description: Write a new register value to the coordinator
       operationId: WriteRegisterValueToCoordinator
