@@ -60,7 +60,7 @@ public:
     \brief
         Initialize an dsac::result with different type of user-values
 
-  \return
+    \return
         Return the dsac::future
 
     \throw dsac::future_already_exposed

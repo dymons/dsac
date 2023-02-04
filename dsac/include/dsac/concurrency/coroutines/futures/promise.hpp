@@ -6,10 +6,12 @@
 #include <coroutine>
 
 namespace dsac {
+
 template <typename T>
-struct CoroutinePromise {
+class coroutine_promise {
   promise<T> promise_;
 
+public:
   auto get_return_object() {
     return promise_.make_future();
   }
@@ -40,5 +42,5 @@ struct CoroutinePromise {
 
 template <typename R, typename... Args>
 struct std::coroutine_traits<dsac::future<R>, Args...> {
-  using promise_type = dsac::CoroutinePromise<R>;
+  using promise_type = dsac::coroutine_promise<R>;
 };
