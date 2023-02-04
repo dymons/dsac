@@ -12,28 +12,28 @@ class coroutine_promise {
   promise<T> promise_;
 
 public:
-  auto get_return_object() {
+  auto get_return_object() -> future<T> {
     return promise_.make_future();
   }
 
-  std::suspend_never initial_suspend() noexcept {
+  auto initial_suspend() noexcept -> std::suspend_never {
     return {};
   }
 
-  std::suspend_never final_suspend() noexcept {
+  auto final_suspend() noexcept -> std::suspend_never {
     return {};
   }
 
-  void set_exception(std::exception_ptr e) {
+  auto set_exception(std::exception_ptr e) -> void {
     std::move(promise_).set(std::move(e));
   }
 
-  void unhandled_exception() {
+  auto unhandled_exception() -> void {
     std::move(promise_).set(std::current_exception());
   }
 
   template <typename U>
-  void return_value(U&& u) {
+  auto return_value(U&& u) -> void {
     std::move(promise_).set(result<U>(std::forward<U>(u)));
   }
 };

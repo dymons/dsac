@@ -15,13 +15,13 @@ public:
     : future_(std::move(future)) {
   }
 
-  bool await_ready() {
+  auto await_ready() -> bool {
     if (result_.has_value()) {
     }
     return false;
   }
 
-  void await_suspend(std::coroutine_handle<> h) {
+  auto await_suspend(std::coroutine_handle<> h) -> void {
     std::move(future_).subscribe([this, h](result<T> result) mutable {
       result_.emplace(std::move(result));
       h.resume();
@@ -29,7 +29,7 @@ public:
   }
 
   auto await_resume() {
-    return (*result_).value_or_throw();
+    return result_->value_or_throw();
   }
 
 private:
