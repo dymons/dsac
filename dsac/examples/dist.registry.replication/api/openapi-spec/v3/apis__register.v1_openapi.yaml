@@ -43,8 +43,8 @@ paths:
 
   /v1/register/coordinator:
     post:
-      description: Write a new register value to the replica
-      operationId: WriteRegisterValueToReplica
+      description: Write a new register value to the coordinator
+      operationId: WriteRegisterValueToCoordinator
       requestBody:
         description: A new register value
         required: true
@@ -54,7 +54,7 @@ paths:
               $ref: '#/components/schemas/RegisterValue'
       responses:
         '200':
-          description: The new value was successfully written to the replica
+          description: The new value was successfully written to the coordinator
         '400':
           description: The input data contains incorrect values for writing the value to the register
           content:
@@ -63,7 +63,7 @@ paths:
                 $ref: '#/components/schemas/ErrorMessage'
     get:
       description: Read a current register value
-      operationId: ReadRegisterValueFromReplica
+      operationId: ReadRegisterValueFromCoordinator
       responses:
         '200':
           description: The register value was successfully read
