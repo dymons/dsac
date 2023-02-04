@@ -21,6 +21,7 @@ async def test_spec_majority_quorum(
                                            |-R(20, 2)-|
     """
 
+    # Arrange
     assert (await registry[8080].post('v1/replica/write', json={'value': 10, 'timestamp': 1})).status_code == 200
     assert (await registry[8081].post('v1/replica/write', json={'value': 10, 'timestamp': 1})).status_code == 200
 
@@ -33,7 +34,10 @@ async def test_spec_majority_quorum(
         {'port': 8082, 'snapshot': {'timestamp': 2, 'value': 20}},
     ]
 
+    # Act
     response = await registry[8080].post('v1/coordinator/read')
+
+    # Assert
     assert response.status_code == 200
     assert response.json() == {
         'value': 20,
