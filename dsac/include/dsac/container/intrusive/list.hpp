@@ -10,15 +10,27 @@ struct list_node_base {
     \brief
         Returns the pointer to the previous node
   */
-  [[nodiscard]] auto get_prev() noexcept -> list_node_base*;
+  [[nodiscard]] auto get_prev() const noexcept -> list_node_base*;
 
   /*!
     \brief
         Returns the pointer to the next node
   */
-  [[nodiscard]] auto get_next() noexcept -> list_node_base*;
+  [[nodiscard]] auto get_next() const noexcept -> list_node_base*;
 
   // Modifiers
+
+  /*!
+    \brief
+        Set the pointer to the next node
+  */
+  auto set_next(list_node_base* next) noexcept -> void;
+
+  /*!
+    \brief
+        Set the pointer to the prev node
+  */
+  auto set_prev(list_node_base* prev) noexcept -> void;
 
   /*!
     \brief
@@ -45,8 +57,25 @@ private:
 
 template <typename T>
 class list final {
+public:
+  // Constructors
+
+  /*!
+    \brief
+        Default constructor, constructs an empty list.
+  */
+  list() noexcept;
+
+  // Observers
+
+  /*!
+    \brief
+        Returns true if the list is empty.
+  */
+  [[nodiscard]] auto empty() const noexcept -> bool;
+
 private:
-  list_node_base<T> root_;
+  list_node_base<T> storage_{};
 };
 
 }  // namespace dsac::intrusive

@@ -7,12 +7,12 @@
 namespace dsac::intrusive {
 
 template <typename T>
-auto list_node_base<T>::get_prev() noexcept -> list_node_base* {
+auto list_node_base<T>::get_prev() const noexcept -> list_node_base* {
   return prev_;
 }
 
 template <typename T>
-auto list_node_base<T>::get_next() noexcept -> list_node_base* {
+auto list_node_base<T>::get_next() const noexcept -> list_node_base* {
   return next_;
 }
 
@@ -24,6 +24,16 @@ auto list_node_base<T>::attach(list_node_base* next) noexcept -> void {
 }
 
 template <typename T>
+auto list_node_base<T>::set_next(list_node_base* next) noexcept -> void {
+  next_ = next;
+}
+
+template <typename T>
+auto list_node_base<T>::set_prev(list_node_base* prev) noexcept -> void {
+  prev_ = prev;
+}
+
+template <typename T>
 auto list_node_base<T>::detach() noexcept -> void {
   if (nullptr != next_) {
     next_->prev_ = prev_;
@@ -32,6 +42,17 @@ auto list_node_base<T>::detach() noexcept -> void {
     prev_->next_ = next_;
   }
   next_ = prev_ = nullptr;
+}
+
+template <typename T>
+list<T>::list() noexcept {
+  storage_.set_next(&storage_);
+  storage_.set_prev(&storage_);
+}
+
+template <typename T>
+auto list<T>::empty() const noexcept -> bool {
+  return storage_.get_next() == &storage_;
 }
 
 }  // namespace dsac::intrusive
