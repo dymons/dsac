@@ -5,4 +5,5 @@
 
 TEST_CASE("Fiber scheduler", "[fibers]") {
   auto scheduler = dsac::fiber_scheduler{};
+  scheduler.main([]() -> void {});
 }
