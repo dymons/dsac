@@ -74,6 +74,12 @@ public:
   */
   [[nodiscard]] auto empty() const noexcept -> bool;
 
+  // Modifiers
+
+  auto push_back(list_node_base<T>* next) -> void;
+
+  auto pop_front() noexcept -> T*;
+
 private:
   list_node_base<T> storage_{};
 };

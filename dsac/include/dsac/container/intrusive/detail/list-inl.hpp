@@ -55,4 +55,21 @@ auto list<T>::empty() const noexcept -> bool {
   return storage_.get_next() == &storage_;
 }
 
+template <typename T>
+auto list<T>::push_back(list_node_base<T>* next) -> void {
+  next->attach(&storage_);
+}
+
+template <typename T>
+auto list<T>::pop_front() noexcept -> T* {
+  if (empty()) {
+    return nullptr;
+  }
+
+  auto* front = storage_.get_next();
+  front->detach();
+
+  return static_cast<T*>(front);
+}
+
 }  // namespace dsac::intrusive
