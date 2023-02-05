@@ -1,7 +1,8 @@
 #pragma once
 
+#include <dsac/concurrency/fibers/execution_context/execution_context.hpp>
+#include <dsac/concurrency/fibers/routine/routine.hpp>
 #include <dsac/container/intrusive/list.hpp>
-#include "dsac/concurrency/fibers/routine/routine.hpp"
 
 namespace dsac {
 
@@ -13,9 +14,10 @@ enum class fiber_state : unsigned {
   terminated,
 };
 
-class fiber final : public intrusive::list_node_base<fiber> {
-  fiber_routine routine_;
-  fiber_state   state_;
+class fiber : public intrusive::list_node_base<fiber> {
+  fiber_routine           fiber_routine_;
+  fiber_state             fiber_state_;
+  fiber_execution_context fiber_execution_context_;
 
 public:
   explicit fiber(fiber_routine routine);

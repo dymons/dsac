@@ -3,8 +3,9 @@
 namespace dsac {
 
 fiber::fiber(fiber_routine routine)
-  : routine_(std::move(routine))
-  , state_(fiber_state::starting) {
+  : fiber_routine_(std::move(routine))
+  , fiber_state_(fiber_state::starting)
+  , fiber_execution_context_() {
 }
 
 }  // namespace dsac

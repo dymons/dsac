@@ -9,12 +9,12 @@ namespace dsac {
 class fiber_scheduler final {
 public:
   // Constructors
-  
-  fiber_scheduler();
+
+  explicit fiber_scheduler(fiber_routine entry_routine);
 
   // Modifiers
 
-  auto main(fiber_routine entry_routine) & -> void;
+  auto schedule() -> void;
 
   auto submit(fiber_routine routine) -> void;
 
