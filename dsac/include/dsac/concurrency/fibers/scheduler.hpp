@@ -1,23 +1,26 @@
 #pragma once
 
-#include <dsac/concurrency/fibers/fiber.hpp>
-#include <dsac/concurrency/fibers/routine.hpp>
-#include <dsac/container/intrusive/list.hpp>
+#include <dsac/memory/shared_ptr.hpp>
+
+#include <dsac/concurrency/fibers/routine/routine.hpp>
 
 namespace dsac {
 
 class fiber_scheduler final {
 public:
+  // Constructors
+  
+  fiber_scheduler();
+
   // Modifiers
 
   auto main(fiber_routine entry_routine) & -> void;
 
-  auto submit(fiber_routine routine) -> fiber_scheduler*;
+  auto submit(fiber_routine routine) -> void;
 
 private:
-  auto execute() -> void;
-
-  intrusive::list<fiber> fibers_;
+  class fiber_scheduler_pimpl;
+  shared_ptr<fiber_scheduler_pimpl> pimpl_;
 };
 
 }  // namespace dsac
