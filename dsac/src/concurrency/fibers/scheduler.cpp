@@ -17,7 +17,7 @@ auto fiber_scheduler::main(fiber_routine entry_routine) & -> void {
       kScheduler = nullptr;
     }
 
-    auto operator->() -> fiber_scheduler* {
+    auto operator->() noexcept -> fiber_scheduler* {
       return kScheduler;
     }
   };
@@ -26,12 +26,12 @@ auto fiber_scheduler::main(fiber_routine entry_routine) & -> void {
 }
 
 auto fiber_scheduler::submit(fiber_routine routine) -> fiber_scheduler* {
-  return this;
+  return (fibers_.push_back(new fiber{std::move(routine)}), this);  // NOLINT(cppcoreguidelines-owning-memory)
 }
 
 auto fiber_scheduler::execute() -> void {
   while (not fibers_.empty()) {
-    [[maybe_unused]] fiber* fiber = fibers_.pop_front();
+    delete fibers_.pop_front();
   }
 }
 
