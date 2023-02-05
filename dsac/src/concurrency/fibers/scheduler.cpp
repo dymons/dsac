@@ -26,7 +26,9 @@ auto fiber_scheduler::main(fiber_routine entry_routine) & -> void {
 }
 
 auto fiber_scheduler::submit(fiber_routine routine) -> fiber_scheduler* {
-  return (fibers_.push_back(new fiber{std::move(routine)}), this);  // NOLINT(cppcoreguidelines-owning-memory)
+  auto* fiber_ = new fiber{std::move(routine)};
+  fibers_.push_back(fiber_);
+  return this;
 }
 
 auto fiber_scheduler::execute() -> void {
