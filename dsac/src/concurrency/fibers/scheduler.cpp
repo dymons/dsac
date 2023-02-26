@@ -13,18 +13,14 @@ thread_local dsac::fiber_scheduler* kScheduler;
 namespace dsac {
 
 class fiber_scheduler::fiber_scheduler_pimpl final {
-  auto schedule_to(fiber* fiber) -> void {
+  auto switch_to(fiber* fiber) -> void {
     current_fiber_ = fiber;
     current_fiber_->set_state(fiber_state::running);
-    switch_to_fiber(current_fiber_);
+    execution_context_.switch_to(current_fiber_->get_execution_context());
     current_fiber_ = nullptr;
   }
 
-  auto switch_to_fiber(fiber* fiber) -> void {
-    execution_context_.switch_to(fiber->get_execution_context());
-  }
-
-  auto dispatch(fiber* fiber) -> void {
+  auto dispatch_of(fiber* fiber) -> void {
     delete fiber;
   }
 
@@ -33,8 +29,8 @@ public:
     fiber_queue_.push_back(fiber::make(std::move(entry_routine)));
     while (not fiber_queue_.empty()) {
       fiber* fiber = fiber_queue_.pop_front();
-      schedule_to(fiber);
-      dispatch(fiber);
+      switch_to(fiber);
+      dispatch_of(fiber);
     }
   }
 
