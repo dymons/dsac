@@ -13,23 +13,11 @@ thread_local dsac::fiber_scheduler* kScheduler;
 namespace dsac {
 
 class fiber_scheduler::fiber_scheduler_pimpl final {
-  auto schedule_to(fiber* fiber) -> auto* {
-    struct fiber_scope_guard final {
-      fiber_scheduler_pimpl* scheduler;
-
-      fiber_scope_guard(fiber_scheduler_pimpl* scheduler, class fiber* fiber) noexcept
-        : scheduler(scheduler) {
-        scheduler->current_fiber_ = fiber;
-        scheduler->current_fiber_->set_state(fiber_state::running);
-      }
-      ~fiber_scope_guard() noexcept {
-        scheduler->current_fiber_ = nullptr;
-      }
-    };
-
-    auto fiber_guard = fiber_scope_guard{this, fiber};
-    switch_to_fiber(fiber);
-    return fiber;
+  auto schedule_to(fiber* fiber) -> void {
+    current_fiber_ = fiber;
+    current_fiber_->set_state(fiber_state::running);
+    switch_to_fiber(current_fiber_);
+    current_fiber_ = nullptr;
   }
 
   auto switch_to_fiber(fiber* fiber) -> void {
@@ -44,7 +32,9 @@ public:
   auto schedule(fiber_routine entry_routine) & -> void {
     fiber_queue_.push_back(fiber::make(std::move(entry_routine)));
     while (not fiber_queue_.empty()) {
-      dispatch(schedule_to(fiber_queue_.pop_front()));
+      fiber* fiber = fiber_queue_.pop_front();
+      schedule_to(fiber);
+      dispatch(fiber);
     }
   }
 
