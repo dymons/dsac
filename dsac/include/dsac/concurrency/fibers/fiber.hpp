@@ -15,14 +15,18 @@ enum class fiber_state : unsigned {
 };
 
 class fiber : public intrusive::list_node_base<fiber> {
-  fiber_routine           fiber_routine_;
-  fiber_state             fiber_state_;
-  fiber_execution_context fiber_execution_context_;
+  fiber_routine     fiber_routine_;
+  fiber_state       fiber_state_;
+  execution_context fiber_execution_context_;
 
   explicit fiber(fiber_routine routine);
 
 public:
   [[nodiscard]] static fiber* make(fiber_routine routine);
+
+  auto set_state(fiber_state state) noexcept -> void;
+
+  auto get_execution_context() & noexcept -> execution_context&;
 };
 
 }  // namespace dsac

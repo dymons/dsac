@@ -12,4 +12,12 @@ fiber* fiber::make(fiber_routine routine) {
   return new fiber{std::move(routine)};
 }
 
+auto fiber::set_state(fiber_state state) noexcept -> void {
+  fiber_state_ = state;
+}
+
+auto fiber::get_execution_context() & noexcept -> execution_context& {
+  return fiber_execution_context_;
+}
+
 }  // namespace dsac
