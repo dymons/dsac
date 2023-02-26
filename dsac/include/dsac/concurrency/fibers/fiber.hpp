@@ -19,8 +19,10 @@ class fiber : public intrusive::list_node_base<fiber> {
   fiber_state             fiber_state_;
   fiber_execution_context fiber_execution_context_;
 
-public:
   explicit fiber(fiber_routine routine);
+
+public:
+  [[nodiscard]] static fiber* make(fiber_routine routine);
 };
 
 }  // namespace dsac

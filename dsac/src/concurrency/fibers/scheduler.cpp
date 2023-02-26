@@ -12,34 +12,28 @@ thread_local dsac::fiber_scheduler* kScheduler;
 
 namespace dsac {
 
-class fiber_scheduler::fiber_scheduler_pimpl final : public fiber {
+class fiber_scheduler::fiber_scheduler_pimpl final {
 public:
-  explicit fiber_scheduler_pimpl(fiber_routine entry_routine)
-    : fiber(std::move(entry_routine)) {
-  }
-
-  auto schedule() & -> void {
-    fiber_queue_.push_back(this);
+  auto schedule(fiber_routine entry_routine) & -> void {
+    fiber_queue_.push_back(fiber::make(std::move(entry_routine)));
     while (not fiber_queue_.empty()) {
-      if (auto* fiber = fiber_queue_.pop_front(); this != fiber) {
-        delete fiber;  // NOLINT(cppcoreguidelines-owning-memory)
-      }
+      delete fiber_queue_.pop_front();  // NOLINT(cppcoreguidelines-owning-memory)
     }
   }
 
   auto submit(fiber_routine routine) -> void {
-    fiber_queue_.push_back(new fiber{std::move(routine)});  // NOLINT(cppcoreguidelines-owning-memory)
+    fiber_queue_.push_back(fiber::make(std::move(routine)));  // NOLINT(cppcoreguidelines-owning-memory)
   }
 
 private:
   intrusive::list<fiber> fiber_queue_;
 };
 
-fiber_scheduler::fiber_scheduler(fiber_routine entry_routine)
-  : pimpl_(make_shared<fiber_scheduler::fiber_scheduler_pimpl>(std::move(entry_routine))) {
+fiber_scheduler::fiber_scheduler()
+  : pimpl_(make_shared<fiber_scheduler::fiber_scheduler_pimpl>()) {
 }
 
-auto fiber_scheduler::schedule() -> void {
+auto fiber_scheduler::schedule(fiber_routine entry_routine) -> void {
   struct fiber_scheduler_scope_guard final {
     explicit fiber_scheduler_scope_guard(fiber_scheduler* scheduler) noexcept {
       kScheduler = scheduler;
@@ -53,7 +47,7 @@ auto fiber_scheduler::schedule() -> void {
     }
   };
 
-  fiber_scheduler_scope_guard(this)->pimpl_->schedule();
+  fiber_scheduler_scope_guard(this)->pimpl_->schedule(std::move(entry_routine));
 }
 
 auto fiber_scheduler::submit(fiber_routine routine) -> void {

@@ -10,11 +10,11 @@ class fiber_scheduler final {
 public:
   // Constructors
 
-  explicit fiber_scheduler(fiber_routine entry_routine);
+  fiber_scheduler();
 
   // Modifiers
 
-  auto schedule() -> void;
+  auto schedule(fiber_routine entry_routine) -> void;
 
   auto submit(fiber_routine routine) -> void;
 
