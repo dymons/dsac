@@ -51,20 +51,10 @@ fiber_scheduler::fiber_scheduler()
 }
 
 auto fiber_scheduler::schedule(fiber_routine entry_routine) -> void {
-  struct fiber_scheduler_scope_guard final {
-    explicit fiber_scheduler_scope_guard(fiber_scheduler* scheduler) noexcept {
-      kScheduler = scheduler;
-    }
-    ~fiber_scheduler_scope_guard() noexcept {
-      kScheduler = nullptr;
-    }
+  auto defer_scheduler = defer([this]() noexcept { kScheduler = nullptr; });
 
-    auto operator->() noexcept -> fiber_scheduler* {
-      return kScheduler;
-    }
-  };
-
-  fiber_scheduler_scope_guard(this)->pimpl_->schedule(std::move(entry_routine));
+  kScheduler = this;
+  kScheduler->pimpl_->schedule(std::move(entry_routine));
 }
 
 auto fiber_scheduler::submit(fiber_routine routine) -> void {
