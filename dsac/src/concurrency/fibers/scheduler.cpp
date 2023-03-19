@@ -3,6 +3,7 @@
 #include <dsac/concurrency/fibers/scheduler.hpp>
 #include <dsac/concurrency/fibers/stack/stack_allocator.hpp>
 #include <dsac/container/intrusive/list.hpp>
+#include <dsac/functional/scope_exit.hpp>
 
 namespace {
 
@@ -14,10 +15,11 @@ namespace dsac {
 
 class fiber_scheduler::fiber_scheduler_pimpl final {
   auto switch_to(fiber* fiber) -> void {
+    auto defer_fiber = defer([this] { this->current_fiber_ = nullptr; });
+
     current_fiber_ = fiber;
     current_fiber_->set_state(fiber_state::running);
     execution_context_.switch_to(current_fiber_->get_execution_context());
-    current_fiber_ = nullptr;
   }
 
   auto dispatch_of(fiber* fiber) -> void {
