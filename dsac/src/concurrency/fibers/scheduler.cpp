@@ -3,7 +3,7 @@
 #include <dsac/concurrency/fibers/scheduler.hpp>
 #include <dsac/concurrency/fibers/stack/stack_allocator.hpp>
 #include <dsac/container/intrusive/list.hpp>
-#include <dsac/functional/scope_exit.hpp>
+#include <dsac/functional/defer.hpp>
 
 namespace {
 
