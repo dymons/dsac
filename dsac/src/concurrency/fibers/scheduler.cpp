@@ -15,7 +15,7 @@ namespace dsac {
 
 class fiber_scheduler::fiber_scheduler_pimpl final {
   auto switch_to(fiber* fiber) -> void {
-    auto defer_fiber = defer([this] { this->current_fiber_ = nullptr; });
+    auto defer_fiber = defer([this]() noexcept { this->current_fiber_ = nullptr; });
 
     current_fiber_ = fiber;
     current_fiber_->set_state(fiber_state::running);
