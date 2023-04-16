@@ -82,12 +82,7 @@ int _main(std::span<const std::string_view> const args) {
     });
   }
 
-  server.Get(
-      "/ping",
-      []([[maybe_unused]] const httplib::Request& request, [[maybe_unused]] httplib::Response& response) {
-        (void)request;
-      }
-  );
+  server.Get("/ping", [](const httplib::Request&, httplib::Response&) {});
 
   server.listen("0.0.0.0", port.value());
   executor->join();
