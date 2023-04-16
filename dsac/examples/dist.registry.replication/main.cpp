@@ -6,6 +6,8 @@
 
 #include <iostream>
 #include <optional>
+#include <span>
+#include <string_view>
 #include <thread>
 
 #include <nlohmann/json.hpp>
@@ -18,12 +20,13 @@ template <typename T, typename U>
 auto cast_to(U) -> T;
 
 template <>
-auto cast_to<int, char*>(char* string) -> int {  // NOLINT(readability-non-const-parameter)
-  return std::stoi(string);
+auto cast_to<int, std::string_view>(std::string_view string) -> int {
+  return std::stoi(string.data());
 }
 
 template <typename T, typename Iterator>
-auto get_parameter_from_args_as(Iterator begin, Iterator end, std::string parameter) -> std::optional<T> try {
+[[nodiscard]] auto get_parameter_from_args_as(Iterator begin, Iterator end, std::string parameter)
+    -> std::optional<T> try {
   Iterator it = std::find(begin, end, parameter);
   if (it != end && ++it != end) {
     return cast_to<T>(*it);
@@ -34,10 +37,8 @@ auto get_parameter_from_args_as(Iterator begin, Iterator end, std::string parame
   return std::nullopt;
 }
 
-}  // namespace
-
-int main(int args, char** argv) {
-  std::optional<int> const port = get_parameter_from_args_as<int>(argv, std::next(argv, args), "--port");
+int _main(std::span<const std::string_view> const args) {
+  std::optional<int> const port = get_parameter_from_args_as<int>(args.begin(), args.end(), "--port");
   if (!port.has_value()) {
     std::cerr << "The server port is not set. Please specify the port using the key --port <port>";
     return -1;
@@ -90,4 +91,14 @@ int main(int args, char** argv) {
 
   server.listen("0.0.0.0", port.value());
   executor->join();
+
+  return 0;
+}
+
+}  // namespace
+
+int main(int const argc, char const* const* argv) {
+  std::vector<std::string_view> args(argv, std::next(argv, static_cast<std::ptrdiff_t>(argc)));
+
+  return _main(args);
 }
