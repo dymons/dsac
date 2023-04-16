@@ -17,10 +17,10 @@ namespace {
 using dsac::presentation::controller;
 
 template <typename T, typename U>
-auto cast_to(U) -> T;
+[[nodiscard]] auto cast_to(U) -> T;
 
 template <>
-auto cast_to<int, std::string_view>(std::string_view string) -> int {
+[[nodiscard]] auto cast_to<int, std::string_view>(std::string_view string) -> int {
   return std::stoi(string.data());
 }
 
