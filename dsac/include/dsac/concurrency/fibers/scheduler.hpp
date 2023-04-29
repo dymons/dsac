@@ -20,7 +20,9 @@ public:
 
   auto running_entry_routing(fiber_routine entry_routine) -> void;
 
-  auto submit(fiber_routine routine) -> void;
+  auto submit_routine(fiber_routine routine) -> void;
+
+  auto terminate() -> void;
 
 private:
   class fiber_scheduler_pimpl;

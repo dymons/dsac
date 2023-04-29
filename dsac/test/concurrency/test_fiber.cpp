@@ -5,5 +5,7 @@
 
 TEST_CASE("Fiber scheduler", "[fibers]") {
   auto scheduler = dsac::fiber_scheduler::make();
-  scheduler.running_entry_routing([]() -> void {});
+  scheduler.running_entry_routing([] -> void {
+    int a = 1;
+  });
 }
