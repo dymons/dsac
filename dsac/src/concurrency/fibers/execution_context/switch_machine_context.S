@@ -1,15 +1,9 @@
-#if (APPLE)
-  #define ASM_SYMBOL(name) _##name
-#else
-  #define ASM_SYMBOL(name) name
-#endif
+# see: https://gitlab.com/Lipovsky/tinyfibers
+
+#define ASM_SYMBOL(name) name
 
 .global ASM_SYMBOL(setup_machine_context)
 .global ASM_SYMBOL(switch_machine_context)
-
-# https://eli.thegreenplace.net/2011/02/04/where-the-top-of-the-stack-is-on-x86/
-
-# setup_machine_context(stack, trampoline, arg)
 
 ASM_SYMBOL(setup_machine_context):
     # Arguments
@@ -33,7 +27,7 @@ ASM_SYMBOL(setup_machine_context):
 
     # Prepare for context switch
 
-    # 1) Return address for SwitchMachineContext
+    # 1) Return address for switch_machine_context
     pushq %rsi
 
     # 2) Callee-saved registers
@@ -44,7 +38,7 @@ ASM_SYMBOL(setup_machine_context):
     pushq $0 # rbx
     pushq $0 # rbp
 
-    # Return value for SetupMachineContext
+    # Return value for setup_machine_context
     movq %rsp, %rax
 
     # Restore callstack
@@ -61,9 +55,6 @@ ASM_SYMBOL(switch_machine_context):
     # 1. Save current execution context to 'from'
 
     # 1.1 Save callee-saved registers on top of the current stack
-
-    # https://stackoverflow.com/questions/18024672/what-registers-are-preserved-through-a-linux-x86-64-function-call
-    # https://uclibc.org/docs/psABI-x86_64.pdf
 
     pushq %r15
     pushq %r14
