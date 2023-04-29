@@ -7,7 +7,7 @@
 
 namespace {
 
-thread_local dsac::fiber_scheduler* kScheduler;
+thread_local dsac::fiber_scheduler* kScheduler{};
 
 }  // namespace
 
@@ -15,11 +15,11 @@ namespace dsac {
 
 class fiber_scheduler::fiber_scheduler_pimpl final {
   auto switch_to(fiber* fiber) -> void {
-    auto defer_fiber = defer([this]() noexcept { this->current_fiber_ = nullptr; });
+    [[maybe_unused]] auto defer_fiber = defer([this]() noexcept { this->current_fiber_ = nullptr; });
 
     current_fiber_ = fiber;
     current_fiber_->set_state(fiber_state::running);
-    execution_context_.switch_to(current_fiber_->get_execution_context());
+    scheduler_execution_context_.switch_to(current_fiber_->get_execution_context());
   }
 
   auto dispatch_of(fiber* fiber) -> void {
@@ -27,7 +27,7 @@ class fiber_scheduler::fiber_scheduler_pimpl final {
   }
 
 public:
-  auto schedule(fiber_routine entry_routine) & -> void {
+  auto schedule(fiber_routine&& entry_routine) & -> void {
     fiber_queue_.push_back(fiber::make(std::move(entry_routine)));
     while (not fiber_queue_.empty()) {
       fiber* fiber = fiber_queue_.pop_front();
@@ -43,15 +43,19 @@ public:
 private:
   fiber*                 current_fiber_{};
   intrusive::list<fiber> fiber_queue_{};
-  execution_context      execution_context_{};
+  execution_context      scheduler_execution_context_{};
 };
+
+auto fiber_scheduler::make() -> fiber_scheduler {
+  return {};
+}
 
 fiber_scheduler::fiber_scheduler()
   : pimpl_(make_shared<fiber_scheduler::fiber_scheduler_pimpl>()) {
 }
 
-auto fiber_scheduler::schedule(fiber_routine entry_routine) -> void {
-  auto defer_scheduler = defer([this]() noexcept { kScheduler = nullptr; });
+auto fiber_scheduler::running_entry_routing(fiber_routine entry_routine) -> void {
+  [[maybe_unused]] auto defer_scheduler = defer([this]() noexcept { kScheduler = nullptr; });
 
   kScheduler = this;
   kScheduler->pimpl_->schedule(std::move(entry_routine));

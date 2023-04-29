@@ -4,6 +4,6 @@
 #include <dsac/container/intrusive/list.hpp>
 
 TEST_CASE("Fiber scheduler", "[fibers]") {
-  auto scheduler = dsac::fiber_scheduler{};
-  scheduler.schedule([]() -> void {});
+  auto scheduler = dsac::fiber_scheduler::make();
+  scheduler.running_entry_routing([]() -> void {});
 }

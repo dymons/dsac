@@ -8,7 +8,7 @@ fiber::fiber(fiber_routine routine)
   , fiber_execution_context_() {
 }
 
-fiber* fiber::make(fiber_routine routine) {
+fiber* fiber::make(fiber_routine&& routine) {
   return new fiber{std::move(routine)};
 }
 

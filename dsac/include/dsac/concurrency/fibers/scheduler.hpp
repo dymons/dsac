@@ -7,14 +7,18 @@
 namespace dsac {
 
 class fiber_scheduler final {
-public:
   // Constructors
 
   fiber_scheduler();
 
+public:
+  // Constructors
+
+  [[nodiscard]] static auto make() -> fiber_scheduler;
+
   // Modifiers
 
-  auto schedule(fiber_routine entry_routine) -> void;
+  auto running_entry_routing(fiber_routine entry_routine) -> void;
 
   auto submit(fiber_routine routine) -> void;
 

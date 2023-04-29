@@ -22,7 +22,7 @@ class fiber : public intrusive::list_node_base<fiber> {
   explicit fiber(fiber_routine routine);
 
 public:
-  [[nodiscard]] static fiber* make(fiber_routine routine);
+  [[nodiscard]] static fiber* make(fiber_routine&& routine);
 
   auto set_state(fiber_state state) noexcept -> void;
 
