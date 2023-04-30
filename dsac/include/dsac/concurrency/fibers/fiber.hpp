@@ -9,24 +9,24 @@
 
 namespace dsac {
 
-using fiber_execution_context = execution_context;
-
-class fiber final : public intrusive::list_node_base<fiber>, public trampoline_base {
-  fiber_scheduler*        fiber_scheduler_{};
-  fiber_routine           fiber_routine_{};
-  fiber_stack             fiber_stack_{};
-  fiber_execution_context fiber_execution_context_{};
+class [[nodiscard]] fiber final : public intrusive::list_node_base<fiber>, public trampoline_base {
+  fiber_scheduler*  fiber_scheduler_{};
+  fiber_routine     fiber_routine_{};
+  fiber_stack       fiber_stack_{};
+  execution_context fiber_execution_context_{};
 
   // Constructors
 
   explicit fiber(fiber_scheduler* scheduler, fiber_stack stack, fiber_routine routine);
 
 public:
-  ~fiber() override = default;
-
   // Constructors
 
   [[nodiscard]] static fiber* make(fiber_scheduler* scheduler, fiber_stack stack, fiber_routine routine);
+
+  // Destructor
+
+  ~fiber() final = default;
 
   // Observers
 
