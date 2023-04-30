@@ -33,6 +33,7 @@ auto fiber_stack::make(mmap_allocator fiber_stack_allocator) -> fiber_stack {
 
 auto fiber_stack::make(stack_pages need_pages) -> fiber_stack {
   auto stack = mmap_allocator::make(need_pages.get());
+  stack.protect_pages(/*offset=*/0UL, /*count=*/1UL);
   return fiber_stack::make(std::move(stack));
 }
 

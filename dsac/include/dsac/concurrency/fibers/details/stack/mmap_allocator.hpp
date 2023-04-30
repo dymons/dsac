@@ -38,6 +38,10 @@ public:
   [[nodiscard]] auto view() const noexcept -> std::span<char>;
 
   [[nodiscard]] static auto get_page_bytes() -> std::size_t;
+
+  // Modifiers
+
+  void protect_pages(std::size_t offset, std::size_t count);
 };
 
 }  // namespace dsac

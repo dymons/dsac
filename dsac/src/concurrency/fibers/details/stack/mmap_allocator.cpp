@@ -54,4 +54,12 @@ auto mmap_allocator::make(std::size_t pages) -> mmap_allocator {
   return mmap_allocator{static_cast<char*>(start), length};
 }
 
+void mmap_allocator::protect_pages(std::size_t offset, std::size_t count) {
+  [[maybe_unused]] int ret = mprotect(
+      /*addr=*/reinterpret_cast<void*>(start_ + (offset * get_page_bytes())),
+      /*len=*/count * get_page_bytes(),
+      /*prot=*/PROT_NONE
+  );
+}
+
 }  // namespace dsac
