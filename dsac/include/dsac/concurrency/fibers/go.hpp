@@ -4,6 +4,6 @@
 
 namespace dsac {
 
-auto go(fiber_routine entry_routine) -> void;
+auto go(fiber_routine routine) -> void;
 
 }  // namespace dsac

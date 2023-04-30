@@ -4,10 +4,28 @@
 
 using dsac::go;
 
-TEST_CASE("Fiber scheduler", "[fibers]") {
+TEST_CASE("Execution of entry routine in the scheduler", "[fibers][default]") {
   auto executed = bool{};
 
-  go([&] -> void { executed = true; });
+  // clang-format off
+  go([&] -> void {
+    executed = true;
+  });
+  // clang-format on
+
+  REQUIRE(executed);
+}
+
+TEST_CASE("Execution of the child routine in the scheduler", "[fibers][default]") {
+  auto executed = bool{};
+
+  // clang-format off
+  go([&] -> void {
+    go([&] -> void {
+      executed = true;
+    });
+  });
+  // clang-format on
 
   REQUIRE(executed);
 }

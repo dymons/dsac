@@ -22,6 +22,12 @@ public:
 
   auto terminate() -> void;
 
+  auto submit_routing(fiber_routine routine) -> void;
+
+  // Observers
+
+  static fiber_scheduler* get_current_scheduler();
+
 private:
   class fiber_scheduler_pimpl;
   shared_ptr<fiber_scheduler_pimpl> pimpl_;

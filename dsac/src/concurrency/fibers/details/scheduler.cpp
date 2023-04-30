@@ -38,6 +38,10 @@ public:
     scheduler_current_fiber_->get_execution_context().switch_to(scheduler_execution_context_);
   }
 
+  auto submit_routing(fiber_routine routine) -> void {
+    scheduler_fiber_queue_.push_back(make_fiber(std::move(routine)));
+  }
+
 private:
   fiber*                 scheduler_current_fiber_{};
   intrusive::list<fiber> scheduler_fiber_queue_{};
@@ -62,6 +66,14 @@ auto fiber_scheduler::running_entry_routing(fiber_routine entry_routine) -> void
 
 auto fiber_scheduler::terminate() -> void {
   pimpl_->terminate();
+}
+
+auto fiber_scheduler::submit_routing(fiber_routine routine) -> void {
+  pimpl_->submit_routing(std::move(routine));
+}
+
+fiber_scheduler* fiber_scheduler::get_current_scheduler() {
+  return kScheduler;
 }
 
 }  // namespace dsac
