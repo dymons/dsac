@@ -17,7 +17,21 @@ public:
 
   mmap_allocator() = default;
 
+  mmap_allocator(const mmap_allocator&) = delete;
+
+  mmap_allocator(mmap_allocator&& that);
+
   [[nodiscard]] static auto make(std::size_t pages) -> mmap_allocator;
+
+  // Destructor
+
+  ~mmap_allocator();
+
+  // Assignment
+
+  mmap_allocator& operator=(const mmap_allocator&) = delete;
+
+  mmap_allocator& operator=(mmap_allocator&& that);
 
   // Observers
 

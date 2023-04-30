@@ -11,6 +11,25 @@ mmap_allocator::mmap_allocator(char* start, size_t size) noexcept
   , size_(size) {
 }
 
+mmap_allocator::mmap_allocator(mmap_allocator&& that) {
+  std::swap(start_, that.start_);
+  std::swap(size_, that.size_);
+}
+
+mmap_allocator& mmap_allocator::operator=(mmap_allocator&& that) {
+  std::swap(start_, that.start_);
+  std::swap(size_, that.size_);
+  return *this;
+}
+
+mmap_allocator::~mmap_allocator() {
+  if (start_ == nullptr) {
+    return;
+  }
+
+  [[maybe_unused]] int ret = munmap(reinterpret_cast<void*>(start_), size_);
+}
+
 auto mmap_allocator::view() const noexcept -> std::span<char> {
   return {start_, size_};
 }

@@ -38,6 +38,10 @@ public:
   // Constructors
 
   [[nodiscard]] auto get_free_stack() -> fiber_stack;
+
+  // Modifiers
+
+  auto release_stack(fiber_stack stack) -> void;
 };
 
 }  // namespace dsac

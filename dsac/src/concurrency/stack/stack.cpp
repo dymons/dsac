@@ -13,7 +13,7 @@ const auto kDefaultStackBytes = stack_bytes{64_KiB};
 }  // namespace
 
 fiber_stack::fiber_stack(mmap_allocator fiber_stack_allocator) noexcept
-  : fiber_stack_allocator_(fiber_stack_allocator) {
+  : fiber_stack_allocator_(std::move(fiber_stack_allocator)) {
 }
 
 auto fiber_stack::make(stack_bytes need_bytes) -> fiber_stack {
@@ -28,12 +28,12 @@ auto fiber_stack::make(stack_bytes need_bytes) -> fiber_stack {
 }
 
 auto fiber_stack::make(mmap_allocator fiber_stack_allocator) -> fiber_stack {
-  return fiber_stack{fiber_stack_allocator};
+  return fiber_stack{std::move(fiber_stack_allocator)};
 }
 
 auto fiber_stack::make(stack_pages need_pages) -> fiber_stack {
   auto stack = mmap_allocator::make(need_pages.get());
-  return fiber_stack::make(stack);
+  return fiber_stack::make(std::move(stack));
 }
 
 auto fiber_stack::view() const noexcept -> std::span<char> {
@@ -45,9 +45,13 @@ auto fiber_stack_allocator::get_free_stack() -> fiber_stack {
     return fiber_stack::make(kDefaultStackBytes);
   }
 
-  fiber_stack free_stack = free_stack_.back();
+  fiber_stack free_stack = std::move(free_stack_.back());
   free_stack_.pop_back();
   return free_stack;
+}
+
+auto fiber_stack_allocator::release_stack(fiber_stack stack) -> void {
+  free_stack_.push_back(std::move(stack));
 }
 
 }  // namespace dsac
