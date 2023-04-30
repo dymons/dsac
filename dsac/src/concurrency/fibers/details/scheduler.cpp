@@ -1,7 +1,7 @@
-#include <dsac/concurrency/fibers/execution_context/execution_context.hpp>
-#include <dsac/concurrency/fibers/fiber.hpp>
-#include <dsac/concurrency/fibers/scheduler.hpp>
-#include <dsac/concurrency/fibers/stack/stack.hpp>
+#include "dsac/concurrency/fibers/details/scheduler.hpp"
+#include <dsac/concurrency/fibers/details/execution_context/execution_context.hpp>
+#include <dsac/concurrency/fibers/details/fiber.hpp>
+#include <dsac/concurrency/fibers/details/stack/stack.hpp>
 #include <dsac/container/intrusive/list.hpp>
 #include <dsac/functional/defer.hpp>
 

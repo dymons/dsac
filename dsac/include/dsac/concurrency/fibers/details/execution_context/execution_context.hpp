@@ -2,7 +2,7 @@
 
 #include <span>
 
-#include <dsac/concurrency/fibers/trampoline.hpp>
+#include "dsac/concurrency/fibers/details/trampoline.hpp"
 
 namespace dsac {
 

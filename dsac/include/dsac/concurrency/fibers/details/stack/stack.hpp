@@ -1,7 +1,7 @@
 #pragma once
 
-#include <dsac/concurrency/fibers/stack/mmap_allocator.hpp>
-#include <dsac/functional/strong_type.hpp>
+#include "dsac/functional/strong_type.hpp"
+#include "mmap_allocator.hpp"
 
 #include <vector>
 

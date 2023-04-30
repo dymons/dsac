@@ -1,12 +1,13 @@
 #include <catch2/catch.hpp>
 
-#include <dsac/concurrency/fibers/scheduler.hpp>
+#include <dsac/concurrency/fibers/go.hpp>
+
+using dsac::go;
 
 TEST_CASE("Fiber scheduler", "[fibers]") {
   auto executed = bool{};
 
-  auto scheduler = dsac::fiber_scheduler::make();
-  scheduler.running_entry_routing([&executed] -> void { executed = true; });
+  go([&] -> void { executed = true; });
 
   REQUIRE(executed);
 }

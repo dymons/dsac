@@ -1,4 +1,4 @@
-#include <dsac/concurrency/fibers/stack/stack.hpp>
+#include <dsac/concurrency/fibers/details/stack/stack.hpp>
 
 namespace dsac {
 

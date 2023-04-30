@@ -1,6 +1,6 @@
 #pragma once
 
-#include <dsac/functional/function2.hpp>
+#include "dsac/functional/function2.hpp"
 
 namespace dsac {
 

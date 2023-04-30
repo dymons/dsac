@@ -1,4 +1,4 @@
-#include <dsac/concurrency/fibers/stack/mmap_allocator.hpp>
+#include <dsac/concurrency/fibers/details/stack/mmap_allocator.hpp>
 
 #include <unistd.h>
 
