@@ -23,7 +23,7 @@ mmap_allocator& mmap_allocator::operator=(mmap_allocator&& that) {
 }
 
 mmap_allocator::~mmap_allocator() {
-  if (start_ == nullptr) {
+  if (nullptr == start_) {
     return;
   }
 
