@@ -21,12 +21,12 @@ class fiber_scheduler::fiber_scheduler_pimpl final {
     scheduler_execution_context_.switch_to(scheduler_current_fiber_->get_execution_context());
   }
 
-  [[gnu::always_inline]] auto make_fiber(fiber_routine&& entry_routine) -> fiber* {
+  [[gnu::always_inline]] auto make_fiber(fiber_routine entry_routine) -> fiber* {
     return fiber::make(kScheduler, scheduler_stack_allocator_.get_free_stack(), std::move(entry_routine));
   }
 
 public:
-  auto running_entry_routing(fiber_routine&& entry_routine) & -> void {
+  auto running_entry_routing(fiber_routine entry_routine) & -> void {
     scheduler_fiber_queue_.push_back(make_fiber(std::move(entry_routine)));
     while (not scheduler_fiber_queue_.empty()) {
       switch_to(scheduler_fiber_queue_.pop_front());
