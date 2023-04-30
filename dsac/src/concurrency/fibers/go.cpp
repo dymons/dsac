@@ -4,7 +4,7 @@
 namespace dsac {
 
 auto go(fiber_routine entry_routine) -> void {
-  auto scheduler = dsac::fiber_scheduler::make();
+  auto scheduler = fiber_scheduler::make();
   scheduler.running_entry_routing(std::move(entry_routine));
 }
 
