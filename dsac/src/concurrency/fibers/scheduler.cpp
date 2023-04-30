@@ -15,7 +15,7 @@ namespace dsac {
 
 class fiber_scheduler::fiber_scheduler_pimpl final {
   auto switch_to(fiber* fiber) -> void {
-    [[maybe_unused]] auto defer_fiber = defer([this]() noexcept { delete this->scheduler_current_fiber_; });
+    [[maybe_unused]] auto defer_fiber = defer([this] noexcept { delete this->scheduler_current_fiber_; });
 
     scheduler_current_fiber_ = fiber;
     scheduler_execution_context_.switch_to(scheduler_current_fiber_->get_execution_context());
@@ -54,7 +54,7 @@ fiber_scheduler::fiber_scheduler()
 }
 
 auto fiber_scheduler::running_entry_routing(fiber_routine entry_routine) -> void {
-  [[maybe_unused]] auto defer_scheduler = defer([]() noexcept { kScheduler = nullptr; });
+  [[maybe_unused]] auto defer_scheduler = defer([] noexcept { kScheduler = nullptr; });
 
   kScheduler = this;
   kScheduler->pimpl_->running_entry_routing(std::move(entry_routine));
