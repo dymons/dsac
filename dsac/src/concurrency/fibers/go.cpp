@@ -9,7 +9,7 @@ auto go(fiber_routine routine) -> void {
     return;
   }
 
-  auto scheduler = fiber_scheduler::make();
+  auto scheduler = fiber_scheduler{};
   scheduler.submit(fiber_scheduler::entry_routine{std::move(routine)});
 }
 

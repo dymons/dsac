@@ -30,7 +30,7 @@ void fiber::run() noexcept {
     // ¯\_(ツ)_/¯
   }
 
-  fiber_scheduler_->terminate();
+  fiber_execution_context_.switch_to(fiber_scheduler_->execution_context_);
 
   std::abort();
 }

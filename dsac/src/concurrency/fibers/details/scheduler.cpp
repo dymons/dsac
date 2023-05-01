@@ -11,10 +11,6 @@ thread_local dsac::fiber_scheduler* kScheduler{};
 
 namespace dsac {
 
-auto fiber_scheduler::make() -> fiber_scheduler {
-  return {};
-}
-
 auto fiber_scheduler::submit(entry_routine routine) -> void {
   auto const scheduler_defer = defer([this_ = this]() { kScheduler = this_; }, []() { kScheduler = nullptr; });
 
@@ -37,12 +33,8 @@ auto fiber_scheduler::switch_to(fiber* fiber) -> void {
 }
 
 auto fiber_scheduler::dispatch_of(fiber* fiber) -> void {
+  stacks_.release(std::move(fiber->get_stack()));
   delete fiber;
-}
-
-auto fiber_scheduler::terminate() -> void {
-  stacks_.release(std::move(current_fiber_->get_stack()));
-  current_fiber_->get_execution_context().switch_to(execution_context_);
 }
 
 fiber_scheduler* fiber_scheduler::current() {

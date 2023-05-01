@@ -17,10 +17,6 @@ public:
   using entry_routine = strong_type<fiber_routine, struct EntryRoutine>;
   using child_routine = strong_type<fiber_routine, struct ChildRoutine>;
 
-  // Constructors
-
-  static auto make() -> fiber_scheduler;
-
   // Modifiers
 
   auto submit(entry_routine routine) -> void;
@@ -31,8 +27,10 @@ public:
   static fiber_scheduler* current();
 
 private:
-  auto terminate() -> void;
+  // Modifiers
+
   auto switch_to(fiber* fiber) -> void;
+
   auto dispatch_of(fiber* fiber) -> void;
 
   fiber*                 current_fiber_{};
