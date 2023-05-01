@@ -25,7 +25,7 @@ public:
 
   // Observers
 
-  static fiber_scheduler* get_current_scheduler();
+  static fiber_scheduler* current();
 
 private:
 
