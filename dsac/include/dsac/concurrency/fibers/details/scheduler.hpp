@@ -11,6 +11,8 @@ namespace dsac {
 class fiber;
 
 class fiber_scheduler final {
+  friend class fiber;
+
 public:
   using entry_routine = strong_type<fiber_routine, struct EntryRoutine>;
   using child_routine = strong_type<fiber_routine, struct ChildRoutine>;
@@ -24,13 +26,12 @@ public:
   auto submit(entry_routine routine) -> void;
   auto submit(child_routine routine) -> void;
 
-  auto terminate() -> void;
-
   // Observers
 
   static fiber_scheduler* current();
 
 private:
+  auto terminate() -> void;
   auto switch_to(fiber* fiber) -> void;
   auto dispatch_of(fiber* fiber) -> void;
 
