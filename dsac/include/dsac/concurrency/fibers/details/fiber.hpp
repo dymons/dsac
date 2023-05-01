@@ -1,13 +1,14 @@
 #pragma once
 
-#include "dsac/concurrency/fibers/details/execution_context/execution_context.hpp"
-#include "dsac/concurrency/fibers/details/routine/routine.hpp"
-#include "dsac/concurrency/fibers/details/stack/stack.hpp"
-#include "dsac/container/intrusive/list.hpp"
-#include "scheduler.hpp"
-#include "trampoline.hpp"
+#include <dsac/concurrency/fibers/details/execution_context/execution_context.hpp>
+#include <dsac/concurrency/fibers/details/routine/routine.hpp>
+#include <dsac/concurrency/fibers/details/stack/stack.hpp>
+#include <dsac/container/intrusive/list.hpp>
+#include <dsac/concurrency/fibers/details/trampoline.hpp>
 
 namespace dsac {
+
+class fiber_scheduler;
 
 class [[nodiscard]] fiber final : public intrusive::list_node_base<fiber>, public trampoline_base {
   fiber_scheduler*  fiber_scheduler_{};

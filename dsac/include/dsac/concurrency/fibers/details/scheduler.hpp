@@ -1,16 +1,15 @@
 #pragma once
 
-#include <dsac/memory/shared_ptr.hpp>
-
 #include <dsac/concurrency/fibers/details/routine/routine.hpp>
+#include <dsac/concurrency/fibers/details/execution_context/execution_context.hpp>
+#include <dsac/concurrency/fibers/details/stack/stack.hpp>
+#include <dsac/container/intrusive/list.hpp>
 
 namespace dsac {
 
+class fiber;
+
 class fiber_scheduler final {
-  // Constructors
-
-  fiber_scheduler();
-
 public:
   // Constructors
 
@@ -29,8 +28,14 @@ public:
   static fiber_scheduler* get_current_scheduler();
 
 private:
-  class fiber_scheduler_pimpl;
-  shared_ptr<fiber_scheduler_pimpl> pimpl_;
+
+  auto switch_to(fiber* fiber) -> void;
+  auto dispatch_of(fiber* fiber) -> void;
+
+  fiber*                 current_fiber_{};
+  intrusive::list<fiber> fibers_{};
+  execution_context      execution_context_{};
+  fiber_stack_allocator  stacks_{};
 };
 
 }  // namespace dsac
