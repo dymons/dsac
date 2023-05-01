@@ -1,9 +1,8 @@
-#include "dsac/concurrency/fibers/details/scheduler.hpp"
 #include <dsac/concurrency/fibers/details/execution_context/execution_context.hpp>
 #include <dsac/concurrency/fibers/details/fiber.hpp>
+#include <dsac/concurrency/fibers/details/scheduler.hpp>
 #include <dsac/concurrency/fibers/details/stack/stack.hpp>
 #include <dsac/container/intrusive/list.hpp>
-#include <dsac/functional/defer.hpp>
 
 namespace {
 
@@ -15,38 +14,39 @@ namespace dsac {
 
 class fiber_scheduler::fiber_scheduler_pimpl final {
   auto switch_to(fiber* fiber) -> void {
-    [[maybe_unused]] auto defer_fiber = defer([this] noexcept { delete this->scheduler_current_fiber_; });
-
-    scheduler_current_fiber_ = fiber;
-    scheduler_execution_context_.switch_to(scheduler_current_fiber_->get_execution_context());
+    current_fiber_ = fiber;
+    execution_context_.switch_to(current_fiber_->get_execution_context());
+    current_fiber_ = nullptr;
   }
 
-  [[gnu::always_inline]] auto make_fiber(fiber_routine entry_routine) -> fiber* {
-    return fiber::make(kScheduler, scheduler_stack_allocator_.get_free_stack(), std::move(entry_routine));
+  auto dispatch_of(fiber* fiber) -> void {
+    delete fiber;
   }
 
 public:
-  auto running_entry_routing(fiber_routine entry_routine) & -> void {
-    scheduler_fiber_queue_.push_back(make_fiber(std::move(entry_routine)));
-    while (not scheduler_fiber_queue_.empty()) {
-      switch_to(scheduler_fiber_queue_.pop_front());
+  auto main(fiber_routine entry_routine) -> void {
+    submit_routing(std::move(entry_routine));
+    while (not fibers_.empty()) {
+      fiber* fiber = fibers_.pop_front();
+      switch_to(fiber);
+      dispatch_of(fiber);
     }
   }
 
   auto terminate() -> void {
-    scheduler_stack_allocator_.release_stack(std::move(scheduler_current_fiber_->get_stack()));
-    scheduler_current_fiber_->get_execution_context().switch_to(scheduler_execution_context_);
+    stacks_.release(std::move(current_fiber_->get_stack()));
+    current_fiber_->get_execution_context().switch_to(execution_context_);
   }
 
   auto submit_routing(fiber_routine routine) -> void {
-    scheduler_fiber_queue_.push_back(make_fiber(std::move(routine)));
+    fibers_.push_back(fiber::make(kScheduler, stacks_.allocate(), std::move(routine)));
   }
 
 private:
-  fiber*                 scheduler_current_fiber_{};
-  intrusive::list<fiber> scheduler_fiber_queue_{};
-  execution_context      scheduler_execution_context_{};
-  fiber_stack_allocator  scheduler_stack_allocator_{};
+  fiber*                 current_fiber_{};
+  intrusive::list<fiber> fibers_{};
+  execution_context      execution_context_{};
+  fiber_stack_allocator  stacks_{};
 };
 
 auto fiber_scheduler::make() -> fiber_scheduler {
@@ -58,10 +58,9 @@ fiber_scheduler::fiber_scheduler()
 }
 
 auto fiber_scheduler::running_entry_routing(fiber_routine entry_routine) -> void {
-  [[maybe_unused]] auto defer_scheduler = defer([] noexcept { kScheduler = nullptr; });
-
   kScheduler = this;
-  kScheduler->pimpl_->running_entry_routing(std::move(entry_routine));
+  kScheduler->pimpl_->main(std::move(entry_routine));
+  kScheduler = nullptr;
 }
 
 auto fiber_scheduler::terminate() -> void {

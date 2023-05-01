@@ -41,18 +41,18 @@ auto fiber_stack::view() const noexcept -> std::span<char> {
   return fiber_stack_allocator_.view();
 }
 
-auto fiber_stack_allocator::get_free_stack() -> fiber_stack {
-  if (free_stack_.empty()) {
+auto fiber_stack_allocator::allocate() -> fiber_stack {
+  if (stacks_.empty()) {
     return fiber_stack::make(kDefaultStackBytes);
   }
 
-  fiber_stack free_stack = std::move(free_stack_.back());
-  free_stack_.pop_back();
-  return free_stack;
+  fiber_stack stack = std::move(stacks_.back());
+  stacks_.pop_back();
+  return stack;
 }
 
-auto fiber_stack_allocator::release_stack(fiber_stack stack) -> void {
-  free_stack_.push_back(std::move(stack));
+auto fiber_stack_allocator::release(fiber_stack stack) -> void {
+  stacks_.push_back(std::move(stack));
 }
 
 }  // namespace dsac

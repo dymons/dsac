@@ -32,16 +32,16 @@ public:
 };
 
 class fiber_stack_allocator final {
-  std::vector<fiber_stack> free_stack_;
+  std::vector<fiber_stack> stacks_;
 
 public:
   // Constructors
 
-  [[nodiscard]] auto get_free_stack() -> fiber_stack;
+  [[nodiscard]] auto allocate() -> fiber_stack;
 
   // Modifiers
 
-  auto release_stack(fiber_stack stack) -> void;
+  auto release(fiber_stack stack) -> void;
 };
 
 }  // namespace dsac
