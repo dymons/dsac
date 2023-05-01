@@ -15,21 +15,25 @@ auto fiber_scheduler::make() -> fiber_scheduler {
   return {};
 }
 
-auto fiber_scheduler::running_entry_routing(fiber_routine entry_routine) -> void {
-  kScheduler = this;
-  submit_routing(std::move(entry_routine));
+auto fiber_scheduler::submit(entry_routine routine) -> void {
+  auto const scheduler_defer = defer([this_ = this]() { kScheduler = this_; }, []() { kScheduler = nullptr; });
+
+  submit(child_routine{std::move(routine).get()});
   while (not fibers_.empty()) {
     fiber* fiber = fibers_.pop_front();
     switch_to(fiber);
     dispatch_of(fiber);
   }
-  kScheduler = nullptr;
+}
+
+auto fiber_scheduler::submit(child_routine routine) -> void {
+  fibers_.push_back(fiber::make(kScheduler, stacks_.allocate(), std::move(routine).get()));
 }
 
 auto fiber_scheduler::switch_to(fiber* fiber) -> void {
-  current_fiber_ = fiber;
+  auto const fiber_defer = defer([&, this]() { current_fiber_ = fiber; }, [this]() { current_fiber_ = nullptr; });
+
   execution_context_.switch_to(current_fiber_->get_execution_context());
-  current_fiber_ = nullptr;
 }
 
 auto fiber_scheduler::dispatch_of(fiber* fiber) -> void {
@@ -39,10 +43,6 @@ auto fiber_scheduler::dispatch_of(fiber* fiber) -> void {
 auto fiber_scheduler::terminate() -> void {
   stacks_.release(std::move(current_fiber_->get_stack()));
   current_fiber_->get_execution_context().switch_to(execution_context_);
-}
-
-auto fiber_scheduler::submit_routing(fiber_routine routine) -> void {
-  fibers_.push_back(fiber::make(kScheduler, stacks_.allocate(), std::move(routine)));
 }
 
 fiber_scheduler* fiber_scheduler::current() {

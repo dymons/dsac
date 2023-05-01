@@ -14,6 +14,10 @@ public:
     return value_;
   }
 
+  auto get() && -> T {
+    return std::move(value_);
+  }
+
 private:
   T value_;
 };

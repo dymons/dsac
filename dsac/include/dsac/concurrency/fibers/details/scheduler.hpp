@@ -1,9 +1,10 @@
 #pragma once
 
-#include <dsac/concurrency/fibers/details/routine/routine.hpp>
 #include <dsac/concurrency/fibers/details/execution_context/execution_context.hpp>
+#include <dsac/concurrency/fibers/details/routine/routine.hpp>
 #include <dsac/concurrency/fibers/details/stack/stack.hpp>
 #include <dsac/container/intrusive/list.hpp>
+#include <dsac/functional/strong_type.hpp>
 
 namespace dsac {
 
@@ -11,24 +12,25 @@ class fiber;
 
 class fiber_scheduler final {
 public:
+  using entry_routine = strong_type<fiber_routine, struct EntryRoutine>;
+  using child_routine = strong_type<fiber_routine, struct ChildRoutine>;
+
   // Constructors
 
-  [[nodiscard]] static auto make() -> fiber_scheduler;
+  static auto make() -> fiber_scheduler;
 
   // Modifiers
 
-  auto running_entry_routing(fiber_routine entry_routine) -> void;
+  auto submit(entry_routine routine) -> void;
+  auto submit(child_routine routine) -> void;
 
   auto terminate() -> void;
-
-  auto submit_routing(fiber_routine routine) -> void;
 
   // Observers
 
   static fiber_scheduler* current();
 
 private:
-
   auto switch_to(fiber* fiber) -> void;
   auto dispatch_of(fiber* fiber) -> void;
 
