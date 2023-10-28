@@ -10,17 +10,42 @@ namespace dsac {
 template <typename Key, typename Value>
 class lru final : public cache_base<Key, Value> {
 public:
+  // Constructors
+
+  /*!
+    \brief
+        User constructor, constructs a cache with limited amount of space.
+  */
   explicit lru(std::size_t capacity);
 
+  // Modifiers
+
+  /*!
+    \brief
+        Add a new value to the cache.
+  */
   auto put(Key key, Value value) -> void final;
 
+  /*!
+    \brief
+        Extract the object from the cache.
+  */
   auto get(Key const& key) -> std::optional<Value> final;
 
+  /*!
+    \brief
+        Returns the number of elements in the cache.
+  */
   auto size() const -> std::size_t final;
 
 private:
-  std::size_t                                                  capacity_;
-  std::list<Value>                                             cache_;
+  // The total number of elements that the cache can hold before evict latest elements
+  std::size_t capacity_;
+
+  // The store for values
+  std::list<Value> cache_;
+
+  // The store to lookup values by key at the cache
   std::unordered_map<Key, typename decltype(cache_)::iterator> hash_;
 };
 
