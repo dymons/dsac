@@ -14,9 +14,12 @@ struct should_be_less_then final {
 }  // namespace
 
 TEST_CASE("Refinement type should be constructable", "[refinement_type][default]") {
-  using register_value = dsac::refinement_type<std::size_t, struct RegisterValue, should_be_less_then<256z>>;
-
-  SECTION("Construct refinement type by using user constructor") {
+  SECTION("Construct refinement type with empty refinements") {
+    using register_value        = dsac::refinement_type<std::size_t, struct RegisterValue>;
+    [[maybe_unused]] auto value = register_value{1z};
+  }
+  SECTION("Construct refinement type with some refinements") {
+    using register_value        = dsac::refinement_type<std::size_t, struct RegisterValue, should_be_less_then<256z>>;
     [[maybe_unused]] auto value = register_value{1z};
   }
 }

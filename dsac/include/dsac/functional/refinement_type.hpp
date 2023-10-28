@@ -18,7 +18,8 @@ class refinement_type final : public strong_type<T, Parameter> {
 public:
   explicit refinement_type(T value)
     : base(std::move(value)) {
-    if (not(Refinement{}(base::get()), ...)) {
+    const auto is_refinementable = (... && Refinement{}(base::get()));
+    if (not is_refinementable) {
       throw runtime_refinement_error{};
     }
   }
