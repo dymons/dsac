@@ -4,11 +4,14 @@
 
 namespace dsac {
 
-template <typename T, typename Parameter>
-class refinement_type : public strong_type<T, Parameter> {
+template <typename T, typename Parameter, typename... Refinements>
+class refinement_type final : public strong_type<T, Parameter> {
+  using base = strong_type<T, Parameter>;
+
 public:
   explicit refinement_type(T value)
-    : strong_type<T, Parameter>(std::move(value)) {
+    : base(std::move(value)) {
+    (Refinements{}(base::get()), ...);
   }
 };
 
