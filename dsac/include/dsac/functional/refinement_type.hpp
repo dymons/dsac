@@ -4,11 +4,6 @@
 
 namespace dsac {
 
-template <typename T, typename Refinement>
-concept Refinementable = requires(T a) {
-  { Refinement{}(a) } -> std::same_as<bool>;
-};
-
 class runtime_refinement_error final : public std::exception {
 public:
   using std::exception::exception;
@@ -18,7 +13,7 @@ public:
   }
 };
 
-template <typename T, typename Parameter, Refinementable<T>... Refinement>
+template <typename T, typename Parameter, typename... Refinement>
 class refinement_type final : public strong_type<T, Parameter> {
   using base = strong_type<T, Parameter>;
 
