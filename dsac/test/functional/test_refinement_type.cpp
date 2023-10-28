@@ -46,8 +46,8 @@ TEST_CASE("Refinement type should throw by refinements", "[refinement_type][defa
             struct RegisterValue,
 
             // Refinements
-            should_be_greater_then<100z>,
-            should_be_less_then<256z>
+            should_be_greater_then<100>,
+            should_be_less_then<256>
         >;
     // clang-format on
 
