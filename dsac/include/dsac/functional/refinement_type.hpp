@@ -4,7 +4,10 @@
 
 namespace dsac {
 
-template <typename T, typename Parameter, typename... Refinement>
+template <typename T, typename Refinement>
+concept Refinementable = requires(T a) { Refinement{}(a); };
+
+template <typename T, typename Parameter, Refinementable<T>... Refinement>
 class refinement_type final : public strong_type<T, Parameter> {
   using base = strong_type<T, Parameter>;
 
