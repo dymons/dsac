@@ -28,7 +28,7 @@ auto lru<Key, T>::put(Key key, T value) -> bool {
     cache_.splice(cache_.begin(), cache_, hit->second, std::next(hit->second));
   }
 
-  return true;
+  return false;
 }
 
 template <typename Key, typename T>

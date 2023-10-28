@@ -70,3 +70,18 @@ TEST_CASE("Testcases are checked eviction of latest elements", "[lru][default]")
     REQUIRE(cache.get(2) == 2);
   }
 }
+
+TEST_CASE("Testcases are checked update elements", "[lru][default]") {
+  // Arrange
+  auto cache = dsac::lru<int, int>{2z};
+
+  SECTION("Duplicates are not inserted or updated") {
+    // Act
+    REQUIRE(cache.put(1, 1));
+    REQUIRE_FALSE(cache.put(1, 2));
+
+    // Assert
+    REQUIRE(cache.size() == 1z);
+    REQUIRE(cache.get(1) == 1);
+  }
+}
