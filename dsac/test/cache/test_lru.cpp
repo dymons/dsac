@@ -2,7 +2,7 @@
 
 #include <dsac/cache/lru.hpp>
 
-TEST_CASE("lru cache should be constructable", "[lru][default]") {
+TEST_CASE("Least recently used cache should be constructable", "[lru][default]") {
   SECTION("Construct lru cache by using user constructor") {
     auto cache = dsac::lru<int, int>{1z};
   }
@@ -27,5 +27,39 @@ TEST_CASE("lru cache should be constructable", "[lru][default]") {
     REQUIRE(that_cache.size() == 1z);
     REQUIRE(this_cache.get(1) == std::nullopt);
     REQUIRE(that_cache.get(1) == 1);
+  }
+}
+
+TEST_CASE("Least recently used cache should expand automatically", "[lru][default]") {
+  auto cache = dsac::lru<int, int>{1z};
+
+  SECTION("Empty lru cache does not take up memory") {
+    REQUIRE(cache.size() == 0z);
+  }
+  SECTION("Lru cache should expand automatically when an element is inserted") {
+    cache.put(1, 1);
+    REQUIRE(cache.size() == 1z);
+  }
+  SECTION("When capacity a lru cache increases the latest element evict") {
+    REQUIRE(cache.size() == 0z);
+    cache.put(1, 1);
+    cache.put(2, 2);
+    REQUIRE(cache.size() == 1z);
+    REQUIRE(cache.get(1) == std::nullopt);
+    REQUIRE(cache.get(2) == 2);
+  }
+}
+
+TEST_CASE("Least recently used cache should evict latest element", "[lru][default]") {
+  auto cache = dsac::lru<int, int>{1z};
+
+  SECTION("When capacity a lru cache increases the latest element evict") {
+    REQUIRE(cache.size() == 0z);
+    cache.put(1, 1);
+    cache.put(2, 2);
+
+    REQUIRE(cache.size() == 1z);
+    REQUIRE(cache.get(1) == std::nullopt);
+    REQUIRE(cache.get(2) == 2);
   }
 }

@@ -5,15 +5,15 @@
 namespace dsac {
 
 template <typename Key, typename Value>
-lru<Key, Value>::lru(std::size_t cache_size)
-  : cache_size_(cache_size) {
+lru<Key, Value>::lru(std::size_t capacity)
+  : capacity_(capacity) {
 }
 
 template <typename Key, typename Value>
 auto lru<Key, Value>::put(Key key, Value value) -> void {
   auto hit = hash_.find(key);
   if (hit == hash_.end()) {
-    if (size() == cache_size_) {
+    if (size() == capacity_) {
       hash_.erase(cache_.back());
       cache_.pop_back();
     }

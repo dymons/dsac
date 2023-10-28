@@ -10,7 +10,7 @@ namespace dsac {
 template <typename Key, typename Value>
 class lru final : public cache_base<Key, Value> {
 public:
-  explicit lru(std::size_t cache_size);
+  explicit lru(std::size_t capacity);
 
   auto put(Key key, Value value) -> void final;
 
@@ -19,7 +19,7 @@ public:
   auto size() const -> std::size_t final;
 
 private:
-  std::size_t                                                  cache_size_;
+  std::size_t                                                  capacity_;
   std::list<Value>                                             cache_;
   std::unordered_map<Key, typename decltype(cache_)::iterator> hash_;
 };
