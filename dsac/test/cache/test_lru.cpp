@@ -40,14 +40,6 @@ TEST_CASE("Least recently used cache should expand automatically", "[lru][defaul
     cache.put(1, 1);
     REQUIRE(cache.size() == 1z);
   }
-  SECTION("When capacity a lru cache increases the latest element evict") {
-    REQUIRE(cache.size() == 0z);
-    cache.put(1, 1);
-    cache.put(2, 2);
-    REQUIRE(cache.size() == 1z);
-    REQUIRE(cache.get(1) == std::nullopt);
-    REQUIRE(cache.get(2) == 2);
-  }
 }
 
 TEST_CASE("Least recently used cache should evict latest element", "[lru][default]") {
