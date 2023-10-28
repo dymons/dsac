@@ -6,8 +6,6 @@ namespace dsac {
 
 class runtime_refinement_error final : public std::exception {
 public:
-  using std::exception::exception;
-
   virtual const char *what() const noexcept override {
     return "Runtime refinement type check";
   }
