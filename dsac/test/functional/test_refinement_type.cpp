@@ -6,20 +6,20 @@ namespace {
 
 template <int N>
 struct should_be_less_then final {
-  auto operator()(int value) -> bool {
+  auto operator()(const int value) noexcept -> bool {
     return value < N;
   };
 };
 
 template <int N>
 struct should_be_greater_then final {
-  auto operator()(int value) -> bool {
+  auto operator()(const int value) noexcept -> bool {
     return value > N;
   };
 };
 
 struct should_be_positive final {
-  auto operator()(int value) -> bool {
+  auto operator()(const int value) noexcept -> bool {
     return value >= 0;
   };
 };
