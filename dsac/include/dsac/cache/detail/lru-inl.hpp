@@ -30,7 +30,7 @@ auto lru<Key, Value>::put(Key key, Value value) -> void {
 }
 
 template <typename Key, typename Value>
-auto lru<Key, Value>::get(Key const& key) -> std::optional<Value> {
+auto lru<Key, Value>::get(Key const& key) const -> std::optional<Value> {
   auto hit = hash_.find(key);
   if (hit == hash_.end()) {
     return std::nullopt;

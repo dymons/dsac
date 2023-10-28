@@ -59,7 +59,7 @@ public:
     \brief
         Get value from the cache by key.
   */
-  virtual auto get(Key const& key) -> std::optional<Value> = 0;
+  virtual auto get(Key const& key) const -> std::optional<Value> = 0;
 
   /*!
     \brief

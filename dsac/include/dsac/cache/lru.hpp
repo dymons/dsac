@@ -30,7 +30,7 @@ public:
     \brief
         Extract the object from the cache.
   */
-  auto get(Key const& key) -> std::optional<Value> final;
+  auto get(Key const& key) const -> std::optional<Value> final;
 
   /*!
     \brief
