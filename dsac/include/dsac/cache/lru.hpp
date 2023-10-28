@@ -23,6 +23,23 @@ public:
   /*!
     \brief
         Add a new value to the cache.
+
+    \param key
+        A key to be added to the cache
+    \param value
+        A value to be added to the cache by key
+
+    \par Worst Case Complexity
+        Time Complexity \p O(1) and Space Complexity \p O(1)
+
+    \ingroup
+        DsacCache
+
+    \code
+        auto cache = dsac::lru<int, int>{1z};
+        cache.put(1, 1);
+        cache.put(2, 2);
+    \endcode
   */
   auto put(Key key, T value) -> bool final;
 
