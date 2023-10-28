@@ -2,7 +2,7 @@
 
 #include <dsac/cache/lru.hpp>
 
-TEST_CASE("Least recently used cache should be constructable", "[lru][default]") {
+TEST_CASE("Testcases are checked constructable LRU cache", "[lru][default]") {
   SECTION("Construct lru cache by using user constructor") {
     auto cache = dsac::lru<int, int>{1z};
   }
@@ -30,7 +30,7 @@ TEST_CASE("Least recently used cache should be constructable", "[lru][default]")
   }
 }
 
-TEST_CASE("Least recently used cache should expand automatically", "[lru][default]") {
+TEST_CASE("Testcases are checked inserting elements", "[lru][default]") {
   auto cache = dsac::lru<int, int>{1z};
 
   SECTION("Empty lru cache does not take up memory") {
@@ -42,7 +42,7 @@ TEST_CASE("Least recently used cache should expand automatically", "[lru][defaul
   }
 }
 
-TEST_CASE("Least recently used cache should evict latest element", "[lru][default]") {
+TEST_CASE("Testcases are checked eviction of latest elements", "[lru][default]") {
   auto cache = dsac::lru<int, int>{1z};
 
   SECTION("When capacity a lru cache increases the latest element evict") {
