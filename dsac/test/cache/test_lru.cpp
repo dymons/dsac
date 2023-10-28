@@ -22,7 +22,7 @@ TEST_CASE("Testcases are checked constructable LRU cache", "[lru][default]") {
   SECTION("Construct lru cache by using move constructor") {
     // Arrange
     auto this_cache = dsac::lru<int, int>{1z};
-    this_cache.put(1, 1);
+    REQUIRE(this_cache.put(1, 1));
 
     // Act
     auto that_cache = std::move(this_cache);
@@ -48,7 +48,7 @@ TEST_CASE("Testcases are checked inserting elements", "[lru][default]") {
   }
   SECTION("Lru cache should expand automatically when an element is inserted") {
     // Act
-    cache.put(1, 1);
+    REQUIRE(cache.put(1, 1));
 
     // Assert
     REQUIRE(cache.size() == 1z);
@@ -61,8 +61,8 @@ TEST_CASE("Testcases are checked eviction of latest elements", "[lru][default]")
 
   SECTION("When capacity a lru cache increases the latest element evict") {
     // Act
-    cache.put(1, 1);
-    cache.put(2, 2);
+    REQUIRE(cache.put(1, 1));
+    REQUIRE(cache.put(2, 2));
 
     // Assert
     REQUIRE(cache.size() == 1z);

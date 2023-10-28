@@ -24,13 +24,25 @@ public:
     \brief
         Add a new value to the cache.
   */
-  auto put(Key key, T value) -> void final;
+  auto put(Key key, T value) -> bool final;
 
   /*!
     \brief
         Extract the object from the cache.
   */
   auto get(Key const& key) const -> std::optional<T> final;
+
+  /*!
+    \brief
+        Pins a key, indicating that it should not be evicted until it is unpinned.
+  */
+  auto pin(Key const& key) -> void final;
+
+  /*!
+    \brief
+        Unpins a key, indicating that it can now be evicted.
+  */
+  auto unpin(Key const& key) -> void final;
 
   /*!
     \brief

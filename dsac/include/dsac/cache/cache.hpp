@@ -23,9 +23,9 @@ public:
 
   /*!
     \brief
-        Move conversion constructor.
+        Copy constructor.
   */
-  cache_base& operator=(cache_base&&) = default;
+  cache_base(const cache_base&) = default;
 
   // Destructor
 
@@ -45,15 +45,25 @@ public:
 
   /*!
     \brief
-        Copy constructor.
+        Move conversion constructor.
   */
-  cache_base(const cache_base&) = default;
+  cache_base& operator=(cache_base&&) = default;
+
+  // Observers
+
+  /*!
+    \brief
+        Return the current size of the cache.
+  */
+  virtual auto size() const -> std::size_t = 0;
+
+  // Modifiers
 
   /*!
     \brief
         Put a new key/value to the cache.
   */
-  virtual auto put(Key key, Value value) -> void = 0;
+  virtual auto put(Key key, Value value) -> bool = 0;
 
   /*!
     \brief
@@ -63,9 +73,15 @@ public:
 
   /*!
     \brief
-        Return the current size of the cache.
+        Pins a key, indicating that it should not be evicted until it is unpinned.
   */
-  virtual auto size() const -> std::size_t = 0;
+  virtual auto pin(Key const& key) -> void = 0;
+
+  /*!
+    \brief
+        Unpins a key, indicating that it can now be evicted.
+  */
+  virtual auto unpin(Key const& key) -> void = 0;
 };
 
 }  // namespace dsac
