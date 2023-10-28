@@ -26,7 +26,7 @@ struct should_be_positive final {
 
 }  // namespace
 
-TEST_CASE("Refinement type should be constructable", "[refinement_type][default]") {
+TEST_CASE("Testcases are checked constructable refinement type", "[refinement_type][default]") {
   SECTION("Construct refinement type with empty refinements") {
     using register_value        = dsac::refinement_type<int, struct RegisterValue>;
     [[maybe_unused]] auto value = register_value{1};
@@ -37,7 +37,7 @@ TEST_CASE("Refinement type should be constructable", "[refinement_type][default]
   }
 }
 
-TEST_CASE("Refinement type should throw by refinements", "[refinement_type][default]") {
+TEST_CASE("Testcases are checked refinements", "[refinement_type][default]") {
   SECTION("Refinement type should be at the range [100, 256]") {
     // clang-format off
     using register_value =
