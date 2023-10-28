@@ -38,7 +38,7 @@ TEST_CASE("Refinement type should be constructable", "[refinement_type][default]
 }
 
 TEST_CASE("Refinement type should throw by refinements", "[refinement_type][default]") {
-  SECTION("should_be_greater_then && should_be_less_then") {
+  SECTION("Refinement type should be at the range [100, 256]") {
     // clang-format off
     using register_value =
         dsac::refinement_type<
@@ -59,7 +59,7 @@ TEST_CASE("Refinement type should throw by refinements", "[refinement_type][defa
     }
   }
 
-  SECTION("should_be_positive") {
+  SECTION("Refinement type should be positive") {
     // clang-format off
     using register_value =
         dsac::refinement_type<
