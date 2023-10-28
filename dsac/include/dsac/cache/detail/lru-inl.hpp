@@ -4,13 +4,13 @@
 
 namespace dsac {
 
-template <typename Key, typename Value>
-lru<Key, Value>::lru(std::size_t capacity)
+template <typename Key, typename T>
+lru<Key, T>::lru(std::size_t capacity)
   : capacity_(capacity) {
 }
 
-template <typename Key, typename Value>
-auto lru<Key, Value>::put(Key key, Value value) -> void {
+template <typename Key, typename T>
+auto lru<Key, T>::put(Key key, T value) -> void {
   auto hit = hash_.find(key);
   if (hit == hash_.end()) {
     if (size() == capacity_) {
@@ -29,8 +29,8 @@ auto lru<Key, Value>::put(Key key, Value value) -> void {
   }
 }
 
-template <typename Key, typename Value>
-auto lru<Key, Value>::get(Key const& key) const -> std::optional<Value> {
+template <typename Key, typename T>
+auto lru<Key, T>::get(Key const& key) const -> std::optional<T> {
   auto hit = hash_.find(key);
   if (hit == hash_.end()) {
     return std::nullopt;
@@ -39,8 +39,8 @@ auto lru<Key, Value>::get(Key const& key) const -> std::optional<Value> {
   return *hit->second;
 }
 
-template <typename Key, typename Value>
-auto lru<Key, Value>::size() const -> std::size_t {
+template <typename Key, typename T>
+auto lru<Key, T>::size() const -> std::size_t {
   return cache_.size();
 }
 
