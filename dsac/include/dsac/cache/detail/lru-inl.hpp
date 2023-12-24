@@ -48,34 +48,6 @@ auto lru<Key, T>::get(Key const& key) const -> std::optional<T> {
 }
 
 template <typename Key, typename T>
-auto lru<Key, T>::pin([[maybe_unused]] Key const& key) -> void {
-  /*
-   *  TODO(dymons) >
-   *      Need to pin/unpin elements at the cache_. But how?
-   *      Maybe create a new container as dsac::marked_list,
-   *      for the first implementation will be a decorator
-   *      and will have the following properties:
-   *       - If element will pinned then it is not taken into account in size
-   *       - If element will pinned then taken into account splices
-   *       - If element will pinned then not seen in all public methods
-   *
-   *      \code
-   *          auto cache = dsac::marked_list{1};
-   *
-   *          cache.mark(1);
-   *          REQUIRED(cache.empty());
-   *
-   *          cache.unmark(1);
-   *          REQUIRED(not cache.empty());
-   *      \endcode
-   * */
-}
-
-template <typename Key, typename T>
-auto lru<Key, T>::unpin([[maybe_unused]] Key const& key) -> void {
-}
-
-template <typename Key, typename T>
 auto lru<Key, T>::size() const -> std::size_t {
   return cache_.size();
 }

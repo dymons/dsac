@@ -70,18 +70,6 @@ public:
         Get value from the cache by key.
   */
   virtual auto get(Key const& key) const -> std::optional<Value> = 0;
-
-  /*!
-    \brief
-        Pins a key, indicating that it should not be evicted until it is unpinned.
-  */
-  virtual auto pin(Key const& key) -> void = 0;
-
-  /*!
-    \brief
-        Unpins a key, indicating that it can now be evicted.
-  */
-  virtual auto unpin(Key const& key) -> void = 0;
 };
 
 }  // namespace dsac
