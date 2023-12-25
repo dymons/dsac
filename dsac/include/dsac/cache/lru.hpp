@@ -94,7 +94,7 @@ private:
 
   // The store to lookup values by key at the cache
   using index = std::unordered_set<item, typename item::hash>;
-  mutable std::unordered_set<item, typename item::hash> index_;
+  mutable index index_;
 
   auto promote(const index::iterator& it) const -> void;
 };
