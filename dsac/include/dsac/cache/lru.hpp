@@ -1,7 +1,7 @@
 #pragma once
 
-#include <optional>
 #include <functional>
+#include <optional>
 #include <unordered_set>
 
 #include <dsac/container/intrusive/list.hpp>
@@ -56,7 +56,7 @@ public:
     \brief
         Extract the object from the cache.
   */
-  auto get(Key const& key) const -> std::optional<Value>;
+  auto get(Key const& key) const -> Value*;
 
   /*!
     \brief
@@ -65,10 +65,7 @@ public:
   auto erase(Key const& key) -> void;
 
 private:
-  // The total number of elements that the cache can hold before evict latest elements
-  std::size_t capacity_;
-
-  struct item : intrusive::list_node_base<item> {
+  struct item final : intrusive::list_node_base<item> {
     explicit item(const Key& key, const Value& value = Value())
       : key(key)
       , value(value) {
@@ -78,15 +75,18 @@ private:
       return key == other.key;
     }
 
-    Key   key;
-    Value value;
-
     struct hash {
       size_t operator()(const item& item) const {
         return std::hash<Key>{}(item.key);
       }
     };
+
+    Key   key;
+    Value value;
   };
+
+  // The total number of elements that the cache can hold before evict latest elements
+  std::size_t capacity_;
 
   // The store for values
   using cache = intrusive::list<item>;

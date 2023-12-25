@@ -32,18 +32,18 @@ auto lru<Key, Value>::put(Key key, Value value) -> void {
   promote(hit);
 }
 
-template <typename Key, typename T>
-auto lru<Key, T>::get(Key const& key) const -> std::optional<T> {
+template <typename Key, typename Value>
+auto lru<Key, Value>::get(Key const& key) const -> Value* {
   auto tmp_item = item{std::move(key)};
 
   auto hit = index_.find(tmp_item);
   if (hit == index_.end()) {
-    return std::nullopt;
+    return nullptr;
   }
 
   promote(hit);
 
-  return hit->value;
+  return &const_cast<Value&>(hit->value);
 }
 
 template <typename Key, typename T>

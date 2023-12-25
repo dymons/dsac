@@ -33,14 +33,14 @@ auto lru_k<Key, T>::put(Key key, T value) -> void {
 
 template <typename Key, typename T>
 auto lru_k<Key, T>::get(Key const& key) const -> std::optional<T> {
-  if (auto value = buffer_cache_.get(key); value.has_value()) {
-    return value;
+  if (auto value = buffer_cache_.get(key); nullptr != value) {
+    return *value;
   }
 
-  if (auto value = history_cache_.get(key); value.has_value()) {
+  if (auto value = history_cache_.get(key); nullptr != value) {
     history_cache_.erase(key);
-    buffer_cache_.put(key, std::move(value).value());
-    return value;
+    buffer_cache_.put(key, *value);
+    return *value;
   }
 
   return std::nullopt;

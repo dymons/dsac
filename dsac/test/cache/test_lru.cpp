@@ -36,8 +36,8 @@ TEST_CASE("[LRU] Testcases are checked eviction of latest elements", "[lru][defa
 
     // Assert
     REQUIRE(cache.size() == 1z);
-    REQUIRE(cache.get(1) == std::nullopt);
-    REQUIRE(cache.get(2) == 2);
+    REQUIRE(cache.get(1) == nullptr);
+    REQUIRE(*cache.get(2) == 2);
   }
 }
 
@@ -52,6 +52,6 @@ TEST_CASE("[LRU] Testcases are checked update elements", "[lru][default]") {
 
     // Assert
     REQUIRE(cache.size() == 1z);
-    REQUIRE(cache.get(1) == 1);
+    REQUIRE(*cache.get(1) == 1);
   }
 }
