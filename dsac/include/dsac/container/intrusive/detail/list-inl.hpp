@@ -72,4 +72,22 @@ auto list<T>::pop_front() noexcept -> T* {
   return static_cast<T*>(front);
 }
 
+template <typename T>
+auto list<T>::pop_back() noexcept -> T* {
+  if (empty()) {
+    return nullptr;
+  }
+
+  auto* back = storage_.get_prev();
+
+  back->detach();
+
+  return static_cast<T*>(back);
+}
+
+template <typename T>
+auto list<T>::push_front(list_node_base<T>* next) -> void {
+  next->attach(storage_.get_next());
+}
+
 }  // namespace dsac::intrusive

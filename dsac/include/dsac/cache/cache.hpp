@@ -63,13 +63,19 @@ public:
     \brief
         Put a new key/value to the cache.
   */
-  virtual auto put(Key key, Value value) -> bool = 0;
+  virtual auto put(Key key, Value value) -> void = 0;
 
   /*!
     \brief
         Get value from the cache by key.
   */
   virtual auto get(Key const& key) const -> std::optional<Value> = 0;
+
+  /*!
+    \brief
+        Remove value by key. If the key does not exist, nothing happens.
+  */
+  virtual auto erase(Key const& key) -> void = 0;
 };
 
 }  // namespace dsac

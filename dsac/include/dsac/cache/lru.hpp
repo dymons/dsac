@@ -1,14 +1,15 @@
 #pragma once
 
-#include <list>
-#include <unordered_map>
+#include <optional>
+#include <functional>
+#include <unordered_set>
 
-#include <dsac/cache/cache.hpp>
+#include <dsac/container/intrusive/list.hpp>
 
 namespace dsac {
 
-template <typename Key, typename T>
-class lru final : public cache_base<Key, T> {
+template <typename Key, typename Value>
+class lru {
 public:
   // Constructors
 
@@ -17,6 +18,14 @@ public:
         User constructor, constructs a cache with limited amount of space.
   */
   explicit lru(std::size_t capacity);
+
+  // Observers
+
+  /*!
+    \brief
+        Returns the number of elements in the cache.
+  */
+  auto size() const -> std::size_t;
 
   // Modifiers
 
@@ -41,29 +50,53 @@ public:
         cache.put(2, 2);
     \endcode
   */
-  auto put(Key key, T value) -> bool final;
+  auto put(Key key, Value value) -> void;
 
   /*!
     \brief
         Extract the object from the cache.
   */
-  auto get(Key const& key) const -> std::optional<T> final;
+  auto get(Key const& key) const -> std::optional<Value>;
 
   /*!
     \brief
-        Returns the number of elements in the cache.
+        Remove the object from the cache.
   */
-  auto size() const -> std::size_t final;
+  auto erase(Key const& key) -> void;
 
 private:
   // The total number of elements that the cache can hold before evict latest elements
   std::size_t capacity_;
 
+  struct item : intrusive::list_node_base<item> {
+    explicit item(const Key& key, const Value& value = Value())
+      : key(key)
+      , value(value) {
+    }
+
+    bool operator==(const item& other) const {
+      return key == other.key;
+    }
+
+    Key   key;
+    Value value;
+
+    struct hash {
+      size_t operator()(const item& item) const {
+        return std::hash<Key>{}(item.key);
+      }
+    };
+  };
+
   // The store for values
-  std::list<T> cache_;
+  using cache = intrusive::list<item>;
+  mutable cache cache_;
 
   // The store to lookup values by key at the cache
-  std::unordered_map<Key, typename decltype(cache_)::iterator> hash_;
+  using index = std::unordered_set<item, typename item::hash>;
+  mutable std::unordered_set<item, typename item::hash> index_;
+
+  auto promote(const index::iterator& it) const -> void;
 };
 
 }  // namespace dsac

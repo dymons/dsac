@@ -78,7 +78,11 @@ public:
 
   auto push_back(list_node_base<T>* next) -> void;
 
+  auto push_front(list_node_base<T>* next) -> void;
+
   auto pop_front() noexcept -> T*;
+
+  auto pop_back() noexcept -> T*;
 
 private:
   list_node_base<T> storage_{};
