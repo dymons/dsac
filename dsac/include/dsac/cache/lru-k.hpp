@@ -1,5 +1,9 @@
 #pragma once
 
+#include <unordered_set>
+
+#include <dsac/container/intrusive/list.hpp>
+
 namespace dsac {
 
 template <typename Key, typename Value>
@@ -24,16 +28,40 @@ public:
   auto get(Key const& key) const -> Value*;
 
 private:
-//  [[nodiscard]] auto is_full() const noexcept -> bool;
-//
-//  // The total number of elements that the cache can hold before evict elements by K algorithm
-//  std::size_t capacity_;
-//
-//  //
-//  mutable lru<Key, T> history_cache_;
-//
-//  //
-//  mutable lru<Key, T> buffer_cache_;
+  struct item;
+  using cache = intrusive::list<item>;
+  using index = std::unordered_set<item, typename item::hash>;
+
+  auto promote(const index::iterator& it) const -> void;
+
+  struct item final : intrusive::list_node_base<item> {
+    explicit item(const Key& key, const Value& value = Value())
+      : key(key)
+      , value(value) {
+    }
+
+    bool operator==(const item& other) const {
+      return key == other.key;
+    }
+
+    struct hash {
+      size_t operator()(const item& item) const {
+        return std::hash<Key>{}(item.key);
+      }
+    };
+
+    Key   key;
+    Value value;
+  };
+
+  std::size_t capacity_;
+  std::size_t k_;
+
+  cache history_cache_;
+  index history_index_;
+
+  cache buffer_cache_;
+  index buffer_index_;
 };
 
 }  // namespace dsac
