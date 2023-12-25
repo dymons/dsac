@@ -47,18 +47,6 @@ auto lru<Key, Value>::get(Key const& key) const -> Value* {
 }
 
 template <typename Key, typename T>
-auto lru<Key, T>::erase(Key const& key) -> void {
-  auto tmp_item = item{std::move(key)};
-
-  auto hit = index_.find(tmp_item);
-  if (hit != index_.end()) {
-    auto erase_item = const_cast<item*>(&*hit);
-    erase_item->detach();
-    index_.erase(hit);
-  }
-}
-
-template <typename Key, typename T>
 auto lru<Key, T>::size() const -> std::size_t {
   return index_.size();
 }

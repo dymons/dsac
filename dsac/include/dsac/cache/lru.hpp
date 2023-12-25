@@ -58,12 +58,6 @@ public:
   */
   auto get(Key const& key) const -> Value*;
 
-  /*!
-    \brief
-        Remove the object from the cache.
-  */
-  auto erase(Key const& key) -> void;
-
 private:
   struct item;
   using cache = intrusive::list<item>;

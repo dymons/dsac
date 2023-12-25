@@ -14,7 +14,7 @@ lru_k<Key, T>::lru_k(std::size_t const capacity, std::size_t const k)
 template <typename Key, typename T>
 auto lru_k<Key, T>::put(Key key, T value) -> void {
   if (history_cache_.get(key)) {
-    history_cache_.erase(key);
+//    history_cache_.erase(key);
     buffer_cache_.put(std::move(key), std::move(value));
     return;
   }
@@ -38,7 +38,7 @@ auto lru_k<Key, T>::get(Key const& key) const -> std::optional<T> {
   }
 
   if (auto value = history_cache_.get(key); nullptr != value) {
-    history_cache_.erase(key);
+//    history_cache_.erase(key);
     buffer_cache_.put(key, *value);
     return *value;
   }
@@ -48,8 +48,8 @@ auto lru_k<Key, T>::get(Key const& key) const -> std::optional<T> {
 
 template <typename Key, typename T>
 auto lru_k<Key, T>::erase(Key const& key) -> void {
-  history_cache_.erase(key);
-  buffer_cache_.erase(key);
+//  history_cache_.erase(key);
+//  buffer_cache_.erase(key);
 }
 
 template <typename Key, typename T>
