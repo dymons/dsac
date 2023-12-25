@@ -19,17 +19,28 @@ auto lru_k<Key, Value>::put(Key key, Value value) -> void {
     auto buffer_hit = buffer_index_.find(tmp_item);
 
     if (buffer_hit == buffer_index_.end()) {
-      // Case 1. Value is new
+      // Case 1. What: Value is new
+      //         Then: Add value to the history cache
 
       history_hit = history_index_.insert(std::move(tmp_item)).first;
       history_cache_.push_front(const_cast<item*>(&*history_hit));
 
       return;
     } else {
-      // Case 2. Value is already exist at buffer cache
+      // Case 2. What: Value is already exist at buffer cache
+      //         Then: Promote value to the top of buffer cache
 
       promote(buffer_hit);
+
+      return;
     }
+  } else {
+
+    // Case 3. What: Value is already exist at history cache
+    //         Then: Move value from history cache to the buffer cache
+
+
+
   }
 }
 
