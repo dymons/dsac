@@ -65,6 +65,16 @@ public:
   auto erase(Key const& key) -> void;
 
 private:
+  struct item;
+  using cache = intrusive::list<item>;
+  using index = std::unordered_set<item, typename item::hash>;
+
+  /*!
+    \brief
+        Promote the value to the top of LRU cache.
+  */
+  auto promote(const index::iterator& it) const -> void;
+
   struct item final : intrusive::list_node_base<item> {
     explicit item(const Key& key, const Value& value = Value())
       : key(key)
@@ -89,14 +99,10 @@ private:
   std::size_t capacity_;
 
   // The store for values
-  using cache = intrusive::list<item>;
   mutable cache cache_;
 
   // The store to lookup values by key at the cache
-  using index = std::unordered_set<item, typename item::hash>;
   mutable index index_;
-
-  auto promote(const index::iterator& it) const -> void;
 };
 
 }  // namespace dsac
