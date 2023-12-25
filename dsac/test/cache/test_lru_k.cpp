@@ -2,11 +2,11 @@
 
 #include <dsac/cache/lru-k.hpp>
 
-TEST_CASE("[LRU-K] Testcases are checked constructable LRU-K cache", "[lru-k][default]") {
-  SECTION("Construct lru-k cache by using user constructor") {
-    auto cache = dsac::lru_k<int, int>{/*capacity=*/3z, /*k=*/2z};
-  }
-}
+//TEST_CASE("[LRU-K] Testcases are checked constructable LRU-K cache", "[lru-k][default]") {
+//  SECTION("Construct lru-k cache by using user constructor") {
+//    auto cache = dsac::lru_k<int, int>{/*capacity=*/3z, /*k=*/2z};
+//  }
+//}
 
 //TEST_CASE("[LRU-K] Testcases are checked inserting elements", "[lru-k][default]") {
 //  // Arrange

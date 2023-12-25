@@ -1,13 +1,9 @@
 #pragma once
 
-#include <dsac/cache/cache.hpp>
-#include <dsac/cache/lru.hpp>
-#include <dsac/functional/strong_type.hpp>
-
 namespace dsac {
 
-template <typename Key, typename T>
-class lru_k final : public cache_base<Key, T> {
+template <typename Key, typename Value>
+class lru_k {
 public:
   // Constructors
 
@@ -19,37 +15,25 @@ public:
 
   // Observers
 
-  auto size() const -> std::size_t final;
+  auto size() const -> std::size_t;
 
   // Modifiers
 
-  auto put(Key key, T value) -> void final;
+  auto put(Key key, Value value) -> void;
 
-  auto get(Key const& key) const -> std::optional<T> final;
-
-  /*!
-    \brief
-        Remove the object from the cache.
-  */
-  auto erase(Key const& key) -> void final;
-
-  // Unittests
-
-  auto get_history_cache() const -> lru<Key, T>;
-
-  auto get_buffer_cache() const -> lru<Key, T>;
+  auto get(Key const& key) const -> Value*;
 
 private:
-  [[nodiscard]] auto is_full() const noexcept -> bool;
-
-  // The total number of elements that the cache can hold before evict elements by K algorithm
-  std::size_t capacity_;
-
-  //
-  mutable lru<Key, T> history_cache_;
-
-  //
-  mutable lru<Key, T> buffer_cache_;
+//  [[nodiscard]] auto is_full() const noexcept -> bool;
+//
+//  // The total number of elements that the cache can hold before evict elements by K algorithm
+//  std::size_t capacity_;
+//
+//  //
+//  mutable lru<Key, T> history_cache_;
+//
+//  //
+//  mutable lru<Key, T> buffer_cache_;
 };
 
 }  // namespace dsac
