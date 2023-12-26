@@ -2,6 +2,7 @@
 
 #include <unordered_set>
 
+#include <dsac/common/macros.h>
 #include <dsac/container/intrusive/list.hpp>
 
 namespace dsac {
@@ -18,6 +19,8 @@ public:
         User constructor, constructs a cache with limited amount of space.
   */
   lru_k(std::size_t capacity, std::size_t k);
+
+  DISALLOW_COPY_AND_MOVE(lru_k);
 
   // Observers
 
