@@ -8,6 +8,7 @@ namespace dsac {
 
 template <typename Key, typename Value>
 class lru_k {
+  using self = lru_k;
 
 public:
   // Constructors
@@ -36,6 +37,8 @@ private:
   auto promote(const index::iterator& it) -> void;
 
   auto move_to_buffer_cache_with_promote(const index::iterator& it) -> index::iterator;
+
+  auto pop_at_history_cache_while_overflow() -> void;
 
   struct item final : intrusive::list_node_base<item> {
     explicit item(const Key& key, const Value& value = Value())

@@ -22,6 +22,8 @@ auto lru_k<Key, Value>::put(Key key, Value value) -> void {
       // Case 1. What: Value is new
       //         Then: Add value to the history cache
 
+      self::pop_at_history_cache_while_overflow();
+
       history_hit = history_index_.insert(std::move(tmp_item)).first;
       history_cache_.push_front(const_cast<item*>(&*history_hit));
 
@@ -30,7 +32,7 @@ auto lru_k<Key, Value>::put(Key key, Value value) -> void {
       // Case 2. What: Value is already exist at buffer cache
       //         Then: Promote value to the top of buffer cache
 
-      promote(buffer_hit);
+      self::promote(buffer_hit);
 
       return;
     }
@@ -39,7 +41,7 @@ auto lru_k<Key, Value>::put(Key key, Value value) -> void {
   // Case 3. What: Value is already exist at history cache
   //         Then: Move value from history cache to the buffer cache
 
-  move_to_buffer_cache_with_promote(history_hit);
+  self::move_to_buffer_cache_with_promote(history_hit);
 
   return;
 }
@@ -65,7 +67,7 @@ auto lru_k<Key, Value>::get(Key const& key) -> Value* {
       // Case 2. What: Key found at buffer cache
       //         Then: Promote key at the buffer cache and return value
 
-      promote(buffer_hit);
+      self::promote(buffer_hit);
 
       return &const_cast<Value&>(buffer_hit->value);
     }
@@ -75,7 +77,7 @@ auto lru_k<Key, Value>::get(Key const& key) -> Value* {
   //         Then: Move value from history cache to the buffer cache
   //               and return value
 
-  auto buffer_hit = move_to_buffer_cache_with_promote(history_hit);
+  auto buffer_hit = self::move_to_buffer_cache_with_promote(history_hit);
 
   return &const_cast<Value&>(buffer_hit->value);
 }
@@ -97,6 +99,19 @@ auto lru_k<Key, Value>::move_to_buffer_cache_with_promote(const index::iterator&
   history_index_.erase(it);
 
   return buffer_hit;
+}
+
+template <typename Key, typename Value>
+auto lru_k<Key, Value>::pop_at_history_cache_while_overflow() -> void {
+  auto const is_overflow = (capacity_ - history_index_.size() - buffer_index_.size()) == 0z;
+  if (not is_overflow) {
+    return;
+  }
+
+  auto* pop_item = history_cache_.pop_back();
+  pop_item->detach();
+
+  history_index_.erase(*pop_item);
 }
 
 }  // namespace dsac
