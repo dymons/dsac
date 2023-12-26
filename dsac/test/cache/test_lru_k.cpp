@@ -72,13 +72,19 @@ TEST_CASE("[LRU-K] Testcases are checked inserting elements", "[lru-k][default]"
     REQUIRE(*cache.get(2) == 2);
     REQUIRE(*cache.get(3) == 3);
   }
-  //
-  //  SECTION("LRU-K cache should contains only C elements") {
-  //    // Act & Assert
-  //    for (auto const entity : {1, 2, 3, /*repeat*/ 1, 2, 3, /*new*/ 4, 5, 6}) {
-  //      cache.put(entity, entity);
-  //    }
-  //    REQUIRE(cache.get_history_cache().size() == 1z);
-  //    REQUIRE(cache.get_buffer_cache().size() == 2z);
-  //  }
+
+  SECTION("LRU-K cache should contains only C elements") {
+    // Act & Assert
+    for (auto const entity : {1, 2, 3, /*repeat*/ 1, 2, 3, /*new*/ 4, 5, 6}) {
+      cache.put(entity, entity);
+    }
+    REQUIRE(cache.get_history_index_for_testsuite().size() == 1z);
+    REQUIRE(cache.get_buffer_index_for_testsuite().size() == 2z);
+    REQUIRE(cache.get(1) == nullptr);
+    REQUIRE(*cache.get(2) == 2);
+    REQUIRE(*cache.get(3) == 3);
+    REQUIRE(cache.get(4) == nullptr);
+    REQUIRE(cache.get(5) == nullptr);
+    REQUIRE(*cache.get(6) == 6);
+  }
 }
