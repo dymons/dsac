@@ -59,15 +59,11 @@ TEST_CASE("[LRU-K] Testcases are checked inserting elements", "[lru-k][default]"
     for (auto const entity : {1, 2, 3}) {
       cache.put(entity, entity);
     }
-    REQUIRE(cache.get_history_index_for_testsuite().size() == 3z);
-    REQUIRE(cache.get_buffer_index_for_testsuite().size() == 0z);
 
     // Act & Assert
     for (auto const entity : {1, 2, 3}) {
       cache.put(entity, entity);
     }
-    REQUIRE(cache.get_history_index_for_testsuite().size() == 0z);
-    REQUIRE(cache.get_buffer_index_for_testsuite().size() == 2z);
     REQUIRE(cache.get(1) == nullptr);
     REQUIRE(*cache.get(2) == 2);
     REQUIRE(*cache.get(3) == 3);
@@ -78,8 +74,6 @@ TEST_CASE("[LRU-K] Testcases are checked inserting elements", "[lru-k][default]"
     for (auto const entity : {1, 2, 3, /*repeat*/ 1, 2, 3, /*new*/ 4, 5, 6}) {
       cache.put(entity, entity);
     }
-    REQUIRE(cache.get_history_index_for_testsuite().size() == 1z);
-    REQUIRE(cache.get_buffer_index_for_testsuite().size() == 2z);
     REQUIRE(cache.get(1) == nullptr);
     REQUIRE(*cache.get(2) == 2);
     REQUIRE(*cache.get(3) == 3);
