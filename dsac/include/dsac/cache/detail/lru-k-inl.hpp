@@ -85,14 +85,23 @@ auto lru_k<Key, Value>::get(Key const& key) -> Value* {
 
 template <typename Key, typename Value>
 auto lru_k<Key, Value>::promote(const index::iterator& it) -> void {
+  DSAC_ASSERT(it != buffer_index_.end(), "Iterator is invalid");
+
   auto tmp_item = const_cast<item*>(&*it);
+  DSAC_ASSERT(tmp_item, "Iterator point to invalid cache state");
+
   tmp_item->detach();
   buffer_cache_.push_front(tmp_item);
 }
 
 template <typename Key, typename Value>
 auto lru_k<Key, Value>::move_to_buffer_cache_with_promote(const index::iterator& it) -> index::iterator {
-  const_cast<item*>(&*it)->detach();
+  DSAC_ASSERT(it != history_index_.end(), "Iterator is invalid");
+
+  auto tmp_item = const_cast<item*>(&*it);
+  DSAC_ASSERT(tmp_item, "Unexpected state. Iterator indicates an invalid cache state");
+
+  tmp_item->detach();
 
   auto buffer_hit = buffer_index_.insert(std::move(*it)).first;
   buffer_cache_.push_front(const_cast<item*>(&*buffer_hit));
