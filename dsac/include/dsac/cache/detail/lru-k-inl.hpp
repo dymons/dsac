@@ -99,7 +99,7 @@ auto lru_k<Key, Value>::move_to_buffer_cache_with_promote(const index::iterator&
   DSAC_ASSERT(it != history_index_.end(), "Iterator is invalid");
 
   auto tmp_item = const_cast<item*>(&*it);
-  DSAC_ASSERT(tmp_item, "Unexpected state. Iterator indicates an invalid cache state");
+  DSAC_ASSERT(tmp_item, "Iterator point to invalid cache state");
 
   tmp_item->detach();
 
