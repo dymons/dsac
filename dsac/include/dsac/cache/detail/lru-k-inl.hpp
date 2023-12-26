@@ -41,6 +41,7 @@ auto lru_k<Key, Value>::put(Key key, Value value) -> void {
   // Case 3. What: Value is already exist at history cache
   //         Then: Move value from history cache to the buffer cache
 
+  self::pop_at_buffer_cache_while_overflow();
   self::move_to_buffer_cache_with_promote(history_hit);
 
   return;
@@ -112,6 +113,19 @@ auto lru_k<Key, Value>::pop_at_history_cache_while_overflow() -> void {
   pop_item->detach();
 
   history_index_.erase(*pop_item);
+}
+
+template <typename Key, typename Value>
+auto lru_k<Key, Value>::pop_at_buffer_cache_while_overflow() -> void {
+  auto const is_overflow = (k_ - buffer_index_.size()) == 0z;
+  if (not is_overflow) {
+    return;
+  }
+
+  auto* pop_item = buffer_cache_.pop_back();
+  pop_item->detach();
+
+  buffer_index_.erase(*pop_item);
 }
 
 }  // namespace dsac

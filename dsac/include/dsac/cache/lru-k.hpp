@@ -40,6 +40,8 @@ private:
 
   auto pop_at_history_cache_while_overflow() -> void;
 
+  auto pop_at_buffer_cache_while_overflow() -> void;
+
   struct item final : intrusive::list_node_base<item> {
     explicit item(const Key& key, const Value& value = Value())
       : key(key)
