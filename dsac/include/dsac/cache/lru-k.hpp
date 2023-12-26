@@ -8,6 +8,7 @@ namespace dsac {
 
 template <typename Key, typename Value>
 class lru_k {
+
 public:
   // Constructors
 
@@ -25,14 +26,14 @@ public:
 
   auto put(Key key, Value value) -> void;
 
-  auto get(Key const& key) const -> Value*;
+  auto get(Key const& key) -> Value*;
 
 private:
   struct item;
   using cache = intrusive::list<item>;
   using index = std::unordered_set<item, typename item::hash>;
 
-  auto promote(const index::iterator& it) const -> void;
+  auto promote(const index::iterator& it) -> void;
 
   auto move_to_buffer_cache_with_promote(const index::iterator& it) -> index::iterator;
 

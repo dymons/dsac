@@ -50,7 +50,7 @@ auto lru_k<Key, Value>::size() const -> std::size_t {
 }
 
 template <typename Key, typename Value>
-auto lru_k<Key, Value>::get(Key const& key) const -> Value* {
+auto lru_k<Key, Value>::get(Key const& key) -> Value* {
   auto tmp_item = item{std::move(key)};
 
   auto history_hit = history_index_.find(tmp_item);
@@ -81,7 +81,7 @@ auto lru_k<Key, Value>::get(Key const& key) const -> Value* {
 }
 
 template <typename Key, typename Value>
-auto lru_k<Key, Value>::promote(const index::iterator& it) const -> void {
+auto lru_k<Key, Value>::promote(const index::iterator& it) -> void {
   auto tmp_item = const_cast<item*>(&*it);
   tmp_item->detach();
   buffer_cache_.push_front(tmp_item);
@@ -94,7 +94,7 @@ auto lru_k<Key, Value>::move_to_buffer_cache_with_promote(const index::iterator&
   auto buffer_hit = buffer_index_.insert(std::move(*it)).first;
   buffer_cache_.push_front(const_cast<item*>(&*buffer_hit));
 
-  history_cache_.erase(it);
+  history_index_.erase(it);
 
   return buffer_hit;
 }
