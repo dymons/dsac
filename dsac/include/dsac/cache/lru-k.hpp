@@ -20,6 +20,10 @@ public:
   */
   lru_k(std::size_t capacity, std::size_t k);
 
+  /*!
+    \brief
+        Cache is not copyable and not movable.
+  */
   DISALLOW_COPY_AND_MOVE(lru_k);
 
   // Observers
