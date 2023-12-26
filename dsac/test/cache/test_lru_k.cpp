@@ -40,36 +40,38 @@ TEST_CASE("[LRU-K] Testcases are checked inserting elements", "[lru-k][default]"
 
     // Assert
     REQUIRE(cache.size() == 3z);
+    REQUIRE(cache.get(1) == nullptr);
   }
-  //
-  //  SECTION("Should move item to the buffer cache when accessed more than once") {
-  //    // Act
-  //    for (auto const entity : {1, 2, 3, 1}) {
-  //      cache.put(entity, entity);
-  //    }
-  //
-  //    // Assert
-  //    REQUIRE(cache.size() == 3z);
-  //    REQUIRE(cache.get(1) == 1);
-  //    REQUIRE(cache.get_buffer_cache().size() == 1z);
-  //    REQUIRE(cache.get_history_cache().size() == 2z);
-  //  }
-  //
-  //  SECTION("Buffer cache should contain only K elements") {
-  //    // Act & Assert
-  //    for (auto const entity : {1, 2, 3}) {
-  //      cache.put(entity, entity);
-  //    }
-  //    REQUIRE(cache.get_history_cache().size() == 3z);
-  //    REQUIRE(cache.get_buffer_cache().size() == 0z);
-  //
-  //    // Act & Assert
-  //    for (auto const entity : {1, 2, 3}) {
-  //      cache.put(entity, entity);
-  //    }
-  //    REQUIRE(cache.get_history_cache().size() == 0z);
-  //    REQUIRE(cache.get_buffer_cache().size() == 2z);
-  //  }
+
+  SECTION("Should move item to the buffer cache when accessed more than once") {
+    // Act
+    for (auto const entity : {1, 2, 3, 1}) {
+      cache.put(entity, entity);
+    }
+
+    // Assert
+    REQUIRE(cache.size() == 3z);
+    REQUIRE(*cache.get(1) == 1);
+  }
+
+  SECTION("Buffer cache should contain only K elements") {
+    // Act & Assert
+    for (auto const entity : {1, 2, 3}) {
+      cache.put(entity, entity);
+    }
+    REQUIRE(cache.get_history_index_for_testsuite().size() == 3z);
+    REQUIRE(cache.get_buffer_index_for_testsuite().size() == 0z);
+
+    // Act & Assert
+    for (auto const entity : {1, 2, 3}) {
+      cache.put(entity, entity);
+    }
+    REQUIRE(cache.get_history_index_for_testsuite().size() == 0z);
+    REQUIRE(cache.get_buffer_index_for_testsuite().size() == 2z);
+    REQUIRE(cache.get(1) == nullptr);
+    REQUIRE(*cache.get(2) == 2);
+    REQUIRE(*cache.get(3) == 3);
+  }
   //
   //  SECTION("LRU-K cache should contains only C elements") {
   //    // Act & Assert

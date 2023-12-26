@@ -29,6 +29,15 @@ public:
 
   auto get(Key const& key) -> Value*;
 
+  // Testsuite
+
+  [[nodiscard]] auto get_history_index_for_testsuite() const {
+    return history_index_;
+  }
+  [[nodiscard]] auto get_buffer_index_for_testsuite() const {
+    return buffer_index_;
+  }
+
 private:
   struct item;
   using cache = intrusive::list<item>;
