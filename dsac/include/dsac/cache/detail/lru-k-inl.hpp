@@ -34,14 +34,50 @@ auto lru_k<Key, Value>::put(Key key, Value value) -> void {
 
       return;
     }
-  } else {
-
-    // Case 3. What: Value is already exist at history cache
-    //         Then: Move value from history cache to the buffer cache
-
-
-
   }
+
+  // Case 3. What: Value is already exist at history cache
+  //         Then: Move value from history cache to the buffer cache
+
+  move_to_buffer_cache_with_promote(history_hit);
+
+  return;
+}
+
+template <typename Key, typename Value>
+auto lru_k<Key, Value>::size() const -> std::size_t {
+  return history_index_.size() + buffer_index_.size();
+}
+
+template <typename Key, typename Value>
+auto lru_k<Key, Value>::get(Key const& key) const -> Value* {
+  auto tmp_item = item{std::move(key)};
+
+  auto history_hit = history_index_.find(tmp_item);
+  if (history_hit == history_index_.end()) {
+    auto buffer_hit = buffer_index_.find(tmp_item);
+    if (buffer_hit == buffer_index_.end()) {
+      // Case 1. What: Not found key at history cache and buffer cache
+      //         Then: Do nothing
+
+      return nullptr;
+    } else {
+      // Case 2. What: Key found at buffer cache
+      //         Then: Promote key at the buffer cache and return value
+
+      promote(buffer_hit);
+
+      return &const_cast<Value&>(buffer_hit->value);
+    }
+  }
+
+  // Case 3. What: Key found at history cache
+  //         Then: Move value from history cache to the buffer cache
+  //               and return value
+
+  auto buffer_hit = move_to_buffer_cache_with_promote(history_hit);
+
+  return &const_cast<Value&>(buffer_hit->value);
 }
 
 template <typename Key, typename Value>
@@ -51,32 +87,16 @@ auto lru_k<Key, Value>::promote(const index::iterator& it) const -> void {
   buffer_cache_.push_front(tmp_item);
 }
 
-//
-// template <typename Key, typename T>
-// auto lru_k<Key, T>::get(Key const& key) const -> std::optional<T> {
-//  if (auto value = buffer_cache_.get(key); nullptr != value) {
-//    return *value;
-//  }
-//
-//  if (auto value = history_cache_.get(key); nullptr != value) {
-////    history_cache_.erase(key);
-//    buffer_cache_.put(key, *value);
-//    return *value;
-//  }
-//
-//  return std::nullopt;
-//}
-//
-// template <typename Key, typename T>
-// auto lru_k<Key, T>::erase(Key const& key) -> void {
-////  history_cache_.erase(key);
-////  buffer_cache_.erase(key);
-//}
-//
-//
-// template <typename Key, typename T>
-// auto lru_k<Key, T>::size() const -> std::size_t {
-//  return history_cache_.size() + buffer_cache_.size();
-//}
+template <typename Key, typename Value>
+auto lru_k<Key, Value>::move_to_buffer_cache_with_promote(const index::iterator& it) -> index::iterator {
+  const_cast<item*>(&*it)->detach();
+
+  auto buffer_hit = buffer_index_.insert(std::move(*it)).first;
+  buffer_cache_.push_front(const_cast<item*>(&*buffer_hit));
+
+  history_cache_.erase(it);
+
+  return buffer_hit;
+}
 
 }  // namespace dsac

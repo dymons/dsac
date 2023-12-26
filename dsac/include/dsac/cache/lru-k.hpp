@@ -34,6 +34,8 @@ private:
 
   auto promote(const index::iterator& it) const -> void;
 
+  auto move_to_buffer_cache_with_promote(const index::iterator& it) -> index::iterator;
+
   struct item final : intrusive::list_node_base<item> {
     explicit item(const Key& key, const Value& value = Value())
       : key(key)
