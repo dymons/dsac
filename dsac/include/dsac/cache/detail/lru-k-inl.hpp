@@ -3,7 +3,7 @@
 #endif
 
 namespace dsac {
-//
+
 template <typename Key, typename Value>
 lru_k<Key, Value>::lru_k(std::size_t const capacity, std::size_t const k)
   : capacity_(capacity)
