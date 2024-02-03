@@ -92,7 +92,7 @@ struct extendible_hashtable_base {
         // of the directory. So, the first step then
         // is to expand the directory.
         if (original_bucket->local_depth() >= global_depth_) {
-          // The first step is to increase the local depth of the original bucket
+          // The local depth of the original bucket and its split image are set to local_depth + 1
           ++original_bucket->mutable_local_depth();
 
           // Then double directory
