@@ -43,15 +43,19 @@ struct extendible_hashtable_base {
       chain_.insert_or_assign(key, value);
     }
 
-    auto size() -> std::size_t {
+    auto size() const -> std::size_t {
       return chain_.size();
     }
 
-    auto capacity() -> std::size_t {
+    auto capacity() const -> std::size_t {
       return bucket_size_;
     }
 
-    auto local_depth() -> std::size_t {
+    auto local_depth() const -> std::size_t {
+      return local_depth_;
+    }
+
+    auto mutable_local_depth() -> std::size_t& {
       return local_depth_;
     }
 
@@ -85,6 +89,10 @@ struct extendible_hashtable_base {
         // of the directory. So, the first step then
         // is to expand the directory.
         if (bucket->local_depth() >= global_depth_) {
+          // The first step is to increase the local depth of the bucket
+          ++bucket->mutable_local_depth();
+
+          // Then double directory
           for (auto begin = std::size_t{}, end = buckets_.size(); begin < end; ++begin) {
             buckets_.push_back(buckets_[begin]);
           }
