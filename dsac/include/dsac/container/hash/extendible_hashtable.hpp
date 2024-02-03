@@ -1,8 +1,8 @@
 #pragma once
 
+#include <dsac/common/macros.h>
 #include <dsac/container/dynamic_array.hpp>
 #include <dsac/memory/shared_ptr.hpp>
-#include <dsac/common/macros.h>
 
 #include <cstddef>
 #include <map>
@@ -36,14 +36,15 @@ struct extendible_hashtable_base {
   */
   class extendible_hashtable_bucket final {
   public:
-    explicit extendible_hashtable_bucket(std::size_t local_depth, std::size_t bucket_size)
-      : local_depth_(local_depth)
-      , bucket_size_(bucket_size) {
+    static auto make(std::size_t local_depth, std::size_t bucket_size) {
+      return make_shared<extendible_hashtable_bucket>(new extendible_hashtable_bucket{local_depth, bucket_size});
     }
 
-    auto insert(Key const& key, Value const& value) -> void {
-      chain_.insert_or_assign(key, value);
+    auto insert(Key&& key, Value&& value) -> void {
+      DSAC_ASSERT(has_capacity(), "Not enough space at extendible_hashtable_bucket");
+      chain_.insert_or_assign(std::move(key), std::move(value));
     }
+
     auto local_depth() const -> std::size_t {
       return local_depth_;
     }
@@ -56,7 +57,24 @@ struct extendible_hashtable_base {
       return chain_.size() < bucket_size_;
     }
 
+    auto capacity() const -> std::size_t {
+      return bucket_size_;
+    }
+
+    auto begin() {
+      return chain_.begin();
+    }
+
+    auto end() {
+      return chain_.end();
+    }
+
   private:
+    explicit extendible_hashtable_bucket(std::size_t local_depth, std::size_t bucket_size)
+      : local_depth_(local_depth)
+      , bucket_size_(bucket_size) {
+    }
+
     ///
     std::size_t local_depth_;
 
@@ -72,16 +90,19 @@ struct extendible_hashtable_base {
         It is a directory implementation
   */
   class extendible_hashtable_directory final {
+    using directory = extendible_hashtable_directory;
+    using bucket    = extendible_hashtable_bucket;
+
   public:
     explicit extendible_hashtable_directory(std::size_t global_depth, std::size_t bucket_size)
       : global_depth_(global_depth) {
       buckets_.reserve(std::size_t{1} << global_depth_);
       for (auto begin = std::size_t{}, end = std::size_t{1} << global_depth_; begin < end; ++begin) {
-        buckets_.push_back(make_shared<extendible_hashtable_bucket>(global_depth, bucket_size));
+        buckets_.push_back(bucket::make(global_depth, bucket_size));
       }
     }
 
-    auto insert(Key const& key, Value const& value) -> void {
+    auto insert(Key&& key, Value&& value) -> void {
       if (auto [original_bucket, index] = get_bucket_with_index_by_key(key); not original_bucket->has_capacity()) {
         // Step 1. The local depth of the original bucket
         // and its split image are set to local_depth + 1
@@ -105,10 +126,21 @@ struct extendible_hashtable_base {
         // our buckets into separate buckets for storing key/value.
         auto& split_image = buckets_[index ^ (std::size_t{1} << (original_bucket->local_depth() - 1))];
         DSAC_ASSERT(original_bucket == split_image, "Original Bucket is not equal to Split Image");
+
+        // Step 4. Create new buckets and reinsert values from original_bucket
+        split_image     = bucket::make(original_bucket->local_depth(), original_bucket->capacity());
+        buckets_[index] = bucket::make(original_bucket->local_depth(), original_bucket->capacity());
+        std::for_each(
+            std::make_move_iterator(original_bucket->begin()),
+            std::make_move_iterator(original_bucket->end()),
+            [this](auto&& data) {
+              this->insert(std::move(data.first), std::move(data.second));  //
+            }
+        );
       }
 
       // After split the directory, we can store our key/value
-      get_bucket_by_key(key)->insert(key, value);
+      get_bucket_by_key(key)->insert(std::move(key), std::move(value));
     }
 
   private:
@@ -125,7 +157,7 @@ struct extendible_hashtable_base {
     std::size_t global_depth_;
 
     ///
-    dynamic_array<shared_ptr<extendible_hashtable_bucket>> buckets_;
+    dynamic_array<shared_ptr<bucket>> buckets_;
   };
 
   explicit extendible_hashtable_base(std::size_t global_depth, std::size_t bucket_size)
@@ -148,8 +180,8 @@ public:
     : base(global_depth, bucket_size) {
   }
 
-  auto insert(Key const& key, Value const& value) -> void {
-    this->directory.insert(key, value);
+  auto insert(Key key, Value value) -> void {
+    this->directory.insert(std::move(key), std::move(value));
   }
 };
 

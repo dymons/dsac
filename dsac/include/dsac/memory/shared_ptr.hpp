@@ -286,4 +286,9 @@ shared_ptr<T> make_shared(Args&&... args) {
   return shared_ptr<T>(new T(std::forward<Args>(args)...));
 }
 
+template <typename T>
+shared_ptr<T> make_shared(T* other) {
+  return shared_ptr<T>(other);
+}
+
 }  // namespace dsac
