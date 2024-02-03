@@ -143,6 +143,10 @@ struct extendible_hashtable_base {
       get_bucket_by_key(key)->insert(std::move(key), std::move(value));
     }
 
+    auto size() const -> std::size_t {
+      return buckets_.size();
+    }
+
   private:
     [[nodiscard]] auto get_bucket_with_index_by_key(Key const& key) const {
       auto const index = std::hash(key) & ((1 << global_depth_) - 1);
@@ -183,6 +187,10 @@ public:
   auto insert(Key key, Value value) -> void {
     this->directory.insert(std::move(key), std::move(value));
   }
+
+  auto size() const -> std::size_t {
+    return this->directory.size();
+  };
 };
 
 }  // namespace dsac
