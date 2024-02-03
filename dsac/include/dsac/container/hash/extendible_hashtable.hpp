@@ -2,6 +2,7 @@
 
 #include <dsac/container/dynamic_array.hpp>
 #include <dsac/memory/shared_ptr.hpp>
+#include <dsac/common/macros.h>
 
 #include <cstddef>
 #include <map>
@@ -43,21 +44,16 @@ struct extendible_hashtable_base {
     auto insert(Key const& key, Value const& value) -> void {
       chain_.insert_or_assign(key, value);
     }
-
-    auto size() const -> std::size_t {
-      return chain_.size();
-    }
-
-    auto capacity() const -> std::size_t {
-      return bucket_size_;
-    }
-
     auto local_depth() const -> std::size_t {
       return local_depth_;
     }
 
     auto mutable_local_depth() -> std::size_t& {
       return local_depth_;
+    }
+
+    auto has_capacity() const -> bool {
+      return chain_.size() < bucket_size_;
     }
 
   private:
@@ -86,15 +82,16 @@ struct extendible_hashtable_base {
     }
 
     auto insert(Key const& key, Value const& value) -> void {
-      if (auto original_bucket = get_bucket_by_key(key); original_bucket->size() == original_bucket->capacity()) {
-        // A bucket split is only possible then the local_depth
-        // of the bucket is less than the global_depth
-        // of the directory. So, the first step then
-        // is to expand the directory.
-        if (original_bucket->local_depth() >= global_depth_) {
-          // The local depth of the original bucket and its split image are set to local_depth + 1
-          ++original_bucket->mutable_local_depth();
+      if (auto [original_bucket, index] = get_bucket_with_index_by_key(key); not original_bucket->has_capacity()) {
+        // Step 1. The local depth of the original bucket
+        // and its split image are set to local_depth + 1
+        ++original_bucket->mutable_local_depth();
 
+        // Step 2. A bucket split is only possible then
+        // the local_depth of the bucket is less than
+        // the global_depth of the directory. So, the
+        // first step then is to expand the directory.
+        if (original_bucket->local_depth() >= global_depth_) {
           // Then double directory
           for (auto begin = std::size_t{}, end = buckets_.size(); begin < end; ++begin) {
             buckets_.push_back(buckets_[begin]);
@@ -104,8 +101,10 @@ struct extendible_hashtable_base {
           ++global_depth_;
         }
 
-        // So, we have enough entries, we have to split out buckets into
-        // separate buckets for storing key/value
+        // Step 3. So, we have enough entries, we have to split
+        // our buckets into separate buckets for storing key/value.
+        auto& split_image = buckets_[index ^ (std::size_t{1} << (original_bucket->local_depth() - 1))];
+        DSAC_ASSERT(original_bucket == split_image, "Original Bucket is not equal to Split Image");
       }
 
       // After split the directory, we can store our key/value
@@ -113,8 +112,13 @@ struct extendible_hashtable_base {
     }
 
   private:
+    [[nodiscard]] auto get_bucket_with_index_by_key(Key const& key) const {
+      auto const index = std::hash(key) & ((1 << global_depth_) - 1);
+      return std::make_pair(buckets_[index], index);
+    }
+
     [[nodiscard]] auto get_bucket_by_key(Key const& key) const {
-      return buckets_[std::hash(key) & ((1 << global_depth_) - 1)];
+      return get_bucket_with_index_by_key(key).first;
     }
 
     ///
