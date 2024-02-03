@@ -39,6 +39,22 @@ struct extendible_hashtable_base {
       , bucket_size_(bucket_size) {
     }
 
+    auto insert(Key const& key, Value const& value) -> void {
+      chain_.insert_or_assign(key, value);
+    }
+
+    auto size() -> std::size_t {
+      return chain_.size();
+    }
+
+    auto capacity() -> std::size_t {
+      return bucket_size_;
+    }
+
+    auto local_depth() -> std::size_t {
+      return local_depth_;
+    }
+
   private:
     ///
     std::size_t local_depth_;
@@ -61,7 +77,35 @@ struct extendible_hashtable_base {
       , buckets_(1 << global_depth_, extendible_hashtable_bucket{global_depth_, bucket_size}) {
     }
 
+    auto insert(Key const& key, Value const& value) -> void {
+      auto* bucket = get_bucket_by_key(key);
+      if (bucket->size() == bucket->capacity()) {
+        // A bucket split is only possible then the local_depth
+        // of the bucket is less than the global_depth
+        // of the directory. So, the first step then
+        // is to expand the directory.
+        if (bucket->local_depth() >= global_depth_) {
+          for (auto begin = std::size_t{}, end = buckets_.size(); begin < end; ++begin) {
+            buckets_.push_back(buckets_[begin]);
+          }
+
+          // After double directory, we have to increase global depth
+          ++global_depth_;
+        }
+
+        // So, we have enough entries, we have to split out buckets into
+        // separate buckets for storing key/value
+      }
+
+      // After split the directory, we can store our key/value
+      get_bucket_by_key(key)->insert(key, value);
+    }
+
   private:
+    [[nodiscard]] auto get_bucket_by_key(Key const& key) const -> extendible_hashtable_bucket* {
+      return buckets_[std::hash(key) & ((1 << global_depth_) - 1)];
+    }
+
     ///
     std::size_t global_depth_;
 
@@ -89,7 +133,8 @@ public:
     : base(global_depth, bucket_size) {
   }
 
-  auto insert(Key key, Value value) -> void {
+  auto insert(Key const& key, Value const& value) -> void {
+    this->directory.insert(key, value);
   }
 };
 
