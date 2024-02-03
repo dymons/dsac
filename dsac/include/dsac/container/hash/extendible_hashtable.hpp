@@ -1,6 +1,7 @@
 #pragma once
 
 #include <dsac/container/dynamic_array.hpp>
+#include <dsac/memory/shared_ptr.hpp>
 
 #include <cstddef>
 #include <map>
@@ -77,20 +78,23 @@ struct extendible_hashtable_base {
   class extendible_hashtable_directory final {
   public:
     explicit extendible_hashtable_directory(std::size_t global_depth, std::size_t bucket_size)
-      : global_depth_(global_depth)
-      , buckets_(1 << global_depth_, extendible_hashtable_bucket{global_depth_, bucket_size}) {
+      : global_depth_(global_depth) {
+      buckets_.reserve(std::size_t{1} << global_depth_);
+      for (auto begin = std::size_t{}, end = std::size_t{1} << global_depth_; begin < end; ++begin) {
+        buckets_.push_back(make_shared<extendible_hashtable_bucket>(global_depth, bucket_size));
+      }
     }
 
     auto insert(Key const& key, Value const& value) -> void {
-      auto* bucket = get_bucket_by_key(key);
-      if (bucket->size() == bucket->capacity()) {
+      auto bucket = get_bucket_by_key(key);
+      if (auto original_bucket = bucket; bucket->size() == bucket->capacity()) {
         // A bucket split is only possible then the local_depth
         // of the bucket is less than the global_depth
         // of the directory. So, the first step then
         // is to expand the directory.
-        if (bucket->local_depth() >= global_depth_) {
-          // The first step is to increase the local depth of the bucket
-          ++bucket->mutable_local_depth();
+        if (original_bucket->local_depth() >= global_depth_) {
+          // The first step is to increase the local depth of the original bucket
+          ++original_bucket->mutable_local_depth();
 
           // Then double directory
           for (auto begin = std::size_t{}, end = buckets_.size(); begin < end; ++begin) {
@@ -110,7 +114,7 @@ struct extendible_hashtable_base {
     }
 
   private:
-    [[nodiscard]] auto get_bucket_by_key(Key const& key) const -> extendible_hashtable_bucket* {
+    [[nodiscard]] auto get_bucket_by_key(Key const& key) const {
       return buckets_[std::hash(key) & ((1 << global_depth_) - 1)];
     }
 
@@ -118,7 +122,7 @@ struct extendible_hashtable_base {
     std::size_t global_depth_;
 
     ///
-    dynamic_array<extendible_hashtable_bucket> buckets_;
+    dynamic_array<shared_ptr<extendible_hashtable_bucket>> buckets_;
   };
 
   explicit extendible_hashtable_base(std::size_t global_depth, std::size_t bucket_size)
