@@ -86,8 +86,7 @@ struct extendible_hashtable_base {
     }
 
     auto insert(Key const& key, Value const& value) -> void {
-      auto bucket = get_bucket_by_key(key);
-      if (auto original_bucket = bucket; bucket->size() == bucket->capacity()) {
+      if (auto original_bucket = get_bucket_by_key(key); original_bucket->size() == original_bucket->capacity()) {
         // A bucket split is only possible then the local_depth
         // of the bucket is less than the global_depth
         // of the directory. So, the first step then
