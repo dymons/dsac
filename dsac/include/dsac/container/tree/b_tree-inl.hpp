@@ -162,4 +162,5 @@ template <typename T>
 bool BTree<T>::Contains(T key) const {
   return root_ != nullptr && root_->Contains(key);
 }
+
 }  // namespace dsac::tree

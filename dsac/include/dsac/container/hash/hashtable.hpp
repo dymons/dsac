@@ -1,7 +1,7 @@
 #pragma once
 
-#include "../../../../../../../../../../usr/include/c++/11/stdexcept"
-#include "../../../../../../../../../../usr/include/c++/11/vector"
+#include <stdexcept>
+#include <vector>
 
 namespace dsac::hashtable {
 template <typename Key, typename Value, typename Hash = std::hash<Key>>
