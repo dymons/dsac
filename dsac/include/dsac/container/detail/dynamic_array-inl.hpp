@@ -196,6 +196,12 @@ typename dynamic_array<T, Allocator>::reference dynamic_array<T, Allocator>::ope
 }
 
 template <typename T, typename Allocator>
+typename dynamic_array<T, Allocator>::const_reference dynamic_array<T, Allocator>::operator[](size_type n
+) const noexcept {
+  return *(storage_.start + n);
+}
+
+template <typename T, typename Allocator>
 bool dynamic_array<T, Allocator>::empty() const noexcept {
   return begin() == end();
 }

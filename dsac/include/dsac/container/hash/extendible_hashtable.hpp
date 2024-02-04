@@ -40,7 +40,7 @@ struct extendible_hashtable_base {
       return make_shared<extendible_hashtable_bucket>(new extendible_hashtable_bucket{local_depth, bucket_size});
     }
 
-    auto insert(Key&& key, Value&& value) -> void {
+    auto insert(Key const& key, Value const& value) -> void {
       DSAC_ASSERT(has_capacity(), "Not enough space at extendible_hashtable_bucket");
       chain_.insert_or_assign(std::move(key), std::move(value));
     }
@@ -67,6 +67,10 @@ struct extendible_hashtable_base {
 
     auto end() {
       return chain_.end();
+    }
+
+    auto contains(Key const& key) const -> bool {
+      return chain_.contains(key);
     }
 
   private:
@@ -102,7 +106,7 @@ struct extendible_hashtable_base {
       }
     }
 
-    auto insert(Key&& key, Value&& value) -> void {
+    auto insert(Key const& key, Value const& value) -> void {
       if (auto [original_bucket, index] = get_bucket_with_index_by_key(key); not original_bucket->has_capacity()) {
         // Step 1. The local depth of the original bucket
         // and its split image are set to local_depth + 1
@@ -130,26 +134,36 @@ struct extendible_hashtable_base {
         // Step 4. Create new buckets and reinsert values from original_bucket
         split_image     = bucket::make(original_bucket->local_depth(), original_bucket->capacity());
         buckets_[index] = bucket::make(original_bucket->local_depth(), original_bucket->capacity());
-        std::for_each(
-            std::make_move_iterator(original_bucket->begin()),
-            std::make_move_iterator(original_bucket->end()),
-            [this](auto&& data) {
-              this->insert(std::move(data.first), std::move(data.second));  //
-            }
-        );
+
+        // Keys in each bucket now agree on the d + 1 least significant bit
+        DSAC_ASSERT(true, "Keys in each bucket now agree on the d + 1");
+
+        for (auto it = original_bucket->begin(); it != original_bucket->end(); ++it) {
+          if (std::hash<Key>{}((*it).first) & (1 << original_bucket->local_depth())) {
+            // Keys with a 1 are placed in a new bucket called the split image of the original bucket
+            split_image->insert((*it).first, (*it).second);
+          } else {
+            // Keys with a 0 for this bit remain in the original bucket
+            buckets_[index]->insert((*it).first, (*it).second);
+          }
+        }
       }
 
       // After split the directory, we can store our key/value
-      get_bucket_by_key(key)->insert(std::move(key), std::move(value));
+      get_bucket_by_key(key)->insert(key, value);
     }
 
     auto size() const -> std::size_t {
       return buckets_.size();
     }
 
+    auto contains(Key const& key) const -> bool {
+      return get_bucket_by_key(key)->contains(key);
+    }
+
   private:
     [[nodiscard]] auto get_bucket_with_index_by_key(Key const& key) const {
-      auto const index = std::hash(key) & ((1 << global_depth_) - 1);
+      auto const index = std::hash<Key>{}(key) & ((1 << global_depth_) - 1);
       return std::make_pair(buckets_[index], index);
     }
 
@@ -184,13 +198,17 @@ public:
     : base(global_depth, bucket_size) {
   }
 
-  auto insert(Key key, Value value) -> void {
-    this->directory.insert(std::move(key), std::move(value));
+  auto insert(Key const& key, Value const& value) -> void {
+    this->directory.insert(key, value);
   }
 
   auto size() const -> std::size_t {
     return this->directory.size();
   };
+
+  auto contains(Key const& key) const -> bool {
+    return this->directory.contains(key);
+  }
 };
 
 }  // namespace dsac
