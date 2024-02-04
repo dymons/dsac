@@ -21,11 +21,20 @@ TEST_CASE("Extendible hashtable should be constructable", "[extendible_hashtable
 }
 
 TEST_CASE("Extendible hashtable should expand automatically", "[extendible_hashtable][default]") {
-  SECTION("Given global and local depth when them is equal to zero then initial directory has one pointer to one bucket") {
+  SECTION(
+      "Given global and local depth "
+      "When them is equal to zero "
+      "Then initial directory has one pointer to one bucket"
+  ) {
     auto hashtable = extendible_hashtable<key, value>{/*global_depth=*/0, kDefaultBucketSize};
     REQUIRE(hashtable.size() == 1);
   }
-  SECTION("Given empty extendible hashtable when has a collision then bucket split") {
+
+  SECTION(
+      "Given empty extendible hashtable"
+      "When insert two keys which has a collision by three least significant bits"
+      "Then bucket split cascade"
+  ) {
     GIVEN("Given empty extendible hashtable") {
       auto hashtable = extendible_hashtable<key, value>{/*global_depth=*/1, kDefaultBucketSize};
       REQUIRE(hashtable.size() == 2);
