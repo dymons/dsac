@@ -50,8 +50,8 @@ TEST_CASE("Extendible hashtable should expand automatically", "[extendible_hasht
             // key2 has a binary representation - 010010111010001010100110001001001000000010000110010111010011010
             //                                                                                                ^^^
             //                                                                  we have three bits which is equal
-            //                                                                  and each splits each split saves
-            //                                                                  the keys to the same bucket
+            //                                                                  and each splits saves the keys to
+            //                                                                  the same bucket
             REQUIRE(hashtable.size() == 16);
             REQUIRE(hashtable.contains("key1"));
             REQUIRE(hashtable.contains("key3"));
