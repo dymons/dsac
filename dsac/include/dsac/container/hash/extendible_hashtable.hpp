@@ -117,7 +117,8 @@ struct extendible_hashtable_base {
         // the local_depth of the bucket is less than
         // the global_depth of the directory. So, the
         // first step then is to expand the directory.
-        if (original_bucket->local_depth() == global_depth_) {
+        auto const original_bucket_depth = original_bucket->local_depth();
+        if (original_bucket_depth == global_depth_) {
           // Then double directory
           for (auto begin = std::size_t{}, end = buckets_.size(); begin < end; ++begin) {
             buckets_.push_back(buckets_[begin]);
@@ -127,8 +128,7 @@ struct extendible_hashtable_base {
           ++global_depth_;
         }
         DSAC_ASSERT(
-            original_bucket->local_depth() < global_depth_,
-            "A bucket split is only possible if local_depth < global_depth"
+            original_bucket_depth < global_depth_, "A bucket split is only possible if local_depth < global_depth"
         );
 
         // Step 2. The local depth of the original bucket
@@ -138,14 +138,18 @@ struct extendible_hashtable_base {
         // Step 3. So, we have enough entries, we have to split
         // our buckets into separate buckets for storing key/value.
         auto& split_image = buckets_[index ^ (std::size_t{1} << (original_bucket->local_depth() - 1))];
-        DSAC_ASSERT(original_bucket == split_image, "Original Bucket is not equal to Split Image");
+        DSAC_ASSERT(original_bucket == split_image, "Original bucket is not equal to split image");
 
         // Step 4. Create new buckets and reinsert values from original_bucket
         split_image     = bucket::make(original_bucket->local_depth(), original_bucket->capacity());
         buckets_[index] = bucket::make(original_bucket->local_depth(), original_bucket->capacity());
 
         // Keys in each bucket now agree on the d + 1 least significant bit
-        DSAC_ASSERT(true, "Keys in each bucket now agree on the d + 1");
+        DSAC_ASSERT(
+            (split_image->local_depth() == original_bucket_depth + 1) &&
+                (buckets_[index]->local_depth() == original_bucket_depth + 1),
+            "Keys in each bucket now agree on the local_depth + 1"
+        );
 
         // Step 5. After an unlucky split all keys might be placed in
         // the one of the two new buckets. Possible leading to a cascade of splits
