@@ -108,15 +108,16 @@ struct extendible_hashtable_base {
 
     auto insert(Key const& key, Value const& value) -> void {
       if (auto [original_bucket, index] = get_bucket_with_index_by_key(key); not original_bucket->has_capacity()) {
-        // Step 1. The local depth of the original bucket
-        // and its split image are set to local_depth + 1
-        ++original_bucket->mutable_local_depth();
+        DSAC_ASSERT(
+            original_bucket->local_depth() <= global_depth_,
+            "A bucket cannot have a depth greater than the directory depth"
+        );
 
-        // Step 2. A bucket split is only possible then
+        // Step 1. A bucket split is only possible then
         // the local_depth of the bucket is less than
         // the global_depth of the directory. So, the
         // first step then is to expand the directory.
-        if (original_bucket->local_depth() >= global_depth_) {
+        if (original_bucket->local_depth() == global_depth_) {
           // Then double directory
           for (auto begin = std::size_t{}, end = buckets_.size(); begin < end; ++begin) {
             buckets_.push_back(buckets_[begin]);
@@ -125,6 +126,14 @@ struct extendible_hashtable_base {
           // After double directory, we have to increase global depth
           ++global_depth_;
         }
+        DSAC_ASSERT(
+            original_bucket->local_depth() < global_depth_,
+            "A bucket split is only possible if local_depth < global_depth"
+        );
+
+        // Step 2. The local depth of the original bucket
+        // and its split image are set to local_depth + 1
+        ++original_bucket->mutable_local_depth();
 
         // Step 3. So, we have enough entries, we have to split
         // our buckets into separate buckets for storing key/value.
@@ -138,13 +147,14 @@ struct extendible_hashtable_base {
         // Keys in each bucket now agree on the d + 1 least significant bit
         DSAC_ASSERT(true, "Keys in each bucket now agree on the d + 1");
 
-        // After an unlucky split all keys might be placed in the one of the two new buckets.
-        // Possible leading to a cascade of splits
+        // Step 5. After an unlucky split all keys might be placed in
+        // the one of the two new buckets. Possible leading to a cascade of splits
         for (auto it = original_bucket->begin(); it != original_bucket->end(); ++it) {
           insert(it->first, it->second);
         }
 
-        // After the split we attempt to add k again. Typically, after the split the new bucket has free space
+        // Step 6. After the split we attempt to add k again.
+        // Typically, after the split the new bucket has free space
         insert(key, value);
 
         return;
