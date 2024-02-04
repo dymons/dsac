@@ -45,6 +45,13 @@ TEST_CASE("Extendible hashtable should expand automatically", "[extendible_hasht
             // So, we expected to see 4, but gotten 16. After an unlucky split
             // all keys might be placed in the one of the two new buckets.
             // Possible leading to a cascade of splits
+
+            // key1 has a binary representation - 111000001001111100011011001001010111110001011011011101001100010
+            // key2 has a binary representation - 010010111010001010100110001001001000000010000110010111010011010
+            //                                                                                                ^^^
+            //                                                                  we have three bits which is equal
+            //                                                                  and each splits each split saves
+            //                                                                  the keys to the same bucket
             REQUIRE(hashtable.size() == 16);
             REQUIRE(hashtable.contains("key1"));
             REQUIRE(hashtable.contains("key3"));

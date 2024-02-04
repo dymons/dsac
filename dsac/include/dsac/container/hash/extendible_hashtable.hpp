@@ -160,8 +160,13 @@ struct extendible_hashtable_base {
     }
 
   private:
+    [[nodiscard]] auto get_hash(Key const& key) const -> std::size_t {
+      return std::hash<Key>{}(key);
+    }
+
     [[nodiscard]] auto get_bucket_with_index_by_key(Key const& key) const {
-      auto const index = std::hash<Key>{}(key) & ((1 << global_depth_) - 1);
+      auto const hash  = get_hash(key);
+      auto const index = hash & ((1 << global_depth_) - 1);
       return std::make_pair(buckets_[index], index);
     }
 
