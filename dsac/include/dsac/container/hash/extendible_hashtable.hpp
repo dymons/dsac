@@ -138,16 +138,19 @@ struct extendible_hashtable_base {
         // Keys in each bucket now agree on the d + 1 least significant bit
         DSAC_ASSERT(true, "Keys in each bucket now agree on the d + 1");
 
+        // After an unlucky split all keys might be placed in the one of the two new buckets.
+        // Possible leading to a cascade of splits
         for (auto it = original_bucket->begin(); it != original_bucket->end(); ++it) {
           insert(it->first, it->second);
         }
 
+        // After the split we attempt to add k again. Typically, after the split the new bucket has free space
         insert(key, value);
 
         return;
       }
 
-      // After split the directory, we can store our key/value
+      // Have enough spaces, store our key/value to the bucket
       get_bucket_by_key(key)->insert(key, value);
     }
 
@@ -165,8 +168,7 @@ struct extendible_hashtable_base {
     }
 
     [[nodiscard]] auto get_bucket_with_index_by_key(Key const& key) const {
-      auto const hash  = get_hash(key);
-      auto const index = hash & ((1 << global_depth_) - 1);
+      auto const index = get_hash(key) & ((1 << global_depth_) - 1);
       return std::make_pair(buckets_[index], index);
     }
 
