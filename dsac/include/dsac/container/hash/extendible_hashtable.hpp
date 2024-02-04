@@ -139,14 +139,12 @@ struct extendible_hashtable_base {
         DSAC_ASSERT(true, "Keys in each bucket now agree on the d + 1");
 
         for (auto it = original_bucket->begin(); it != original_bucket->end(); ++it) {
-          if (std::hash<Key>{}((*it).first) & (1 << original_bucket->local_depth())) {
-            // Keys with a 1 are placed in a new bucket called the split image of the original bucket
-            split_image->insert((*it).first, (*it).second);
-          } else {
-            // Keys with a 0 for this bit remain in the original bucket
-            buckets_[index]->insert((*it).first, (*it).second);
-          }
+          insert(it->first, it->second);
         }
+
+        insert(key, value);
+
+        return;
       }
 
       // After split the directory, we can store our key/value
