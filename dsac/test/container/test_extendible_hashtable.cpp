@@ -2,6 +2,8 @@
 
 #include <dsac/container/hash/extendible_hashtable.hpp>
 
+#include <unordered_map>
+
 namespace {
 
 using namespace dsac;
@@ -11,6 +13,44 @@ auto const kDefaultBucketSize  = std::size_t{1};
 
 using key   = std::string;
 using value = std::string;
+
+// Какие свойства хотим проверить:
+/*
+ * Необходимы и достаточны:
+ * При добавлении не теряем старые значения
+ * При добавлении старые значения не изменяются
+ * Если есть конфликт двух ключей, то размер GD должен быть равен 2 ^ bit-width-conflict + 1
+ *
+ * Свойства проверяемы
+ *
+ * */
+
+class extendible_hashtable_fixture final {
+  using key   = std::string;
+  using value = std::string;
+
+public:
+  auto insert(key key, value value) -> void {
+    std::for_each(begin(hashtable_), end(hashtable_), [this](const auto& data) {
+      REQUIRE(extendible_hashtable_.contains(data.first));
+    });
+
+    extendible_hashtable_.insert(key, value);
+    hashtable_.insert_or_assign(key, value);
+
+    std::for_each(begin(hashtable_), end(hashtable_), [this](const auto& data) {
+      REQUIRE(extendible_hashtable_.contains(data.first));
+    });
+  }
+
+  auto size() const -> std::size_t {
+    return extendible_hashtable_.size();
+  }
+
+private:
+  extendible_hashtable<key, value> extendible_hashtable_{/*global_depth=*/1, /*buffer_size=*/1};
+  std::unordered_map<key, value>   hashtable_{};
+};
 
 }  // namespace
 
@@ -36,19 +76,18 @@ TEST_CASE("Extendible hashtable should expand automatically", "[extendible_hasht
       "Then bucket split cascade"
   ) {
     GIVEN("Given empty extendible hashtable") {
-      auto hashtable = extendible_hashtable<key, value>{/*global_depth=*/1, kDefaultBucketSize};
-      REQUIRE(hashtable.size() == 2);
+      auto fixture = extendible_hashtable_fixture{};
+      REQUIRE(fixture.size() == 2);
 
       WHEN("Insert a key") {
-        hashtable.insert("key1", "value1");
+        fixture.insert("key1", "value1");
 
         THEN("Extendible hashtable should not expanded") {
-          REQUIRE(hashtable.size() == 2);
-          REQUIRE(hashtable.contains("key1"));
+          REQUIRE(fixture.size() == 2);
         }
 
         WHEN("Insert a new key with collision") {
-          hashtable.insert("key3", "value3");
+          fixture.insert("key3", "value3");
 
           THEN("Extendible hashtable should split bucket") {
             // So, we expected to see 4, but gotten 16. After an unlucky split
@@ -61,9 +100,7 @@ TEST_CASE("Extendible hashtable should expand automatically", "[extendible_hasht
             //                                                                  we have three bits which is equal
             //                                                                  and each splits saves the keys to
             //                                                                  the same bucket
-            REQUIRE(hashtable.size() == 16);
-            REQUIRE(hashtable.contains("key1"));
-            REQUIRE(hashtable.contains("key3"));
+            REQUIRE(fixture.size() == 16);
           }
         }
       }
