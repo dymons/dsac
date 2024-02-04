@@ -14,23 +14,13 @@ auto const kDefaultBucketSize  = std::size_t{1};
 using key   = std::string;
 using value = std::string;
 
-// Какие свойства хотим проверить:
-/*
- * Необходимы и достаточны:
- * При добавлении не теряем старые значения
- * При добавлении старые значения не изменяются
- * Если есть конфликт двух ключей, то размер GD должен быть равен 2 ^ bit-width-conflict + 1
- *
- * Свойства проверяемы
- *
- * */
-
 class extendible_hashtable_fixture final {
   using key   = std::string;
   using value = std::string;
 
 public:
   auto insert(key key, value value) -> void {
+    // Property: We should not lose or add new values before insert new key/value
     std::for_each(begin(hashtable_), end(hashtable_), [this](const auto& data) {
       REQUIRE(extendible_hashtable_.contains(data.first));
     });
@@ -38,12 +28,16 @@ public:
     extendible_hashtable_.insert(key, value);
     hashtable_.insert_or_assign(key, value);
 
+    // Property: We should not lose or add new values after insert new key/value
     std::for_each(begin(hashtable_), end(hashtable_), [this](const auto& data) {
       REQUIRE(extendible_hashtable_.contains(data.first));
     });
+
+    // Property: The depth of the directory must be equal to the maximum length of the key collision + 1
+
   }
 
-  auto size() const -> std::size_t {
+  [[nodiscard]] auto size() const noexcept -> std::size_t {
     return extendible_hashtable_.size();
   }
 
