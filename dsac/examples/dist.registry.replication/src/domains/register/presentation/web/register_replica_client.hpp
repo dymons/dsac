@@ -40,7 +40,7 @@ public:
     static const inline factory::registractor<node##port> kRegistractor; \
                                                                          \
     auto get_port() -> int final {                                       \
-      return (port);                                                     \
+      return port;                                                       \
     }                                                                    \
     auto get_host() -> std::string final {                               \
       return "0.0.0.0";                                                  \

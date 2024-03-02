@@ -17,7 +17,7 @@ option(BUILD_BENCHMARKS
 option(BUILD_DOCS
         "Whether doxygen documentation should be installed" OFF)
 option(ENABLE_SANITIZE_ADDRESS
-        "Enable AddressSanitizer for sanitized targets." ON)
+        "Enable AddressSanitizer for sanitized targets." OFF)
 option(ENABLE_THREAD_ADDRESS
         "Enable ThreadSanitizer for sanitized targets." OFF)
 

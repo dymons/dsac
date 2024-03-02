@@ -50,7 +50,7 @@ auto register_replica_client::async_read() -> future<domain::register_value_obje
   return async_via(get_executor(), [host = get_host(), port = get_port()]() -> domain::register_value_object {
     httplib::Result const response =
         httplib::Client{host, port}.Post(read_register_handler::get_type_name(), kRequestEmpty, "text/json");
-    if (nullptr == response) {
+    if (!response) {
       throw service_unavailable{fmt::format("Failed to execute the request to host={}, port={}", host, port)};
     }
 

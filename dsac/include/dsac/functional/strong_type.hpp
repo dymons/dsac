@@ -10,12 +10,10 @@ public:
   explicit strong_type(T value)
     : value_(std::move(value)) {
   }
-  auto get() const& noexcept -> T const& {
-    return value_;
-  }
 
-  auto get() && -> T {
-    return std::move(value_);
+  template <typename Self>
+  auto&& get(this Self&& self) {
+    return std::forward<Self>(self).value_;
   }
 
 private:
