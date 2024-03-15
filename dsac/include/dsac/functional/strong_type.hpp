@@ -12,9 +12,11 @@ public:
   }
 
   template <typename Self>
-  auto&& get(this Self&& self) {
+  constexpr decltype(auto) get(this Self&& self) {
     return std::forward<Self>(self).value_;
   }
+
+  auto operator<=>(strong_type const&) const -> bool = default;
 
 private:
   T value_;
