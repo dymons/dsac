@@ -3,39 +3,50 @@
 #include <atomic>
 #include <optional>
 
+#include <dsac/common/macros.h>
+
 namespace dsac {
 
 template <typename T>
 class lock_free_stack final {
-  struct Node {
+  struct node final {
     T     value{};
-    Node* next{nullptr};
+    node* next{nullptr};
+
+    static node* make(T&& v, node* next) {
+      return new node{.value = std::move(v), .next = next};
+    }
   };
 
 public:
-  auto push(T value) -> void {
-    auto new_node = new Node{
-        .value = std::move(value),
-        .next  = head_.load(),
-    };
+  DISALLOW_COPY_AND_MOVE(lock_free_stack);
 
-    while (!head_.compare_exchange_weak(new_node->next, new_node)) {
-    };
-  }
-
-  auto pop() -> std::optional<T> {
-    while (true) {
-      auto* head = head_.load();
-      if (head == nullptr) {
-        return std::nullopt;
-      } else if (head_.compare_exchange_weak(head, head->next)) {
-        return std::move(head->value);
-      }
+  ~lock_free_stack() {
+    auto* current = head_.load();
+    while (nullptr != current) {
+      auto* next = current->next;
+      delete current;
+      current = next;
     }
   }
 
+  auto push(T v) -> void {
+    auto* new_node = node::make(std::move(v), head_.load());
+    while (!head_.compare_exchange_weak(new_node->next, new_node)) {
+    }
+  }
+
+  auto pop() -> std::optional<T> {
+    for (auto* current = head_.load(); nullptr != current;) {
+      if (head_.compare_exchange_weak(current, current->next)) {
+        return std::move(current->value);
+      }
+    }
+    return std::nullopt;
+  }
+
 private:
-  std::atomic<Node*> head_{nullptr};
+  std::atomic<node*> head_{nullptr};
 };
 
 }  // namespace dsac
