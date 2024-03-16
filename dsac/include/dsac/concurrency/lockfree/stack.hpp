@@ -13,8 +13,9 @@ class lock_free_stack final {
     T     value{};
     node* next{nullptr};
 
-    static node* make(T&& v, node* next) {
-      return new node{.value = std::move(v), .next = next};
+    template <std::same_as<T> U>
+    static node* make(U&& u, node* next) {
+      return new node{.value = std::forward<U>(u), .next = next};
     }
   };
 
