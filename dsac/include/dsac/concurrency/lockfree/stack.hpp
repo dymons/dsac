@@ -40,6 +40,7 @@ public:
       if (head_.compare_exchange_weak(current, current->next)) {
         auto value = std::move(current->value);
 
+        try_to_erase_free_list();
         if (--popped_count == 0) {
           delete current;
         } else {
