@@ -44,13 +44,11 @@ public:
   auto pop() -> std::optional<T> {
     for (auto* current = head_.load(); nullptr != current;) {
       if (head_.compare_exchange_weak(current, current->next)) {
-        auto value = std::move(current->value);
-
         current->next = free_list_.load();
         while (!free_list_.compare_exchange_weak(current->next, current)) {
         }
 
-        return std::move(value);
+        return std::move(current->value);
       }
     }
     return std::nullopt;
