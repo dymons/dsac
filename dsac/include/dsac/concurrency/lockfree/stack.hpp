@@ -23,14 +23,6 @@ public:
   DISALLOW_COPY_AND_MOVE(lock_free_stack);
 
   ~lock_free_stack() {
-    auto erase = [](auto* current) {
-      while (nullptr != current) {
-        auto* next = current->next;
-        delete current;
-        current = next;
-      }
-    };
-
     erase(head_.load());
     erase(free_list_.load());
   }
@@ -43,21 +35,50 @@ public:
   }
 
   auto pop() -> std::optional<T> {
+    ++popped_count;
     for (auto* current = head_.load(); nullptr != current;) {
       if (head_.compare_exchange_weak(current, current->next)) {
-        current->next = free_list_.load();
-        while (!free_list_.compare_exchange_weak(current->next, current)) {
+        auto value = std::move(current->value);
+
+        if (--popped_count == 0) {
+          delete current;
+        } else {
+          current->next = free_list_.load();
+          while (!free_list_.compare_exchange_weak(current->next, current)) {
+          }
         }
 
-        return std::move(current->value);
+        return std::move(value);
       }
     }
+
+    try_to_erase_free_list();
+    --popped_count;
     return std::nullopt;
   }
 
 private:
-  std::atomic<node*> head_{nullptr};
-  std::atomic<node*> free_list_{nullptr};
+  auto erase(auto* current) {
+    while (nullptr != current) {
+      auto* next = current->next;
+      delete current;
+      current = next;
+    }
+  }
+
+  auto try_to_erase_free_list() {
+    if (auto* current = free_list_.load(); nullptr != current) {
+      if (popped_count == 1) {
+        if (free_list_.compare_exchange_strong(current, nullptr)) {
+          erase(current);
+        }
+      }
+    }
+  }
+
+  std::atomic<node*>       head_{nullptr};
+  std::atomic<node*>       free_list_{nullptr};
+  std::atomic<std::size_t> popped_count{0};
 };
 
 }  // namespace dsac
