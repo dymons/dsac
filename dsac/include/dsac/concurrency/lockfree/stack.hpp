@@ -30,8 +30,9 @@ public:
     }
   }
 
-  auto push(T v) -> void {
-    auto* new_node = node::make(std::move(v), head_.load());
+  template <std::same_as<T> U>
+  auto push(U&& u) -> void {
+    auto* new_node = node::make(std::forward<U>(u), head_.load());
     while (!head_.compare_exchange_weak(new_node->next, new_node)) {
     }
   }
