@@ -22,12 +22,16 @@ public:
   DISALLOW_COPY_AND_MOVE(lock_free_stack);
 
   ~lock_free_stack() {
-    auto* current = head_.load();
-    while (nullptr != current) {
-      auto* next = current->next;
-      delete current;
-      current = next;
-    }
+    auto erase = [](auto* current) {
+      while (nullptr != current) {
+        auto* next = current->next;
+        delete current;
+        current = next;
+      }
+    };
+
+    erase(head_.load());
+    erase(free_list_.load());
   }
 
   template <std::same_as<T> U>
@@ -40,7 +44,13 @@ public:
   auto pop() -> std::optional<T> {
     for (auto* current = head_.load(); nullptr != current;) {
       if (head_.compare_exchange_weak(current, current->next)) {
-        return std::move(current->value);
+        auto value = std::move(current->value);
+
+        current->next = free_list_.load();
+        while (!free_list_.compare_exchange_weak(current->next, current)) {
+        }
+
+        return std::move(value);
       }
     }
     return std::nullopt;
@@ -48,6 +58,7 @@ public:
 
 private:
   std::atomic<node*> head_{nullptr};
+  std::atomic<node*> free_list_{nullptr};
 };
 
 }  // namespace dsac
