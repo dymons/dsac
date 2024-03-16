@@ -40,6 +40,7 @@ public:
         auto value = std::move(current->value);
 
         try_to_erase_free_list();
+
         if (--popped_count == 0) {
           delete current;
         } else {
@@ -53,6 +54,7 @@ public:
 
     try_to_erase_free_list();
     --popped_count;
+
     return std::nullopt;
   }
 
