@@ -44,6 +44,7 @@ public:
         if (--popped_count == 0) {
           delete current;
         } else {
+          // deferred reclamation
           current->next = free_stack_.load();
           push_to(free_stack_, current);
         }

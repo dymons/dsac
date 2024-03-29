@@ -40,18 +40,18 @@ auto mmap_allocator::get_page_bytes() -> std::size_t {
 }
 
 auto mmap_allocator::make(std::size_t pages) -> mmap_allocator {
-  const auto length = pages * get_page_bytes();
+  const auto bytes_to_allocate = pages * get_page_bytes();
 
   void* start = mmap(
       /*addr=*/nullptr,
-      /*length=*/length,
+      /*length=*/bytes_to_allocate,
       /*prot=*/PROT_READ | PROT_WRITE,
       /*flags=*/MAP_PRIVATE | MAP_ANONYMOUS,
       /*fd=*/-1,
       /*offset=*/0
   );
 
-  return mmap_allocator{static_cast<char*>(start), length};
+  return mmap_allocator{static_cast<char*>(start), bytes_to_allocate};
 }
 
 void mmap_allocator::protect_pages(std::size_t offset, std::size_t count) {
