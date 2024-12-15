@@ -1,10 +1,11 @@
-#include <dsac/concurrency/executors/blocking_queue.hpp>
-#include <dsac/concurrency/executors/executor.hpp>
 #include <dsac/concurrency/executors/static_thread_pool.hpp>
-#include <dsac/concurrency/executors/task.hpp>
-#include <dsac/container/dynamic_array.hpp>
 
 #include <thread>
+
+#include <dsac/concurrency/executors/blocking_queue.hpp>
+#include <dsac/concurrency/executors/executor.hpp>
+#include <dsac/concurrency/executors/task.hpp>
+#include <dsac/container/dynamic_array.hpp>
 
 namespace dsac {
 
@@ -12,32 +13,15 @@ namespace {
 
 class static_thread_poll final : public iexecutor {
 public:
-  /*!
-    \brief
-        User constructor, constructs a thread pool with fixed number of workers.
-  */
-  explicit static_thread_poll(const std::size_t workers);
-
-  /*!
-    \brief
-        Destructor.
-  */
   ~static_thread_poll() final = default;
+
+  explicit static_thread_poll(std::size_t const workers);
 
   void submit(task&& task) final;
   void join() final;
 
 private:
-  /*!
-    \brief
-        Initialize and run threads.
-  */
   void start_worker_threads(std::size_t workers);
-
-  /*!
-    \brief
-        Main routine handler in the thread pool.
-  */
   void worker_routine();
 
   /// Current user tasks awaiting execution

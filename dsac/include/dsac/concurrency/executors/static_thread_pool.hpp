@@ -1,6 +1,7 @@
 #pragma once
 
-#include <dsac/concurrency/executors/executor.hpp>
+#include <dsac/memory/shared_ptr.hpp>
+#include "fwd.hpp"
 
 namespace dsac {
 

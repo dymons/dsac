@@ -1,7 +1,6 @@
 #pragma once
 
 #include <dsac/concurrency/executors/task.hpp>
-#include <dsac/memory/shared_ptr.hpp>
 
 namespace dsac {
 
