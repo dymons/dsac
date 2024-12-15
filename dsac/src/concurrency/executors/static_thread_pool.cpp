@@ -18,30 +18,6 @@ public:
 
   /*!
     \brief
-        Copy constructor.
-  */
-  static_thread_poll(const static_thread_poll&) = delete;
-
-  /*!
-    \brief
-        Move constructor.
-  */
-  static_thread_poll(static_thread_poll&&) = delete;
-
-  /*!
-    \brief
-        Copy conversion constructor.
-  */
-  static_thread_poll& operator=(const static_thread_poll&) = delete;
-
-  /*!
-    \brief
-        Move conversion constructor.
-  */
-  static_thread_poll& operator=(static_thread_poll&&) = delete;
-
-  /*!
-    \brief
         Destructor.
   */
   ~static_thread_poll() final = default;
@@ -62,11 +38,11 @@ private:
   */
   void worker_routine();
 
-  /// A collection of worker threads
-  dynamic_array<std::thread> workers_;
-
   /// Current user tasks awaiting execution
   unbounded_blocking_mpmc_queue<task> tasks_;
+
+  /// A collection of worker threads
+  dynamic_array<std::thread> workers_;
 };
 
 static_thread_poll::static_thread_poll(std::size_t workers) {

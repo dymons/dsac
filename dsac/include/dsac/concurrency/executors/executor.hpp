@@ -19,13 +19,13 @@ public:
     \brief
         Move constructor.
   */
-  executor_base(executor_base&&) = default;
+  executor_base(executor_base&&) = delete;
 
   /*!
     \brief
         Move conversion constructor.
   */
-  executor_base& operator=(executor_base&&) = default;
+  executor_base& operator=(executor_base&&) = delete;
 
   // Destructor
 
@@ -41,13 +41,13 @@ public:
     \brief
         Copy conversion constructor.
   */
-  executor_base& operator=(const executor_base&) = default;
+  executor_base& operator=(const executor_base&) = delete;
 
   /*!
     \brief
         Copy constructor.
   */
-  executor_base(const executor_base&) = default;
+  executor_base(const executor_base&) = delete;
 
   // Modifiers
 
