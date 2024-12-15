@@ -1,5 +1,6 @@
 #include <dsac/concurrency/executors/static_thread_pool.hpp>
 
+#include <algorithm>
 #include <thread>
 
 #include <dsac/concurrency/executors/blocking_queue.hpp>
@@ -31,17 +32,13 @@ public:
   }
 
   void join() final {
-    for (auto& worker : workers_) {
-      tasks_.push({});  // Poison Pill
-    }
-    for (auto& worker : workers_) {
-      worker.join();
-    }
+    std::ranges::for_each(workers_, [this](auto const&) { tasks_.push({}); });  // Poison Pill
+    std::ranges::for_each(workers_, [](auto& worker) { worker.join(); });
     workers_.clear();
   }
 
 private:
-  void start_worker_threads(std::size_t workers) {
+  void start_worker_threads(std::size_t const workers) {
     for (auto i = std::size_t{}; i < workers; ++i) {
       workers_.emplace_back([this]() { worker_routine(); });
     }
