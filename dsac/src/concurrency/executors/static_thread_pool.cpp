@@ -83,7 +83,7 @@ void static_thread_poll::join() {
 
 }  // namespace
 
-executor_base_ref make_static_thread_pool(const std::size_t workers) {
+auto make_static_thread_pool(const std::size_t workers) -> executor_base_ref {
   return make_shared<static_thread_poll>(workers);
 }
 
