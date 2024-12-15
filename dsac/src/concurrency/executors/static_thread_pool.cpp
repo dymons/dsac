@@ -12,58 +12,51 @@ namespace dsac {
 namespace {
 
 class static_thread_poll final : public iexecutor {
-public:
-  ~static_thread_poll() final = default;
-
-  explicit static_thread_poll(std::size_t const workers);
-
-  void submit(task&& task) final;
-  void join() final;
-
 private:
-  void start_worker_threads(std::size_t workers);
-  void worker_routine();
-
   /// Current user tasks awaiting execution
   unbounded_blocking_mpmc_queue<task> tasks_;
 
   /// A collection of worker threads
   dynamic_array<std::thread> workers_;
-};
 
-static_thread_poll::static_thread_poll(std::size_t const workers) {
-  start_worker_threads(workers);
-}
+public:
+  ~static_thread_poll() final = default;
 
-void static_thread_poll::start_worker_threads(std::size_t const workers) {
-  for (auto i = std::size_t{}; i < workers; ++i) {
-    workers_.emplace_back([this]() { worker_routine(); });
+  explicit static_thread_poll(std::size_t const workers) {
+    start_worker_threads(workers);
   }
-}
 
-void static_thread_poll::worker_routine() {
-  while (true) {
-    if (auto task = tasks_.pop(); task) {
-      task();
-    } else {
-      break;
+  void submit(task&& task) final {
+    tasks_.push(std::move(task));
+  }
+
+  void join() final {
+    for (auto& worker : workers_) {
+      tasks_.push({});  // Poison Pill
+    }
+    for (auto& worker : workers_) {
+      worker.join();
+    }
+    workers_.clear();
+  }
+
+private:
+  void start_worker_threads(std::size_t workers) {
+    for (auto i = std::size_t{}; i < workers; ++i) {
+      workers_.emplace_back([this]() { worker_routine(); });
     }
   }
-}
 
-void static_thread_poll::submit(task&& task) {
-  tasks_.push(std::move(task));
-}
-
-void static_thread_poll::join() {
-  for (auto& worker : workers_) {
-    tasks_.push({});  // Poison Pill
+  void worker_routine() {
+    while (true) {
+      if (auto task = tasks_.pop(); task) {
+        task();
+      } else {
+        break;
+      }
+    }
   }
-  for (auto& worker : workers_) {
-    worker.join();
-  }
-  workers_.clear();
-}
+};
 
 }  // namespace
 
