@@ -5,7 +5,7 @@
 
 namespace dsac {
 
-class executor_base {
+class iexecutor {
 public:
   // Constructors
 
@@ -13,19 +13,19 @@ public:
     \brief
         Default constructor.
   */
-  executor_base() = default;
+  iexecutor() = default;
 
   /*!
     \brief
         Move constructor.
   */
-  executor_base(executor_base&&) = delete;
+  iexecutor(iexecutor&&) = delete;
 
   /*!
     \brief
         Move conversion constructor.
   */
-  executor_base& operator=(executor_base&&) = delete;
+  iexecutor& operator=(iexecutor&&) = delete;
 
   // Destructor
 
@@ -33,7 +33,7 @@ public:
     \brief
         Destructor.
   */
-  virtual ~executor_base() = default;
+  virtual ~iexecutor() = default;
 
   // Assignment
 
@@ -41,13 +41,13 @@ public:
     \brief
         Copy conversion constructor.
   */
-  executor_base& operator=(const executor_base&) = delete;
+  iexecutor& operator=(const iexecutor&) = delete;
 
   /*!
     \brief
         Copy constructor.
   */
-  executor_base(const executor_base&) = delete;
+  iexecutor(const iexecutor&) = delete;
 
   // Modifiers
 
@@ -63,11 +63,5 @@ public:
   */
   virtual void join() = 0;
 };
-
-/*!
-    \brief
-        The main pointer to the base class of executor object.
-  */
-using executor_base_ref = dsac::shared_ptr<executor_base>;
 
 }  // namespace dsac
