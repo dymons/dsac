@@ -6,14 +6,16 @@ namespace dsac {
 
 template <typename T>
 void unbounded_blocking_mpmc_queue<T>::push(T&& value) {
-  std::lock_guard guard(mutex_);
-  buffer_.push_back(std::forward<T>(value));
+  {
+    auto guard = std::lock_guard{mutex_};
+    buffer_.push_back(std::forward<T>(value));
+  }
   not_empty_.notify_one();
 }
 
 template <typename T>
 T unbounded_blocking_mpmc_queue<T>::pop() {
-  std::unique_lock guard(mutex_);
+  auto guard = std::unique_lock{mutex_};
   not_empty_.wait(guard, [this]() { return !buffer_.empty(); });
 
   return pop_no_lock();
