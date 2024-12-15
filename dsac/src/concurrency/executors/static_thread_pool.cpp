@@ -6,7 +6,9 @@
 
 #include <thread>
 
-namespace dsac::detail {
+namespace dsac {
+
+namespace {
 
 class static_thread_poll final : public executor_base {
 public:
@@ -79,12 +81,10 @@ void static_thread_poll::join() {
   workers_.clear();
 }
 
-}  // namespace dsac::detail
-
-namespace dsac {
+}  // namespace
 
 executor_base_ref make_static_thread_pool(std::size_t workers) {
-  return make_shared<detail::static_thread_poll>(workers);
+  return make_shared<static_thread_poll>(workers);
 }
 
 }  // namespace dsac
