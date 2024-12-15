@@ -45,12 +45,8 @@ private:
   }
 
   void worker_routine() {
-    while (true) {
-      if (auto task = tasks_.pop(); task) {
-        task();
-      } else {
-        break;
-      }
+    while (auto task = tasks_.pop()) {
+      std::move(task)();
     }
   }
 };
