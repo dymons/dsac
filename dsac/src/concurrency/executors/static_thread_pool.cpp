@@ -16,7 +16,7 @@ public:
     \brief
         User constructor, constructs a thread pool with fixed number of workers.
   */
-  explicit static_thread_poll(std::size_t workers);
+  explicit static_thread_poll(const std::size_t workers);
 
   /*!
     \brief
@@ -47,19 +47,19 @@ private:
   dynamic_array<std::thread> workers_;
 };
 
-static_thread_poll::static_thread_poll(std::size_t workers) {
+static_thread_poll::static_thread_poll(const std::size_t workers) {
   start_worker_threads(workers);
 }
 
-void static_thread_poll::start_worker_threads(std::size_t workers) {
-  for (std::size_t i{}; i < workers; ++i) {
+void static_thread_poll::start_worker_threads(const std::size_t workers) {
+  for (auto i = std::size_t{}; i < workers; ++i) {
     workers_.emplace_back([this]() { worker_routine(); });
   }
 }
 
 void static_thread_poll::worker_routine() {
   while (true) {
-    if (task task = tasks_.pop(); task) {
+    if (auto task = tasks_.pop(); task) {
       task();
     } else {
       break;
@@ -83,7 +83,7 @@ void static_thread_poll::join() {
 
 }  // namespace
 
-executor_base_ref make_static_thread_pool(std::size_t workers) {
+executor_base_ref make_static_thread_pool(const std::size_t workers) {
   return make_shared<static_thread_poll>(workers);
 }
 
