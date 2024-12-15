@@ -1,5 +1,6 @@
 #include <catch2/catch.hpp>
 
+#include <dsac/concurrency/executors/executor.hpp>
 #include <dsac/concurrency/executors/static_thread_pool.hpp>
 #include <dsac/concurrency/synchronization/semaphore.hpp>
 #include <dsac/concurrency/synchronization/unique_lock.hpp>
@@ -21,8 +22,8 @@ TEST_CASE("Implement Mutex primitive based on semaphore", "[semaphore][mutex]") 
     }
   };
 
-  constexpr std::size_t   kNumberWorkers = 4U;
-  dsac::executor_base_ref executor       = dsac::make_static_thread_pool(kNumberWorkers);
+  constexpr std::size_t kNumberWorkers = 4U;
+  auto                  executor       = dsac::make_static_thread_pool(kNumberWorkers);
 
   smutex                                mutex;
   std::size_t                           counter = 0;
@@ -59,9 +60,9 @@ TEST_CASE("Access to a shared resource of a fixed number of threads", "[semaphor
     }
   };
 
-  constexpr std::size_t   kNumberConsumers = 4U;
-  mmutex                  mutex{kNumberConsumers};
-  dsac::executor_base_ref executor = dsac::make_static_thread_pool(kNumberConsumers);
+  constexpr std::size_t kNumberConsumers = 4U;
+  mmutex                mutex{kNumberConsumers};
+  auto                  executor = dsac::make_static_thread_pool(kNumberConsumers);
 
   std::chrono::steady_clock::time_point start = std::chrono::steady_clock::now();
   for (std::size_t i{}; i < kNumberConsumers; ++i) {

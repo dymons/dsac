@@ -9446,7 +9446,7 @@ inline long Client::get_openssl_verify_result() const {
 
     void stop();
 
-    dsac::executor_base_ref new_task_queue = dsac::make_static_thread_pool(4U);
+    auto new_task_queue = dsac::make_static_thread_pool(4U);
 
   protected:
     bool process_request(

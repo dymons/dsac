@@ -26,7 +26,7 @@ namespace dsac {
     \endcode
 */
 template <typename F>
-auto async_via(executor_base_ref executor, F&& routine);
+auto async_via(shared_ptr<iexecutor> executor, F&& routine);
 
 }  // namespace dsac
 

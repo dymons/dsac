@@ -75,7 +75,7 @@ public:
     \brief
         Get the current execution environment for execution of user subscriptions. May call from any thread.
   */
-  [[nodiscard]] executor_base_ref get_executor() const;
+  [[nodiscard]] shared_ptr<iexecutor> get_executor() const;
 
   // Modifiers
 
@@ -116,7 +116,7 @@ public:
           ...
     \endcode
   */
-  void set_executor(executor_base_ref exec);
+  void set_executor(shared_ptr<iexecutor> exec);
 
   /*!
     \brief
@@ -146,7 +146,7 @@ private:
   void do_callback();
 
   /// User-specified environment for execution callback<T> from storage_
-  executor_base_ref executor_;
+  shared_ptr<iexecutor> executor_;
 
   /// Data storage space
   std::optional<result<T>> result_;

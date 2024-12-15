@@ -1,5 +1,6 @@
 #include <catch2/catch.hpp>
 
+#include <dsac/concurrency/executors/executor.hpp>
 #include <dsac/concurrency/executors/static_thread_pool.hpp>
 #include <dsac/concurrency/synchronization/barrier.hpp>
 #include <dsac/container/dynamic_array.hpp>
@@ -11,9 +12,9 @@ const auto kIsTrue = [](bool const value) { return value; };
 }  // namespace
 
 TEST_CASE("Access to a shared resource with a limited number of threads", "[barrier]") {
-  constexpr std::size_t   kNumberWorkers = 10u;
-  dsac::barrier           barrier{kNumberWorkers};
-  dsac::executor_base_ref executor = dsac::make_static_thread_pool(kNumberWorkers);
+  constexpr std::size_t kNumberWorkers = 10u;
+  dsac::barrier         barrier{kNumberWorkers};
+  auto                  executor = dsac::make_static_thread_pool(kNumberWorkers);
 
   dsac::dynamic_array<bool> arrived(kNumberWorkers, false);
   for (std::size_t i{}; i < kNumberWorkers; ++i) {

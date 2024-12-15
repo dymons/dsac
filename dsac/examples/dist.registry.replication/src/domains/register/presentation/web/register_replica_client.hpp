@@ -12,17 +12,17 @@
 namespace dsac::presentation::web {
 
 class register_replica_client : public domain::replica_base {
-  executor_base_ref executor_;
+  shared_ptr<iexecutor> executor_;
 
 protected:
-  [[nodiscard]] executor_base_ref get_executor() const noexcept {
+  [[nodiscard]] shared_ptr<iexecutor> get_executor() const noexcept {
     return executor_;
   }
 
 public:
-  using factory = ::dsac::factory<register_replica_client, executor_base_ref>;
+  using factory = ::dsac::factory<register_replica_client, shared_ptr<iexecutor>>;
 
-  explicit register_replica_client(executor_base_ref executor)
+  explicit register_replica_client(shared_ptr<iexecutor> executor)
     : executor_(std::move(executor)) {
   }
 

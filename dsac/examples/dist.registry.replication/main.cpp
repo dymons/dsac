@@ -44,7 +44,7 @@ int _main(std::span<const std::string_view> const args) {
     return -1;
   }
 
-  dsac::executor_base_ref executor = dsac::make_static_thread_pool(std::thread::hardware_concurrency());
+  auto executor = dsac::make_static_thread_pool(std::thread::hardware_concurrency());
 
   httplib::Server             server;
   std::set<std::string> const topics = controller::factory::get_registered_keys();

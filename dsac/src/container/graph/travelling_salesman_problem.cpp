@@ -1,8 +1,8 @@
 #include <dsac/container/graph/travelling_salesman_problem.hpp>
 
+#include <algorithm>
 #include <cmath>
 #include <string>
-#include <algorithm>
 
 namespace dsac::legacy_graph::tsp {
 /// Вспомогательная функция для преобразования числа из двоичной системы в

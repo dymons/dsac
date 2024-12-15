@@ -1,5 +1,6 @@
 #include <catch2/catch.hpp>
 
+#include <dsac/concurrency/executors/executor.hpp>
 #include <dsac/concurrency/executors/static_thread_pool.hpp>
 #include <dsac/concurrency/synchronization/mvar.hpp>
 
@@ -22,8 +23,8 @@ TEST_CASE("Testcases for checking safety and liveness guarantees", "[mvar]") {
   SECTION("Initializing dsac::mvar in non-main thread") {
     dsac::mvar<int> mvar;
 
-    constexpr std::size_t   kNumberWorkers = 1U;
-    dsac::executor_base_ref executor       = dsac::make_static_thread_pool(kNumberWorkers);
+    constexpr auto kNumberWorkers = 1U;
+    auto           executor       = dsac::make_static_thread_pool(kNumberWorkers);
     executor->submit([&mvar] {
       std::this_thread::sleep_for(std::chrono::milliseconds(100));
       mvar.put(10);

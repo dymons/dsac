@@ -34,7 +34,6 @@ public:
     });
 
     // Property: The depth of the directory must be equal to the maximum length of the key collision + 1
-
   }
 
   [[nodiscard]] auto size() const noexcept -> std::size_t {

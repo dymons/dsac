@@ -29,7 +29,7 @@ result<T> shared_state<T>::get_result() {
 }
 
 template <typename T>
-executor_base_ref shared_state<T>::get_executor() const {
+shared_ptr<iexecutor> shared_state<T>::get_executor() const {
   return executor_;
 }
 
@@ -61,7 +61,7 @@ void shared_state<T>::set_result(result<T>&& result) {
 }
 
 template <typename T>
-void shared_state<T>::set_executor(executor_base_ref exec) {
+void shared_state<T>::set_executor(shared_ptr<iexecutor> exec) {
   executor_ = std::move(exec);
 }
 
@@ -95,7 +95,7 @@ void shared_state<T>::do_callback() {
   assert(state_ == detail::state::done);
 
   auto data = *result_;
-  if (executor_base_ref executor = get_executor(); executor != nullptr) {
+  if (shared_ptr<iexecutor> executor = get_executor(); executor != nullptr) {
     executor->submit([callback = std::move(callback_), data = std::move(data)]() mutable {
       (*callback)(std::move(data));
     });

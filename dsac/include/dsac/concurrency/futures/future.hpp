@@ -94,7 +94,7 @@ public:
         ...
     \endcode
   */
-  future<T> via(executor_base_ref exec) &&;
+  future<T> via(shared_ptr<iexecutor> exec) &&;
 
   /*!
     \brief

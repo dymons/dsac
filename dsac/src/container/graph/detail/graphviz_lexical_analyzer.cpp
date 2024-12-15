@@ -12,7 +12,8 @@ namespace {
 const std::unordered_set<std::string_view>                           kKeywords{"graph", "digraph"};
 const std::unordered_map<char, std::unordered_set<std::string_view>> kOperators{{'-', {"--", "->"}}, {'=', {"="}}};
 const std::unordered_map<char, std::unordered_set<std::string_view>> kPunctuations{
-    {';', {";"}}, {'{', {"{"}}, {'}', {"}"}}, {'[', {"["}}, {']', {"]"}}};
+    {';', {";"}}, {'{', {"{"}}, {'}', {"}"}}, {'[', {"["}}, {']', {"]"}}
+};
 
 const std::locale                        kClassicLocale{"C"};
 const std::unordered_set<char>           kAllowedIdentifierSymbols{'_', '-'};

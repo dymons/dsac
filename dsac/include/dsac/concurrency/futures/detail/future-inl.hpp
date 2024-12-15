@@ -10,7 +10,7 @@ result<T> future<T>::get() && {
 }
 
 template <typename T>
-future<T> future<T>::via(executor_base_ref exec) && {
+future<T> future<T>::via(shared_ptr<iexecutor> exec) && {
   if (exec == nullptr) {
     throw future_no_executor{};
   }

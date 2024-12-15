@@ -11,8 +11,8 @@
 
 TEST_CASE("Checking the execution of combinators over dsac::future", "[future][combine]") {
   SECTION("Use a combinator dsac::first_of to get the first value of calculation") {
-    constexpr std::size_t   kNumberWorkers = 2U;
-    dsac::executor_base_ref executor       = dsac::make_static_thread_pool(kNumberWorkers);
+    constexpr std::size_t kNumberWorkers = 2U;
+    auto                  executor       = dsac::make_static_thread_pool(kNumberWorkers);
 
     dsac::dynamic_array<dsac::future<int>> futures;
     {
@@ -41,8 +41,8 @@ TEST_CASE("Checking the execution of combinators over dsac::future", "[future][c
     executor->join();
   }
   SECTION("Use a combinator dsac::first_n to get the first N value of calculation") {
-    constexpr std::size_t   kNumberWorkers = 2U;
-    dsac::executor_base_ref executor       = dsac::make_static_thread_pool(kNumberWorkers);
+    constexpr std::size_t kNumberWorkers = 2U;
+    auto                  executor       = dsac::make_static_thread_pool(kNumberWorkers);
 
     constexpr std::size_t                          kNumberOfTasks = 10U;
     dsac::dynamic_array<dsac::future<std::size_t>> futures;

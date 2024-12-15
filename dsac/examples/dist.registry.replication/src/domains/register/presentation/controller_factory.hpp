@@ -8,17 +8,17 @@
 namespace dsac::presentation {
 
 class controller {
-  executor_base_ref executor_;
+  shared_ptr<iexecutor> executor_;
 
 protected:
-  [[nodiscard]] executor_base_ref get_executor() const noexcept {
+  [[nodiscard]] shared_ptr<iexecutor> get_executor() const noexcept {
     return executor_;
   }
 
 public:
-  using factory = ::dsac::factory<controller, executor_base_ref>;
+  using factory = ::dsac::factory<controller, shared_ptr<iexecutor>>;
 
-  explicit controller(executor_base_ref executor)
+  explicit controller(shared_ptr<iexecutor> executor)
     : executor_(std::move(executor)) {
   }
 

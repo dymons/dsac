@@ -17,8 +17,8 @@ TEST_CASE("Execution in various scenarios", "[future][dataflow]") {
     REQUIRE(value.value_or_throw() == 10);
   }
   SECTION("Initialization promise object in non-main thread") {
-    constexpr std::size_t   kNumberWorkers = 2U;
-    dsac::executor_base_ref executor       = dsac::make_static_thread_pool(kNumberWorkers);
+    constexpr std::size_t kNumberWorkers = 2U;
+    auto                  executor       = dsac::make_static_thread_pool(kNumberWorkers);
 
     dsac::promise<int> promise;
     dsac::future<int>  future = promise.make_future();
@@ -50,9 +50,9 @@ TEST_CASE("Execution in various scenarios", "[future][dataflow]") {
     dsac::result<bool> result = std::move(future).get();
     REQUIRE(result.value_or_throw());
   }
-  SECTION("Executing a deferred user handler via executor dsac::executor_base_ref") {
-    constexpr std::size_t   kNumberWorkers = 2U;
-    dsac::executor_base_ref executor       = dsac::make_static_thread_pool(kNumberWorkers);
+  SECTION("Executing a deferred user handler via executor auto") {
+    constexpr std::size_t kNumberWorkers = 2U;
+    auto                  executor       = dsac::make_static_thread_pool(kNumberWorkers);
 
     std::thread::id const main_thread_id = std::this_thread::get_id();
 
@@ -98,8 +98,8 @@ TEST_CASE("Execution in various scenarios", "[future][dataflow]") {
     REQUIRE(result.value_or_throw() == 35);
   }
   SECTION("Execution of fluent interface in a non-main thread") {
-    constexpr std::size_t   kNumberWorkers = 2U;
-    dsac::executor_base_ref executor       = dsac::make_static_thread_pool(kNumberWorkers);
+    constexpr std::size_t kNumberWorkers = 2U;
+    auto                  executor       = dsac::make_static_thread_pool(kNumberWorkers);
 
     std::thread::id const main_thread_id = std::this_thread::get_id();
 
