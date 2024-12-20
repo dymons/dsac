@@ -14,7 +14,7 @@ void unbounded_blocking_mpmc_queue<T>::push(T&& value) {
 }
 
 template <typename T>
-T unbounded_blocking_mpmc_queue<T>::pop() {
+auto unbounded_blocking_mpmc_queue<T>::pop() -> T {
   auto guard = std::unique_lock{mutex_};
   not_empty_.wait(guard, [this]() { return !buffer_.empty(); });
 
@@ -22,8 +22,8 @@ T unbounded_blocking_mpmc_queue<T>::pop() {
 }
 
 template <typename T>
-T unbounded_blocking_mpmc_queue<T>::pop_no_lock() {
-  T data = std::move(buffer_.front());
+auto unbounded_blocking_mpmc_queue<T>::pop_no_lock() -> T {
+  auto data = std::move(buffer_.front());
   buffer_.pop_front();
   return data;
 }

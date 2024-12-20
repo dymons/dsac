@@ -11,24 +11,12 @@ class unbounded_blocking_mpmc_queue final {
 public:
   // Modifiers
 
-  /*!
-    \brief
-        Add a new object to the end of the queue.
-  */
   void push(T&& value);
 
-  /*!
-    \brief
-        Extract the earliest object from the queue.
-  */
-  [[nodiscard]] T pop();
+  [[nodiscard]] auto pop() -> T;
 
 private:
-  /*!
-    \brief
-        Extract the earliest object from the queue in unsafe mode (without blocking).
-  */
-  T pop_no_lock();
+  [[nodiscard]] auto pop_no_lock() -> T;
 
   /// Provides exclusive access of modifying functions to the buffer_
   std::mutex    mutex_;
