@@ -39,6 +39,7 @@ public:
 
 private:
   void start_worker_threads(std::size_t const workers) {
+    workers_.reserve(workers);
     for (auto i = std::size_t{}; i < workers; ++i) {
       workers_.emplace_back([this]() { worker_routine(); });
     }
